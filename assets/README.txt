@@ -1,0 +1,1 @@
+This is a placeholder for 02_PotOfGold_AppAssets
