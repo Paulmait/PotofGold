@@ -12,6 +12,7 @@ interface FallingItem {
   y: number;
   width: number;
   height: number;
+  collected: boolean;
 }
 
 interface MineCart {
@@ -26,16 +27,18 @@ export class CollisionDetection {
    * Check if a falling item collides with the mine cart
    */
   static checkItemCollision(item: FallingItem, cart: MineCart): boolean {
+    if (item.collected) return false;
+
     // Create collision boxes
     const itemBox: CollisionBox = {
-      x: item.x,
+      x: item.x - (item.width || 30) / 2,
       y: item.y,
       width: item.width || 30,
       height: item.height || 30,
     };
 
     const cartBox: CollisionBox = {
-      x: cart.x - cart.width / 2, // Center the cart
+      x: cart.x - cart.width / 2,
       y: cart.y,
       width: cart.width,
       height: cart.height,
@@ -85,7 +88,45 @@ export class CollisionDetection {
    */
   static getMagnetAffectedItems(items: FallingItem[], cart: MineCart, range: number = 100): string[] {
     return items
-      .filter(item => this.checkMagnetRange(item, cart, range))
+      .filter(item => !item.collected && this.checkMagnetRange(item, cart, range))
       .map(item => item.id);
+  }
+
+  /**
+   * Get items within explosion radius
+   */
+  static getExplosionAffectedItems(items: FallingItem[], cart: MineCart, radius: number = 150): string[] {
+    return items
+      .filter(item => !item.collected && Math.abs(item.x - cart.x) <= radius)
+      .map(item => item.id);
+  }
+
+  /**
+   * Check if item is falling within cart's vertical range
+   */
+  static isItemInCartRange(item: FallingItem, cart: MineCart): boolean {
+    const cartTop = cart.y;
+    const cartBottom = cart.y + cart.height;
+    const itemBottom = item.y + (item.height || 30);
+    
+    return itemBottom >= cartTop && item.y <= cartBottom;
+  }
+
+  /**
+   * Get collision priority for different item types
+   */
+  static getCollisionPriority(itemType: string): number {
+    const priorities: { [key: string]: number } = {
+      'luckyStar': 10,    // Highest priority
+      'gemstone': 9,
+      'dynamite': 8,
+      'magnet': 7,
+      'lightning': 6,
+      'moneyBag': 5,
+      'coin': 4,
+      'blackRock': 3,     // Lowest priority
+    };
+    
+    return priorities[itemType] || 1;
   }
 } 

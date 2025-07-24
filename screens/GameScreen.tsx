@@ -25,6 +25,9 @@ import MineCart from '../components/MineCart';
 import RailTrack from '../components/RailTrack';
 import FallingItems from '../components/FallingItems';
 import { CollisionDetection } from '../utils/collisionDetection';
+import { ITEM_CONFIGS, LEVEL_SPAWN_MODIFIERS } from '../utils/itemConfig';
+import { ComboSystem } from '../utils/comboSystem';
+import { CollisionHandler } from '../utils/collisionHandler';
 
 const { width, height } = Dimensions.get('window');
 
@@ -78,9 +81,56 @@ export default function GameScreen({ navigation }: GameScreenProps) {
   const [fallingItems, setFallingItems] = useState<any[]>([]);
   const [isCartMoving, setIsCartMoving] = useState(false);
 
+  // Combo system
+  const comboSystem = useRef(new ComboSystem()).current;
+  const [comboDisplay, setComboDisplay] = useState('');
+  const [comboMultiplier, setComboMultiplier] = useState(1);
+
+  // Collision handler
+  const collisionHandler = useRef<CollisionHandler | null>(null);
+  const [lives, setLives] = useState(3);
+  const [activePowerUps, setActivePowerUps] = useState<Map<string, number>>(new Map());
+
   // Initialize game
   useEffect(() => {
     initializeGame();
+  }, []);
+
+  // Initialize collision handler
+  useEffect(() => {
+    collisionHandler.current = new CollisionHandler({
+      onScoreChange: (scoreChange) => {
+        setScore(prev => prev + scoreChange);
+      },
+      onCoinChange: (coinChange) => {
+        setCoins(prev => prev + coinChange);
+      },
+      onLifeChange: (lifeChange) => {
+        setLives(prev => Math.max(0, prev + lifeChange));
+      },
+      onPowerUpActivate: (type, duration) => {
+        const endTime = Date.now() + duration;
+        setActivePowerUps(prev => new Map(prev.set(type, endTime)));
+        setPowerUpsUsed(prev => prev + 1);
+      },
+      onItemCollect: (itemId) => {
+        setFallingItems(prev => prev.map(item => 
+          item.id === itemId ? { ...item, collected: true } : item
+        ));
+      },
+      onComboUpdate: (combo, multiplier) => {
+        setCombo(combo);
+        setComboMultiplier(multiplier);
+      },
+      onAchievement: (achievement) => {
+        console.log(`Achievement: ${achievement}`);
+        // Could show achievement notification here
+      },
+      onSoundPlay: (soundEffect) => {
+        console.log(`Playing sound: ${soundEffect}`);
+        // Could play sound effect here
+      },
+    });
   }, []);
 
   const initializeGame = async () => {
@@ -152,79 +202,141 @@ export default function GameScreen({ navigation }: GameScreenProps) {
     }, 2000);
   };
 
-  // Handle pot movement (only when not paused)
+  // Handle mine cart movement (only when not paused)
   const onPanGestureEvent = (event: any) => {
     if (!isGameActive || isPaused) return;
 
     const { translationX } = event.nativeEvent;
     const newPosition = potPosition + translationX * potSpeed;
     
-    // Keep pot within screen bounds
-    const clampedPosition = Math.max(potSize / 2, Math.min(width - potSize / 2, newPosition));
+    // Clamp cart position to stay within screen bounds
+    const cartWidth = potSize;
+    const minPosition = cartWidth / 2;
+    const maxPosition = width - cartWidth / 2;
+    const clampedPosition = Math.max(minPosition, Math.min(maxPosition, newPosition));
+    
     setPotPosition(clampedPosition);
     setIsCartMoving(Math.abs(translationX) > 5);
 
-    // Animate pot movement
+    // Animate cart movement
     Animated.spring(potAnimation, {
       toValue: clampedPosition,
       useNativeDriver: false,
     }).start();
   };
 
-  // Handle falling items collection
-  const onItemCollect = (itemId: string) => {
-    const item = fallingItems.find(item => item.id === itemId);
-    if (item) {
-      // Mark item as collected
-      setFallingItems(prev => prev.map(item => 
-        item.id === itemId ? { ...item, collected: true } : item
-      ));
+  // Handle falling items collection with proper hitbox detection
+  const checkCollisions = () => {
+    if (!collisionHandler.current || !isGameActive || isPaused) return;
 
-      // Handle different item types
-      switch (item.type) {
-        case 'coin':
-          setCoins(prev => prev + 1);
-          setScore(prev => prev + 10);
-          break;
-        case 'star':
-          setCoins(prev => prev + 2);
-          setScore(prev => prev + 25);
-          break;
-        case 'lightning':
-          activateTurboBoost();
-          setPowerUpsUsed(prev => prev + 1);
-          break;
-        case 'magnet':
-          // Magnet effect - collect nearby items
-          setFallingItems(prev => prev.map(item => 
-            Math.abs(item.x - potPosition) < 100 ? { ...item, collected: true } : item
-          ));
-          break;
+    const cart = {
+      x: potPosition,
+      y: height - 100, // Cart position at bottom
+      width: potSize,
+      height: potSize * 0.67, // Cart height
+    };
+
+    // Check each falling item for collision
+    fallingItems.forEach(item => {
+      if (item.collected) return;
+
+      const itemBox = {
+        x: item.x - 15, // Center the item
+        y: item.y,
+        width: 30,
+        height: 30,
+      };
+
+      // Check if item is in cart's vertical range
+      if (CollisionDetection.isItemInCartRange(item, cart)) {
+        // Check for collision
+        if (CollisionDetection.checkItemCollision(item, cart)) {
+          // Handle collision based on item type
+          collisionHandler.current?.handleItemCollision(item.type, item.id);
+        }
       }
-    }
+    });
   };
+
+  // Update collision detection on every frame
+  useEffect(() => {
+    if (!isGameActive) return;
+
+    const collisionInterval = setInterval(checkCollisions, 16); // ~60fps
+
+    return () => clearInterval(collisionInterval);
+  }, [isGameActive, isPaused, fallingItems, potPosition, potSize]);
+
+  // Update power-ups
+  useEffect(() => {
+    if (!isGameActive) return;
+
+    const powerUpInterval = setInterval(() => {
+      collisionHandler.current?.updatePowerUps(16);
+      setActivePowerUps(new Map(collisionHandler.current?.getActivePowerUps() || []));
+    }, 16);
+
+    return () => clearInterval(powerUpInterval);
+  }, [isGameActive]);
 
   // Spawn falling items
   const spawnFallingItem = () => {
-    const itemTypes = ['coin', 'star', 'lightning', 'magnet'];
-    const randomType = itemTypes[Math.floor(Math.random() * itemTypes.length)];
+    // Get current level for spawn modifiers
+    const currentLevel = progressionSystem.getCurrentLevel();
+    const level = currentLevel?.level || 1;
+    
+    // Get level spawn modifiers
+    const levelModifiers = LEVEL_SPAWN_MODIFIERS[level] || LEVEL_SPAWN_MODIFIERS[1];
+    
+    // Create weighted item list based on level
+    const weightedItems: Array<{ type: string; weight: number; config: any }> = [];
+    
+    Object.entries(ITEM_CONFIGS).forEach(([type, config]) => {
+      const rarity = config.rarity;
+      const levelModifier = levelModifiers[rarity] || 1;
+      const adjustedWeight = config.spawnWeight * levelModifier;
+      
+      if (adjustedWeight > 0) {
+        weightedItems.push({
+          type,
+          weight: adjustedWeight,
+          config,
+        });
+      }
+    });
+    
+    // Weighted random selection
+    const totalWeight = weightedItems.reduce((sum, item) => sum + item.weight, 0);
+    let random = Math.random() * totalWeight;
+    
+    let selectedItem = weightedItems[0];
+    for (const item of weightedItems) {
+      random -= item.weight;
+      if (random <= 0) {
+        selectedItem = item;
+        break;
+      }
+    }
+    
     const randomX = Math.random() * (width - 60) + 30;
     
     const newItem = {
       id: `item_${Date.now()}_${Math.random()}`,
-      type: randomType,
+      type: selectedItem.type,
       x: randomX,
       y: -50,
-      speed: 1 + Math.random() * 2,
+      speed: selectedItem.config.fallSpeed,
       collected: false,
+      rarity: selectedItem.config.rarity,
     };
 
     setFallingItems(prev => [...prev, newItem]);
 
-    // Remove item after it falls off screen
+    // Remove item after it falls off screen (adjusted for fall speed)
+    const fallDuration = (height + 50) / (selectedItem.config.fallSpeed * 100) * 1000;
     setTimeout(() => {
       setFallingItems(prev => prev.filter(item => item.id !== newItem.id));
-    }, 5000);
+    }, fallDuration);
   };
 
   // Collect coin
@@ -264,44 +376,51 @@ export default function GameScreen({ navigation }: GameScreenProps) {
     }, 5000); // 5 seconds
   };
 
-  // Game over
+  // Check for game over conditions
+  useEffect(() => {
+    if (lives <= 0 && isGameActive) {
+      endGame();
+    }
+  }, [lives, isGameActive]);
+
+  // End game
   const endGame = async () => {
     setIsGameActive(false);
+    setShowGameOver(true);
     
-    // Clear timers
+    // Clear all timers
     if (gameTimer.current) clearInterval(gameTimer.current);
     if (boostTimer.current) clearInterval(boostTimer.current);
     if (coinSpawnTimer.current) clearInterval(coinSpawnTimer.current);
     if (obstacleTimer.current) clearInterval(obstacleTimer.current);
 
-    // Complete game session
-    const gameData = {
-      score,
-      coinsCollected: coins,
-      timeSurvived,
-      obstaclesAvoided,
-      comboAchieved: combo,
-      powerUpsUsed,
-      accuracy: Math.min(100, (coins / Math.max(timeSurvived, 1)) * 100),
-    };
-
+    // Save game results
     try {
-      const results = await masterGameManager.completeGameSession(gameData);
-      setShowRewards(true);
+      const userId = 'player_1'; // In real app, get from auth
+      await masterGameManager.saveGameResults(userId, {
+        score,
+        coins,
+        timeSurvived,
+        combo,
+        obstaclesAvoided,
+        powerUpsUsed,
+        lives,
+      });
+
+      // Update progression
+      await progressionSystem.updateProgress(score, coins);
       
-      // Show results
-      Alert.alert(
-        'Game Over!',
-        `Score: ${score}\nCoins: ${coins}\nTime: ${timeSurvived}s\nCombo: ${combo}`,
-        [
-          {
-            text: 'Continue',
-            onPress: () => setShowGameOver(false),
-          },
-        ]
-      );
+      // Check for achievements
+      await skillMechanicsSystem.checkAchievements(score, combo);
+      
+      // Update daily streak
+      await dailyStreakSystem.updateStreak();
+      
+      // Check for mission completion
+      await missionSystem.checkMissionCompletion(score, coins, combo);
+      
     } catch (error) {
-      console.log('Error completing game session:', error);
+      console.log('Error saving game results:', error);
     }
   };
 
@@ -396,6 +515,17 @@ export default function GameScreen({ navigation }: GameScreenProps) {
     navigation.navigate('SeasonPass');
   };
 
+  // Helper function for power-up icons
+  const getPowerUpIcon = (type: string): string => {
+    const icons: { [key: string]: string } = {
+      speedBoost: '⚡',
+      magnetPull: '🧲',
+      explosion: '💥',
+      frenzyMode: '🌟',
+    };
+    return icons[type] || '✨';
+  };
+
   return (
     <View style={styles.container}>
       {/* Game Area */}
@@ -413,12 +543,35 @@ export default function GameScreen({ navigation }: GameScreenProps) {
           <Text style={styles.scoreText}>Score: {score}</Text>
           <Text style={styles.coinText}>Coins: {coins}</Text>
           <Text style={styles.timeText}>Time: {timeSurvived}s</Text>
+          <Text style={styles.livesText}>Lives: {'❤️'.repeat(lives)}</Text>
         </View>
 
+        {/* Power-up Indicators */}
+        {activePowerUps.size > 0 && (
+          <View style={styles.powerUpContainer}>
+            {Array.from(activePowerUps.entries()).map(([type, endTime]) => {
+              const timeLeft = Math.max(0, endTime - Date.now());
+              const progress = (timeLeft / 5000) * 100; // 5 second duration
+              
+              return (
+                <View key={type} style={styles.powerUpIndicator}>
+                  <Text style={styles.powerUpText}>{getPowerUpIcon(type)}</Text>
+                  <View style={styles.powerUpBar}>
+                    <View style={[styles.powerUpProgress, { width: `${progress}%` }]} />
+                  </View>
+                </View>
+              );
+            })}
+          </View>
+        )}
+
         {/* Combo Display */}
-        {combo > 0 && (
+        {comboDisplay && (
           <Animated.View style={[styles.comboContainer, { opacity: comboAnimation }]}>
-            <Text style={styles.comboText}>Combo: {combo}x</Text>
+            <Text style={styles.comboText}>{comboDisplay}</Text>
+            {comboMultiplier > 1 && (
+              <Text style={styles.comboMultiplierText}>x{comboMultiplier.toFixed(1)}</Text>
+            )}
           </Animated.View>
         )}
 
@@ -568,6 +721,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  livesText: {
+    color: '#FF6B6B',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
   comboContainer: {
     position: 'absolute',
     top: 100,
@@ -580,6 +738,11 @@ const styles = StyleSheet.create({
   comboText: {
     color: 'white',
     fontSize: 16,
+    fontWeight: 'bold',
+  },
+  comboMultiplierText: {
+    color: 'white',
+    fontSize: 14,
     fontWeight: 'bold',
   },
   boostContainer: {
@@ -749,5 +912,32 @@ const styles = StyleSheet.create({
   },
   pauseButtonText: {
     fontSize: 24,
+  },
+  powerUpContainer: {
+    position: 'absolute',
+    top: 200,
+    left: 20,
+    zIndex: 10,
+  },
+  powerUpIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 2,
+  },
+  powerUpText: {
+    fontSize: 20,
+    marginRight: 8,
+  },
+  powerUpBar: {
+    width: 60,
+    height: 8,
+    backgroundColor: '#333',
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
+  powerUpProgress: {
+    height: '100%',
+    backgroundColor: '#00FF00',
+    borderRadius: 4,
   },
 }); 
