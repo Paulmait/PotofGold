@@ -39,6 +39,9 @@ import { db } from '../firebase/firebase';
 import { auth } from '../firebase/auth';
 import { FirebaseUnlockSystem } from '../utils/firebaseUnlockSystem';
 import { UnlockManager, UserData, SkinConfig } from '../utils/unlockManager';
+import { useUserUnlocks } from '../context/UserUnlockContext';
+import { MysterySkinSystem } from '../utils/mysterySkinSystem';
+import MysteryCrate from '../components/MysteryCrate';
 
 const { width, height } = Dimensions.get('window');
 
@@ -47,28 +50,46 @@ interface GameScreenProps {
 }
 
 export default function GameScreen({ navigation }: GameScreenProps) {
+  const { isSkinUnlocked, getSelectedCartSkin, unlockSkin } = useUserUnlocks();
+  
   // Game state
-  const [gameState, setGameState] = useState<any>(null);
   const [isGameActive, setIsGameActive] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
   const [score, setScore] = useState(0);
   const [coins, setCoins] = useState(0);
+  const [level, setLevel] = useState(1);
   const [timeSurvived, setTimeSurvived] = useState(0);
   const [combo, setCombo] = useState(0);
-  const [obstaclesAvoided, setObstaclesAvoided] = useState(0);
-  const [powerUpsUsed, setPowerUpsUsed] = useState(0);
-  const [level, setLevel] = useState(1);
+  const [potPosition, setPotPosition] = useState(width / 2);
+  const [potSize, setPotSize] = useState(80);
+  const [isCartMoving, setIsCartMoving] = useState(false);
+  const [fallingItems, setFallingItems] = useState<any[]>([]);
+  const [turboBoost, setTurboBoost] = useState(false);
+  const [showGameOver, setShowGameOver] = useState(false);
+  const [showPauseMenu, setShowPauseMenu] = useState(false);
+  const [showUnlockNotification, setShowUnlockNotification] = useState(false);
+  const [currentUnlock, setCurrentUnlock] = useState<any>(null);
+  const [showMysteryCrate, setShowMysteryCrate] = useState(false);
+  const [mysteryCrate, setMysteryCrate] = useState<any>(null);
+
+  // Get selected cart skin from context
+  const selectedSkinId = getSelectedCartSkin();
+  const [activeSkin, setActiveSkin] = useState<any>(null);
+
+  // Load active skin data when selected skin changes
+  useEffect(() => {
+    if (selectedSkinId) {
+      loadSkinData(selectedSkinId);
+    } else {
+      setActiveSkin(null);
+    }
+  }, [selectedSkinId]);
 
   // Pot mechanics
   const [potSpeed, setPotSpeed] = useState(0.5); // Slow by default
-  const [turboBoost, setTurboBoost] = useState(false);
   const [boostBar, setBoostBar] = useState(0);
-  const [potPosition, setPotPosition] = useState(width / 2);
-  const [potSize, setPotSize] = useState(60);
 
   // UI state
-  const [showPauseMenu, setShowPauseMenu] = useState(false);
-  const [showGameOver, setShowGameOver] = useState(false);
-  const [showRewards, setShowRewards] = useState(false);
   const [currentSkin, setCurrentSkin] = useState('default_pot');
 
   // Animations
@@ -84,7 +105,6 @@ export default function GameScreen({ navigation }: GameScreenProps) {
   const obstacleTimer = useRef<NodeJS.Timeout | null>(null);
 
   // Pause state
-  const [isPaused, setIsPaused] = useState(false);
   const [pauseTrigger, setPauseTrigger] = useState<any>(null);
   const [pauseActions, setPauseActions] = useState<any>(null);
   const [pauseMonetization, setPauseMonetization] = useState<any>(null);
@@ -570,11 +590,11 @@ export default function GameScreen({ navigation }: GameScreenProps) {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   };
 
-  // Enhanced unlock checking with UnlockManager
+  // Enhanced unlock checking with UserUnlockContext
   const checkForUnlocks = async (conditionType: string, value: number) => {
     try {
       // Create user data object for UnlockManager
-      const userData: UserData = {
+      const userData = {
         level,
         score,
         coins,
@@ -586,7 +606,7 @@ export default function GameScreen({ navigation }: GameScreenProps) {
       };
 
       // Get all skin configs (in a real app, this would load from config file)
-      const skinConfigs: SkinConfig[] = [
+      const skinConfigs = [
         {
           id: 'texas',
           name: 'Lone Star Cart',
@@ -614,14 +634,18 @@ export default function GameScreen({ navigation }: GameScreenProps) {
         // Add more skin configs as needed
       ];
 
-      // Check all unlocks using UnlockManager
-      const newlyUnlocked = await UnlockManager.checkAllUnlocks(userData, skinConfigs);
-      
-      // Show notifications for newly unlocked skins
-      for (const skinId of newlyUnlocked) {
-        const skinConfig = skinConfigs.find(s => s.id === skinId);
-        if (skinConfig) {
-          showUnlockNotification(skinConfig.name, skinConfig.type);
+      // Check each skin config
+      for (const skinConfig of skinConfigs) {
+        // Skip if already unlocked
+        if (isSkinUnlocked(skinConfig.id)) continue;
+
+        // Check if condition is met
+        if (UnlockManager.checkUnlockConditions(userData, skinConfig)) {
+          // Unlock the skin using context
+          const success = await unlockSkin(skinConfig.id);
+          if (success) {
+            showUnlockNotification(skinConfig.name, skinConfig.type);
+          }
         }
       }
     } catch (error) {
@@ -751,6 +775,15 @@ export default function GameScreen({ navigation }: GameScreenProps) {
     await checkForUnlocks('score', score);
     await checkForUnlocks('coins', coins);
     await checkForUnlocks('level', level);
+
+    // Check for mystery skin unlock
+    if (MysterySkinSystem.shouldUnlockMysterySkin()) {
+      const crate = await MysterySkinSystem.unlockMysterySkin();
+      if (crate) {
+        setMysteryCrate(crate);
+        setShowMysteryCrate(true);
+      }
+    }
 
     // Generate mystery crate if score is high enough
     if (score > 500) {
@@ -1174,6 +1207,16 @@ export default function GameScreen({ navigation }: GameScreenProps) {
             }}
           />
         )}
+        {/* Mystery Crate Modal */}
+        <MysteryCrate
+          visible={showMysteryCrate}
+          crate={mysteryCrate}
+          onClose={() => setShowMysteryCrate(false)}
+          onClaim={() => {
+            setShowMysteryCrate(false);
+            setMysteryCrate(null);
+          }}
+        />
       </View>
 
       {/* Game Controls */}

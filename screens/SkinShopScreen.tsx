@@ -16,6 +16,7 @@ import { FirebaseUnlockSystem, UserUnlocks } from '../utils/firebaseUnlockSystem
 import { auth } from '../firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { UnlockManager } from '../utils/unlockManager';
+import { useUserUnlocks } from '../context/UserUnlockContext';
 
 const { width, height } = Dimensions.get('window');
 
@@ -38,26 +39,33 @@ interface SkinShopScreenProps {
 }
 
 export default function SkinShopScreen({ navigation }: SkinShopScreenProps) {
+  const { 
+    isSkinUnlocked, 
+    getSelectedCartSkin, 
+    selectCartSkin, 
+    isSeasonalSkinAvailable,
+    isLoading 
+  } = useUserUnlocks();
+
   const [stateSkins, setStateSkins] = useState<{ [key: string]: StateSkin }>({});
-  const [unlockedSkins, setUnlockedSkins] = useState<UserUnlocks>({});
-  const [selectedSkin, setSelectedSkin] = useState<string | null>(null);
-  const [filter, setFilter] = useState<'all' | 'flag' | 'shape' | 'trail'>('all');
+  const [filter, setFilter] = useState<'all' | 'flag' | 'shape' | 'trail' | 'seasonal'>('all');
   const [previewSkin, setPreviewSkin] = useState<StateSkin | null>(null);
-  const [loading, setLoading] = useState(true);
+
+  const selectedSkinId = getSelectedCartSkin();
 
   useEffect(() => {
     loadStateSkins();
-    loadUnlockedSkins();
   }, []);
 
   const loadStateSkins = async () => {
     try {
-      // In a real app, load from the JSON file
+      // In a real app, load from the config file
       const skins = {
         california: {
-          name: "California Gold",
+          name: "Golden Bear Flag",
           type: "flag",
-          unlock: "Score 1000 coins",
+          unlock: "Collect 1,000 coins",
+          rarity: "rare",
           asset: "flags/california_flag.png",
           description: "Golden state flag with bear emblem",
           theme: {
@@ -69,7 +77,8 @@ export default function SkinShopScreen({ navigation }: SkinShopScreenProps) {
         texas: {
           name: "Lone Star Cart",
           type: "shape",
-          unlock: "Reach Level 7",
+          unlock: "Reach Level 5",
+          rarity: "common",
           asset: "shapes/texas_shape.png",
           description: "Texas state outline with lone star",
           theme: {
@@ -122,44 +131,22 @@ export default function SkinShopScreen({ navigation }: SkinShopScreenProps) {
     }
   };
 
-  const loadUnlockedSkins = async () => {
-    try {
-      setLoading(true);
-      const unlocks = await FirebaseUnlockSystem.getUnlocks();
-      setUnlockedSkins(unlocks);
-    } catch (error) {
-      console.error('Error loading unlocked skins:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const isSkinUnlocked = (skinId: string): boolean => {
-    return !!unlockedSkins[skinId];
-  };
-
   const handleSkinSelect = async (skinId: string) => {
     if (isSkinUnlocked(skinId)) {
       // Haptic feedback for skin selection
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
       
-      setSelectedSkin(skinId);
       setPreviewSkin(stateSkins[skinId]);
       
-      // Save selected skin to Firebase
-      await FirebaseUnlockSystem.saveSelectedSkin(skinId);
-      
-      // Save to local storage for immediate use
-      await AsyncStorage.setItem('activeSkin', JSON.stringify({
-        id: skinId,
-        ...stateSkins[skinId]
-      }));
-      
-      Alert.alert(
-        'Skin Equipped!',
-        `${stateSkins[skinId].name} is now your active skin.`,
-        [{ text: 'OK' }]
-      );
+      // Select the skin using context
+      const success = await selectCartSkin(skinId);
+      if (success) {
+        Alert.alert(
+          'Skin Equipped!',
+          `${stateSkins[skinId].name} is now your active skin.`,
+          [{ text: 'OK' }]
+        );
+      }
     } else {
       // Haptic feedback for locked skin
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -195,15 +182,36 @@ export default function SkinShopScreen({ navigation }: SkinShopScreenProps) {
   };
 
   const getFilteredSkins = () => {
-    return Object.entries(stateSkins).filter(([id, skin]) => {
-      if (filter === 'all') return true;
+    const allSkins = Object.entries(stateSkins);
+    
+    if (filter === 'all') {
+      return allSkins;
+    }
+    
+    return allSkins.filter(([id, skin]) => {
+      if (filter === 'seasonal') {
+        return skin.rarity === 'seasonal';
+      }
       return skin.type === filter;
     });
   };
 
+  const getSeasonalSkins = () => {
+    return Object.entries(stateSkins).filter(([id, skin]) => 
+      skin.rarity === 'seasonal'
+    );
+  };
+
+  const getRegularSkins = () => {
+    return Object.entries(stateSkins).filter(([id, skin]) => 
+      skin.rarity !== 'seasonal'
+    );
+  };
+
   const renderSkinCard = ([skinId, skin]: [string, StateSkin]) => {
     const isUnlocked = isSkinUnlocked(skinId);
-    const isSelected = selectedSkin === skinId;
+    const isSelected = selectedSkinId === skinId;
+    const isSeasonal = isSeasonalSkinAvailable(skinId);
 
     return (
       <TouchableOpacity
@@ -225,6 +233,11 @@ export default function SkinShopScreen({ navigation }: SkinShopScreenProps) {
         }}
         activeOpacity={0.7}
       >
+        {/* Rarity Badge */}
+        <View style={[styles.rarityBadge, { backgroundColor: getRarityColor(skin.rarity) }]}>
+          <Text style={styles.rarityBadgeText}>{skin.rarity?.toUpperCase() || 'COMMON'}</Text>
+        </View>
+
         <View style={styles.skinHeader}>
           <Text style={[styles.skinName, { color: isUnlocked ? '#FFFFFF' : '#666666' }]}>
             {skin.name}
@@ -273,12 +286,7 @@ export default function SkinShopScreen({ navigation }: SkinShopScreenProps) {
           <Text style={[styles.unlockRequirement, { color: isUnlocked ? '#CCCCCC' : '#FF6B6B' }]}>
             {isUnlocked ? '✓ Unlocked' : skin.unlock}
           </Text>
-          {skin.rarity && (
-            <Text style={[styles.rarityText, { color: getRarityColor(skin.rarity) }]}>
-              {skin.rarity.toUpperCase()}
-            </Text>
-          )}
-          {isSeasonalSkin(skinId) && (
+          {isSeasonal && (
             <View style={styles.seasonalIndicator}>
               <Text style={styles.seasonalText}>🎉 SEASONAL</Text>
             </View>
@@ -384,6 +392,14 @@ export default function SkinShopScreen({ navigation }: SkinShopScreenProps) {
             Trails
           </Text>
         </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.filterButton, filter === 'seasonal' && styles.filterActive]}
+          onPress={() => setFilter('seasonal')}
+        >
+          <Text style={[styles.filterText, filter === 'seasonal' && styles.filterTextActive]}>
+            Seasonal
+          </Text>
+        </TouchableOpacity>
       </View>
 
       {/* Preview Section */}
@@ -469,6 +485,20 @@ const styles = StyleSheet.create({
     padding: 15,
     borderWidth: 1,
     borderColor: '#333333',
+  },
+  rarityBadge: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 10,
+    zIndex: 10,
+  },
+  rarityBadgeText: {
+    fontSize: 8,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
   },
   skinHeader: {
     flexDirection: 'row',

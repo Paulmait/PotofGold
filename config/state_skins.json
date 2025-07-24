@@ -648,5 +648,172 @@
       "secondaryColor": "#F59E0B",
       "accentColor": "#1E3A8A"
     }
+  },
+  "georgia_bhm": {
+    "name": "Black History Trail (GA)",
+    "type": "trail",
+    "rarity": "seasonal",
+    "season": "black_history_month",
+    "unlock": "Play during February",
+    "asset": "trails/bhm_georgia_trail.png",
+    "available": true,
+    "description": "Special Black History Month trail for Georgia",
+    "theme": {
+      "primaryColor": "#1E3A8A",
+      "secondaryColor": "#EF4444",
+      "accentColor": "#F59E0B"
+    }
+  },
+  "texas_hispanic": {
+    "name": "Hispanic Heritage Cart (TX)",
+    "type": "flag",
+    "rarity": "seasonal",
+    "season": "hispanic_heritage",
+    "unlock": "Login during Hispanic Heritage Month",
+    "asset": "flags/texas_hispanic_flag.png",
+    "available": true,
+    "description": "Special Hispanic Heritage flag for Texas",
+    "theme": {
+      "primaryColor": "#F59E0B",
+      "secondaryColor": "#EF4444",
+      "accentColor": "#1E3A8A"
+    }
+  },
+  "california_hispanic": {
+    "name": "Golden Latin Flame (CA)",
+    "type": "trail",
+    "rarity": "seasonal",
+    "season": "hispanic_heritage",
+    "unlock": "Win 5 games in September",
+    "asset": "trails/latinx_trail.png",
+    "available": true,
+    "description": "Golden Latin flame particle trail",
+    "theme": {
+      "primaryColor": "#FFD700",
+      "secondaryColor": "#EF4444",
+      "accentColor": "#F59E0B"
+    }
+  },
+  "alabama_bhm": {
+    "name": "Civil Rights Trail (AL)",
+    "type": "trail",
+    "rarity": "seasonal",
+    "season": "black_history_month",
+    "unlock": "Play during February",
+    "asset": "trails/bhm_alabama_trail.png",
+    "available": true,
+    "description": "Civil Rights movement particle trail",
+    "theme": {
+      "primaryColor": "#1E3A8A",
+      "secondaryColor": "#EF4444",
+      "accentColor": "#F59E0B"
+    }
+  },
+  "florida_hispanic": {
+    "name": "Cuban Heritage Flag (FL)",
+    "type": "flag",
+    "rarity": "seasonal",
+    "season": "hispanic_heritage",
+    "unlock": "Login during Hispanic Heritage Month",
+    "asset": "flags/florida_hispanic_flag.png",
+    "available": true,
+    "description": "Cuban heritage flag pattern",
+    "theme": {
+      "primaryColor": "#1E3A8A",
+      "secondaryColor": "#F59E0B",
+      "accentColor": "#EF4444"
+    }
+  },
+  "illinois_presidents": {
+    "name": "Lincoln Presidential Cart (IL)",
+    "type": "shape",
+    "rarity": "seasonal",
+    "season": "presidents_day",
+    "unlock": "Play during Presidents Day",
+    "asset": "shapes/illinois_presidents_shape.png",
+    "available": true,
+    "description": "Lincoln presidential silhouette",
+    "theme": {
+      "primaryColor": "#1E3A8A",
+      "secondaryColor": "#EF4444",
+      "accentColor": "#F59E0B"
+    }
+  },
+  "pennsylvania_independence": {
+    "name": "Liberty Bell Trail (PA)",
+    "type": "trail",
+    "rarity": "seasonal",
+    "season": "independence_day",
+    "unlock": "Play during Independence Day",
+    "asset": "trails/pennsylvania_independence_trail.png",
+    "available": true,
+    "description": "Liberty Bell particle trail",
+    "theme": {
+      "primaryColor": "#1E3A8A",
+      "secondaryColor": "#F59E0B",
+      "accentColor": "#EF4444"
+    }
+  },
+  "massachusetts_thanksgiving": {
+    "name": "Pilgrim Trail (MA)",
+    "type": "trail",
+    "rarity": "seasonal",
+    "season": "thanksgiving",
+    "unlock": "Play during Thanksgiving",
+    "asset": "trails/massachusetts_thanksgiving_trail.png",
+    "available": true,
+    "description": "Pilgrim hat particle trail",
+    "theme": {
+      "primaryColor": "#8B4513",
+      "secondaryColor": "#F59E0B",
+      "accentColor": "#1E3A8A"
+    }
+  },
+  "mystery_drops": {
+    "crate_001": {
+      "name": "Hawaii Mystery Trail",
+      "type": "trail",
+      "reward": "hawaii",
+      "rarity": "legendary",
+      "unlock_condition": "Drop from Mystery Crate",
+      "asset": "trails/hawaii_trail.png",
+      "available": true,
+      "description": "Rare Hawaii trail from mystery crate",
+      "theme": {
+        "primaryColor": "#059669",
+        "secondaryColor": "#F59E0B",
+        "accentColor": "#EF4444"
+      }
+    },
+    "crate_002": {
+      "name": "Alaska Mystery Flag",
+      "type": "flag",
+      "reward": "alaska",
+      "rarity": "epic",
+      "unlock_condition": "Drop from Mystery Crate",
+      "asset": "flags/alaska_flag.png",
+      "available": true,
+      "description": "Epic Alaska flag from mystery crate",
+      "theme": {
+        "primaryColor": "#1E3A8A",
+        "secondaryColor": "#059669",
+        "accentColor": "#8B5CF6"
+      }
+    },
+    "crate_003": {
+      "name": "Colorado Mystery Crystal",
+      "type": "shape",
+      "reward": "colorado",
+      "rarity": "rare",
+      "unlock_condition": "Drop from Mystery Crate",
+      "asset": "shapes/colorado_shape.png",
+      "available": true,
+      "description": "Rare Colorado crystal from mystery crate",
+      "theme": {
+        "primaryColor": "#1E3A8A",
+        "secondaryColor": "#059669",
+        "accentColor": "#F59E0B"
+      }
+    }
   }
 } 
