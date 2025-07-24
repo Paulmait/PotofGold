@@ -107,6 +107,8 @@ describe('Game Simulation Flows', () => {
     });
     // @ts-ignore
     // @ts-ignore
+    // @ts-ignore
+    // @ts-ignore
     masterGameManager.getUserState = jest.fn().mockResolvedValue({
       version: 2,
       lastModified: Date.now(),
