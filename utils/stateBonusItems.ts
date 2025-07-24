@@ -2,7 +2,7 @@ export interface StateBonusItem {
   type: string;
   emoji: string;
   points: number;
-  effect: 'bonus_points' | 'double_score' | 'slow_fall' | 'magnet_boost' | 'combo_multiplier';
+  effect: 'bonus_points' | 'double_score' | 'slow_fall' | 'extra_life' | 'magnet_boost' | 'combo_multiplier';
   description: string;
   state: string;
 }
@@ -34,6 +34,14 @@ export class StateBonusItemManager {
       state: 'Colorado'
     },
     {
+      type: 'hawaii_hibiscus',
+      emoji: '🌸',
+      points: 14,
+      effect: 'extra_life',
+      description: 'Hawaii Hibiscus - Grants an extra life!',
+      state: 'Hawaii'
+    },
+    {
       type: 'maine_lobster',
       emoji: '🦞',
       points: 20,
@@ -48,14 +56,6 @@ export class StateBonusItemManager {
       effect: 'bonus_points',
       description: 'Texas Star - Lone star bonus!',
       state: 'Texas'
-    },
-    {
-      type: 'hawaii_hibiscus',
-      emoji: '🌸',
-      points: 14,
-      effect: 'bonus_points',
-      description: 'Hawaii Hibiscus - Tropical bonus!',
-      state: 'Hawaii'
     },
     {
       type: 'alaska_aurora',

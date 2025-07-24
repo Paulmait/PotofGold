@@ -79,6 +79,22 @@ export default function MineCart({
             <View style={[styles.flagSection, { backgroundColor: '#F59E0B' }]} />
           </View>
         )}
+        {activeSkin.id === 'washington' && (
+          <View style={styles.washingtonFlag}>
+            <View style={[styles.flagSection, { backgroundColor: '#059669' }]} />
+            <View style={styles.evergreenEmblem}>
+              <Text style={styles.treeText}>🌲</Text>
+            </View>
+          </View>
+        )}
+        {activeSkin.id === 'maine' && (
+          <View style={styles.maineFlag}>
+            <View style={[styles.flagSection, { backgroundColor: '#1E3A8A' }]} />
+            <View style={styles.lobsterEmblem}>
+              <Text style={styles.lobsterText}>🦞</Text>
+            </View>
+          </View>
+        )}
         {/* Add more state flags as needed */}
       </View>
     );
@@ -109,6 +125,21 @@ export default function MineCart({
             <Text style={styles.shapeText}>FL</Text>
           </View>
         )}
+        {activeSkin.id === 'arizona' && (
+          <View style={[styles.stateShape, { borderColor: activeSkin.theme.accentColor }]}>
+            <Text style={styles.shapeText}>AZ</Text>
+          </View>
+        )}
+        {activeSkin.id === 'georgia' && (
+          <View style={[styles.stateShape, { borderColor: activeSkin.theme.accentColor }]}>
+            <Text style={styles.shapeText}>GA</Text>
+          </View>
+        )}
+        {activeSkin.id === 'nevada' && (
+          <View style={[styles.stateShape, { borderColor: activeSkin.theme.accentColor }]}>
+            <Text style={styles.shapeText}>NV</Text>
+          </View>
+        )}
         {/* Add more state shapes as needed */}
       </View>
     );
@@ -133,6 +164,21 @@ export default function MineCart({
         {activeSkin.id === 'alaska' && (
           <View style={styles.alaskaTrail}>
             <Text style={styles.aurora}>✨</Text>
+          </View>
+        )}
+        {activeSkin.id === 'louisiana' && (
+          <View style={styles.louisianaTrail}>
+            <Text style={styles.bayou}>🌿</Text>
+          </View>
+        )}
+        {activeSkin.id === 'colorado' && (
+          <View style={styles.coloradoTrail}>
+            <Text style={styles.mountain}>🏔️</Text>
+          </View>
+        )}
+        {activeSkin.id === 'montana' && (
+          <View style={styles.montanaTrail}>
+            <Text style={styles.star}>⭐</Text>
           </View>
         )}
         {/* Add more trail effects as needed */}
@@ -260,6 +306,30 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
   },
+  washingtonFlag: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  evergreenEmblem: {
+    position: 'absolute',
+    top: '20%',
+    left: '20%',
+  },
+  treeText: {
+    fontSize: 12,
+  },
+  maineFlag: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  lobsterEmblem: {
+    position: 'absolute',
+    top: '20%',
+    left: '20%',
+  },
+  lobsterText: {
+    fontSize: 12,
+  },
   shapeEmblem: {
     position: 'absolute',
     top: '10%',
@@ -371,6 +441,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   aurora: {
+    fontSize: 12,
+  },
+  louisianaTrail: {
+    alignItems: 'center',
+  },
+  bayou: {
+    fontSize: 12,
+  },
+  coloradoTrail: {
+    alignItems: 'center',
+  },
+  mountain: {
+    fontSize: 12,
+  },
+  montanaTrail: {
+    alignItems: 'center',
+  },
+  star: {
     fontSize: 12,
   },
   turboEffect: {

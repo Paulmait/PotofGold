@@ -7,9 +7,13 @@ import {
   TouchableOpacity,
   Dimensions,
   Alert,
+  Image,
 } from 'react-native';
 import { StateThemeComponents } from '../components/StateThemeComponents';
 import { StateSpecialItems } from '../components/StateSpecialItems';
+import { FirebaseUnlockSystem, UserUnlocks } from '../utils/firebaseUnlockSystem';
+import { auth } from '../firebase/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width, height } = Dimensions.get('window');
 
@@ -32,9 +36,11 @@ interface SkinShopScreenProps {
 
 export default function SkinShopScreen({ navigation }: SkinShopScreenProps) {
   const [stateSkins, setStateSkins] = useState<{ [key: string]: StateSkin }>({});
-  const [unlockedSkins, setUnlockedSkins] = useState<Set<string>>(new Set());
+  const [unlockedSkins, setUnlockedSkins] = useState<UserUnlocks>({});
   const [selectedSkin, setSelectedSkin] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'flag' | 'shape' | 'trail'>('all');
+  const [previewSkin, setPreviewSkin] = useState<StateSkin | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadStateSkins();
@@ -81,6 +87,30 @@ export default function SkinShopScreen({ navigation }: SkinShopScreenProps) {
             accentColor: "#EF4444"
           }
         },
+        new_york: {
+          name: "Empire State",
+          type: "flag",
+          unlock: "Score 5000 coins",
+          asset: "flags/new_york_flag.png",
+          description: "Empire State flag pattern",
+          theme: {
+            primaryColor: "#1E3A8A",
+            secondaryColor: "#F59E0B",
+            accentColor: "#EF4444"
+          }
+        },
+        hawaii: {
+          name: "Aloha Trail",
+          type: "trail",
+          unlock: "Collect 50 hibiscus items",
+          asset: "trails/hawaii_trail.png",
+          description: "Hibiscus flower particle trail",
+          theme: {
+            primaryColor: "#059669",
+            secondaryColor: "#F59E0B",
+            accentColor: "#EF4444"
+          }
+        },
         // Add more states here...
       };
       setStateSkins(skins);
@@ -89,27 +119,53 @@ export default function SkinShopScreen({ navigation }: SkinShopScreenProps) {
     }
   };
 
-  const loadUnlockedSkins = () => {
-    // In a real app, load from AsyncStorage or game state
-    const unlocked = new Set(['california']); // Example: California is unlocked
-    setUnlockedSkins(unlocked);
+  const loadUnlockedSkins = async () => {
+    try {
+      setLoading(true);
+      const unlocks = await FirebaseUnlockSystem.getUnlocks();
+      setUnlockedSkins(unlocks);
+    } catch (error) {
+      console.error('Error loading unlocked skins:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const isSkinUnlocked = (skinId: string): boolean => {
-    return unlockedSkins.has(skinId);
+    return !!unlockedSkins[skinId];
   };
 
-  const handleSkinSelect = (skinId: string) => {
+  const handleSkinSelect = async (skinId: string) => {
     if (isSkinUnlocked(skinId)) {
       setSelectedSkin(skinId);
-      // In a real app, apply the skin to the cart
-      console.log(`Applied skin: ${skinId}`);
+      setPreviewSkin(stateSkins[skinId]);
+      
+      // Save selected skin to Firebase
+      await FirebaseUnlockSystem.saveSelectedSkin(skinId);
+      
+      // Save to local storage for immediate use
+      await AsyncStorage.setItem('activeSkin', JSON.stringify({
+        id: skinId,
+        ...stateSkins[skinId]
+      }));
+      
+      Alert.alert(
+        'Skin Equipped!',
+        `${stateSkins[skinId].name} is now your active skin.`,
+        [{ text: 'OK' }]
+      );
     } else {
       Alert.alert(
         'Skin Locked',
         `Unlock this skin by: ${stateSkins[skinId]?.unlock}`,
         [{ text: 'OK' }]
       );
+    }
+  };
+
+  const handleSkinPreview = (skinId: string) => {
+    if (isSkinUnlocked(skinId)) {
+      setPreviewSkin(stateSkins[skinId]);
     }
   };
 
@@ -133,9 +189,11 @@ export default function SkinShopScreen({ navigation }: SkinShopScreenProps) {
             backgroundColor: isUnlocked ? skin.theme.primaryColor : '#2A2A2A',
             borderColor: isSelected ? skin.theme.accentColor : 'transparent',
             borderWidth: isSelected ? 3 : 1,
+            opacity: isUnlocked ? 1 : 0.6,
           },
         ]}
         onPress={() => handleSkinSelect(skinId)}
+        onLongPress={() => handleSkinPreview(skinId)}
       >
         <View style={styles.skinHeader}>
           <Text style={[styles.skinName, { color: isUnlocked ? '#FFFFFF' : '#666666' }]}>
@@ -196,6 +254,36 @@ export default function SkinShopScreen({ navigation }: SkinShopScreenProps) {
     );
   };
 
+  const renderPreviewSection = () => {
+    if (!previewSkin) return null;
+
+    return (
+      <View style={styles.previewSection}>
+        <Text style={styles.previewTitle}>Preview: {previewSkin.name}</Text>
+        <View style={[styles.previewCart, { backgroundColor: previewSkin.theme.primaryColor }]}>
+          {/* Cart preview with skin applied */}
+          <View style={styles.cartBody}>
+            {previewSkin.type === 'flag' && (
+              <View style={styles.flagPreview}>
+                <Text style={styles.flagText}>🏁</Text>
+              </View>
+            )}
+            {previewSkin.type === 'shape' && (
+              <View style={[styles.shapePreview, { borderColor: previewSkin.theme.accentColor }]}>
+                <Text style={styles.shapeText}>★</Text>
+              </View>
+            )}
+            {previewSkin.type === 'trail' && (
+              <View style={styles.trailPreview}>
+                <Text style={styles.trailText}>✨</Text>
+              </View>
+            )}
+          </View>
+        </View>
+      </View>
+    );
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -237,6 +325,9 @@ export default function SkinShopScreen({ navigation }: SkinShopScreenProps) {
           </Text>
         </TouchableOpacity>
       </View>
+
+      {/* Preview Section */}
+      {renderPreviewSection()}
 
       <ScrollView style={styles.skinsContainer} showsVerticalScrollIndicator={false}>
         <View style={styles.skinsGrid}>
@@ -400,5 +491,63 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: '#1A1A1A',
+  },
+  previewSection: {
+    padding: 15,
+    backgroundColor: '#2A2A2A',
+    borderBottomWidth: 1,
+    borderBottomColor: '#333333',
+  },
+  previewTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  previewCart: {
+    height: 80,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#333333',
+  },
+  cartBody: {
+    width: 60,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  flagPreview: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  flagText: {
+    fontSize: 20,
+  },
+  shapePreview: {
+    width: 30,
+    height: 30,
+    borderWidth: 2,
+    borderRadius: 15,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  shapeText: {
+    fontSize: 16,
+    color: '#000',
+  },
+  trailPreview: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  trailText: {
+    fontSize: 18,
   },
 }); 

@@ -34,6 +34,9 @@ import { StateUnlockSystem } from '../utils/stateUnlockSystem';
 import { StateUnlockNotification } from '../components/StateUnlockNotification';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StateBonusItemManager } from '../utils/stateBonusItems';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../firebase/firebase';
+import { auth } from '../firebase/auth';
 
 const { width, height } = Dimensions.get('window');
 
@@ -736,7 +739,7 @@ export default function GameScreen({ navigation }: GameScreenProps) {
     { type: 'louisiana_bayou', emoji: '🌿', points: 17, effect: 'bonus_points' },
   ];
 
-  // Active skin state
+  // Enhanced active skin state with loading from Firebase
   const [activeSkin, setActiveSkin] = useState<{
     id: string;
     type: 'flag' | 'shape' | 'trail';
@@ -745,15 +748,40 @@ export default function GameScreen({ navigation }: GameScreenProps) {
       secondaryColor: string;
       accentColor: string;
     };
+    asset?: string;
   } | null>(null);
 
-  // Load active skin from storage
+  // Load active skin from Firebase
   useEffect(() => {
     const loadActiveSkin = async () => {
       try {
-        const skinData = await AsyncStorage.getItem('activeSkin');
-        if (skinData) {
-          setActiveSkin(JSON.parse(skinData));
+        // First try to load from local storage for immediate display
+        const localSkinData = await AsyncStorage.getItem('activeSkin');
+        if (localSkinData) {
+          setActiveSkin(JSON.parse(localSkinData));
+        }
+
+        // Then load from Firebase for persistence
+        const user = auth.currentUser;
+        if (user) {
+          const userDoc = await getDoc(doc(db, 'users', user.uid));
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            const firebaseSkin = userData?.profile?.skin;
+            
+            if (firebaseSkin) {
+              // Load the full skin data from state_skins.json
+              const skinData = await loadSkinData(firebaseSkin.id);
+              if (skinData) {
+                const fullSkin = {
+                  ...firebaseSkin,
+                  ...skinData,
+                };
+                setActiveSkin(fullSkin);
+                await AsyncStorage.setItem('activeSkin', JSON.stringify(fullSkin));
+              }
+            }
+          }
         }
       } catch (error) {
         console.error('Error loading active skin:', error);
@@ -761,6 +789,49 @@ export default function GameScreen({ navigation }: GameScreenProps) {
     };
     loadActiveSkin();
   }, []);
+
+  // Load skin data from state_skins.json
+  const loadSkinData = async (skinId: string) => {
+    try {
+      // In a real app, this would load from the JSON file
+      // For now, we'll use a hardcoded mapping
+      const skinDataMap: { [key: string]: any } = {
+        california: {
+          name: "California Gold",
+          type: "flag",
+          theme: {
+            primaryColor: "#FFD700",
+            secondaryColor: "#8B4513",
+            accentColor: "#FFA500"
+          }
+        },
+        texas: {
+          name: "Lone Star Cart",
+          type: "shape",
+          theme: {
+            primaryColor: "#1E3A8A",
+            secondaryColor: "#F59E0B",
+            accentColor: "#EF4444"
+          }
+        },
+        florida: {
+          name: "Sunshine Splash",
+          type: "trail",
+          theme: {
+            primaryColor: "#1E3A8A",
+            secondaryColor: "#F59E0B",
+            accentColor: "#EF4444"
+          }
+        },
+        // Add more states as needed
+      };
+      
+      return skinDataMap[skinId];
+    } catch (error) {
+      console.error('Error loading skin data:', error);
+      return null;
+    }
+  };
 
   return (
     <View style={styles.container}>
