@@ -9,11 +9,13 @@ import {
   Alert,
   Image,
 } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import { StateThemeComponents } from '../components/StateThemeComponents';
 import { StateSpecialItems } from '../components/StateSpecialItems';
 import { FirebaseUnlockSystem, UserUnlocks } from '../utils/firebaseUnlockSystem';
 import { auth } from '../firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { UnlockManager } from '../utils/unlockManager';
 
 const { width, height } = Dimensions.get('window');
 
@@ -28,6 +30,7 @@ interface StateSkin {
     secondaryColor: string;
     accentColor: string;
   };
+  rarity?: string; // Added rarity for new rendering
 }
 
 interface SkinShopScreenProps {
@@ -137,6 +140,9 @@ export default function SkinShopScreen({ navigation }: SkinShopScreenProps) {
 
   const handleSkinSelect = async (skinId: string) => {
     if (isSkinUnlocked(skinId)) {
+      // Haptic feedback for skin selection
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      
       setSelectedSkin(skinId);
       setPreviewSkin(stateSkins[skinId]);
       
@@ -155,6 +161,9 @@ export default function SkinShopScreen({ navigation }: SkinShopScreenProps) {
         [{ text: 'OK' }]
       );
     } else {
+      // Haptic feedback for locked skin
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      
       Alert.alert(
         'Skin Locked',
         `Unlock this skin by: ${stateSkins[skinId]?.unlock}`,
@@ -165,8 +174,24 @@ export default function SkinShopScreen({ navigation }: SkinShopScreenProps) {
 
   const handleSkinPreview = (skinId: string) => {
     if (isSkinUnlocked(skinId)) {
+      // Haptic feedback for preview
+      Haptics.selectionAsync();
       setPreviewSkin(stateSkins[skinId]);
     }
+  };
+
+  const handleLongPress = (skinId: string) => {
+    const skin = stateSkins[skinId];
+    if (!skin) return;
+
+    // Haptic feedback for long press
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+    
+    Alert.alert(
+      skin.name,
+      `Type: ${skin.type.toUpperCase()}\nUnlock: ${skin.unlock}\nRarity: ${skin.rarity || 'common'}\n\n${skin.description}`,
+      [{ text: 'OK' }]
+    );
   };
 
   const getFilteredSkins = () => {
@@ -193,7 +218,12 @@ export default function SkinShopScreen({ navigation }: SkinShopScreenProps) {
           },
         ]}
         onPress={() => handleSkinSelect(skinId)}
-        onLongPress={() => handleSkinPreview(skinId)}
+        onLongPress={() => handleLongPress(skinId)}
+        onPressIn={() => {
+          // Haptic feedback on press
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        }}
+        activeOpacity={0.7}
       >
         <View style={styles.skinHeader}>
           <Text style={[styles.skinName, { color: isUnlocked ? '#FFFFFF' : '#666666' }]}>
@@ -243,6 +273,16 @@ export default function SkinShopScreen({ navigation }: SkinShopScreenProps) {
           <Text style={[styles.unlockRequirement, { color: isUnlocked ? '#CCCCCC' : '#FF6B6B' }]}>
             {isUnlocked ? '✓ Unlocked' : skin.unlock}
           </Text>
+          {skin.rarity && (
+            <Text style={[styles.rarityText, { color: getRarityColor(skin.rarity) }]}>
+              {skin.rarity.toUpperCase()}
+            </Text>
+          )}
+          {isSeasonalSkin(skinId) && (
+            <View style={styles.seasonalIndicator}>
+              <Text style={styles.seasonalText}>🎉 SEASONAL</Text>
+            </View>
+          )}
         </View>
 
         {isSelected && (
@@ -252,6 +292,26 @@ export default function SkinShopScreen({ navigation }: SkinShopScreenProps) {
         )}
       </TouchableOpacity>
     );
+  };
+
+  const getRarityColor = (rarity: string) => {
+    return UnlockManager.getRarityColor(rarity);
+  };
+
+  const isSeasonalSkin = (skinId: string) => {
+    const seasonalSkins = UnlockManager.getSeasonalSkins();
+    return seasonalSkins.includes(skinId);
+  };
+
+  const getSeasonalEventInfo = (skinId: string) => {
+    const activeEvents = UnlockManager.getActiveSeasonalEvents();
+    for (const eventId of activeEvents) {
+      const eventInfo = UnlockManager.getSeasonalEventInfo(eventId);
+      if (eventInfo && eventInfo.states.includes(skinId)) {
+        return eventInfo;
+      }
+    }
+    return null;
   };
 
   const renderPreviewSection = () => {
@@ -464,6 +524,11 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: 'bold',
   },
+  rarityText: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    marginTop: 2,
+  },
   selectedIndicator: {
     position: 'absolute',
     top: 10,
@@ -549,5 +614,18 @@ const styles = StyleSheet.create({
   },
   trailText: {
     fontSize: 18,
+  },
+  seasonalIndicator: {
+    backgroundColor: '#F87171',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 8,
+    marginTop: 4,
+    alignSelf: 'flex-start',
+  },
+  seasonalText: {
+    fontSize: 8,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
   },
 }); 

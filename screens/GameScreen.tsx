@@ -34,9 +34,11 @@ import { StateUnlockSystem } from '../utils/stateUnlockSystem';
 import { StateUnlockNotification } from '../components/StateUnlockNotification';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StateBonusItemManager } from '../utils/stateBonusItems';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, increment } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 import { auth } from '../firebase/auth';
+import { FirebaseUnlockSystem } from '../utils/firebaseUnlockSystem';
+import { UnlockManager, UserData, SkinConfig } from '../utils/unlockManager';
 
 const { width, height } = Dimensions.get('window');
 
@@ -54,6 +56,7 @@ export default function GameScreen({ navigation }: GameScreenProps) {
   const [combo, setCombo] = useState(0);
   const [obstaclesAvoided, setObstaclesAvoided] = useState(0);
   const [powerUpsUsed, setPowerUpsUsed] = useState(0);
+  const [level, setLevel] = useState(1);
 
   // Pot mechanics
   const [potSpeed, setPotSpeed] = useState(0.5); // Slow by default
@@ -299,6 +302,7 @@ export default function GameScreen({ navigation }: GameScreenProps) {
     setObstaclesAvoided(0);
     setPowerUpsUsed(0);
     setBoostBar(100);
+    setLevel(1); // Reset level
 
     // Start game timers
     startGameTimers();
@@ -538,28 +542,176 @@ export default function GameScreen({ navigation }: GameScreenProps) {
     return points[type] || 1;
   };
 
-  // Collect coin
+  // Enhanced scoring with unlock checking
   const collectCoin = () => {
-    const coinValue = turboBoost ? 2 : 1;
-    setCoins(prev => prev + coinValue);
-    setScore(prev => prev + (10 * coinValue));
+    if (!isGameActive || isPaused) return;
+
+    const points = getItemPoints('coin');
+    const newScore = score + points;
+    const newCoins = coins + 1;
     
-    // Update combo
-    setCombo(prev => prev + 1);
+    setScore(newScore);
+    setCoins(newCoins);
     
-    // Animate coin collection
-    Animated.sequence([
-      Animated.timing(coinAnimation, {
-        toValue: 1,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-      Animated.timing(coinAnimation, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-    ]).start();
+    // Check for level up
+    const newLevel = Math.floor(newScore / 100) + 1;
+    if (newLevel > level) {
+      setLevel(newLevel);
+      checkForUnlocks('level', newLevel);
+    }
+    
+    // Check for coin-based unlocks
+    checkForUnlocks('coins', newCoins);
+    
+    // Check for score-based unlocks
+    checkForUnlocks('score', newScore);
+    
+    // Haptic feedback
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  };
+
+  // Enhanced unlock checking with UnlockManager
+  const checkForUnlocks = async (conditionType: string, value: number) => {
+    try {
+      // Create user data object for UnlockManager
+      const userData: UserData = {
+        level,
+        score,
+        coins,
+        gamesPlayed: 1, // This would be tracked separately
+        survivalTime: timeSurvived,
+        itemsCollected: {}, // This would be populated from game state
+        achievements: [], // This would be populated from achievement system
+        lastPlayed: new Date(),
+      };
+
+      // Get all skin configs (in a real app, this would load from config file)
+      const skinConfigs: SkinConfig[] = [
+        {
+          id: 'texas',
+          name: 'Lone Star Cart',
+          type: 'shape',
+          unlock: 'Reach Level 5',
+          rarity: 'common',
+          condition: { type: 'level', value: 5 }
+        },
+        {
+          id: 'california',
+          name: 'Golden Bear Flag',
+          type: 'flag',
+          unlock: 'Collect 1,000 coins',
+          rarity: 'rare',
+          condition: { type: 'coins', value: 1000 }
+        },
+        {
+          id: 'florida',
+          name: 'Sunshine Seal Wrap',
+          type: 'flag',
+          unlock: 'Score 300 in one round',
+          rarity: 'uncommon',
+          condition: { type: 'score', value: 300 }
+        },
+        // Add more skin configs as needed
+      ];
+
+      // Check all unlocks using UnlockManager
+      const newlyUnlocked = await UnlockManager.checkAllUnlocks(userData, skinConfigs);
+      
+      // Show notifications for newly unlocked skins
+      for (const skinId of newlyUnlocked) {
+        const skinConfig = skinConfigs.find(s => s.id === skinId);
+        if (skinConfig) {
+          showUnlockNotification(skinConfig.name, skinConfig.type);
+        }
+      }
+    } catch (error) {
+      console.error('Error checking for unlocks:', error);
+    }
+  };
+
+  // Generate mystery crate after game win
+  const generateMysteryCrate = async () => {
+    try {
+      const user = auth.currentUser;
+      if (!user) return;
+
+      const crate = await UnlockManager.generateMysteryCrate(user.uid);
+      if (crate) {
+        // Process the crate
+        const success = await UnlockManager.processMysteryCrate(user.uid, crate);
+        if (success) {
+          // Show crate notification
+          showCrateNotification(crate);
+        }
+      }
+    } catch (error) {
+      console.error('Error generating mystery crate:', error);
+    }
+  };
+
+  // Show crate notification
+  const showCrateNotification = (crate: { type: string; value: string | number; rarity: string }) => {
+    let message = '';
+    switch (crate.type) {
+      case 'skin':
+        message = `Mystery Crate: Unlocked ${crate.value} skin!`;
+        break;
+      case 'coins':
+        message = `Mystery Crate: +${crate.value} coins!`;
+        break;
+      case 'powerup':
+        message = `Mystery Crate: ${crate.value} powerup!`;
+        break;
+    }
+
+    Alert.alert(
+      '🎁 Mystery Crate!',
+      message,
+      [{ text: 'Awesome!' }]
+    );
+
+    // Haptic feedback for crate
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+  };
+
+  // Unlock skin if not already unlocked
+  const unlockSkinIfNotAlready = async (skinId: string, skinName: string) => {
+    try {
+      const isUnlocked = await FirebaseUnlockSystem.isSkinUnlocked(skinId);
+      if (!isUnlocked) {
+        // Load skin data
+        const skinData = await loadSkinData(skinId);
+        if (skinData) {
+          // Unlock the skin
+          const success = await FirebaseUnlockSystem.unlockSkin(skinId, skinData);
+          if (success) {
+            // Show unlock notification
+            showUnlockNotification(skinName, skinData.type);
+            
+            // Haptic feedback for unlock
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error unlocking skin:', error);
+    }
+  };
+
+  // Show unlock notification
+  const showUnlockNotification = (skinName: string, skinType: string) => {
+    setCurrentUnlock({
+      name: skinName,
+      type: skinType,
+      message: `New Cart Unlocked: ${skinName}!`
+    });
+    setShowUnlockNotification(true);
+    
+    // Auto-hide after 3 seconds
+    setTimeout(() => {
+      setShowUnlockNotification(false);
+      setCurrentUnlock(null);
+    }, 3000);
   };
 
   // Activate turbo boost
@@ -584,43 +736,46 @@ export default function GameScreen({ navigation }: GameScreenProps) {
 
   // End game
   const endGame = async () => {
+    if (!isGameActive) return;
+
     setIsGameActive(false);
     setShowGameOver(true);
-    
-    // Clear all timers
+
+    // Stop all timers
     if (gameTimer.current) clearInterval(gameTimer.current);
     if (boostTimer.current) clearInterval(boostTimer.current);
     if (coinSpawnTimer.current) clearInterval(coinSpawnTimer.current);
     if (obstacleTimer.current) clearInterval(obstacleTimer.current);
 
+    // Check for unlocks
+    await checkForUnlocks('score', score);
+    await checkForUnlocks('coins', coins);
+    await checkForUnlocks('level', level);
+
+    // Generate mystery crate if score is high enough
+    if (score > 500) {
+      await generateMysteryCrate();
+    }
+
     // Save game results
     try {
-      const userId = 'player_1'; // In real app, get from auth
-      await masterGameManager.saveGameResults(userId, {
-        score,
-        coins,
-        timeSurvived,
-        combo,
-        obstaclesAvoided,
-        powerUpsUsed,
-        lives,
-      });
-
-      // Update progression
-      await progressionSystem.updateProgress(score, coins);
-      
-      // Check for achievements
-      await skillMechanicsSystem.checkAchievements(score, combo);
-      
-      // Update daily streak
-      await dailyStreakSystem.updateStreak();
-      
-      // Check for mission completion
-      await missionSystem.checkMissionCompletion(score, coins, combo);
-      
+      const user = auth.currentUser;
+      if (user) {
+        // Update user progress
+        await updateDoc(doc(db, 'users', user.uid), {
+          'stats.totalScore': increment(score),
+          'stats.totalCoins': increment(coins),
+          'stats.gamesPlayed': increment(1),
+          'stats.highestScore': score > 1000 ? score : 0,
+          lastPlayed: new Date(),
+        });
+      }
     } catch (error) {
-      console.log('Error saving game results:', error);
+      console.error('Error saving game results:', error);
     }
+
+    // Haptic feedback for game over
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
   };
 
   // Check pause trigger before showing pause menu
@@ -790,15 +945,17 @@ export default function GameScreen({ navigation }: GameScreenProps) {
     loadActiveSkin();
   }, []);
 
-  // Load skin data from state_skins.json
+  // Load skin data from config/state_skins.json
   const loadSkinData = async (skinId: string) => {
     try {
       // In a real app, this would load from the JSON file
-      // For now, we'll use a hardcoded mapping
+      // For now, we'll use a hardcoded mapping that matches the config file
       const skinDataMap: { [key: string]: any } = {
         california: {
-          name: "California Gold",
+          name: "Golden Bear Flag",
           type: "flag",
+          unlock: "Collect 1,000 coins",
+          rarity: "rare",
           theme: {
             primaryColor: "#FFD700",
             secondaryColor: "#8B4513",
@@ -808,6 +965,8 @@ export default function GameScreen({ navigation }: GameScreenProps) {
         texas: {
           name: "Lone Star Cart",
           type: "shape",
+          unlock: "Reach Level 5",
+          rarity: "common",
           theme: {
             primaryColor: "#1E3A8A",
             secondaryColor: "#F59E0B",
@@ -815,15 +974,94 @@ export default function GameScreen({ navigation }: GameScreenProps) {
           }
         },
         florida: {
-          name: "Sunshine Splash",
-          type: "trail",
+          name: "Sunshine Seal Wrap",
+          type: "flag",
+          unlock: "Score 300 in one round",
+          rarity: "uncommon",
           theme: {
             primaryColor: "#1E3A8A",
             secondaryColor: "#F59E0B",
             accentColor: "#EF4444"
           }
         },
-        // Add more states as needed
+        new_york: {
+          name: "Empire Emblem",
+          type: "shape",
+          unlock: "Play 5 games",
+          rarity: "common",
+          theme: {
+            primaryColor: "#1E3A8A",
+            secondaryColor: "#F59E0B",
+            accentColor: "#EF4444"
+          }
+        },
+        georgia: {
+          name: "Peach Glow Trail",
+          type: "trail",
+          unlock: "Invite 1 friend",
+          rarity: "rare",
+          theme: {
+            primaryColor: "#F59E0B",
+            secondaryColor: "#EF4444",
+            accentColor: "#059669"
+          }
+        },
+        vermont: {
+          name: "Maple Leaf Trail",
+          type: "trail",
+          unlock: "Catch the falling maple leaf item",
+          rarity: "epic",
+          theme: {
+            primaryColor: "#F59E0B",
+            secondaryColor: "#EF4444",
+            accentColor: "#059669"
+          }
+        },
+        hawaii: {
+          name: "Hibiscus Drift Trail",
+          type: "trail",
+          unlock: "Survive 60 seconds without missing",
+          rarity: "legendary",
+          theme: {
+            primaryColor: "#059669",
+            secondaryColor: "#F59E0B",
+            accentColor: "#EF4444"
+          }
+        },
+        colorado: {
+          name: "Rocky Cart Crystal",
+          type: "shape",
+          unlock: "Catch the mountain crystal",
+          rarity: "epic",
+          theme: {
+            primaryColor: "#1E3A8A",
+            secondaryColor: "#059669",
+            accentColor: "#F59E0B"
+          }
+        },
+        alaska: {
+          name: "Northern Lights Flag",
+          type: "flag",
+          unlock: "Reach Level 15",
+          rarity: "legendary",
+          theme: {
+            primaryColor: "#1E3A8A",
+            secondaryColor: "#059669",
+            accentColor: "#8B5CF6"
+          }
+        },
+        illinois: {
+          name: "Lincoln Trail Cart",
+          type: "shape",
+          unlock: "Play during U.S. Presidents Week",
+          rarity: "seasonal",
+          theme: {
+            primaryColor: "#1E3A8A",
+            secondaryColor: "#EF4444",
+            accentColor: "#F59E0B"
+          }
+        },
+        // Add more states as needed...
       };
       
       return skinDataMap[skinId];

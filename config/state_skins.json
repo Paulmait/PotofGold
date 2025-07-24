@@ -1,0 +1,652 @@
+{
+  "alabama": {
+    "name": "Heart of Dixie Cart",
+    "type": "shape",
+    "unlock": "Reach Level 3",
+    "rarity": "common",
+    "asset": "shapes/alabama_shape.png",
+    "description": "Alabama state outline with heart emblem",
+    "theme": {
+      "primaryColor": "#1E3A8A",
+      "secondaryColor": "#EF4444",
+      "accentColor": "#F59E0B"
+    }
+  },
+  "alaska": {
+    "name": "Northern Lights Flag",
+    "type": "flag",
+    "unlock": "Reach Level 15",
+    "rarity": "legendary",
+    "asset": "flags/alaska_flag.png",
+    "description": "Aurora borealis flag pattern",
+    "theme": {
+      "primaryColor": "#1E3A8A",
+      "secondaryColor": "#059669",
+      "accentColor": "#8B5CF6"
+    }
+  },
+  "arizona": {
+    "name": "Desert Cactus Cart",
+    "type": "shape",
+    "unlock": "Collect 30 cactus items",
+    "rarity": "uncommon",
+    "asset": "shapes/arizona_shape.png",
+    "description": "Cactus silhouette with desert theme",
+    "theme": {
+      "primaryColor": "#059669",
+      "secondaryColor": "#F59E0B",
+      "accentColor": "#8B4513"
+    }
+  },
+  "arkansas": {
+    "name": "Diamond State Trail",
+    "type": "trail",
+    "unlock": "Collect 25 diamond items",
+    "rarity": "rare",
+    "asset": "trails/arkansas_trail.png",
+    "description": "Diamond particle trail effect",
+    "theme": {
+      "primaryColor": "#1E3A8A",
+      "secondaryColor": "#8B5CF6",
+      "accentColor": "#F59E0B"
+    }
+  },
+  "california": {
+    "name": "Golden Bear Flag",
+    "type": "flag",
+    "unlock": "Collect 1,000 coins",
+    "rarity": "rare",
+    "asset": "flags/california_flag.png",
+    "description": "Golden state flag with bear emblem",
+    "theme": {
+      "primaryColor": "#FFD700",
+      "secondaryColor": "#8B4513",
+      "accentColor": "#FFA500"
+    }
+  },
+  "colorado": {
+    "name": "Rocky Cart Crystal",
+    "type": "shape",
+    "unlock": "Catch the mountain crystal",
+    "rarity": "epic",
+    "asset": "shapes/colorado_shape.png",
+    "description": "Mountain peak crystal emblem",
+    "theme": {
+      "primaryColor": "#1E3A8A",
+      "secondaryColor": "#059669",
+      "accentColor": "#F59E0B"
+    }
+  },
+  "connecticut": {
+    "name": "Constitution Trail",
+    "type": "trail",
+    "unlock": "Play 10 games",
+    "rarity": "common",
+    "asset": "trails/connecticut_trail.png",
+    "description": "Constitutional document trail",
+    "theme": {
+      "primaryColor": "#1E3A8A",
+      "secondaryColor": "#EF4444",
+      "accentColor": "#F59E0B"
+    }
+  },
+  "delaware": {
+    "name": "First State Flag",
+    "type": "flag",
+    "unlock": "Play your first game",
+    "rarity": "common",
+    "asset": "flags/delaware_flag.png",
+    "description": "First state flag pattern",
+    "theme": {
+      "primaryColor": "#1E3A8A",
+      "secondaryColor": "#F59E0B",
+      "accentColor": "#EF4444"
+    }
+  },
+  "florida": {
+    "name": "Sunshine Seal Wrap",
+    "type": "flag",
+    "unlock": "Score 300 in one round",
+    "rarity": "uncommon",
+    "asset": "flags/florida_flag.png",
+    "description": "Sunshine state flag with seal",
+    "theme": {
+      "primaryColor": "#1E3A8A",
+      "secondaryColor": "#F59E0B",
+      "accentColor": "#EF4444"
+    }
+  },
+  "georgia": {
+    "name": "Peach Glow Trail",
+    "type": "trail",
+    "unlock": "Invite 1 friend",
+    "rarity": "rare",
+    "asset": "trails/georgia_trail.png",
+    "description": "Peach blossom particle trail",
+    "theme": {
+      "primaryColor": "#F59E0B",
+      "secondaryColor": "#EF4444",
+      "accentColor": "#059669"
+    }
+  },
+  "hawaii": {
+    "name": "Hibiscus Drift Trail",
+    "type": "trail",
+    "unlock": "Survive 60 seconds without missing",
+    "rarity": "legendary",
+    "asset": "trails/hawaii_trail.png",
+    "description": "Hibiscus flower particle trail",
+    "theme": {
+      "primaryColor": "#059669",
+      "secondaryColor": "#F59E0B",
+      "accentColor": "#EF4444"
+    }
+  },
+  "idaho": {
+    "name": "Gem State Cart",
+    "type": "shape",
+    "unlock": "Collect 20 gem items",
+    "rarity": "uncommon",
+    "asset": "shapes/idaho_shape.png",
+    "description": "Gem state outline with gem emblem",
+    "theme": {
+      "primaryColor": "#1E3A8A",
+      "secondaryColor": "#8B5CF6",
+      "accentColor": "#F59E0B"
+    }
+  },
+  "illinois": {
+    "name": "Lincoln Trail Cart",
+    "type": "shape",
+    "unlock": "Play during U.S. Presidents Week",
+    "rarity": "seasonal",
+    "asset": "shapes/illinois_shape.png",
+    "description": "Lincoln silhouette with trail effect",
+    "theme": {
+      "primaryColor": "#1E3A8A",
+      "secondaryColor": "#EF4444",
+      "accentColor": "#F59E0B"
+    }
+  },
+  "indiana": {
+    "name": "Hoosier State Flag",
+    "type": "flag",
+    "unlock": "Reach Level 8",
+    "rarity": "uncommon",
+    "asset": "flags/indiana_flag.png",
+    "description": "Hoosier state flag pattern",
+    "theme": {
+      "primaryColor": "#1E3A8A",
+      "secondaryColor": "#F59E0B",
+      "accentColor": "#EF4444"
+    }
+  },
+  "iowa": {
+    "name": "Hawkeye Trail",
+    "type": "trail",
+    "unlock": "Collect 40 corn items",
+    "rarity": "rare",
+    "asset": "trails/iowa_trail.png",
+    "description": "Corn field particle trail",
+    "theme": {
+      "primaryColor": "#F59E0B",
+      "secondaryColor": "#059669",
+      "accentColor": "#1E3A8A"
+    }
+  },
+  "kansas": {
+    "name": "Sunflower State Cart",
+    "type": "shape",
+    "unlock": "Collect 35 sunflower items",
+    "rarity": "uncommon",
+    "asset": "shapes/kansas_shape.png",
+    "description": "Sunflower state outline",
+    "theme": {
+      "primaryColor": "#F59E0B",
+      "secondaryColor": "#059669",
+      "accentColor": "#1E3A8A"
+    }
+  },
+  "kentucky": {
+    "name": "Bluegrass Trail",
+    "type": "trail",
+    "unlock": "Reach Level 12",
+    "rarity": "rare",
+    "asset": "trails/kentucky_trail.png",
+    "description": "Bluegrass particle trail",
+    "theme": {
+      "primaryColor": "#059669",
+      "secondaryColor": "#1E3A8A",
+      "accentColor": "#F59E0B"
+    }
+  },
+  "louisiana": {
+    "name": "Bayou Magic Trail",
+    "type": "trail",
+    "unlock": "Achieve 20x combo",
+    "rarity": "epic",
+    "asset": "trails/louisiana_trail.png",
+    "description": "Mystical bayou particle trail",
+    "theme": {
+      "primaryColor": "#059669",
+      "secondaryColor": "#8B5CF6",
+      "accentColor": "#F59E0B"
+    }
+  },
+  "maine": {
+    "name": "Lobster Trap Flag",
+    "type": "flag",
+    "unlock": "Collect 25 lobster items",
+    "rarity": "rare",
+    "asset": "flags/maine_flag.png",
+    "description": "Lobster and pine tree flag",
+    "theme": {
+      "primaryColor": "#1E3A8A",
+      "secondaryColor": "#EF4444",
+      "accentColor": "#059669"
+    }
+  },
+  "maryland": {
+    "name": "Old Line State Cart",
+    "type": "shape",
+    "unlock": "Reach Level 6",
+    "rarity": "common",
+    "asset": "shapes/maryland_shape.png",
+    "description": "Maryland state outline",
+    "theme": {
+      "primaryColor": "#1E3A8A",
+      "secondaryColor": "#F59E0B",
+      "accentColor": "#EF4444"
+    }
+  },
+  "massachusetts": {
+    "name": "Bay State Trail",
+    "type": "trail",
+    "unlock": "Collect 50 fish items",
+    "rarity": "rare",
+    "asset": "trails/massachusetts_trail.png",
+    "description": "Ocean wave particle trail",
+    "theme": {
+      "primaryColor": "#1E3A8A",
+      "secondaryColor": "#059669",
+      "accentColor": "#F59E0B"
+    }
+  },
+  "michigan": {
+    "name": "Great Lakes Cart",
+    "type": "shape",
+    "unlock": "Reach Level 9",
+    "rarity": "uncommon",
+    "asset": "shapes/michigan_shape.png",
+    "description": "Great Lakes state outline",
+    "theme": {
+      "primaryColor": "#1E3A8A",
+      "secondaryColor": "#059669",
+      "accentColor": "#F59E0B"
+    }
+  },
+  "minnesota": {
+    "name": "Land of 10,000 Lakes Trail",
+    "type": "trail",
+    "unlock": "Collect 30 lake items",
+    "rarity": "rare",
+    "asset": "trails/minnesota_trail.png",
+    "description": "Lake water particle trail",
+    "theme": {
+      "primaryColor": "#1E3A8A",
+      "secondaryColor": "#059669",
+      "accentColor": "#F59E0B"
+    }
+  },
+  "mississippi": {
+    "name": "Magnolia State Flag",
+    "type": "flag",
+    "unlock": "Collect 40 magnolia items",
+    "rarity": "uncommon",
+    "asset": "flags/mississippi_flag.png",
+    "description": "Magnolia flower flag pattern",
+    "theme": {
+      "primaryColor": "#1E3A8A",
+      "secondaryColor": "#EF4444",
+      "accentColor": "#F59E0B"
+    }
+  },
+  "missouri": {
+    "name": "Show-Me State Cart",
+    "type": "shape",
+    "unlock": "Reach Level 11",
+    "rarity": "uncommon",
+    "asset": "shapes/missouri_shape.png",
+    "description": "Missouri state outline",
+    "theme": {
+      "primaryColor": "#1E3A8A",
+      "secondaryColor": "#F59E0B",
+      "accentColor": "#EF4444"
+    }
+  },
+  "montana": {
+    "name": "Big Sky Trail",
+    "type": "trail",
+    "unlock": "Collect 50 star items",
+    "rarity": "epic",
+    "asset": "trails/montana_trail.png",
+    "description": "Big sky star particle trail",
+    "theme": {
+      "primaryColor": "#1E3A8A",
+      "secondaryColor": "#F59E0B",
+      "accentColor": "#EF4444"
+    }
+  },
+  "nebraska": {
+    "name": "Cornhusker State Cart",
+    "type": "shape",
+    "unlock": "Collect 45 corn items",
+    "rarity": "uncommon",
+    "asset": "shapes/nebraska_shape.png",
+    "description": "Cornhusker state outline",
+    "theme": {
+      "primaryColor": "#F59E0B",
+      "secondaryColor": "#059669",
+      "accentColor": "#1E3A8A"
+    }
+  },
+  "nevada": {
+    "name": "Silver State Cart",
+    "type": "shape",
+    "unlock": "Score 10000 coins",
+    "rarity": "epic",
+    "asset": "shapes/nevada_shape.png",
+    "description": "Silver state outline",
+    "theme": {
+      "primaryColor": "#6B7280",
+      "secondaryColor": "#F59E0B",
+      "accentColor": "#EF4444"
+    }
+  },
+  "new_hampshire": {
+    "name": "Granite State Trail",
+    "type": "trail",
+    "unlock": "Reach Level 13",
+    "rarity": "rare",
+    "asset": "trails/new_hampshire_trail.png",
+    "description": "Granite particle trail",
+    "theme": {
+      "primaryColor": "#6B7280",
+      "secondaryColor": "#1E3A8A",
+      "accentColor": "#F59E0B"
+    }
+  },
+  "new_jersey": {
+    "name": "Garden State Flag",
+    "type": "flag",
+    "unlock": "Collect 60 flower items",
+    "rarity": "rare",
+    "asset": "flags/new_jersey_flag.png",
+    "description": "Garden state flag pattern",
+    "theme": {
+      "primaryColor": "#059669",
+      "secondaryColor": "#F59E0B",
+      "accentColor": "#EF4444"
+    }
+  },
+  "new_mexico": {
+    "name": "Land of Enchantment Cart",
+    "type": "shape",
+    "unlock": "Reach Level 14",
+    "rarity": "rare",
+    "asset": "shapes/new_mexico_shape.png",
+    "description": "New Mexico state outline",
+    "theme": {
+      "primaryColor": "#F59E0B",
+      "secondaryColor": "#EF4444",
+      "accentColor": "#1E3A8A"
+    }
+  },
+  "new_york": {
+    "name": "Empire Emblem",
+    "type": "shape",
+    "unlock": "Play 5 games",
+    "rarity": "common",
+    "asset": "shapes/new_york_shape.png",
+    "description": "Empire State emblem",
+    "theme": {
+      "primaryColor": "#1E3A8A",
+      "secondaryColor": "#F59E0B",
+      "accentColor": "#EF4444"
+    }
+  },
+  "north_carolina": {
+    "name": "Tar Heel State Trail",
+    "type": "trail",
+    "unlock": "Reach Level 10",
+    "rarity": "uncommon",
+    "asset": "trails/north_carolina_trail.png",
+    "description": "Tar heel particle trail",
+    "theme": {
+      "primaryColor": "#1E3A8A",
+      "secondaryColor": "#F59E0B",
+      "accentColor": "#EF4444"
+    }
+  },
+  "north_dakota": {
+    "name": "Peace Garden State Cart",
+    "type": "shape",
+    "unlock": "Collect 40 flower items",
+    "rarity": "uncommon",
+    "asset": "shapes/north_dakota_shape.png",
+    "description": "Peace garden state outline",
+    "theme": {
+      "primaryColor": "#059669",
+      "secondaryColor": "#F59E0B",
+      "accentColor": "#1E3A8A"
+    }
+  },
+  "ohio": {
+    "name": "Buckeye State Flag",
+    "type": "flag",
+    "unlock": "Reach Level 7",
+    "rarity": "common",
+    "asset": "flags/ohio_flag.png",
+    "description": "Buckeye state flag pattern",
+    "theme": {
+      "primaryColor": "#1E3A8A",
+      "secondaryColor": "#F59E0B",
+      "accentColor": "#EF4444"
+    }
+  },
+  "oklahoma": {
+    "name": "Sooner State Trail",
+    "type": "trail",
+    "unlock": "Reach Level 16",
+    "rarity": "rare",
+    "asset": "trails/oklahoma_trail.png",
+    "description": "Sooner state particle trail",
+    "theme": {
+      "primaryColor": "#1E3A8A",
+      "secondaryColor": "#F59E0B",
+      "accentColor": "#EF4444"
+    }
+  },
+  "oregon": {
+    "name": "Beaver State Cart",
+    "type": "shape",
+    "unlock": "Survive 15 minutes",
+    "rarity": "epic",
+    "asset": "shapes/oregon_shape.png",
+    "description": "Beaver state outline",
+    "theme": {
+      "primaryColor": "#059669",
+      "secondaryColor": "#1E3A8A",
+      "accentColor": "#F59E0B"
+    }
+  },
+  "pennsylvania": {
+    "name": "Keystone State Flag",
+    "type": "flag",
+    "unlock": "Reach Level 18",
+    "rarity": "rare",
+    "asset": "flags/pennsylvania_flag.png",
+    "description": "Keystone state flag pattern",
+    "theme": {
+      "primaryColor": "#1E3A8A",
+      "secondaryColor": "#F59E0B",
+      "accentColor": "#EF4444"
+    }
+  },
+  "rhode_island": {
+    "name": "Ocean State Trail",
+    "type": "trail",
+    "unlock": "Collect 50 ocean items",
+    "rarity": "rare",
+    "asset": "trails/rhode_island_trail.png",
+    "description": "Ocean wave particle trail",
+    "theme": {
+      "primaryColor": "#1E3A8A",
+      "secondaryColor": "#059669",
+      "accentColor": "#F59E0B"
+    }
+  },
+  "south_carolina": {
+    "name": "Palmetto State Cart",
+    "type": "shape",
+    "unlock": "Collect 35 palm tree items",
+    "rarity": "uncommon",
+    "asset": "shapes/south_carolina_shape.png",
+    "description": "Palmetto state outline",
+    "theme": {
+      "primaryColor": "#059669",
+      "secondaryColor": "#1E3A8A",
+      "accentColor": "#F59E0B"
+    }
+  },
+  "south_dakota": {
+    "name": "Mount Rushmore Trail",
+    "type": "trail",
+    "unlock": "Reach Level 20",
+    "rarity": "epic",
+    "asset": "trails/south_dakota_trail.png",
+    "description": "Mount Rushmore particle trail",
+    "theme": {
+      "primaryColor": "#6B7280",
+      "secondaryColor": "#1E3A8A",
+      "accentColor": "#F59E0B"
+    }
+  },
+  "tennessee": {
+    "name": "Volunteer State Flag",
+    "type": "flag",
+    "unlock": "Reach Level 17",
+    "rarity": "rare",
+    "asset": "flags/tennessee_flag.png",
+    "description": "Volunteer state flag pattern",
+    "theme": {
+      "primaryColor": "#1E3A8A",
+      "secondaryColor": "#F59E0B",
+      "accentColor": "#EF4444"
+    }
+  },
+  "texas": {
+    "name": "Lone Star Cart",
+    "type": "shape",
+    "unlock": "Reach Level 5",
+    "rarity": "common",
+    "asset": "shapes/texas_shape.png",
+    "description": "Texas state outline with lone star",
+    "theme": {
+      "primaryColor": "#1E3A8A",
+      "secondaryColor": "#F59E0B",
+      "accentColor": "#EF4444"
+    }
+  },
+  "utah": {
+    "name": "Beehive State Cart",
+    "type": "shape",
+    "unlock": "Collect 30 honey items",
+    "rarity": "uncommon",
+    "asset": "shapes/utah_shape.png",
+    "description": "Beehive state outline",
+    "theme": {
+      "primaryColor": "#F59E0B",
+      "secondaryColor": "#1E3A8A",
+      "accentColor": "#EF4444"
+    }
+  },
+  "vermont": {
+    "name": "Maple Leaf Trail",
+    "type": "trail",
+    "unlock": "Catch the falling maple leaf item",
+    "rarity": "epic",
+    "asset": "trails/vermont_trail.png",
+    "description": "Maple leaf particle trail",
+    "theme": {
+      "primaryColor": "#F59E0B",
+      "secondaryColor": "#EF4444",
+      "accentColor": "#059669"
+    }
+  },
+  "virginia": {
+    "name": "Old Dominion Flag",
+    "type": "flag",
+    "unlock": "Reach Level 19",
+    "rarity": "rare",
+    "asset": "flags/virginia_flag.png",
+    "description": "Old Dominion flag pattern",
+    "theme": {
+      "primaryColor": "#1E3A8A",
+      "secondaryColor": "#F59E0B",
+      "accentColor": "#EF4444"
+    }
+  },
+  "washington": {
+    "name": "Evergreen State Flag",
+    "type": "flag",
+    "unlock": "Collect 100 apple items",
+    "rarity": "rare",
+    "asset": "flags/washington_flag.png",
+    "description": "Evergreen tree flag pattern",
+    "theme": {
+      "primaryColor": "#059669",
+      "secondaryColor": "#1E3A8A",
+      "accentColor": "#EF4444"
+    }
+  },
+  "west_virginia": {
+    "name": "Mountain State Trail",
+    "type": "trail",
+    "unlock": "Reach Level 22",
+    "rarity": "epic",
+    "asset": "trails/west_virginia_trail.png",
+    "description": "Mountain peak particle trail",
+    "theme": {
+      "primaryColor": "#059669",
+      "secondaryColor": "#1E3A8A",
+      "accentColor": "#F59E0B"
+    }
+  },
+  "wisconsin": {
+    "name": "Badger State Cart",
+    "type": "shape",
+    "unlock": "Collect 40 cheese items",
+    "rarity": "uncommon",
+    "asset": "shapes/wisconsin_shape.png",
+    "description": "Badger state outline",
+    "theme": {
+      "primaryColor": "#F59E0B",
+      "secondaryColor": "#1E3A8A",
+      "accentColor": "#EF4444"
+    }
+  },
+  "wyoming": {
+    "name": "Cowboy State Trail",
+    "type": "trail",
+    "unlock": "Reach Level 25",
+    "rarity": "legendary",
+    "asset": "trails/wyoming_trail.png",
+    "description": "Cowboy hat particle trail",
+    "theme": {
+      "primaryColor": "#8B4513",
+      "secondaryColor": "#F59E0B",
+      "accentColor": "#1E3A8A"
+    }
+  }
+} 

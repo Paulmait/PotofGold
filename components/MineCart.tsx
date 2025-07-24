@@ -73,26 +73,34 @@ export default function MineCart({
             <View style={[styles.flagSection, { backgroundColor: '#FF0000' }]} />
           </View>
         )}
-        {activeSkin.id === 'new_york' && (
-          <View style={styles.newYorkFlag}>
-            <View style={[styles.flagSection, { backgroundColor: '#1E3A8A' }]} />
-            <View style={[styles.flagSection, { backgroundColor: '#F59E0B' }]} />
+        {activeSkin.id === 'florida' && (
+          <View style={styles.floridaFlag}>
+            <View style={[styles.flagSection, { backgroundColor: '#FFFFFF' }]}>
+              <View style={styles.sunEmblem}>
+                <Text style={styles.sunText}>☀️</Text>
+              </View>
+            </View>
+            <View style={[styles.flagSection, { backgroundColor: '#FF0000' }]} />
           </View>
         )}
-        {activeSkin.id === 'washington' && (
-          <View style={styles.washingtonFlag}>
+        {activeSkin.id === 'alaska' && (
+          <View style={styles.alaskaFlag}>
+            <View style={[styles.flagSection, { backgroundColor: '#1E3A8A' }]}>
+              <View style={styles.auroraEmblem}>
+                <Text style={styles.auroraText}>✨</Text>
+              </View>
+            </View>
             <View style={[styles.flagSection, { backgroundColor: '#059669' }]} />
-            <View style={styles.evergreenEmblem}>
-              <Text style={styles.treeText}>🌲</Text>
-            </View>
           </View>
         )}
-        {activeSkin.id === 'maine' && (
-          <View style={styles.maineFlag}>
-            <View style={[styles.flagSection, { backgroundColor: '#1E3A8A' }]} />
-            <View style={styles.lobsterEmblem}>
-              <Text style={styles.lobsterText}>🦞</Text>
+        {activeSkin.id === 'hawaii' && (
+          <View style={styles.hawaiiFlag}>
+            <View style={[styles.flagSection, { backgroundColor: '#1E3A8A' }]}>
+              <View style={styles.hibiscusEmblem}>
+                <Text style={styles.hibiscusText}>🌸</Text>
+              </View>
             </View>
+            <View style={[styles.flagSection, { backgroundColor: '#F59E0B' }]} />
           </View>
         )}
         {/* Add more state flags as needed */}
@@ -110,11 +118,6 @@ export default function MineCart({
             <Text style={styles.shapeText}>TX</Text>
           </View>
         )}
-        {activeSkin.id === 'new_york' && (
-          <View style={[styles.stateShape, { borderColor: activeSkin.theme.accentColor }]}>
-            <Text style={styles.shapeText}>NY</Text>
-          </View>
-        )}
         {activeSkin.id === 'california' && (
           <View style={[styles.stateShape, { borderColor: activeSkin.theme.accentColor }]}>
             <Text style={styles.shapeText}>CA</Text>
@@ -125,9 +128,9 @@ export default function MineCart({
             <Text style={styles.shapeText}>FL</Text>
           </View>
         )}
-        {activeSkin.id === 'arizona' && (
+        {activeSkin.id === 'colorado' && (
           <View style={[styles.stateShape, { borderColor: activeSkin.theme.accentColor }]}>
-            <Text style={styles.shapeText}>AZ</Text>
+            <Text style={styles.shapeText}>CO</Text>
           </View>
         )}
         {activeSkin.id === 'georgia' && (
@@ -138,6 +141,11 @@ export default function MineCart({
         {activeSkin.id === 'nevada' && (
           <View style={[styles.stateShape, { borderColor: activeSkin.theme.accentColor }]}>
             <Text style={styles.shapeText}>NV</Text>
+          </View>
+        )}
+        {activeSkin.id === 'oregon' && (
+          <View style={[styles.stateShape, { borderColor: activeSkin.theme.accentColor }]}>
+            <Text style={styles.shapeText}>OR</Text>
           </View>
         )}
         {/* Add more state shapes as needed */}
@@ -166,9 +174,14 @@ export default function MineCart({
             <Text style={styles.aurora}>✨</Text>
           </View>
         )}
-        {activeSkin.id === 'louisiana' && (
-          <View style={styles.louisianaTrail}>
-            <Text style={styles.bayou}>🌿</Text>
+        {activeSkin.id === 'georgia' && (
+          <View style={styles.georgiaTrail}>
+            <Text style={styles.peach}>🍑</Text>
+          </View>
+        )}
+        {activeSkin.id === 'vermont' && (
+          <View style={styles.vermontTrail}>
+            <Text style={styles.maple}>🍁</Text>
           </View>
         )}
         {activeSkin.id === 'colorado' && (
@@ -330,6 +343,42 @@ const styles = StyleSheet.create({
   lobsterText: {
     fontSize: 12,
   },
+  floridaFlag: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  sunEmblem: {
+    position: 'absolute',
+    top: '20%',
+    left: '20%',
+  },
+  sunText: {
+    fontSize: 12,
+  },
+  alaskaFlag: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  auroraEmblem: {
+    position: 'absolute',
+    top: '20%',
+    left: '20%',
+  },
+  auroraText: {
+    fontSize: 12,
+  },
+  hawaiiFlag: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  hibiscusEmblem: {
+    position: 'absolute',
+    top: '20%',
+    left: '20%',
+  },
+  hibiscusText: {
+    fontSize: 12,
+  },
   shapeEmblem: {
     position: 'absolute',
     top: '10%',
@@ -459,6 +508,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   star: {
+    fontSize: 12,
+  },
+  georgiaTrail: {
+    alignItems: 'center',
+  },
+  peach: {
+    fontSize: 12,
+  },
+  vermontTrail: {
+    alignItems: 'center',
+  },
+  maple: {
     fontSize: 12,
   },
   turboEffect: {
