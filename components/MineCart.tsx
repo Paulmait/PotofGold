@@ -1,220 +1,385 @@
-import React, { useEffect, useRef } from 'react';
-import {
-  View,
-  StyleSheet,
-  Animated,
-  Dimensions,
-} from 'react-native';
-
-const { width } = Dimensions.get('window');
+import React from 'react';
+import { View, StyleSheet, Animated, Text } from 'react-native';
 
 interface MineCartProps {
   position: number;
   size: number;
-  isTurboActive: boolean;
+  isTurboActive?: boolean;
   onWheelSpin?: (direction: 'left' | 'right') => void;
+  activeSkin?: {
+    id: string;
+    type: 'flag' | 'shape' | 'trail';
+    theme: {
+      primaryColor: string;
+      secondaryColor: string;
+      accentColor: string;
+    };
+  };
 }
 
 export default function MineCart({ 
   position, 
   size, 
-  isTurboActive, 
-  onWheelSpin 
+  isTurboActive = false, 
+  onWheelSpin,
+  activeSkin 
 }: MineCartProps) {
-  const wheelRotation = useRef(new Animated.Value(0)).current;
-  const cartScale = useRef(new Animated.Value(1)).current;
-  const lastPosition = useRef(position);
+  const wheelSpinAnimation = new Animated.Value(0);
 
-  // Animate wheels when cart moves
-  useEffect(() => {
-    if (position !== lastPosition.current) {
-      const direction = position > lastPosition.current ? 'right' : 'left';
-      const distance = Math.abs(position - lastPosition.current);
-      
-      // Spin wheels based on movement distance
-      const spinDuration = Math.max(100, distance * 2);
-      const spinValue = direction === 'right' ? 1 : -1;
-      
-      Animated.timing(wheelRotation, {
-        toValue: wheelRotation._value + (spinValue * distance / 10),
-        duration: spinDuration,
-        useNativeDriver: true,
-      }).start();
-
-      onWheelSpin?.(direction);
-      lastPosition.current = position;
+  // Wheel spinning animation
+  React.useEffect(() => {
+    if (isTurboActive) {
+      const spinAnimation = Animated.loop(
+        Animated.timing(wheelSpinAnimation, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: true,
+        })
+      );
+      spinAnimation.start();
+      return () => spinAnimation.stop();
     }
-  }, [position, wheelRotation, onWheelSpin]);
+  }, [isTurboActive]);
 
-  // Turbo boost animation
-  useEffect(() => {
-    Animated.timing(cartScale, {
-      toValue: isTurboActive ? 1.2 : 1,
-      duration: 200,
-      useNativeDriver: true,
-    }).start();
-  }, [isTurboActive, cartScale]);
+  const wheelRotation = wheelSpinAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
+
+  const renderFlagSkin = () => {
+    if (!activeSkin || activeSkin.type !== 'flag') return null;
+
+    return (
+      <View style={[styles.flagOverlay, { backgroundColor: activeSkin.theme.primaryColor }]}>
+        {/* Flag pattern based on state */}
+        {activeSkin.id === 'california' && (
+          <View style={styles.californiaFlag}>
+            <View style={[styles.flagSection, { backgroundColor: '#FFFFFF' }]}>
+              <View style={styles.bearEmblem}>
+                <Text style={styles.bearText}>🐻</Text>
+              </View>
+              <View style={styles.starEmblem}>
+                <Text style={styles.starText}>⭐</Text>
+              </View>
+            </View>
+            <View style={[styles.flagSection, { backgroundColor: '#FF0000' }]} />
+          </View>
+        )}
+        {activeSkin.id === 'texas' && (
+          <View style={styles.texasFlag}>
+            <View style={[styles.flagSection, { backgroundColor: '#FFFFFF' }]}>
+              <Text style={styles.loneStar}>⭐</Text>
+            </View>
+            <View style={[styles.flagSection, { backgroundColor: '#FF0000' }]} />
+          </View>
+        )}
+        {activeSkin.id === 'new_york' && (
+          <View style={styles.newYorkFlag}>
+            <View style={[styles.flagSection, { backgroundColor: '#1E3A8A' }]} />
+            <View style={[styles.flagSection, { backgroundColor: '#F59E0B' }]} />
+          </View>
+        )}
+        {/* Add more state flags as needed */}
+      </View>
+    );
+  };
+
+  const renderShapeSkin = () => {
+    if (!activeSkin || activeSkin.type !== 'shape') return null;
+
+    return (
+      <View style={styles.shapeEmblem}>
+        {activeSkin.id === 'texas' && (
+          <View style={[styles.stateShape, { borderColor: activeSkin.theme.accentColor }]}>
+            <Text style={styles.shapeText}>TX</Text>
+          </View>
+        )}
+        {activeSkin.id === 'new_york' && (
+          <View style={[styles.stateShape, { borderColor: activeSkin.theme.accentColor }]}>
+            <Text style={styles.shapeText}>NY</Text>
+          </View>
+        )}
+        {activeSkin.id === 'california' && (
+          <View style={[styles.stateShape, { borderColor: activeSkin.theme.accentColor }]}>
+            <Text style={styles.shapeText}>CA</Text>
+          </View>
+        )}
+        {activeSkin.id === 'florida' && (
+          <View style={[styles.stateShape, { borderColor: activeSkin.theme.accentColor }]}>
+            <Text style={styles.shapeText}>FL</Text>
+          </View>
+        )}
+        {/* Add more state shapes as needed */}
+      </View>
+    );
+  };
+
+  const renderTrailEffect = () => {
+    if (!activeSkin || activeSkin.type !== 'trail') return null;
+
+    return (
+      <View style={styles.trailContainer}>
+        {activeSkin.id === 'florida' && (
+          <View style={styles.floridaTrail}>
+            <Text style={styles.palmTree}>🌴</Text>
+            <Text style={styles.sun}>☀️</Text>
+          </View>
+        )}
+        {activeSkin.id === 'hawaii' && (
+          <View style={styles.hawaiiTrail}>
+            <Text style={styles.hibiscus}>🌸</Text>
+          </View>
+        )}
+        {activeSkin.id === 'alaska' && (
+          <View style={styles.alaskaTrail}>
+            <Text style={styles.aurora}>✨</Text>
+          </View>
+        )}
+        {/* Add more trail effects as needed */}
+      </View>
+    );
+  };
 
   return (
-    <Animated.View
-      style={[
-        styles.cart,
-        {
-          left: position - size / 2,
-          width: size,
-          height: size * 0.67, // Maintain aspect ratio
-          transform: [
-            { scale: cartScale },
-          ],
-        },
-      ]}
-    >
-      {/* Cart Body */}
-      <View style={styles.cartBody}>
-        {/* Wooden planks */}
-        <View style={styles.plank1} />
-        <View style={styles.plank2} />
-        <View style={styles.plank3} />
+    <View style={[styles.container, { left: position - size / 2 }]}>
+      {/* Main Cart Body */}
+      <View style={[styles.cartBody, { width: size, height: size * 0.67 }]}>
+        {/* Flag Skin Overlay */}
+        {renderFlagSkin()}
         
-        {/* Metal straps */}
-        <View style={styles.strap1} />
-        <View style={styles.strap2} />
-        <View style={styles.strap3} />
+        {/* Shape Skin Emblem */}
+        {renderShapeSkin()}
+        
+        {/* Cart Details */}
+        <View style={styles.cartDetails}>
+          <View style={styles.cartFront}>
+            <View style={styles.cartWindow} />
+          </View>
+          <View style={styles.cartSide}>
+            <View style={styles.woodenPlanks}>
+              <View style={styles.plank} />
+              <View style={styles.plank} />
+              <View style={styles.plank} />
+            </View>
+          </View>
+        </View>
       </View>
 
       {/* Wheels */}
       <View style={styles.wheelsContainer}>
-        <Animated.View
+        <Animated.View 
           style={[
-            styles.wheel,
-            styles.wheelLeft,
-            {
-              transform: [
-                { rotate: wheelRotation.interpolate({
-                  inputRange: [-1000, 1000],
-                  outputRange: ['-1000deg', '1000deg'],
-                }) },
-              ],
-            },
-          ]}
+            styles.wheel, 
+            { 
+              left: size * 0.2,
+              transform: [{ rotate: wheelRotation }]
+            }
+          ]} 
         />
-        <Animated.View
+        <Animated.View 
           style={[
-            styles.wheel,
-            styles.wheelRight,
-            {
-              transform: [
-                { rotate: wheelRotation.interpolate({
-                  inputRange: [-1000, 1000],
-                  outputRange: ['-1000deg', '1000deg'],
-                }) },
-              ],
-            },
-          ]}
+            styles.wheel, 
+            { 
+              right: size * 0.2,
+              transform: [{ rotate: wheelRotation }]
+            }
+          ]} 
         />
       </View>
 
-      {/* Extended hitbox for better catching */}
-      <View style={styles.hitbox} />
-    </Animated.View>
+      {/* Trail Effect */}
+      {renderTrailEffect()}
+
+      {/* Turbo Boost Effect */}
+      {isTurboActive && (
+        <View style={styles.turboEffect}>
+          <Text style={styles.turboText}>⚡</Text>
+        </View>
+      )}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  cart: {
+  container: {
     position: 'absolute',
     bottom: 20,
     zIndex: 20,
   },
   cartBody: {
-    position: 'relative',
-    width: '100%',
-    height: '70%',
-    backgroundColor: '#8B4513', // Brown wood
-    borderRadius: 4,
+    backgroundColor: '#8B4513',
+    borderRadius: 8,
     borderWidth: 2,
     borderColor: '#654321',
+    position: 'relative',
   },
-  plank1: {
-    position: 'absolute',
-    top: 2,
-    left: 2,
-    right: 2,
-    height: 4,
-    backgroundColor: '#A0522D',
-    borderRadius: 2,
-  },
-  plank2: {
-    position: 'absolute',
-    top: 8,
-    left: 2,
-    right: 2,
-    height: 4,
-    backgroundColor: '#A0522D',
-    borderRadius: 2,
-  },
-  plank3: {
-    position: 'absolute',
-    top: 14,
-    left: 2,
-    right: 2,
-    height: 4,
-    backgroundColor: '#A0522D',
-    borderRadius: 2,
-  },
-  strap1: {
+  flagOverlay: {
     position: 'absolute',
     top: 0,
-    left: 4,
-    width: 2,
-    height: '100%',
-    backgroundColor: '#696969',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: 6,
+    opacity: 0.8,
+    zIndex: 1,
   },
-  strap2: {
+  californiaFlag: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  flagSection: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bearEmblem: {
+    position: 'absolute',
+    top: '20%',
+    left: '20%',
+  },
+  bearText: {
+    fontSize: 12,
+  },
+  starEmblem: {
+    position: 'absolute',
+    top: '10%',
+    left: '10%',
+  },
+  starText: {
+    fontSize: 8,
+  },
+  texasFlag: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  loneStar: {
+    fontSize: 16,
+    color: '#1E3A8A',
+  },
+  newYorkFlag: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  shapeEmblem: {
+    position: 'absolute',
+    top: '10%',
+    left: '10%',
+    zIndex: 2,
+  },
+  stateShape: {
+    width: 20,
+    height: 20,
+    borderWidth: 2,
+    borderRadius: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  shapeText: {
+    fontSize: 8,
+    fontWeight: 'bold',
+    color: '#000',
+  },
+  cartDetails: {
     position: 'absolute',
     top: 0,
-    left: '50%',
-    width: 2,
-    height: '100%',
-    backgroundColor: '#696969',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 3,
   },
-  strap3: {
+  cartFront: {
     position: 'absolute',
-    top: 0,
-    right: 4,
-    width: 2,
-    height: '100%',
-    backgroundColor: '#696969',
+    top: '15%',
+    left: '10%',
+    width: '30%',
+    height: '40%',
+    backgroundColor: '#654321',
+    borderRadius: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cartWindow: {
+    width: '60%',
+    height: '60%',
+    backgroundColor: '#87CEEB',
+    borderRadius: 2,
+  },
+  cartSide: {
+    position: 'absolute',
+    top: '15%',
+    right: '10%',
+    width: '40%',
+    height: '40%',
+  },
+  woodenPlanks: {
+    flex: 1,
+    justifyContent: 'space-between',
+  },
+  plank: {
+    height: 2,
+    backgroundColor: '#654321',
+    borderRadius: 1,
   },
   wheelsContainer: {
     position: 'absolute',
     bottom: -8,
     left: 0,
     right: 0,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    height: 16,
   },
   wheel: {
-    width: 12,
-    height: 12,
-    backgroundColor: '#2F2F2F',
-    borderRadius: 6,
+    position: 'absolute',
+    width: 16,
+    height: 16,
+    backgroundColor: '#333333',
+    borderRadius: 8,
     borderWidth: 2,
-    borderColor: '#1A1A1A',
+    borderColor: '#666666',
   },
-  wheelLeft: {
-    marginLeft: 4,
+  trailContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: -20,
+    right: -20,
+    height: 30,
+    zIndex: 1,
   },
-  wheelRight: {
-    marginRight: 4,
+  floridaTrail: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
   },
-  hitbox: {
+  palmTree: {
+    fontSize: 12,
+  },
+  sun: {
+    fontSize: 10,
+  },
+  hawaiiTrail: {
+    alignItems: 'center',
+  },
+  hibiscus: {
+    fontSize: 12,
+  },
+  alaskaTrail: {
+    alignItems: 'center',
+  },
+  aurora: {
+    fontSize: 12,
+  },
+  turboEffect: {
     position: 'absolute',
     top: -10,
-    left: -5,
     right: -5,
-    height: 20,
-    backgroundColor: 'transparent',
-    // This creates an invisible extended hitbox for better collision detection
+    zIndex: 4,
+  },
+  turboText: {
+    fontSize: 16,
   },
 }); 

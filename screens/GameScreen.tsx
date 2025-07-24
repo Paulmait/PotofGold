@@ -32,6 +32,8 @@ import { ComboSystem } from '../utils/comboSystem';
 import { CollisionHandler } from '../utils/collisionHandler';
 import { StateUnlockSystem } from '../utils/stateUnlockSystem';
 import { StateUnlockNotification } from '../components/StateUnlockNotification';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { StateBonusItemManager } from '../utils/stateBonusItems';
 
 const { width, height } = Dimensions.get('window');
 
@@ -355,10 +357,9 @@ export default function GameScreen({ navigation }: GameScreenProps) {
           // Haptic feedback on item collection
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
           
-          // Check if it's a state special item
-          const specialItems = stateUnlockSystem.getSpecialItems();
-          if (specialItems.includes(item.type)) {
-            handleStateSpecialItem(item.type);
+          // Check if it's a state bonus item
+          if (StateBonusItemManager.isStateBonusItem(item.type)) {
+            handleStateBonusItem(item.type);
           } else {
             // Handle regular item collision
             collisionHandler.current?.handleItemCollision(item.type, item.id);
@@ -366,6 +367,50 @@ export default function GameScreen({ navigation }: GameScreenProps) {
         }
       }
     });
+  };
+
+  const handleStateBonusItem = (itemType: string) => {
+    const bonusItem = StateBonusItemManager.getItemByType(itemType);
+    if (!bonusItem) return;
+
+    // Apply item effect
+    const effectResult = StateBonusItemManager.applyItemEffect(itemType, {
+      score,
+      coins,
+      combo,
+      fallSpeed: 1, // Base fall speed
+      magnetRange: 50, // Base magnet range
+    });
+
+    // Update game state based on effect
+    setScore(effectResult.newScore);
+    setCoins(effectResult.newCoins);
+    setCombo(effectResult.newCombo);
+
+    // Show effect message
+    if (effectResult.effectMessage) {
+      // In a real app, show a toast or notification
+      console.log(effectResult.effectMessage);
+    }
+
+    // Apply temporary effects
+    if (effectResult.effectDuration > 0) {
+      // Apply temporary effects like double score, slow fall, etc.
+      setTimeout(() => {
+        // Reset effects after duration
+        console.log(`Effect from ${bonusItem.state} expired`);
+      }, effectResult.effectDuration);
+    }
+
+    // Mark item as collected
+    setFallingItems(prev => 
+      prev.map(item => 
+        item.type === itemType ? { ...item, collected: true } : item
+      )
+    );
+
+    // Update state unlock progress
+    stateUnlockSystem.recordItemCollection(itemType);
   };
 
   // Update collision detection on every frame
@@ -389,77 +434,105 @@ export default function GameScreen({ navigation }: GameScreenProps) {
     return () => clearInterval(powerUpInterval);
   }, [isGameActive]);
 
-  // Update spawnFallingItem to include state special items
+  // Enhanced item spawning with state bonus items
   const spawnFallingItem = () => {
-    // Get current level for spawn modifiers
-    const currentLevel = progressionSystem.getCurrentLevel();
-    const level = currentLevel?.level || 1;
-    
-    // Get level spawn modifiers
-    const levelModifiers = LEVEL_SPAWN_MODIFIERS[level] || LEVEL_SPAWN_MODIFIERS[1];
-    
-    // Create weighted item list based on level
-    const weightedItems: Array<{ type: string; weight: number; config: any }> = [];
-    
-    Object.entries(ITEM_CONFIGS).forEach(([type, config]) => {
-      const rarity = config.rarity;
-      const levelModifier = levelModifiers[rarity] || 1;
-      const adjustedWeight = config.spawnWeight * levelModifier;
-      
-      if (adjustedWeight > 0) {
-        weightedItems.push({
-          type,
-          weight: adjustedWeight,
-          config,
-        });
-      }
-    });
+    if (!isGameActive || isPaused) return;
 
-    // Add state special items if unlocked
-    const specialItems = stateUnlockSystem.getSpecialItems();
-    specialItems.forEach(itemType => {
-      weightedItems.push({
-        type: itemType,
-        weight: 5, // Lower weight for special items
-        config: {
-          fallSpeed: 0.8,
-          rarity: 'epic',
-        },
-      });
-    });
-    
-    // Weighted random selection
-    const totalWeight = weightedItems.reduce((sum, item) => sum + item.weight, 0);
-    let random = Math.random() * totalWeight;
-    
-    let selectedItem = weightedItems[0];
-    for (const item of weightedItems) {
-      random -= item.weight;
-      if (random <= 0) {
-        selectedItem = item;
-        break;
-      }
-    }
-    
-    const randomX = Math.random() * (width - 60) + 30;
+    const x = Math.random() * (width - 60) + 30;
+    const itemType = selectItemType();
     
     const newItem = {
-      id: `item_${Date.now()}_${Math.random()}`,
-      type: selectedItem.type,
-      x: randomX,
+      id: Date.now() + Math.random(),
+      x,
       y: -50,
-      speed: selectedItem.config.fallSpeed,
+      type: itemType,
       collected: false,
-      rarity: selectedItem.config.rarity,
+      fallSpeed: getFallSpeed(),
     };
 
     setFallingItems(prev => [...prev, newItem]);
+  };
 
-    // Remove item after it falls off screen (adjusted for fall speed)
-    const fallDuration = (height + 50) / (selectedItem.config.fallSpeed * 100) * 1000;
-    setTimeout(() => {
-      setFallingItems(prev => prev.filter(item => item.id !== newItem.id));
-    }, fallDuration);
+  const selectItemType = () => {
+    // Check if we should spawn a state bonus item
+    if (StateBonusItemManager.shouldSpawnStateItem(level)) {
+      const bonusItem = StateBonusItemManager.getRandomItem();
+      return bonusItem.type;
+    }
+
+    // Regular item selection logic
+    const levelKey = Math.min(level, 20);
+    const rarityChances = levelRarityChances[levelKey] || levelRarityChances[1];
+    
+    const rand = Math.random() * 100;
+    let cumulative = 0;
+    
+    for (const [rarity, chance] of Object.entries(rarityChances)) {
+      cumulative += chance;
+      if (rand <= cumulative) {
+        const itemsOfRarity = itemTypes.filter(item => item.rarity === rarity);
+        return itemsOfRarity[Math.floor(Math.random() * itemsOfRarity.length)].type;
+      }
+    }
+    
+    // Fallback to common items
+    return itemTypes.find(item => item.rarity === 'common')?.type || 'coin';
+  };
+
+  const getItemEmoji = (type: string) => {
+    // Check if it's a state bonus item
+    const bonusItem = StateBonusItemManager.getItemByType(type);
+    if (bonusItem) {
+      return bonusItem.emoji;
+    }
+
+    // Regular item emojis
+    const icons: { [key: string]: string } = {
+      coin: '🪙',
+      gem: '💎',
+      diamond: '💎',
+      ruby: '🔴',
+      emerald: '💚',
+      sapphire: '💙',
+      gold: '🥇',
+      silver: '🥈',
+      bronze: '🥉',
+      star: '⭐',
+      heart: '❤️',
+      lightning: '⚡',
+      shield: '🛡️',
+      crown: '👑',
+      trophy: '🏆',
+    };
+    return icons[type] || '✨';
+  };
+
+  const getItemPoints = (type: string) => {
+    // Check if it's a state bonus item
+    const bonusItem = StateBonusItemManager.getItemByType(type);
+    if (bonusItem) {
+      return bonusItem.points;
+    }
+
+    // Regular item points
+    const points: { [key: string]: number } = {
+      coin: 1,
+      gem: 5,
+      diamond: 10,
+      ruby: 8,
+      emerald: 7,
+      sapphire: 6,
+      gold: 15,
+      silver: 10,
+      bronze: 5,
+      star: 20,
+      heart: 3,
+      lightning: 25,
+      shield: 12,
+      crown: 50,
+      trophy: 100,
+    };
+    return points[type] || 1;
   };
 
   // Collect coin
@@ -649,6 +722,46 @@ export default function GameScreen({ navigation }: GameScreenProps) {
     return icons[type] || '✨';
   };
 
+  // State-themed bonus items
+  const stateBonusItems = [
+    { type: 'georgia_peach', emoji: '🍑', points: 15, effect: 'bonus_points' },
+    { type: 'vermont_maple', emoji: '🍁', points: 10, effect: 'double_score' },
+    { type: 'colorado_crystal', emoji: '🏔️', points: 12, effect: 'slow_fall' },
+    { type: 'maine_lobster', emoji: '🦞', points: 20, effect: 'bonus_points' },
+    { type: 'texas_star', emoji: '⭐', points: 18, effect: 'bonus_points' },
+    { type: 'hawaii_hibiscus', emoji: '🌸', points: 14, effect: 'bonus_points' },
+    { type: 'alaska_aurora', emoji: '✨', points: 16, effect: 'bonus_points' },
+    { type: 'arizona_cactus', emoji: '🌵', points: 13, effect: 'bonus_points' },
+    { type: 'washington_apple', emoji: '🍎', points: 11, effect: 'bonus_points' },
+    { type: 'louisiana_bayou', emoji: '🌿', points: 17, effect: 'bonus_points' },
+  ];
+
+  // Active skin state
+  const [activeSkin, setActiveSkin] = useState<{
+    id: string;
+    type: 'flag' | 'shape' | 'trail';
+    theme: {
+      primaryColor: string;
+      secondaryColor: string;
+      accentColor: string;
+    };
+  } | null>(null);
+
+  // Load active skin from storage
+  useEffect(() => {
+    const loadActiveSkin = async () => {
+      try {
+        const skinData = await AsyncStorage.getItem('activeSkin');
+        if (skinData) {
+          setActiveSkin(JSON.parse(skinData));
+        }
+      } catch (error) {
+        console.error('Error loading active skin:', error);
+      }
+    };
+    loadActiveSkin();
+  }, []);
+
   return (
     <View style={styles.container}>
       {/* Game Area */}
@@ -737,6 +850,7 @@ export default function GameScreen({ navigation }: GameScreenProps) {
               // Optional: Add sound effects for wheel spinning
               console.log(`Cart wheels spinning ${direction}`);
             }}
+            activeSkin={activeSkin}
           />
         </View>
 
