@@ -21,6 +21,10 @@ import { powerUpEvolutionSystem } from '../utils/powerUpEvolution';
 import { progressionSystem } from '../utils/progressionSystem';
 import { pauseTriggerSystem, GameContext } from '../utils/pauseTriggerSystem';
 import PauseModal from './PauseModal';
+import MineCart from '../components/MineCart';
+import RailTrack from '../components/RailTrack';
+import FallingItems from '../components/FallingItems';
+import { CollisionDetection } from '../utils/collisionDetection';
 
 const { width, height } = Dimensions.get('window');
 
@@ -69,6 +73,10 @@ export default function GameScreen({ navigation }: GameScreenProps) {
   const [pauseTrigger, setPauseTrigger] = useState<any>(null);
   const [pauseActions, setPauseActions] = useState<any>(null);
   const [pauseMonetization, setPauseMonetization] = useState<any>(null);
+
+  // Falling items state
+  const [fallingItems, setFallingItems] = useState<any[]>([]);
+  const [isCartMoving, setIsCartMoving] = useState(false);
 
   // Initialize game
   useEffect(() => {
@@ -120,14 +128,13 @@ export default function GameScreen({ navigation }: GameScreenProps) {
   // Coin spawning system
   const startCoinSpawning = () => {
     coinSpawnTimer.current = setInterval(() => {
-      // Spawn coins based on difficulty
+      // Spawn falling items based on difficulty
       const currentLevel = progressionSystem.getCurrentLevel();
       const difficulty = currentLevel?.difficulty || 1;
       const spawnRate = Math.max(1000 - (difficulty * 100), 300);
       
-      // This would spawn visual coin objects
-      // For now, just increase score
-      setScore(prev => prev + 10);
+      // Spawn a falling item
+      spawnFallingItem();
     }, 1000);
   };
 
@@ -155,12 +162,69 @@ export default function GameScreen({ navigation }: GameScreenProps) {
     // Keep pot within screen bounds
     const clampedPosition = Math.max(potSize / 2, Math.min(width - potSize / 2, newPosition));
     setPotPosition(clampedPosition);
+    setIsCartMoving(Math.abs(translationX) > 5);
 
     // Animate pot movement
     Animated.spring(potAnimation, {
       toValue: clampedPosition,
       useNativeDriver: false,
     }).start();
+  };
+
+  // Handle falling items collection
+  const onItemCollect = (itemId: string) => {
+    const item = fallingItems.find(item => item.id === itemId);
+    if (item) {
+      // Mark item as collected
+      setFallingItems(prev => prev.map(item => 
+        item.id === itemId ? { ...item, collected: true } : item
+      ));
+
+      // Handle different item types
+      switch (item.type) {
+        case 'coin':
+          setCoins(prev => prev + 1);
+          setScore(prev => prev + 10);
+          break;
+        case 'star':
+          setCoins(prev => prev + 2);
+          setScore(prev => prev + 25);
+          break;
+        case 'lightning':
+          activateTurboBoost();
+          setPowerUpsUsed(prev => prev + 1);
+          break;
+        case 'magnet':
+          // Magnet effect - collect nearby items
+          setFallingItems(prev => prev.map(item => 
+            Math.abs(item.x - potPosition) < 100 ? { ...item, collected: true } : item
+          ));
+          break;
+      }
+    }
+  };
+
+  // Spawn falling items
+  const spawnFallingItem = () => {
+    const itemTypes = ['coin', 'star', 'lightning', 'magnet'];
+    const randomType = itemTypes[Math.floor(Math.random() * itemTypes.length)];
+    const randomX = Math.random() * (width - 60) + 30;
+    
+    const newItem = {
+      id: `item_${Date.now()}_${Math.random()}`,
+      type: randomType,
+      x: randomX,
+      y: -50,
+      speed: 1 + Math.random() * 2,
+      collected: false,
+    };
+
+    setFallingItems(prev => [...prev, newItem]);
+
+    // Remove item after it falls off screen
+    setTimeout(() => {
+      setFallingItems(prev => prev.filter(item => item.id !== newItem.id));
+    }, 5000);
   };
 
   // Collect coin
@@ -364,37 +428,27 @@ export default function GameScreen({ navigation }: GameScreenProps) {
           <Text style={styles.boostText}>Boost: {boostBar}%</Text>
         </View>
 
-        {/* Pot */}
-        <PanGestureHandler onGestureEvent={onPanGestureEvent}>
-          <Animated.View
-            style={[
-              styles.pot,
-              {
-                left: potAnimation,
-                width: potSize,
-                height: potSize,
-                transform: [
-                  {
-                    scale: turboBoost ? 1.2 : 1,
-                  },
-                ],
-              },
-            ]}
-          >
-            <View style={[styles.potVisual, { backgroundColor: turboBoost ? '#FFD700' : '#8B4513' }]} />
-          </Animated.View>
-        </PanGestureHandler>
+        {/* Rail Track */}
+        <RailTrack showDust={isCartMoving} isMoving={isCartMoving} />
 
-        {/* Coins (visual representation) */}
-        <Animated.View
-          style={[
-            styles.coin,
-            {
-              opacity: coinAnimation,
-              transform: [{ scale: coinAnimation }],
-            },
-          ]}
+        {/* Falling Items */}
+        <FallingItems 
+          items={fallingItems}
+          onItemCollect={onItemCollect}
         />
+
+        {/* Mine Cart */}
+        <PanGestureHandler onGestureEvent={onPanGestureEvent}>
+          <MineCart
+            position={potPosition}
+            size={potSize}
+            isTurboActive={turboBoost}
+            onWheelSpin={(direction) => {
+              // Optional: Add sound effects for wheel spinning
+              console.log(`Cart wheels spinning ${direction}`);
+            }}
+          />
+        </PanGestureHandler>
       </View>
 
       {/* Game Controls */}
@@ -556,27 +610,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     lineHeight: 20,
   },
-  pot: {
+  // Mine cart specific styles
+  mineCartContainer: {
     position: 'absolute',
-    bottom: 100,
+    bottom: 20,
     zIndex: 20,
-  },
-  potVisual: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 30,
-    borderWidth: 3,
-    borderColor: '#FFD700',
-  },
-  coin: {
-    position: 'absolute',
-    top: 200,
-    left: width / 2 - 15,
-    width: 30,
-    height: 30,
-    backgroundColor: '#FFD700',
-    borderRadius: 15,
-    zIndex: 5,
   },
   controlsContainer: {
     flexDirection: 'row',
