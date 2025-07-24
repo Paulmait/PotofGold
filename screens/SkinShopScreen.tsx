@@ -5,564 +5,400 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Image,
-  Alert,
   Dimensions,
-  Animated,
-  FlatList,
+  Alert,
 } from 'react-native';
-import { skinSystem } from '../utils/skinSystem';
-import { soundSystem } from '../utils/soundSystem';
+import { StateThemeComponents } from '../components/StateThemeComponents';
+import { StateSpecialItems } from '../components/StateSpecialItems';
 
 const { width, height } = Dimensions.get('window');
 
-interface Skin {
-  id: string;
+interface StateSkin {
   name: string;
+  type: 'flag' | 'shape' | 'trail';
+  unlock: string;
+  asset: string;
   description: string;
-  region: string;
-  unlockMethod: 'cost' | 'challenge' | 'achievement' | 'season_pass';
-  cost?: number;
-  challenge?: string;
-  image: string;
-  rarity: 'common' | 'rare' | 'epic' | 'legendary';
-  owned: boolean;
-  equipped: boolean;
+  theme: {
+    primaryColor: string;
+    secondaryColor: string;
+    accentColor: string;
+  };
 }
 
-interface FilterOption {
-  id: string;
-  label: string;
-  value: string;
+interface SkinShopScreenProps {
+  navigation: any;
 }
 
-export default function SkinShopScreen({ navigation }: { navigation: any }) {
-  const [skins, setSkins] = useState<Skin[]>([]);
-  const [filteredSkins, setFilteredSkins] = useState<Skin[]>([]);
-  const [selectedRegion, setSelectedRegion] = useState<string>('all');
-  const [selectedUnlockMethod, setSelectedUnlockMethod] = useState<string>('all');
-  const [selectedRarity, setSelectedRarity] = useState<string>('all');
-  const [isLoading, setIsLoading] = useState(true);
-  const [userCoins, setUserCoins] = useState(0);
-
-  // Animations
-  const [fadeAnim] = useState(new Animated.Value(0));
-  const [slideAnim] = useState(new Animated.Value(50));
-
-  const regions: FilterOption[] = [
-    { id: 'all', label: 'All Regions', value: 'all' },
-    { id: 'south', label: 'South', value: 'south' },
-    { id: 'northeast', label: 'Northeast', value: 'northeast' },
-    { id: 'midwest', label: 'Midwest', value: 'midwest' },
-    { id: 'west', label: 'West', value: 'west' },
-  ];
-
-  const unlockMethods: FilterOption[] = [
-    { id: 'all', label: 'All Methods', value: 'all' },
-    { id: 'cost', label: 'Purchase', value: 'cost' },
-    { id: 'challenge', label: 'Challenge', value: 'challenge' },
-    { id: 'achievement', label: 'Achievement', value: 'achievement' },
-    { id: 'season_pass', label: 'Season Pass', value: 'season_pass' },
-  ];
-
-  const rarities: FilterOption[] = [
-    { id: 'all', label: 'All Rarities', value: 'all' },
-    { id: 'common', label: 'Common', value: 'common' },
-    { id: 'rare', label: 'Rare', value: 'rare' },
-    { id: 'epic', label: 'Epic', value: 'epic' },
-    { id: 'legendary', label: 'Legendary', value: 'legendary' },
-  ];
+export default function SkinShopScreen({ navigation }: SkinShopScreenProps) {
+  const [stateSkins, setStateSkins] = useState<{ [key: string]: StateSkin }>({});
+  const [unlockedSkins, setUnlockedSkins] = useState<Set<string>>(new Set());
+  const [selectedSkin, setSelectedSkin] = useState<string | null>(null);
+  const [filter, setFilter] = useState<'all' | 'flag' | 'shape' | 'trail'>('all');
 
   useEffect(() => {
-    loadSkins();
-    animateIn();
+    loadStateSkins();
+    loadUnlockedSkins();
   }, []);
 
-  const animateIn = () => {
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 500,
-        useNativeDriver: true,
-      }),
-      Animated.spring(slideAnim, {
-        toValue: 0,
-        tension: 50,
-        friction: 7,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  };
-
-  const loadSkins = async () => {
+  const loadStateSkins = async () => {
     try {
-      setIsLoading(true);
-      
-      // Load skins from state_skins.json
-      const skinsData = await skinSystem.getAllSkins();
-      const userProgress = await skinSystem.getUserProgress();
-      
-      // Merge with user progress
-      const enrichedSkins = skinsData.map((skin: any) => ({
-        ...skin,
-        owned: userProgress.ownedSkins.includes(skin.id),
-        equipped: userProgress.currentSkin === skin.id,
-      }));
-      
-      setSkins(enrichedSkins);
-      setFilteredSkins(enrichedSkins);
-      
-      // Get user coins
-      const userData = await skinSystem.getUserData();
-      setUserCoins(userData.coins || 0);
-      
-    } catch (error) {
-      console.log('Error loading skins:', error);
-      Alert.alert('Error', 'Failed to load skins');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const applyFilters = () => {
-    let filtered = skins;
-
-    // Filter by region
-    if (selectedRegion !== 'all') {
-      filtered = filtered.filter(skin => skin.region === selectedRegion);
-    }
-
-    // Filter by unlock method
-    if (selectedUnlockMethod !== 'all') {
-      filtered = filtered.filter(skin => skin.unlockMethod === selectedUnlockMethod);
-    }
-
-    // Filter by rarity
-    if (selectedRarity !== 'all') {
-      filtered = filtered.filter(skin => skin.rarity === selectedRarity);
-    }
-
-    setFilteredSkins(filtered);
-  };
-
-  useEffect(() => {
-    applyFilters();
-  }, [selectedRegion, selectedUnlockMethod, selectedRarity, skins]);
-
-  const purchaseSkin = async (skin: Skin) => {
-    if (userCoins < (skin.cost || 0)) {
-      Alert.alert('Insufficient Coins', `You need ${skin.cost} coins to purchase this skin.`);
-      return;
-    }
-
-    try {
-      const result = await skinSystem.purchaseSkin(skin.id);
-      if (result.success) {
-        // Play purchase sound
-        await soundSystem.playSound('upgrade_success');
-        
-        Alert.alert('Success!', `Purchased ${skin.name}!`);
-        
-        // Reload skins to update owned status
-        await loadSkins();
-      } else {
-        Alert.alert('Purchase Failed', result.message);
-      }
-    } catch (error) {
-      Alert.alert('Error', 'Failed to purchase skin');
-    }
-  };
-
-  const equipSkin = async (skin: Skin) => {
-    try {
-      const result = await skinSystem.equipSkin(skin.id);
-      if (result.success) {
-        // Play skin change sound
-        await soundSystem.playSound('skin_change');
-        
-        Alert.alert('Success!', `Equipped ${skin.name}!`);
-        
-        // Reload skins to update equipped status
-        await loadSkins();
-      } else {
-        Alert.alert('Error', result.message);
-      }
-    } catch (error) {
-      Alert.alert('Error', 'Failed to equip skin');
-    }
-  };
-
-  const getRarityColor = (rarity: string) => {
-    switch (rarity) {
-      case 'common': return '#9E9E9E';
-      case 'rare': return '#2196F3';
-      case 'epic': return '#9C27B0';
-      case 'legendary': return '#FFD700';
-      default: return '#9E9E9E';
-    }
-  };
-
-  const getUnlockMethodIcon = (method: string) => {
-    switch (method) {
-      case 'cost': return '💰';
-      case 'challenge': return '🏆';
-      case 'achievement': return '⭐';
-      case 'season_pass': return '🎫';
-      default: return '❓';
-    }
-  };
-
-  const renderSkinCard = ({ item: skin }: { item: Skin }) => (
-    <Animated.View
-      style={[
-        styles.skinCard,
-        {
-          borderColor: getRarityColor(skin.rarity),
-          opacity: skin.owned ? 1 : 0.7,
+      // In a real app, load from the JSON file
+      const skins = {
+        california: {
+          name: "California Gold",
+          type: "flag",
+          unlock: "Score 1000 coins",
+          asset: "flags/california_flag.png",
+          description: "Golden state flag with bear emblem",
+          theme: {
+            primaryColor: "#FFD700",
+            secondaryColor: "#8B4513",
+            accentColor: "#FFA500"
+          }
         },
-      ]}
-    >
-      <View style={styles.skinImageContainer}>
-        <Text style={styles.skinImage}>🎨</Text>
-        {skin.equipped && (
-          <View style={styles.equippedBadge}>
-            <Text style={styles.equippedText}>✓</Text>
+        texas: {
+          name: "Lone Star Cart",
+          type: "shape",
+          unlock: "Reach Level 7",
+          asset: "shapes/texas_shape.png",
+          description: "Texas state outline with lone star",
+          theme: {
+            primaryColor: "#1E3A8A",
+            secondaryColor: "#F59E0B",
+            accentColor: "#EF4444"
+          }
+        },
+        florida: {
+          name: "Sunshine Splash",
+          type: "trail",
+          unlock: "Invite a friend",
+          asset: "trails/florida_trail.png",
+          description: "Sunshine and palm tree particle trail",
+          theme: {
+            primaryColor: "#1E3A8A",
+            secondaryColor: "#F59E0B",
+            accentColor: "#EF4444"
+          }
+        },
+        // Add more states here...
+      };
+      setStateSkins(skins);
+    } catch (error) {
+      console.error('Error loading state skins:', error);
+    }
+  };
+
+  const loadUnlockedSkins = () => {
+    // In a real app, load from AsyncStorage or game state
+    const unlocked = new Set(['california']); // Example: California is unlocked
+    setUnlockedSkins(unlocked);
+  };
+
+  const isSkinUnlocked = (skinId: string): boolean => {
+    return unlockedSkins.has(skinId);
+  };
+
+  const handleSkinSelect = (skinId: string) => {
+    if (isSkinUnlocked(skinId)) {
+      setSelectedSkin(skinId);
+      // In a real app, apply the skin to the cart
+      console.log(`Applied skin: ${skinId}`);
+    } else {
+      Alert.alert(
+        'Skin Locked',
+        `Unlock this skin by: ${stateSkins[skinId]?.unlock}`,
+        [{ text: 'OK' }]
+      );
+    }
+  };
+
+  const getFilteredSkins = () => {
+    return Object.entries(stateSkins).filter(([id, skin]) => {
+      if (filter === 'all') return true;
+      return skin.type === filter;
+    });
+  };
+
+  const renderSkinCard = ([skinId, skin]: [string, StateSkin]) => {
+    const isUnlocked = isSkinUnlocked(skinId);
+    const isSelected = selectedSkin === skinId;
+
+    return (
+      <TouchableOpacity
+        key={skinId}
+        style={[
+          styles.skinCard,
+          {
+            backgroundColor: isUnlocked ? skin.theme.primaryColor : '#2A2A2A',
+            borderColor: isSelected ? skin.theme.accentColor : 'transparent',
+            borderWidth: isSelected ? 3 : 1,
+          },
+        ]}
+        onPress={() => handleSkinSelect(skinId)}
+      >
+        <View style={styles.skinHeader}>
+          <Text style={[styles.skinName, { color: isUnlocked ? '#FFFFFF' : '#666666' }]}>
+            {skin.name}
+          </Text>
+          <View style={[styles.skinType, { backgroundColor: skin.theme.secondaryColor }]}>
+            <Text style={styles.skinTypeText}>{skin.type.toUpperCase()}</Text>
+          </View>
+        </View>
+
+        <View style={styles.skinPreview}>
+          {isUnlocked ? (
+            <View style={styles.previewContainer}>
+              {skin.type === 'flag' && (
+                <StateThemeComponents.StateFlagPattern
+                  stateId={skinId}
+                  theme={skin.theme}
+                  visualElements={{ flagPattern: skinId }}
+                />
+              )}
+              {skin.type === 'shape' && (
+                <StateThemeComponents.StateShapeSilhouette
+                  stateId={skinId}
+                  theme={skin.theme}
+                  visualElements={{ shapeOutline: skinId }}
+                />
+              )}
+              {skin.type === 'trail' && (
+                <StateThemeComponents.StateParticleEffect
+                  stateId={skinId}
+                  theme={skin.theme}
+                  visualElements={{ particleEffect: skinId }}
+                />
+              )}
+            </View>
+          ) : (
+            <View style={styles.lockedPreview}>
+              <Text style={styles.lockedText}>🔒</Text>
+            </View>
+          )}
+        </View>
+
+        <View style={styles.skinInfo}>
+          <Text style={[styles.skinDescription, { color: isUnlocked ? '#FFFFFF' : '#999999' }]}>
+            {skin.description}
+          </Text>
+          <Text style={[styles.unlockRequirement, { color: isUnlocked ? '#CCCCCC' : '#FF6B6B' }]}>
+            {isUnlocked ? '✓ Unlocked' : skin.unlock}
+          </Text>
+        </View>
+
+        {isSelected && (
+          <View style={[styles.selectedIndicator, { backgroundColor: skin.theme.accentColor }]}>
+            <Text style={styles.selectedText}>✓ SELECTED</Text>
           </View>
         )}
-      </View>
-      
-      <View style={styles.skinInfo}>
-        <Text style={styles.skinName}>{skin.name}</Text>
-        <Text style={styles.skinDescription}>{skin.description}</Text>
-        
-        <View style={styles.skinMeta}>
-          <Text style={styles.skinRegion}>{skin.region}</Text>
-          <Text style={[styles.skinRarity, { color: getRarityColor(skin.rarity) }]}>
-            {skin.rarity.toUpperCase()}
-          </Text>
-        </View>
-        
-        <View style={styles.unlockInfo}>
-          <Text style={styles.unlockIcon}>{getUnlockMethodIcon(skin.unlockMethod)}</Text>
-          <Text style={styles.unlockText}>
-            {skin.unlockMethod === 'cost' 
-              ? `${skin.cost} coins`
-              : skin.challenge || skin.unlockMethod
-            }
-          </Text>
-        </View>
-      </View>
-      
-      <View style={styles.skinActions}>
-        {skin.owned ? (
-          <TouchableOpacity
-            style={[
-              styles.actionButton,
-              skin.equipped && styles.equippedButton,
-            ]}
-            onPress={() => equipSkin(skin)}
-            disabled={skin.equipped}
-          >
-            <Text style={styles.actionButtonText}>
-              {skin.equipped ? 'Equipped' : 'Equip'}
-            </Text>
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity
-            style={[
-              styles.actionButton,
-              styles.purchaseButton,
-              userCoins < (skin.cost || 0) && styles.disabledButton,
-            ]}
-            onPress={() => purchaseSkin(skin)}
-            disabled={userCoins < (skin.cost || 0)}
-          >
-            <Text style={styles.actionButtonText}>
-              {userCoins < (skin.cost || 0) ? 'Need Coins' : `Buy ${skin.cost}`}
-            </Text>
-          </TouchableOpacity>
-        )}
-      </View>
-    </Animated.View>
-  );
-
-  const renderFilterButton = (option: FilterOption, selected: string, onPress: () => void) => (
-    <TouchableOpacity
-      key={option.id}
-      style={[
-        styles.filterButton,
-        selected === option.value && styles.filterButtonActive,
-      ]}
-      onPress={onPress}
-    >
-      <Text style={[
-        styles.filterButtonText,
-        selected === option.value && styles.filterButtonTextActive,
-      ]}>
-        {option.label}
-      </Text>
-    </TouchableOpacity>
-  );
-
-  if (isLoading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <Text style={styles.loadingText}>Loading skins...</Text>
-      </View>
+      </TouchableOpacity>
     );
-  }
+  };
 
   return (
-    <Animated.View
-      style={[
-        styles.container,
-        {
-          opacity: fadeAnim,
-          transform: [{ translateY: slideAnim }],
-        },
-      ]}
-    >
-      {/* Header */}
+    <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Text style={styles.backButtonText}>← Back</Text>
+        <Text style={styles.title}>State Skins</Text>
+        <Text style={styles.subtitle}>Unlock and customize your cart</Text>
+      </View>
+
+      <View style={styles.filterContainer}>
+        <TouchableOpacity
+          style={[styles.filterButton, filter === 'all' && styles.filterActive]}
+          onPress={() => setFilter('all')}
+        >
+          <Text style={[styles.filterText, filter === 'all' && styles.filterTextActive]}>
+            All
+          </Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Skin Shop</Text>
-        <View style={styles.coinDisplay}>
-          <Text style={styles.coinIcon}>💰</Text>
-          <Text style={styles.coinText}>{userCoins}</Text>
+        <TouchableOpacity
+          style={[styles.filterButton, filter === 'flag' && styles.filterActive]}
+          onPress={() => setFilter('flag')}
+        >
+          <Text style={[styles.filterText, filter === 'flag' && styles.filterTextActive]}>
+            Flags
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.filterButton, filter === 'shape' && styles.filterActive]}
+          onPress={() => setFilter('shape')}
+        >
+          <Text style={[styles.filterText, filter === 'shape' && styles.filterTextActive]}>
+            Shapes
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.filterButton, filter === 'trail' && styles.filterActive]}
+          onPress={() => setFilter('trail')}
+        >
+          <Text style={[styles.filterText, filter === 'trail' && styles.filterTextActive]}>
+            Trails
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView style={styles.skinsContainer} showsVerticalScrollIndicator={false}>
+        <View style={styles.skinsGrid}>
+          {getFilteredSkins().map(renderSkinCard)}
         </View>
-      </View>
+      </ScrollView>
 
-      {/* Filters */}
-      <View style={styles.filtersContainer}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <Text style={styles.filterLabel}>Region:</Text>
-          {regions.map(option => 
-            renderFilterButton(
-              option,
-              selectedRegion,
-              () => setSelectedRegion(option.value)
-            )
-          )}
-        </ScrollView>
-        
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <Text style={styles.filterLabel}>Method:</Text>
-          {unlockMethods.map(option => 
-            renderFilterButton(
-              option,
-              selectedUnlockMethod,
-              () => setSelectedUnlockMethod(option.value)
-            )
-          )}
-        </ScrollView>
-        
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <Text style={styles.filterLabel}>Rarity:</Text>
-          {rarities.map(option => 
-            renderFilterButton(
-              option,
-              selectedRarity,
-              () => setSelectedRarity(option.value)
-            )
-          )}
-        </ScrollView>
+      <View style={styles.footer}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
+          <Text style={styles.backButtonText}>Back to Game</Text>
+        </TouchableOpacity>
       </View>
-
-      {/* Skins Grid */}
-      <FlatList
-        data={filteredSkins}
-        renderItem={renderSkinCard}
-        keyExtractor={(item) => item.id}
-        numColumns={2}
-        contentContainerStyle={styles.skinsGrid}
-        showsVerticalScrollIndicator={false}
-      />
-    </Animated.View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a1a',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#1a1a1a',
-  },
-  loadingText: {
-    color: '#fff',
-    fontSize: 18,
+    backgroundColor: '#1A1A1A',
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     padding: 20,
-    backgroundColor: '#2a2a2a',
-    borderBottomWidth: 1,
-    borderBottomColor: '#444',
+    paddingTop: 60,
+    backgroundColor: '#2A2A2A',
   },
-  backButton: {
-    padding: 10,
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    marginBottom: 5,
   },
-  backButtonText: {
-    color: '#FFD700',
+  subtitle: {
     fontSize: 16,
+    color: '#CCCCCC',
   },
-  headerTitle: {
-    color: '#fff',
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  coinDisplay: {
+  filterContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
-  },
-  coinIcon: {
-    fontSize: 20,
-    marginRight: 5,
-  },
-  coinText: {
-    color: '#FFD700',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  filtersContainer: {
     padding: 15,
-    backgroundColor: '#2a2a2a',
-  },
-  filterLabel: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: 'bold',
-    marginRight: 10,
-    alignSelf: 'center',
+    backgroundColor: '#2A2A2A',
+    borderBottomWidth: 1,
+    borderBottomColor: '#333333',
   },
   filterButton: {
-    backgroundColor: '#3a3a3a',
+    flex: 1,
+    paddingVertical: 10,
     paddingHorizontal: 15,
-    paddingVertical: 8,
+    marginHorizontal: 5,
     borderRadius: 20,
-    marginRight: 10,
+    backgroundColor: '#333333',
+    alignItems: 'center',
   },
-  filterButtonActive: {
+  filterActive: {
     backgroundColor: '#FFD700',
   },
-  filterButtonText: {
-    color: '#fff',
-    fontSize: 12,
-  },
-  filterButtonTextActive: {
-    color: '#1a1a1a',
+  filterText: {
+    color: '#FFFFFF',
     fontWeight: 'bold',
+  },
+  filterTextActive: {
+    color: '#1A1A1A',
+  },
+  skinsContainer: {
+    flex: 1,
+    padding: 15,
   },
   skinsGrid: {
-    padding: 10,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
   },
   skinCard: {
-    backgroundColor: '#2a2a2a',
+    width: (width - 45) / 2,
+    marginBottom: 15,
     borderRadius: 15,
     padding: 15,
-    margin: 5,
-    flex: 1,
-    borderWidth: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    elevation: 5,
+    borderWidth: 1,
+    borderColor: '#333333',
   },
-  skinImageContainer: {
-    alignItems: 'center',
-    marginBottom: 10,
-    position: 'relative',
-  },
-  skinImage: {
-    fontSize: 40,
-  },
-  equippedBadge: {
-    position: 'absolute',
-    top: -5,
-    right: -5,
-    backgroundColor: '#4CAF50',
-    borderRadius: 10,
-    width: 20,
-    height: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  equippedText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  skinInfo: {
-    flex: 1,
-  },
-  skinName: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 5,
-  },
-  skinDescription: {
-    color: '#ccc',
-    fontSize: 12,
-    marginBottom: 10,
-  },
-  skinMeta: {
+  skinHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 5,
-  },
-  skinRegion: {
-    color: '#999',
-    fontSize: 10,
-  },
-  skinRarity: {
-    fontSize: 10,
-    fontWeight: 'bold',
-  },
-  unlockInfo: {
-    flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 10,
   },
-  unlockIcon: {
+  skinName: {
     fontSize: 14,
-    marginRight: 5,
+    fontWeight: 'bold',
+    flex: 1,
   },
-  unlockText: {
-    color: '#ccc',
+  skinType: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 10,
+  },
+  skinTypeText: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  skinPreview: {
+    height: 80,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  previewContainer: {
+    width: 60,
+    height: 40,
+  },
+  lockedPreview: {
+    width: 60,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#333333',
+    borderRadius: 10,
+  },
+  lockedText: {
+    fontSize: 24,
+  },
+  skinInfo: {
+    marginBottom: 10,
+  },
+  skinDescription: {
     fontSize: 12,
+    marginBottom: 5,
+    lineHeight: 16,
   },
-  skinActions: {
-    marginTop: 10,
+  unlockRequirement: {
+    fontSize: 11,
+    fontWeight: 'bold',
   },
-  actionButton: {
-    backgroundColor: '#4CAF50',
-    paddingVertical: 8,
-    paddingHorizontal: 15,
-    borderRadius: 8,
+  selectedIndicator: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 10,
+  },
+  selectedText: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  footer: {
+    padding: 20,
+    backgroundColor: '#2A2A2A',
+  },
+  backButton: {
+    backgroundColor: '#FFD700',
+    paddingVertical: 15,
+    borderRadius: 10,
     alignItems: 'center',
   },
-  purchaseButton: {
-    backgroundColor: '#FF6B6B',
-  },
-  equippedButton: {
-    backgroundColor: '#666',
-  },
-  disabledButton: {
-    backgroundColor: '#444',
-  },
-  actionButtonText: {
-    color: '#fff',
-    fontSize: 12,
+  backButtonText: {
+    fontSize: 16,
     fontWeight: 'bold',
+    color: '#1A1A1A',
   },
 }); 

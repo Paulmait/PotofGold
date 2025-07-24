@@ -1,0 +1,182 @@
+{
+  "california": {
+    "name": "California Gold",
+    "type": "flag",
+    "unlock": "Score 1000 coins",
+    "asset": "flags/california_flag.png",
+    "description": "Golden state flag with bear emblem",
+    "theme": {
+      "primaryColor": "#FFD700",
+      "secondaryColor": "#8B4513",
+      "accentColor": "#FFA500"
+    }
+  },
+  "texas": {
+    "name": "Lone Star Cart",
+    "type": "shape",
+    "unlock": "Reach Level 7",
+    "asset": "shapes/texas_shape.png",
+    "description": "Texas state outline with lone star",
+    "theme": {
+      "primaryColor": "#1E3A8A",
+      "secondaryColor": "#F59E0B",
+      "accentColor": "#EF4444"
+    }
+  },
+  "florida": {
+    "name": "Sunshine Splash",
+    "type": "trail",
+    "unlock": "Invite a friend",
+    "asset": "trails/florida_trail.png",
+    "description": "Sunshine and palm tree particle trail",
+    "theme": {
+      "primaryColor": "#1E3A8A",
+      "secondaryColor": "#F59E0B",
+      "accentColor": "#EF4444"
+    }
+  },
+  "new_york": {
+    "name": "Empire State",
+    "type": "flag",
+    "unlock": "Score 5000 coins",
+    "asset": "flags/new_york_flag.png",
+    "description": "Empire State flag pattern",
+    "theme": {
+      "primaryColor": "#1E3A8A",
+      "secondaryColor": "#F59E0B",
+      "accentColor": "#EF4444"
+    }
+  },
+  "hawaii": {
+    "name": "Aloha Trail",
+    "type": "trail",
+    "unlock": "Collect 50 hibiscus items",
+    "asset": "trails/hawaii_trail.png",
+    "description": "Hibiscus flower particle trail",
+    "theme": {
+      "primaryColor": "#059669",
+      "secondaryColor": "#F59E0B",
+      "accentColor": "#EF4444"
+    }
+  },
+  "alaska": {
+    "name": "Northern Lights",
+    "type": "trail",
+    "unlock": "Survive 10 minutes",
+    "asset": "trails/alaska_trail.png",
+    "description": "Aurora borealis particle effect",
+    "theme": {
+      "primaryColor": "#1E3A8A",
+      "secondaryColor": "#059669",
+      "accentColor": "#8B5CF6"
+    }
+  },
+  "arizona": {
+    "name": "Desert Cactus",
+    "type": "shape",
+    "unlock": "Collect 30 cactus items",
+    "asset": "shapes/arizona_shape.png",
+    "description": "Cactus silhouette outline",
+    "theme": {
+      "primaryColor": "#059669",
+      "secondaryColor": "#F59E0B",
+      "accentColor": "#8B4513"
+    }
+  },
+  "washington": {
+    "name": "Evergreen State",
+    "type": "flag",
+    "unlock": "Collect 100 apple items",
+    "asset": "flags/washington_flag.png",
+    "description": "Evergreen tree flag pattern",
+    "theme": {
+      "primaryColor": "#059669",
+      "secondaryColor": "#1E3A8A",
+      "accentColor": "#EF4444"
+    }
+  },
+  "louisiana": {
+    "name": "Bayou Magic",
+    "type": "trail",
+    "unlock": "Achieve 20x combo",
+    "asset": "trails/louisiana_trail.png",
+    "description": "Mystical bayou particle trail",
+    "theme": {
+      "primaryColor": "#059669",
+      "secondaryColor": "#8B5CF6",
+      "accentColor": "#F59E0B"
+    }
+  },
+  "nevada": {
+    "name": "Silver State",
+    "type": "shape",
+    "unlock": "Score 10000 coins",
+    "asset": "shapes/nevada_shape.png",
+    "description": "Silver state outline",
+    "theme": {
+      "primaryColor": "#6B7280",
+      "secondaryColor": "#F59E0B",
+      "accentColor": "#EF4444"
+    }
+  },
+  "maine": {
+    "name": "Lobster Trap",
+    "type": "flag",
+    "unlock": "Collect 25 lobster items",
+    "asset": "flags/maine_flag.png",
+    "description": "Lobster and pine tree flag",
+    "theme": {
+      "primaryColor": "#1E3A8A",
+      "secondaryColor": "#EF4444",
+      "accentColor": "#059669"
+    }
+  },
+  "georgia": {
+    "name": "Peach State",
+    "type": "shape",
+    "unlock": "Collect 40 peach items",
+    "asset": "shapes/georgia_shape.png",
+    "description": "Peach state outline",
+    "theme": {
+      "primaryColor": "#F59E0B",
+      "secondaryColor": "#EF4444",
+      "accentColor": "#059669"
+    }
+  },
+  "colorado": {
+    "name": "Rocky Mountain",
+    "type": "trail",
+    "unlock": "Reach Level 15",
+    "asset": "trails/colorado_trail.png",
+    "description": "Mountain peak particle trail",
+    "theme": {
+      "primaryColor": "#1E3A8A",
+      "secondaryColor": "#059669",
+      "accentColor": "#F59E0B"
+    }
+  },
+  "oregon": {
+    "name": "Beaver State",
+    "type": "flag",
+    "unlock": "Survive 15 minutes",
+    "asset": "flags/oregon_flag.png",
+    "description": "Beaver and tree flag pattern",
+    "theme": {
+      "primaryColor": "#059669",
+      "secondaryColor": "#1E3A8A",
+      "accentColor": "#F59E0B"
+    }
+  },
+  "montana": {
+    "name": "Big Sky",
+    "type": "trail",
+    "unlock": "Collect 50 star items",
+    "asset": "trails/montana_trail.png",
+    "description": "Big sky star particle trail",
+    "theme": {
+      "primaryColor": "#1E3A8A",
+      "secondaryColor": "#F59E0B",
+      "accentColor": "#EF4444"
+    }
+  }
+} 

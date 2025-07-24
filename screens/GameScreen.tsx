@@ -7,7 +7,9 @@ import {
   Animated,
   TouchableOpacity,
   Alert,
+  PanResponder,
 } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import { PanGestureHandler, State } from 'react-native-gesture-handler';
 import { masterGameManager } from '../utils/masterGameManager';
 import { metaGameSystem } from '../utils/metaGameSystem';
@@ -28,6 +30,8 @@ import { CollisionDetection } from '../utils/collisionDetection';
 import { ITEM_CONFIGS, LEVEL_SPAWN_MODIFIERS } from '../utils/itemConfig';
 import { ComboSystem } from '../utils/comboSystem';
 import { CollisionHandler } from '../utils/collisionHandler';
+import { StateUnlockSystem } from '../utils/stateUnlockSystem';
+import { StateUnlockNotification } from '../components/StateUnlockNotification';
 
 const { width, height } = Dimensions.get('window');
 
@@ -91,6 +95,81 @@ export default function GameScreen({ navigation }: GameScreenProps) {
   const [lives, setLives] = useState(3);
   const [activePowerUps, setActivePowerUps] = useState<Map<string, number>>(new Map());
 
+  // State unlock system
+  const stateUnlockSystem = useRef(new StateUnlockSystem()).current;
+  const [currentStateTheme, setCurrentStateTheme] = useState<any>(null);
+  const [unlockedStates, setUnlockedStates] = useState<any[]>([]);
+  const [newUnlocks, setNewUnlocks] = useState<any[]>([]);
+  const [showUnlockNotification, setShowUnlockNotification] = useState(false);
+  const [currentUnlock, setCurrentUnlock] = useState<any>(null);
+
+  // Touchscreen optimization
+  const [touchZones, setTouchZones] = useState({
+    leftZone: { x: 0, y: 0, width: width / 2, height: height },
+    rightZone: { x: width / 2, y: 0, width: width / 2, height: height },
+  });
+
+  // Pan responder for improved touch handling
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: () => true,
+      onPanResponderGrant: (evt) => {
+        // Haptic feedback on touch start
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      },
+      onPanResponderMove: (evt, gestureState) => {
+        if (!isGameActive || isPaused) return;
+
+        const { dx } = gestureState;
+        const sensitivity = 0.5; // Adjust for better control
+        const newPosition = potPosition + dx * sensitivity * potSpeed;
+        
+        // Clamp cart position to stay within screen bounds
+        const cartWidth = potSize;
+        const minPosition = cartWidth / 2;
+        const maxPosition = width - cartWidth / 2;
+        const clampedPosition = Math.max(minPosition, Math.min(maxPosition, newPosition));
+        
+        setPotPosition(clampedPosition);
+        setIsCartMoving(Math.abs(dx) > 5);
+
+        // Animate cart movement
+        Animated.spring(potAnimation, {
+          toValue: clampedPosition,
+          useNativeDriver: false,
+        }).start();
+      },
+      onPanResponderRelease: () => {
+        setIsCartMoving(false);
+      },
+    })
+  ).current;
+
+  // Handle tap zones for left/right movement
+  const handleZoneTap = (zone: 'left' | 'right') => {
+    if (!isGameActive || isPaused) return;
+
+    const moveDistance = 50; // Distance to move per tap
+    const newPosition = zone === 'left' 
+      ? Math.max(potSize / 2, potPosition - moveDistance)
+      : Math.min(width - potSize / 2, potPosition + moveDistance);
+
+    setPotPosition(newPosition);
+    setIsCartMoving(true);
+
+    // Haptic feedback
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
+    // Animate cart movement
+    Animated.spring(potAnimation, {
+      toValue: newPosition,
+      useNativeDriver: false,
+    }).start(() => {
+      setIsCartMoving(false);
+    });
+  };
+
   // Initialize game
   useEffect(() => {
     initializeGame();
@@ -132,6 +211,51 @@ export default function GameScreen({ navigation }: GameScreenProps) {
       },
     });
   }, []);
+
+  // Handle state special item collection
+  const handleStateSpecialItem = (itemType: string) => {
+    const stateUnlock = unlockedStates.find(unlock => 
+      unlock.visualElements.specialItem === itemType
+    );
+
+    if (stateUnlock) {
+      // State special items give bonus points and coins
+      const bonusScore = 50;
+      const bonusCoins = 10;
+      
+      setScore(prev => prev + bonusScore);
+      setCoins(prev => prev + bonusCoins);
+      
+      console.log(`🏆 State Special: ${stateUnlock.stateName} - +${bonusScore} score, +${bonusCoins} coins`);
+    }
+  };
+
+  // Check for state unlocks
+  useEffect(() => {
+    if (isGameActive && score > 0) {
+      const gameStats = {
+        score,
+        coins,
+        combo,
+        timeSurvived,
+        itemsCollected: fallingItems.filter(item => item.collected).length,
+      };
+
+      const newUnlocks = stateUnlockSystem.checkForNewUnlocks(gameStats);
+      if (newUnlocks.length > 0) {
+        setNewUnlocks(newUnlocks);
+        // Show unlock notification
+        newUnlocks.forEach(unlock => {
+          console.log(`🎉 Unlocked: ${unlock.stateName} - ${unlock.description}`);
+          setCurrentUnlock(unlock);
+          setShowUnlockNotification(true);
+        });
+      }
+
+      // Update unlocked states
+      setUnlockedStates(stateUnlockSystem.getUnlockedStates());
+    }
+  }, [score, coins, combo, timeSurvived, fallingItems, isGameActive]);
 
   const initializeGame = async () => {
     try {
@@ -202,30 +326,7 @@ export default function GameScreen({ navigation }: GameScreenProps) {
     }, 2000);
   };
 
-  // Handle mine cart movement (only when not paused)
-  const onPanGestureEvent = (event: any) => {
-    if (!isGameActive || isPaused) return;
-
-    const { translationX } = event.nativeEvent;
-    const newPosition = potPosition + translationX * potSpeed;
-    
-    // Clamp cart position to stay within screen bounds
-    const cartWidth = potSize;
-    const minPosition = cartWidth / 2;
-    const maxPosition = width - cartWidth / 2;
-    const clampedPosition = Math.max(minPosition, Math.min(maxPosition, newPosition));
-    
-    setPotPosition(clampedPosition);
-    setIsCartMoving(Math.abs(translationX) > 5);
-
-    // Animate cart movement
-    Animated.spring(potAnimation, {
-      toValue: clampedPosition,
-      useNativeDriver: false,
-    }).start();
-  };
-
-  // Handle falling items collection with proper hitbox detection
+  // Enhanced collision detection with haptic feedback
   const checkCollisions = () => {
     if (!collisionHandler.current || !isGameActive || isPaused) return;
 
@@ -251,8 +352,17 @@ export default function GameScreen({ navigation }: GameScreenProps) {
       if (CollisionDetection.isItemInCartRange(item, cart)) {
         // Check for collision
         if (CollisionDetection.checkItemCollision(item, cart)) {
-          // Handle collision based on item type
-          collisionHandler.current?.handleItemCollision(item.type, item.id);
+          // Haptic feedback on item collection
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+          
+          // Check if it's a state special item
+          const specialItems = stateUnlockSystem.getSpecialItems();
+          if (specialItems.includes(item.type)) {
+            handleStateSpecialItem(item.type);
+          } else {
+            // Handle regular item collision
+            collisionHandler.current?.handleItemCollision(item.type, item.id);
+          }
         }
       }
     });
@@ -279,7 +389,7 @@ export default function GameScreen({ navigation }: GameScreenProps) {
     return () => clearInterval(powerUpInterval);
   }, [isGameActive]);
 
-  // Spawn falling items
+  // Update spawnFallingItem to include state special items
   const spawnFallingItem = () => {
     // Get current level for spawn modifiers
     const currentLevel = progressionSystem.getCurrentLevel();
@@ -303,6 +413,19 @@ export default function GameScreen({ navigation }: GameScreenProps) {
           config,
         });
       }
+    });
+
+    // Add state special items if unlocked
+    const specialItems = stateUnlockSystem.getSpecialItems();
+    specialItems.forEach(itemType => {
+      weightedItems.push({
+        type: itemType,
+        weight: 5, // Lower weight for special items
+        config: {
+          fallSpeed: 0.8,
+          rarity: 'epic',
+        },
+      });
     });
     
     // Weighted random selection
@@ -590,8 +713,22 @@ export default function GameScreen({ navigation }: GameScreenProps) {
           onItemCollect={onItemCollect}
         />
 
+        {/* Touch Zones for Mobile Controls */}
+        <View style={styles.touchZonesContainer}>
+          <TouchableOpacity
+            style={styles.touchZone}
+            onPress={() => handleZoneTap('left')}
+            activeOpacity={0.1}
+          />
+          <TouchableOpacity
+            style={styles.touchZone}
+            onPress={() => handleZoneTap('right')}
+            activeOpacity={0.1}
+          />
+        </View>
+
         {/* Mine Cart */}
-        <PanGestureHandler onGestureEvent={onPanGestureEvent}>
+        <View {...panResponder.panHandlers}>
           <MineCart
             position={potPosition}
             size={potSize}
@@ -601,7 +738,19 @@ export default function GameScreen({ navigation }: GameScreenProps) {
               console.log(`Cart wheels spinning ${direction}`);
             }}
           />
-        </PanGestureHandler>
+        </View>
+
+        {/* State Unlock Notification */}
+        {showUnlockNotification && currentUnlock && (
+          <StateUnlockNotification
+            unlock={currentUnlock}
+            visible={showUnlockNotification}
+            onHide={() => {
+              setShowUnlockNotification(false);
+              setCurrentUnlock(null);
+            }}
+          />
+        )}
       </View>
 
       {/* Game Controls */}
@@ -686,6 +835,14 @@ export default function GameScreen({ navigation }: GameScreenProps) {
             <Text style={styles.gameOverButtonText}>Continue</Text>
           </TouchableOpacity>
         </View>
+      )}
+
+      {/* State Unlock Notification */}
+      {showUnlockNotification && currentUnlock && (
+        <StateUnlockNotification
+          unlock={currentUnlock}
+          onClose={() => setShowUnlockNotification(false)}
+        />
       )}
     </View>
   );
@@ -939,5 +1096,19 @@ const styles = StyleSheet.create({
     height: '100%',
     backgroundColor: '#00FF00',
     borderRadius: 4,
+  },
+  touchZonesContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    flexDirection: 'row',
+    zIndex: 15,
+  },
+  touchZone: {
+    flex: 1,
+    height: '100%',
+    // Invisible but touchable zones
   },
 }); 
