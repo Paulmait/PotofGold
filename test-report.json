@@ -1,0 +1,52 @@
+{
+  "timestamp": "2025-07-24T23:27:46.618Z",
+  "compliance": {
+    "Privacy Policy": true,
+    "Terms of Service": true,
+    "App Store Compliance": true,
+    "Firebase Security Rules": true,
+    "ESLint Configuration": true,
+    "TypeScript Configuration": true,
+    "Package.json Dependencies": true,
+    "App Configuration": true,
+    "Comprehensive Tests": true,
+    "Security Tests": true,
+    "Performance Tests": true,
+    "Compliance Tests": true
+  },
+  "testResults": {
+    "unit": {
+      "passed": false,
+      "output": "\n> pot-of-gold@1.0.0 test\n> jest --config jest.config.js\n\n"
+    },
+    "integration": {
+      "passed": false,
+      "output": "\n> pot-of-gold@1.0.0 test:integration\n> jest --testPathPattern=__tests__/integration\n\n"
+    },
+    "security": {
+      "passed": false,
+      "output": "\n> pot-of-gold@1.0.0 test:security\n> jest --testPathPattern=__tests__/security\n\n"
+    },
+    "performance": {
+      "passed": false,
+      "output": "\n> pot-of-gold@1.0.0 test:performance\n> jest --testPathPattern=__tests__/performance\n\n"
+    },
+    "accessibility": {
+      "passed": false,
+      "output": "Command failed: npm run test:accessibility\nnpm error Missing script: \"test:accessibility\"\nnpm error\nnpm error To see a list of scripts, run:\nnpm error   npm run\nnpm error A complete log of this run can be found in: C:\\Users\\maito\\AppData\\Local\\npm-cache\\_logs\\2025-07-24T23_27_46_232Z-debug-0.log\n"
+    },
+    "compliance": {
+      "passed": false,
+      "output": "Command failed: npm run test:compliance\nnpm error Missing script: \"test:compliance\"\nnpm error\nnpm error To see a list of scripts, run:\nnpm error   npm run\nnpm error A complete log of this run can be found in: C:\\Users\\maito\\AppData\\Local\\npm-cache\\_logs\\2025-07-24T23_27_46_542Z-debug-0.log\n"
+    }
+  },
+  "summary": {
+    "totalTests": 6,
+    "passedTests": 0,
+    "failedTests": 6,
+    "allPassed": false
+  },
+  "recommendations": [
+    "Fix failing tests before app store submission"
+  ]
+}

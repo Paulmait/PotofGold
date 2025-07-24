@@ -42,6 +42,7 @@ import { UnlockManager, UserData, SkinConfig } from '../utils/unlockManager';
 import { useUserUnlocks } from '../context/UserUnlockContext';
 import { MysterySkinSystem } from '../utils/mysterySkinSystem';
 import MysteryCrate from '../components/MysteryCrate';
+import { useSeasonalSkins } from '../hooks/useSeasonalSkins';
 
 const { width, height } = Dimensions.get('window');
 
@@ -50,7 +51,8 @@ interface GameScreenProps {
 }
 
 export default function GameScreen({ navigation }: GameScreenProps) {
-  const { isSkinUnlocked, getSelectedCartSkin, unlockSkin } = useUserUnlocks();
+  const { unlockedSkins, selectedCartSkin, isSkinUnlocked } = useUserUnlocks();
+  const { activeSeasonalSkins, isSkinCurrentlyAvailable } = useSeasonalSkins();
   
   // Game state
   const [isGameActive, setIsGameActive] = useState(false);

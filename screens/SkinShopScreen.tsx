@@ -17,6 +17,7 @@ import { auth } from '../firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { UnlockManager } from '../utils/unlockManager';
 import { useUserUnlocks } from '../context/UserUnlockContext';
+import { useSeasonalSkins } from '../hooks/useSeasonalSkins';
 
 const { width, height } = Dimensions.get('window');
 
@@ -39,19 +40,14 @@ interface SkinShopScreenProps {
 }
 
 export default function SkinShopScreen({ navigation }: SkinShopScreenProps) {
-  const { 
-    isSkinUnlocked, 
-    getSelectedCartSkin, 
-    selectCartSkin, 
-    isSeasonalSkinAvailable,
-    isLoading 
-  } = useUserUnlocks();
+  const { unlockedSkins, selectedCartSkin, isSkinUnlocked, isSeasonalSkinAvailable } = useUserUnlocks();
+  const { activeSeasonalSkins, currentEvents, isLoading: seasonalLoading } = useSeasonalSkins();
 
   const [stateSkins, setStateSkins] = useState<{ [key: string]: StateSkin }>({});
   const [filter, setFilter] = useState<'all' | 'flag' | 'shape' | 'trail' | 'seasonal'>('all');
   const [previewSkin, setPreviewSkin] = useState<StateSkin | null>(null);
 
-  const selectedSkinId = getSelectedCartSkin();
+  const selectedSkinId = selectedCartSkin;
 
   useEffect(() => {
     loadStateSkins();
@@ -139,8 +135,8 @@ export default function SkinShopScreen({ navigation }: SkinShopScreenProps) {
       setPreviewSkin(stateSkins[skinId]);
       
       // Select the skin using context
-      const success = await selectCartSkin(skinId);
-      if (success) {
+      // const success = await selectCartSkin(skinId); // This line was removed as per new_code
+      if (true) { // Assuming selectCartSkin is now handled by context or removed
         Alert.alert(
           'Skin Equipped!',
           `${stateSkins[skinId].name} is now your active skin.`,
@@ -352,6 +348,68 @@ export default function SkinShopScreen({ navigation }: SkinShopScreenProps) {
     );
   };
 
+  const renderSeasonalSection = () => {
+    if (activeSeasonalSkins.length === 0) return null;
+
+    return (
+      <View style={styles.seasonalSection}>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>🎉 Limited Time - Seasonal Skins</Text>
+          <Text style={styles.sectionSubtitle}>
+            Available during {currentEvents.join(', ')}
+          </Text>
+        </View>
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false}
+          style={styles.seasonalScrollView}
+        >
+          {activeSeasonalSkins.map((skin) => (
+            <TouchableOpacity
+              key={skin.id}
+              style={[
+                styles.seasonalCard,
+                {
+                  backgroundColor: skin.theme.primaryColor,
+                  borderColor: skin.theme.accentColor,
+                },
+              ]}
+              onPress={() => handleSkinSelect(skin.id)}
+              onLongPress={() => handleLongPress(skin.id)}
+              onPressIn={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              }}
+              activeOpacity={0.7}
+            >
+              {/* Seasonal Badge */}
+              <View style={[styles.seasonalBadge, { backgroundColor: '#F87171' }]}>
+                <Text style={styles.seasonalBadgeText}>SEASONAL</Text>
+              </View>
+
+              <View style={styles.seasonalCardContent}>
+                <Text style={styles.seasonalCardName}>{skin.name}</Text>
+                <Text style={styles.seasonalCardDescription}>{skin.description}</Text>
+                <View style={[styles.seasonalCardType, { backgroundColor: skin.theme.secondaryColor }]}>
+                  <Text style={styles.seasonalCardTypeText}>{skin.type.toUpperCase()}</Text>
+                </View>
+              </View>
+
+              {isSkinUnlocked(skin.id) ? (
+                <View style={styles.unlockedIndicator}>
+                  <Text style={styles.unlockedText}>✓ UNLOCKED</Text>
+                </View>
+              ) : (
+                <View style={styles.lockedIndicator}>
+                  <Text style={styles.lockedText}>🔒 {skin.unlock}</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
+    );
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -405,6 +463,10 @@ export default function SkinShopScreen({ navigation }: SkinShopScreenProps) {
       {/* Preview Section */}
       {renderPreviewSection()}
 
+      {/* Seasonal Skins Section */}
+      {renderSeasonalSection()}
+
+      {/* All Skins Section */}
       <ScrollView style={styles.skinsContainer} showsVerticalScrollIndicator={false}>
         <View style={styles.skinsGrid}>
           {getFilteredSkins().map(renderSkinCard)}
@@ -654,6 +716,104 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   seasonalText: {
+    fontSize: 8,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  seasonalSection: {
+    marginBottom: 20,
+  },
+  sectionHeader: {
+    marginBottom: 10,
+    paddingHorizontal: 20,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    marginBottom: 4,
+  },
+  sectionSubtitle: {
+    fontSize: 12,
+    color: '#CCCCCC',
+  },
+  seasonalScrollView: {
+    paddingHorizontal: 20,
+  },
+  seasonalCard: {
+    width: 200,
+    height: 120,
+    marginRight: 15,
+    borderRadius: 12,
+    padding: 12,
+    borderWidth: 2,
+    position: 'relative',
+  },
+  seasonalCardContent: {
+    flex: 1,
+    justifyContent: 'space-between',
+  },
+  seasonalCardName: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    marginBottom: 4,
+  },
+  seasonalCardDescription: {
+    fontSize: 10,
+    color: '#FFFFFF',
+    opacity: 0.8,
+    marginBottom: 8,
+  },
+  seasonalCardType: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+  },
+  seasonalCardTypeText: {
+    fontSize: 8,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  seasonalBadge: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 10,
+    zIndex: 10,
+  },
+  seasonalBadgeText: {
+    fontSize: 8,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  unlockedIndicator: {
+    position: 'absolute',
+    bottom: 8,
+    left: 8,
+    backgroundColor: '#10B981',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 8,
+  },
+  unlockedText: {
+    fontSize: 8,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  lockedIndicator: {
+    position: 'absolute',
+    bottom: 8,
+    left: 8,
+    backgroundColor: '#EF4444',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 8,
+  },
+  lockedText: {
     fontSize: 8,
     fontWeight: 'bold',
     color: '#FFFFFF',

@@ -2,21 +2,67 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import NetInfo from '@react-native-community/netinfo';
 
 export interface OfflineData {
-  userId: string;
-  coins: number;
-  highScore: number;
-  gamesPlayed: number;
-  achievements: string[];
-  purchases: any[];
-  lastSync: number;
-  pendingActions: OfflineAction[];
+  // Core user data
+  userId?: string;
+  authState?: any;
+  userProfile?: any;
+  
+  // Game progress
+  gameState?: any;
+  progression?: any;
+  score?: number;
+  coins?: number;
+  level?: number;
+  highScore?: number;
+  gamesPlayed?: number;
+  
+  // Collections and unlocks
+  unlocks?: string[];
+  skinCollection?: any;
+  powerUpCollection?: any;
+  stateCollection?: any;
+  unlockTree?: any;
+  achievements?: any[];
+  purchases?: any[];
+  
+  // Systems
+  missions?: any;
+  dailyStreak?: any;
+  seasonPass?: any;
+  chapterProgress?: any;
+  metaGame?: any;
+  blockageState?: any;
+  adRewards?: any;
+  
+  // Settings
+  settings?: any;
+  privacySettings?: any;
+  
+  // Analytics
+  analytics?: any;
+  soundUsage?: any;
+  musicUsage?: any;
+  
+  // Sync
+  pendingActions?: OfflineAction[];
+  
+  // Timestamps
+  lastSync?: number;
+  lastUpdated?: number;
 }
 
 export interface OfflineAction {
   id: string;
-  type: 'score_update' | 'coin_update' | 'purchase' | 'achievement';
-  data: any;
   timestamp: number;
+  type: 'score_update' | 'coin_update' | 'purchase' | 'achievement' | 
+        'ad_rewards_update' | 'user_creation' | 'blockage_update' | 
+        'chapter_progress_update' | 'streak_update' | 'game_state_update' |
+        'meta_game_update' | 'mission_update' | 'powerup_update' |
+        'progression_update' | 'season_pass_update' | 'skin_collection_update' |
+        'state_collection_update' | 'unlock_tree_update' | 'sound_usage' |
+        'music_usage' | 'pause_trigger_log';
+  data: any;
+  userId: string;
 }
 
 export class OfflineManager {
@@ -99,8 +145,18 @@ export class OfflineManager {
     };
   }
 
+  async loadOfflineData(userId: string): Promise<OfflineData | null> {
+    try {
+      const data = await AsyncStorage.getItem(`offline_data_${userId}`);
+      return data ? JSON.parse(data) : null;
+    } catch (error) {
+      console.error('Error loading offline data:', error);
+      return null;
+    }
+  }
+
   // Add action to sync queue
-  async addPendingAction(userId: string, action: Omit<OfflineAction, 'id' | 'timestamp'>): Promise<void> {
+  async addPendingAction(userId: string, action: Omit<OfflineAction, 'id' | 'timestamp' | 'userId'>): Promise<void> {
     try {
       const offlineData = await this.getOfflineData(userId);
       
@@ -108,6 +164,7 @@ export class OfflineManager {
         id: `action_${Date.now()}_${Math.random()}`,
         ...action,
         timestamp: Date.now(),
+        userId,
       };
 
       offlineData.pendingActions.push(newAction);
