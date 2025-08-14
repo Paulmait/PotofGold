@@ -1,0 +1,44 @@
+{
+  "month": "2024_02",
+  "displayName": "February 2024",
+  "theme": "Valentine's Gold",
+  "drops": {
+    "cartSkin": {
+      "id": "cupid_cart_v1",
+      "name": "Cupid's Cart",
+      "description": "Spread the love with this heart-adorned cart",
+      "rarity": "epic",
+      "imageUrl": "assets/skins/carts/cupid_cart.png",
+      "unlockCondition": "gold_vault_subscriber"
+    },
+    "trail": {
+      "id": "heart_sparkle_trail_v1",
+      "name": "Heart Sparkle Trail",
+      "description": "Leave a trail of floating hearts",
+      "rarity": "epic",
+      "imageUrl": "assets/skins/trails/heart_sparkle_trail.png",
+      "particleConfig": {
+        "color": "#FF69B4",
+        "sparkle": true,
+        "fadeTime": 2.0,
+        "shape": "heart"
+      }
+    },
+    "badge": {
+      "id": "love_struck_v1",
+      "name": "Love Struck",
+      "description": "February exclusive love badge",
+      "rarity": "epic",
+      "imageUrl": "assets/badges/love_struck.png",
+      "animated": true
+    },
+    "bonusCoins": 1500,
+    "bonusXpMultiplier": 1.75
+  },
+  "availability": {
+    "startDate": "2024-02-01T00:00:00Z",
+    "endDate": "2024-02-29T23:59:59Z",
+    "requiresSubscription": true,
+    "autoGrant": true
+  }
+}

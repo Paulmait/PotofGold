@@ -1,0 +1,16 @@
+{
+  "id": "drop_2025_09",
+  "monthLabel": "September 2025",
+  "cartSkinId": "cart_harvest_brass_v1",
+  "trailId": "trail_leaf_swirl_v1",
+  "badgeId": "badge_equinoct_v1",
+  "frameId": "frame_autumn_plait_v1",
+  "bonusCoins": 800,
+  "claimWindowDays": 45,
+  "previewArt": {
+    "cartSkinPng": "assets/previews/cart_harvest_brass_v1.png",
+    "trailPng": "assets/previews/trail_leaf_swirl_v1.png",
+    "badgePng": "assets/previews/badge_equinoct_v1.png",
+    "framePng": "assets/previews/frame_autumn_plait_v1.png"
+  }
+}

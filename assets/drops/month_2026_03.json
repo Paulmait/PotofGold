@@ -1,0 +1,16 @@
+{
+  "id": "drop_2026_03",
+  "monthLabel": "March 2026",
+  "cartSkinId": "cart_emerald_pot_v1",
+  "trailId": "trail_rainbow_arc_v2",
+  "badgeId": "badge_clovercrest_v1",
+  "frameId": "frame_emerald_knot_v1",
+  "bonusCoins": 1000,
+  "claimWindowDays": 45,
+  "previewArt": {
+    "cartSkinPng": "assets/previews/cart_emerald_pot_v1.png",
+    "trailPng": "assets/previews/trail_rainbow_arc_v2.png",
+    "badgePng": "assets/previews/badge_clovercrest_v1.png",
+    "framePng": "assets/previews/frame_emerald_knot_v1.png"
+  }
+}

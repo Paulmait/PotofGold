@@ -12,9 +12,9 @@ export interface PrivacySettings {
 export class PrivacyManager {
   private static instance: PrivacyManager;
   private settings: PrivacySettings = {
-    analyticsEnabled: true,
-    personalizedAds: true,
-    dataCollection: true,
+    analyticsEnabled: false,
+    personalizedAds: false,
+    dataCollection: false,
     crashReporting: true,
     marketingEmails: false,
   };

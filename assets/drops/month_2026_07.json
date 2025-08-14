@@ -1,0 +1,16 @@
+{
+  "id": "drop_2026_07",
+  "monthLabel": "July 2026",
+  "cartSkinId": "cart_starspangled_gold_v1",
+  "trailId": "trail_firework_spark_v1",
+  "badgeId": "badge_constellation_v1",
+  "frameId": "frame_banner_line_v1",
+  "bonusCoins": 1000,
+  "claimWindowDays": 45,
+  "previewArt": {
+    "cartSkinPng": "assets/previews/cart_starspangled_gold_v1.png",
+    "trailPng": "assets/previews/trail_firework_spark_v1.png",
+    "badgePng": "assets/previews/badge_constellation_v1.png",
+    "framePng": "assets/previews/frame_banner_line_v1.png"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "id": "drop_2025_11",
+  "monthLabel": "November 2025",
+  "cartSkinId": "cart_copper_maple_v1",
+  "trailId": "trail_copper_spark_v1",
+  "badgeId": "badge_cornucopia_v1",
+  "frameId": "frame_caramel_band_v1",
+  "bonusCoins": 800,
+  "claimWindowDays": 45,
+  "previewArt": {
+    "cartSkinPng": "assets/previews/cart_copper_maple_v1.png",
+    "trailPng": "assets/previews/trail_copper_spark_v1.png",
+    "badgePng": "assets/previews/badge_cornucopia_v1.png",
+    "framePng": "assets/previews/frame_caramel_band_v1.png"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "id": "drop_2025_08",
+  "monthLabel": "August 2025",
+  "cartSkinId": "cart_aurora_gold_v1",
+  "trailId": "trail_sunflare_v1",
+  "badgeId": "badge_founders_vault_v1",
+  "frameId": "frame_aurum_ribbon_v1",
+  "bonusCoins": 1000,
+  "claimWindowDays": 45,
+  "previewArt": {
+    "cartSkinPng": "assets/previews/cart_aurora_gold_v1.png",
+    "trailPng": "assets/previews/trail_sunflare_v1.png",
+    "badgePng": "assets/previews/badge_founders_vault_v1.png",
+    "framePng": "assets/previews/frame_aurum_ribbon_v1.png"
+  }
+}

@@ -43,6 +43,8 @@ import { useUserUnlocks } from '../context/UserUnlockContext';
 import { MysterySkinSystem } from '../utils/mysterySkinSystem';
 import MysteryCrate from '../components/MysteryCrate';
 import { useSeasonalSkins } from '../hooks/useSeasonalSkins';
+import { useEntitlements } from '../src/features/subscriptions/useEntitlements';
+import { useUnlockMultiplier } from '../src/features/subscriptions/useUnlockMultiplier';
 
 const { width, height } = Dimensions.get('window');
 
@@ -53,6 +55,8 @@ interface GameScreenProps {
 export default function GameScreen({ navigation }: GameScreenProps) {
   const { unlockedSkins, selectedCartSkin, isSkinUnlocked } = useUserUnlocks();
   const { activeSeasonalSkins, isSkinCurrentlyAvailable } = useSeasonalSkins();
+  const { isSubscribed, isLoading: entitlementsLoading } = useEntitlements();
+  const { getMultiplier } = useUnlockMultiplier();
   
   // Game state
   const [isGameActive, setIsGameActive] = useState(false);
@@ -75,8 +79,11 @@ export default function GameScreen({ navigation }: GameScreenProps) {
   const [mysteryCrate, setMysteryCrate] = useState<any>(null);
 
   // Get selected cart skin from context
-  const selectedSkinId = getSelectedCartSkin();
+  const selectedSkinId = selectedCartSkin;
   const [activeSkin, setActiveSkin] = useState<any>(null);
+  
+  // Apply subscription multiplier
+  const baseMultiplier = getMultiplier();
 
   // Load active skin data when selected skin changes
   useEffect(() => {
@@ -390,8 +397,26 @@ export default function GameScreen({ navigation }: GameScreenProps) {
           if (StateBonusItemManager.isStateBonusItem(item.type)) {
             handleStateBonusItem(item.type);
           } else {
-            // Handle regular item collision
-            collisionHandler.current?.handleItemCollision(item.type, item.id);
+            // Handle regular item collision with subscription multiplier
+            const originalHandler = collisionHandler.current?.handleItemCollision.bind(collisionHandler.current);
+            if (originalHandler) {
+              // Apply multiplier to score and coins from collision
+              const originalOnScoreChange = collisionHandler.current.options.onScoreChange;
+              const originalOnCoinChange = collisionHandler.current.options.onCoinChange;
+              
+              collisionHandler.current.options.onScoreChange = (scoreChange: number) => {
+                originalOnScoreChange(Math.floor(scoreChange * baseMultiplier));
+              };
+              collisionHandler.current.options.onCoinChange = (coinChange: number) => {
+                originalOnCoinChange(Math.floor(coinChange * baseMultiplier));
+              };
+              
+              originalHandler(item.type, item.id);
+              
+              // Restore original handlers
+              collisionHandler.current.options.onScoreChange = originalOnScoreChange;
+              collisionHandler.current.options.onCoinChange = originalOnCoinChange;
+            }
           }
         }
       }
@@ -564,13 +589,14 @@ export default function GameScreen({ navigation }: GameScreenProps) {
     return points[type] || 1;
   };
 
-  // Enhanced scoring with unlock checking
+  // Enhanced scoring with unlock checking and subscription multiplier
   const collectCoin = () => {
     if (!isGameActive || isPaused) return;
 
     const points = getItemPoints('coin');
-    const newScore = score + points;
-    const newCoins = coins + 1;
+    const multipliedPoints = Math.floor(points * baseMultiplier);
+    const newScore = score + multipliedPoints;
+    const newCoins = coins + Math.floor(1 * baseMultiplier);
     
     setScore(newScore);
     setCoins(newCoins);
@@ -904,6 +930,10 @@ export default function GameScreen({ navigation }: GameScreenProps) {
     navigation.navigate('SeasonPass');
   };
 
+  const navigateToSettings = () => {
+    navigation.navigate('Settings');
+  };
+
   // Helper function for power-up icons
   const getPowerUpIcon = (type: string): string => {
     const icons: { [key: string]: string } = {
@@ -1124,6 +1154,11 @@ export default function GameScreen({ navigation }: GameScreenProps) {
           <Text style={styles.coinText}>Coins: {coins}</Text>
           <Text style={styles.timeText}>Time: {timeSurvived}s</Text>
           <Text style={styles.livesText}>Lives: {'❤️'.repeat(lives)}</Text>
+          {isSubscribed && (
+            <View style={styles.vipIndicator}>
+              <Text style={styles.vipText}>⭐ VIP x{baseMultiplier}</Text>
+            </View>
+          )}
         </View>
 
         {/* Power-up Indicators */}
@@ -1257,6 +1292,10 @@ export default function GameScreen({ navigation }: GameScreenProps) {
 
         <TouchableOpacity style={styles.menuButton} onPress={navigateToSeasonPass}>
           <Text style={styles.menuButtonText}>Season Pass</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.menuButton} onPress={navigateToSettings}>
+          <Text style={styles.menuButtonText}>⚙️ Settings</Text>
         </TouchableOpacity>
       </View>
 
@@ -1564,6 +1603,18 @@ const styles = StyleSheet.create({
     height: '100%',
     backgroundColor: '#00FF00',
     borderRadius: 4,
+  },
+  vipIndicator: {
+    marginTop: 5,
+    backgroundColor: '#FFD700',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 10,
+  },
+  vipText: {
+    color: '#1a1a1a',
+    fontSize: 12,
+    fontWeight: 'bold',
   },
   touchZonesContainer: {
     position: 'absolute',

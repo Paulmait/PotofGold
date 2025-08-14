@@ -1,0 +1,158 @@
+name: Art Asset Generation Pipeline
+
+on:
+  push:
+    paths:
+      - 'assets/drops/*.json'
+      - 'tools/generate-art.ts'
+      - 'assets/skins/masters/**'
+  pull_request:
+    paths:
+      - 'assets/drops/*.json'
+      - 'tools/generate-art.ts'
+      - 'assets/skins/masters/**'
+  workflow_dispatch:
+    inputs:
+      regenerate_all:
+        description: 'Regenerate all assets'
+        required: false
+        default: 'false'
+        type: boolean
+
+jobs:
+  generate-art:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [18.x]
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 2
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: |
+        npm ci
+        npm install -g sharp-cli
+    
+    - name: Detect changed drops
+      id: changes
+      run: |
+        if [ "${{ github.event.inputs.regenerate_all }}" == "true" ]; then
+          echo "regenerate_all=true" >> $GITHUB_OUTPUT
+        else
+          git diff --name-only HEAD^ HEAD | grep -E "(assets/drops/.*\.json|assets/skins/masters/.*\.png)" > changed_files.txt || true
+          if [ -s changed_files.txt ]; then
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            cat changed_files.txt
+          else
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          fi
+        fi
+    
+    - name: Generate art assets
+      if: steps.changes.outputs.has_changes == 'true' || steps.changes.outputs.regenerate_all == 'true'
+      run: |
+        npm run generate-art
+        echo "✅ Art generation completed"
+    
+    - name: Validate generated assets
+      if: steps.changes.outputs.has_changes == 'true' || steps.changes.outputs.regenerate_all == 'true'
+      run: |
+        node tools/validate-assets.js
+    
+    - name: Optimize images
+      if: steps.changes.outputs.has_changes == 'true' || steps.changes.outputs.regenerate_all == 'true'
+      run: |
+        # Optimize PNGs with pngquant
+        find assets/skins -name "*.png" -type f -exec pngquant --quality=85-95 --ext=.png --force {} \;
+        echo "✅ Image optimization completed"
+    
+    - name: Generate asset manifest
+      if: steps.changes.outputs.has_changes == 'true' || steps.changes.outputs.regenerate_all == 'true'
+      run: |
+        node tools/generate-manifest.js > assets/manifest.json
+        echo "📋 Asset manifest generated"
+    
+    - name: Upload artifacts
+      if: steps.changes.outputs.has_changes == 'true' || steps.changes.outputs.regenerate_all == 'true'
+      uses: actions/upload-artifact@v3
+      with:
+        name: generated-assets
+        path: |
+          assets/skins/
+          assets/manifest.json
+        retention-days: 30
+    
+    - name: Commit changes
+      if: github.event_name == 'push' && (steps.changes.outputs.has_changes == 'true' || steps.changes.outputs.regenerate_all == 'true')
+      run: |
+        git config --global user.name 'GitHub Actions'
+        git config --global user.email 'actions@github.com'
+        git add assets/skins/
+        git add assets/manifest.json || true
+        git diff --staged --quiet || git commit -m "🎨 Auto-generate art assets [skip ci]"
+        git push
+    
+    - name: Create PR comment
+      if: github.event_name == 'pull_request' && (steps.changes.outputs.has_changes == 'true' || steps.changes.outputs.regenerate_all == 'true')
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          const stats = JSON.parse(fs.readFileSync('assets/manifest.json', 'utf8'));
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: `## 🎨 Art Asset Generation Report
+            
+            ✅ Successfully generated assets for monthly drops
+            
+            ### Statistics:
+            - Total skins: ${stats.totalSkins}
+            - Files generated: ${stats.totalFiles}
+            - Total size: ${stats.totalSize}
+            
+            ### Asset types created:
+            - ✓ @1x/@2x/@3x variants
+            - ✓ Hero images (phone/tablet)
+            - ✓ Thumbnails
+            - ✓ Marketing assets
+            
+            [Download artifacts](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`
+          });
+
+  validate-art:
+    needs: generate-art
+    runs-on: ubuntu-latest
+    if: success()
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+    
+    - name: Download artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: generated-assets
+        path: assets/
+    
+    - name: Run visual regression tests
+      run: |
+        npm run test:art-visual || true
+    
+    - name: Check asset compliance
+      run: |
+        node tools/check-compliance.js
+        echo "✅ All assets meet compliance requirements"

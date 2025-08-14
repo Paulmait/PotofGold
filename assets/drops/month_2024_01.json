@@ -1,0 +1,43 @@
+{
+  "month": "2024_01",
+  "displayName": "January 2024",
+  "theme": "New Year Gold Rush",
+  "drops": {
+    "cartSkin": {
+      "id": "gold_encrusted_cart_v1",
+      "name": "Gold Encrusted Cart",
+      "description": "A magnificent cart adorned with pure gold trim",
+      "rarity": "legendary",
+      "imageUrl": "assets/skins/carts/gold_encrusted_cart.png",
+      "unlockCondition": "gold_vault_subscriber"
+    },
+    "trail": {
+      "id": "aurora_gold_trail_v1",
+      "name": "Aurora Gold Trail",
+      "description": "Leaves a shimmering golden aurora in your wake",
+      "rarity": "epic",
+      "imageUrl": "assets/skins/trails/aurora_gold_trail.png",
+      "particleConfig": {
+        "color": "#FFD700",
+        "sparkle": true,
+        "fadeTime": 1.5
+      }
+    },
+    "badge": {
+      "id": "founders_glow_v1",
+      "name": "Founder's Glow",
+      "description": "Exclusive badge for our first Gold Vault members",
+      "rarity": "legendary",
+      "imageUrl": "assets/badges/founders_glow.png",
+      "animated": true
+    },
+    "bonusCoins": 1000,
+    "bonusXpMultiplier": 1.5
+  },
+  "availability": {
+    "startDate": "2024-01-01T00:00:00Z",
+    "endDate": "2024-01-31T23:59:59Z",
+    "requiresSubscription": true,
+    "autoGrant": true
+  }
+}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -7,442 +7,340 @@ import {
   ScrollView,
   Switch,
   Alert,
-  StatusBar,
-  Linking,
+  Dimensions,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useGameContext } from '../context/GameContext';
-import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
-import { privacyManager, PrivacySettings } from '../utils/privacy';
-import { adManager } from '../utils/adManager';
+import { useNavigation } from '@react-navigation/native';
+import { RevenueCatManager } from '../src/lib/revenuecat';
+import { useEntitlements } from '../src/features/subscriptions/useEntitlements';
 
-const SettingsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
-  const { gameState, updateGameState } = useGameContext();
-  const [privacySettings, setPrivacySettings] = useState<PrivacySettings>({
-    analyticsEnabled: true,
-    personalizedAds: true,
-    dataCollection: true,
-    crashReporting: true,
-    marketingEmails: false,
-  });
-  const [loading, setLoading] = useState(true);
+const { width } = Dimensions.get('window');
+const isTablet = width >= 768;
 
-  useEffect(() => {
+export default function SettingsScreen() {
+  const navigation = useNavigation<any>();
+  const { isSubscribed, isLoading } = useEntitlements();
+  const [soundEnabled, setSoundEnabled] = React.useState(true);
+  const [hapticsEnabled, setHapticsEnabled] = React.useState(true);
+  const [notificationsEnabled, setNotificationsEnabled] = React.useState(true);
+
+  React.useEffect(() => {
     loadSettings();
   }, []);
 
   const loadSettings = async () => {
     try {
-      await privacyManager.initialize();
-      const settings = privacyManager.getSettings();
-      setPrivacySettings(settings);
+      const sound = await AsyncStorage.getItem('soundEnabled');
+      const haptics = await AsyncStorage.getItem('hapticsEnabled');
+      const notifications = await AsyncStorage.getItem('notificationsEnabled');
+      
+      if (sound !== null) setSoundEnabled(sound === 'true');
+      if (haptics !== null) setHapticsEnabled(haptics === 'true');
+      if (notifications !== null) setNotificationsEnabled(notifications === 'true');
     } catch (error) {
-      console.log('Error loading settings:', error);
-    } finally {
-      setLoading(false);
+      console.error('Error loading settings:', error);
     }
   };
 
-  const handlePrivacySettingChange = async (key: keyof PrivacySettings, value: boolean) => {
-    try {
+  const handleSoundToggle = async (value: boolean) => {
+    setSoundEnabled(value);
+    await AsyncStorage.setItem('soundEnabled', value.toString());
+    if (hapticsEnabled) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+  };
+
+  const handleHapticsToggle = async (value: boolean) => {
+    setHapticsEnabled(value);
+    await AsyncStorage.setItem('hapticsEnabled', value.toString());
+    if (value) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    }
+  };
+
+  const handleNotificationsToggle = async (value: boolean) => {
+    setNotificationsEnabled(value);
+    await AsyncStorage.setItem('notificationsEnabled', value.toString());
+    if (hapticsEnabled) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+  };
+
+  const handleRestorePurchases = async () => {
+    try {
+      Alert.alert(
+        'Restoring Purchases',
+        'Please wait while we restore your purchases...',
+        [],
+        { cancelable: false }
+      );
       
-      const newSettings = { ...privacySettings, [key]: value };
-      setPrivacySettings(newSettings);
+      const restored = await RevenueCatManager.restorePurchases();
       
-      await privacyManager.updateSettings(newSettings);
-      
-      // Show explanation for important changes
-      if (key === 'personalizedAds' && !value) {
+      if (restored) {
         Alert.alert(
-          'Privacy Mode Enabled',
-          'You\'ll see fewer personalized ads, but you can still earn rewards through non-personalized ads.',
+          'Success',
+          'Your purchases have been restored successfully!',
+          [{ text: 'OK' }]
+        );
+      } else {
+        Alert.alert(
+          'No Purchases Found',
+          'No previous purchases were found to restore.',
           [{ text: 'OK' }]
         );
       }
     } catch (error) {
-      console.log('Error updating privacy settings:', error);
-    }
-  };
-
-  const handleExportData = async () => {
-    try {
-      const userData = await privacyManager.exportUserData(gameState.userId || 'anonymous');
       Alert.alert(
-        'Data Export',
-        'Your data has been prepared for export. Contact support to receive your data.',
+        'Restore Failed',
+        'Failed to restore purchases. Please try again later.',
         [{ text: 'OK' }]
       );
-    } catch (error) {
-      Alert.alert('Error', 'Unable to export data. Please try again.');
     }
   };
 
-  const handleDeleteData = async () => {
+  const handleManageSubscription = async () => {
+    try {
+      await RevenueCatManager.openManageSubscriptions();
+    } catch (error) {
+      Alert.alert(
+        'Error',
+        'Unable to open subscription management. Please manage through your device settings.',
+        [{ text: 'OK' }]
+      );
+    }
+  };
+
+  const handlePrivacyPolicy = () => {
+    // In production, open a webview or external browser
     Alert.alert(
-      'Delete All Data',
-      'This will permanently delete all your game data, including coins, scores, and progress. This action cannot be undone.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await privacyManager.deleteUserData(gameState.userId || 'anonymous');
-              updateGameState({
-                coins: 0,
-                highScore: 0,
-                gamesPlayed: 0,
-                currentScore: 0,
-              });
-              Alert.alert('Data Deleted', 'All your data has been permanently deleted.');
-            } catch (error) {
-              Alert.alert('Error', 'Unable to delete data. Please try again.');
-            }
-          },
-        },
-      ]
+      'Privacy Policy',
+      'View our privacy policy at https://cienrios.com/potofgold/privacy',
+      [{ text: 'OK' }]
     );
   };
 
-  const openPrivacyPolicy = () => {
-    Linking.openURL('https://yourgame.com/privacy');
+  const handleTermsOfService = () => {
+    // In production, open a webview or external browser
+    Alert.alert(
+      'Terms of Service',
+      'View our terms at https://cienrios.com/potofgold/terms',
+      [{ text: 'OK' }]
+    );
   };
 
-  const openTermsOfService = () => {
-    Linking.openURL('https://yourgame.com/terms');
+  const handleSupport = () => {
+    Alert.alert(
+      'Support',
+      'Contact us at support@cienrios.com',
+      [{ text: 'OK' }]
+    );
   };
-
-  const openSupport = () => {
-    Linking.openURL('mailto:support@yourgame.com');
-  };
-
-  const renderSettingItem = (
-    title: string,
-    description: string,
-    value: boolean,
-    onValueChange: (value: boolean) => void,
-    icon: string,
-    type: 'switch' | 'button' = 'switch'
-  ) => (
-    <View style={styles.settingItem}>
-      <View style={styles.settingHeader}>
-        <Ionicons name={icon as any} size={24} color="#FFD700" />
-        <View style={styles.settingText}>
-          <Text style={styles.settingTitle}>{title}</Text>
-          <Text style={styles.settingDescription}>{description}</Text>
-        </View>
-      </View>
-      
-      {type === 'switch' ? (
-        <Switch
-          value={value}
-          onValueChange={onValueChange}
-          trackColor={{ false: '#666', true: '#4CAF50' }}
-          thumbColor={value ? '#fff' : '#f4f3f4'}
-        />
-      ) : (
-        <TouchableOpacity
-          style={styles.actionButton}
-          onPress={() => onValueChange(!value)}
-        >
-          <Text style={styles.actionButtonText}>Manage</Text>
-        </TouchableOpacity>
-      )}
-    </View>
-  );
-
-  const renderSectionHeader = (title: string) => (
-    <View style={styles.sectionHeader}>
-      <Text style={styles.sectionTitle}>{title}</Text>
-    </View>
-  );
 
   return (
-    <LinearGradient colors={['#FFD700', '#FFA500', '#FF8C00']} style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
-      
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Ionicons name="arrow-back" size={24} color="white" />
-        </TouchableOpacity>
-        
-        <Text style={styles.title}>Settings</Text>
-        
-        <View style={styles.placeholder} />
-      </View>
+    <ScrollView style={styles.container}>
+      <View style={styles.content}>
+        {/* Gold Vault Club Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Gold Vault Club</Text>
+          
+          {isSubscribed ? (
+            <View style={styles.subscriptionActive}>
+              <Text style={styles.vipBadge}>⭐ VIP Member</Text>
+              <Text style={styles.subscriptionText}>Your membership is active</Text>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={handleManageSubscription}
+              >
+                <Text style={styles.buttonText}>Manage Subscription</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <TouchableOpacity
+              style={styles.goldButton}
+              onPress={() => navigation.navigate('SubscriptionVault')}
+            >
+              <Text style={styles.goldButtonText}>🌟 Join Gold Vault Club</Text>
+              <Text style={styles.goldButtonSubtext}>Get 2x rewards & exclusive perks</Text>
+            </TouchableOpacity>
+          )}
+        </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Game Settings */}
-        {renderSectionHeader('Game Settings')}
-        
-        {renderSettingItem(
-          'Sound Effects',
-          'Enable game sounds and music',
-          gameState.soundEnabled,
-          (value) => updateGameState({ soundEnabled: value }),
-          'volume-high'
-        )}
-        
-        {renderSettingItem(
-          'Haptic Feedback',
-          'Enable vibration feedback',
-          gameState.hapticEnabled,
-          (value) => updateGameState({ hapticEnabled: value }),
-          'phone-portrait'
-        )}
-
-        {/* Privacy & Data */}
-        {renderSectionHeader('Privacy & Data')}
-        
-        {renderSettingItem(
-          'Analytics',
-          'Help improve the game with anonymous usage data',
-          privacySettings.analyticsEnabled,
-          (value) => handlePrivacySettingChange('analyticsEnabled', value),
-          'analytics'
-        )}
-        
-        {renderSettingItem(
-          'Personalized Ads',
-          'Show ads based on your interests',
-          privacySettings.personalizedAds,
-          (value) => handlePrivacySettingChange('personalizedAds', value),
-          'eye'
-        )}
-        
-        {renderSettingItem(
-          'Data Collection',
-          'Allow collection of game data for improvements',
-          privacySettings.dataCollection,
-          (value) => handlePrivacySettingChange('dataCollection', value),
-          'cloud-upload'
-        )}
-        
-        {renderSettingItem(
-          'Crash Reporting',
-          'Send crash reports to help fix issues',
-          privacySettings.crashReporting,
-          (value) => handlePrivacySettingChange('crashReporting', value),
-          'bug'
-        )}
-
-        {/* Ad Preferences */}
-        {renderSectionHeader('Ad Preferences')}
-        
-        <View style={styles.adInfoContainer}>
-          <Ionicons name="information-circle" size={20} color="#FFD700" />
-          <Text style={styles.adInfoText}>
-            Watch ads to earn coins and rewards. No purchase required.
-          </Text>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Game Settings</Text>
+          
+          <View style={styles.settingRow}>
+            <Text style={styles.settingLabel}>Sound Effects</Text>
+            <Switch
+              value={soundEnabled}
+              onValueChange={handleSoundToggle}
+              trackColor={{ false: '#767577', true: '#FFD700' }}
+              thumbColor={soundEnabled ? '#f4f3f4' : '#f4f3f4'}
+            />
+          </View>
+          
+          <View style={styles.settingRow}>
+            <Text style={styles.settingLabel}>Haptic Feedback</Text>
+            <Switch
+              value={hapticsEnabled}
+              onValueChange={handleHapticsToggle}
+              trackColor={{ false: '#767577', true: '#FFD700' }}
+              thumbColor={hapticsEnabled ? '#f4f3f4' : '#f4f3f4'}
+            />
+          </View>
+          
+          <View style={styles.settingRow}>
+            <Text style={styles.settingLabel}>Notifications</Text>
+            <Switch
+              value={notificationsEnabled}
+              onValueChange={handleNotificationsToggle}
+              trackColor={{ false: '#767577', true: '#FFD700' }}
+              thumbColor={notificationsEnabled ? '#f4f3f4' : '#f4f3f4'}
+            />
+          </View>
         </View>
 
-        {/* Legal & Support */}
-        {renderSectionHeader('Legal & Support')}
-        
-        <TouchableOpacity
-          style={styles.legalItem}
-          onPress={openPrivacyPolicy}
-        >
-          <Ionicons name="shield-checkmark" size={24} color="#FFD700" />
-          <Text style={styles.legalText}>Privacy Policy</Text>
-          <Ionicons name="chevron-forward" size={20} color="white" />
-        </TouchableOpacity>
-        
-        <TouchableOpacity
-          style={styles.legalItem}
-          onPress={openTermsOfService}
-        >
-          <Ionicons name="document-text" size={24} color="#FFD700" />
-          <Text style={styles.legalText}>Terms of Service</Text>
-          <Ionicons name="chevron-forward" size={20} color="white" />
-        </TouchableOpacity>
-        
-        <TouchableOpacity
-          style={styles.legalItem}
-          onPress={openSupport}
-        >
-          <Ionicons name="help-circle" size={24} color="#FFD700" />
-          <Text style={styles.legalText}>Contact Support</Text>
-          <Ionicons name="chevron-forward" size={20} color="white" />
-        </TouchableOpacity>
-
-        {/* Data Management */}
-        {renderSectionHeader('Data Management')}
-        
-        <TouchableOpacity
-          style={styles.dataItem}
-          onPress={handleExportData}
-        >
-          <Ionicons name="download" size={24} color="#4CAF50" />
-          <Text style={styles.dataText}>Export My Data</Text>
-          <Ionicons name="chevron-forward" size={20} color="white" />
-        </TouchableOpacity>
-        
-        <TouchableOpacity
-          style={styles.dataItem}
-          onPress={handleDeleteData}
-        >
-          <Ionicons name="trash" size={24} color="#FF6B6B" />
-          <Text style={[styles.dataText, { color: '#FF6B6B' }]}>Delete All Data</Text>
-          <Ionicons name="chevron-forward" size={20} color="white" />
-        </TouchableOpacity>
-
-        {/* App Info */}
-        {renderSectionHeader('App Information')}
-        
-        <View style={styles.appInfoContainer}>
-          <Text style={styles.appInfoText}>Version 1.0.0</Text>
-          <Text style={styles.appInfoText}>Build 2024.1</Text>
-          <Text style={styles.appInfoText}>© 2024 Your Game Studio</Text>
+        {/* Account */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Account</Text>
+          
+          <TouchableOpacity
+            style={styles.button}
+            onPress={handleRestorePurchases}
+          >
+            <Text style={styles.buttonText}>Restore Purchases</Text>
+          </TouchableOpacity>
         </View>
-      </ScrollView>
-    </LinearGradient>
+
+        {/* Legal */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Legal</Text>
+          
+          <TouchableOpacity
+            style={styles.button}
+            onPress={handlePrivacyPolicy}
+          >
+            <Text style={styles.buttonText}>Privacy Policy</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity
+            style={styles.button}
+            onPress={handleTermsOfService}
+          >
+            <Text style={styles.buttonText}>Terms of Service</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Support */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Support</Text>
+          
+          <TouchableOpacity
+            style={styles.button}
+            onPress={handleSupport}
+          >
+            <Text style={styles.buttonText}>Contact Support</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Version */}
+        <View style={styles.footer}>
+          <Text style={styles.versionText}>Pot of Gold v1.0.0</Text>
+          <Text style={styles.copyrightText}>© 2024 Cien Rios</Text>
+        </View>
+      </View>
+    </ScrollView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingTop: 60,
-    paddingBottom: 20,
-  },
-  backButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 20,
-    padding: 8,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: 'white',
-  },
-  placeholder: {
-    width: 40,
+    backgroundColor: '#1a1a1a',
   },
   content: {
-    flex: 1,
-    paddingHorizontal: 20,
+    padding: isTablet ? 40 : 20,
+    paddingBottom: 40,
   },
-  sectionHeader: {
-    marginTop: 30,
-    marginBottom: 16,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: 'white',
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 2,
-  },
-  settingItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 12,
-  },
-  settingHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  settingText: {
-    marginLeft: 12,
-    flex: 1,
-  },
-  settingTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: 'white',
-    marginBottom: 2,
-  },
-  settingDescription: {
-    fontSize: 12,
-    color: 'white',
-    opacity: 0.8,
-  },
-  actionButton: {
-    backgroundColor: '#4CAF50',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-  },
-  actionButtonText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: 'white',
-  },
-  adInfoContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 215, 0, 0.2)',
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 16,
-  },
-  adInfoText: {
-    fontSize: 12,
-    color: 'white',
-    marginLeft: 8,
-    flex: 1,
-  },
-  legalItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 12,
-  },
-  legalText: {
-    fontSize: 16,
-    color: 'white',
-    marginLeft: 12,
-    flex: 1,
-  },
-  dataItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 12,
-  },
-  dataText: {
-    fontSize: 16,
-    color: 'white',
-    marginLeft: 12,
-    flex: 1,
-  },
-  appInfoContainer: {
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 16,
-    padding: 20,
+  section: {
     marginBottom: 30,
   },
-  appInfoText: {
-    fontSize: 12,
-    color: 'white',
-    opacity: 0.7,
-    marginBottom: 4,
+  sectionTitle: {
+    fontSize: isTablet ? 20 : 18,
+    fontWeight: 'bold',
+    color: '#FFD700',
+    marginBottom: 15,
+  },
+  settingRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#333',
+  },
+  settingLabel: {
+    fontSize: isTablet ? 18 : 16,
+    color: '#fff',
+  },
+  button: {
+    backgroundColor: '#333',
+    paddingVertical: isTablet ? 15 : 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    marginVertical: 5,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: isTablet ? 18 : 16,
+    textAlign: 'center',
+  },
+  goldButton: {
+    backgroundColor: '#FFD700',
+    paddingVertical: isTablet ? 20 : 15,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  goldButtonText: {
+    color: '#1a1a1a',
+    fontSize: isTablet ? 20 : 18,
+    fontWeight: 'bold',
+  },
+  goldButtonSubtext: {
+    color: '#1a1a1a',
+    fontSize: isTablet ? 16 : 14,
+    marginTop: 5,
+  },
+  subscriptionActive: {
+    backgroundColor: '#333',
+    padding: 15,
+    borderRadius: 12,
+  },
+  vipBadge: {
+    color: '#FFD700',
+    fontSize: isTablet ? 20 : 18,
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
+  subscriptionText: {
+    color: '#fff',
+    fontSize: isTablet ? 16 : 14,
+    marginBottom: 10,
+  },
+  footer: {
+    alignItems: 'center',
+    marginTop: 40,
+  },
+  versionText: {
+    color: '#999',
+    fontSize: isTablet ? 14 : 12,
+  },
+  copyrightText: {
+    color: '#999',
+    fontSize: isTablet ? 14 : 12,
+    marginTop: 5,
   },
 });
-
-export default SettingsScreen; 

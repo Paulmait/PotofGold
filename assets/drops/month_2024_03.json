@@ -1,0 +1,56 @@
+{
+  "month": "2024_03",
+  "displayName": "March 2024",
+  "theme": "Lucky Leprechaun",
+  "drops": {
+    "cartSkin": {
+      "id": "leprechaun_cart_v1",
+      "name": "Leprechaun's Cart",
+      "description": "The luckiest cart in the land",
+      "rarity": "legendary",
+      "imageUrl": "assets/skins/carts/leprechaun_cart.png",
+      "unlockCondition": "gold_vault_subscriber"
+    },
+    "trail": {
+      "id": "rainbow_trail_v1",
+      "name": "Rainbow Trail",
+      "description": "Follow the rainbow to the pot of gold",
+      "rarity": "legendary",
+      "imageUrl": "assets/skins/trails/rainbow_trail.png",
+      "particleConfig": {
+        "colors": ["#FF0000", "#FFA500", "#FFFF00", "#00FF00", "#0000FF", "#4B0082", "#9400D3"],
+        "sparkle": true,
+        "fadeTime": 3.0,
+        "multicolor": true
+      }
+    },
+    "badge": {
+      "id": "shamrock_elite_v1",
+      "name": "Shamrock Elite",
+      "description": "St. Patrick's Day exclusive badge",
+      "rarity": "legendary",
+      "imageUrl": "assets/badges/shamrock_elite.png",
+      "animated": true,
+      "glowEffect": true
+    },
+    "bonusCoins": 2000,
+    "bonusXpMultiplier": 2.0,
+    "specialItem": {
+      "id": "golden_clover",
+      "name": "Golden Four-Leaf Clover",
+      "description": "Grants 3x coins for 24 hours",
+      "type": "consumable",
+      "effect": {
+        "type": "coin_multiplier",
+        "value": 3,
+        "duration": 86400
+      }
+    }
+  },
+  "availability": {
+    "startDate": "2024-03-01T00:00:00Z",
+    "endDate": "2024-03-31T23:59:59Z",
+    "requiresSubscription": true,
+    "autoGrant": true
+  }
+}

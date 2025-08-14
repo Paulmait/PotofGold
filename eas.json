@@ -1,28 +1,95 @@
 {
   "cli": {
-    "version": ">= 5.9.1"
+    "version": ">= 5.0.0",
+    "requireCommit": true,
+    "appVersionSource": "remote"
   },
   "build": {
+    "base": {
+      "node": "18.18.0",
+      "env": {
+        "EXPO_NO_DOTENV": "1"
+      }
+    },
     "development": {
+      "extends": "base",
       "developmentClient": true,
       "distribution": "internal",
+      "channel": "development",
+      "env": {
+        "APP_VARIANT": "development",
+        "EXPO_PUBLIC_ENV": "development"
+      },
       "ios": {
-        "resourceClass": "m-medium"
+        "simulator": true,
+        "resourceClass": "m-medium",
+        "bundleIdentifier": "com.yourcompany.potofgold.dev"
+      },
+      "android": {
+        "buildType": "apk",
+        "gradleCommand": ":app:assembleDebug",
+        "resourceClass": "m-medium",
+        "applicationId": "com.yourcompany.potofgold.dev"
       }
     },
     "preview": {
+      "extends": "base",
       "distribution": "internal",
+      "channel": "preview",
+      "env": {
+        "APP_VARIANT": "preview",
+        "EXPO_PUBLIC_ENV": "preview"
+      },
       "ios": {
-        "resourceClass": "m-medium"
+        "resourceClass": "m-medium",
+        "bundleIdentifier": "com.yourcompany.potofgold"
+      },
+      "android": {
+        "buildType": "apk",
+        "resourceClass": "m-medium",
+        "applicationId": "com.yourcompany.potofgold"
       }
     },
     "production": {
+      "extends": "base",
+      "channel": "production",
+      "env": {
+        "APP_VARIANT": "production",
+        "EXPO_PUBLIC_ENV": "production"
+      },
       "ios": {
-        "resourceClass": "m-medium"
+        "resourceClass": "m-large",
+        "bundleIdentifier": "com.yourcompany.potofgold",
+        "buildConfiguration": "Release",
+        "autoIncrement": true,
+        "credentialsSource": "remote"
+      },
+      "android": {
+        "buildType": "app-bundle",
+        "resourceClass": "m-large",
+        "applicationId": "com.yourcompany.potofgold",
+        "autoIncrement": true,
+        "credentialsSource": "remote"
       }
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "ios": {
+        "appleId": "your-apple-id@email.com",
+        "ascAppId": "1234567890",
+        "appleTeamId": "YOUR_TEAM_ID",
+        "companyName": "Your Company Name",
+        "language": "en-US",
+        "sku": "POTOFGOLD001"
+      },
+      "android": {
+        "serviceAccountKeyPath": "./credentials/google-service-account.json",
+        "track": "production",
+        "releaseStatus": "completed",
+        "rollout": 1.0,
+        "changesNotSentForReview": false
+      }
+    }
   }
-} 
+}

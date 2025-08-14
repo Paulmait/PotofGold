@@ -1,0 +1,16 @@
+{
+  "id": "drop_2026_05",
+  "monthLabel": "May 2026",
+  "cartSkinId": "cart_honey_gild_v1",
+  "trailId": "trail_beamline_v1",
+  "badgeId": "badge_golden_hour_v1",
+  "frameId": "frame_sunband_v1",
+  "bonusCoins": 800,
+  "claimWindowDays": 45,
+  "previewArt": {
+    "cartSkinPng": "assets/previews/cart_honey_gild_v1.png",
+    "trailPng": "assets/previews/trail_beamline_v1.png",
+    "badgePng": "assets/previews/badge_golden_hour_v1.png",
+    "framePng": "assets/previews/frame_sunband_v1.png"
+  }
+}

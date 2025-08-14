@@ -1,0 +1,16 @@
+{
+  "id": "drop_2026_04",
+  "monthLabel": "April 2026",
+  "cartSkinId": "cart_vernal_bloom_v1",
+  "trailId": "trail_spring_mist_v1",
+  "badgeId": "badge_dawnleaf_v1",
+  "frameId": "frame_willow_wave_v1",
+  "bonusCoins": 800,
+  "claimWindowDays": 45,
+  "previewArt": {
+    "cartSkinPng": "assets/previews/cart_vernal_bloom_v1.png",
+    "trailPng": "assets/previews/trail_spring_mist_v1.png",
+    "badgePng": "assets/previews/badge_dawnleaf_v1.png",
+    "framePng": "assets/previews/frame_willow_wave_v1.png"
+  }
+}

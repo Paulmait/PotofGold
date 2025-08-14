@@ -46,7 +46,5 @@
     "failedTests": 6,
     "allPassed": false
   },
-  "recommendations": [
-    "Fix failing tests before app store submission"
-  ]
+  "recommendations": ["Fix failing tests before app store submission"]
 }

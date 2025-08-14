@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx tsc:*)",
+      "Bash(git add:*)",
+      "Bash(touch:*)",
+      "Bash(npm install:*)",
+      "Bash(mkdir:*)",
+      "Bash(npx prettier:*)",
+      "Bash(if not exist functions mkdir functions)",
+      "Bash(npx expo install:*)",
+      "Bash(npm run generate-art:*)",
+      "Bash(dir:*)",
+      "Bash(cmd /c:*)",
+      "Bash(npm run typecheck:*)",
+      "Bash(npm run lint:*)",
+      "Bash(npm audit:*)"
+    ],
+    "deny": [],
+    "ask": [],
+    "defaultMode": "acceptEdits"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "id": "drop_2025_12",
+  "monthLabel": "December 2025",
+  "cartSkinId": "cart_starlight_chrome_v1",
+  "trailId": "trail_crystal_snow_v1",
+  "badgeId": "badge_solstice_star_v1",
+  "frameId": "frame_northern_arc_v1",
+  "bonusCoins": 1200,
+  "claimWindowDays": 45,
+  "previewArt": {
+    "cartSkinPng": "assets/previews/cart_starlight_chrome_v1.png",
+    "trailPng": "assets/previews/trail_crystal_snow_v1.png",
+    "badgePng": "assets/previews/badge_solstice_star_v1.png",
+    "framePng": "assets/previews/frame_northern_arc_v1.png"
+  }
+}

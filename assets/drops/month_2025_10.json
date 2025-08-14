@@ -1,0 +1,16 @@
+{
+  "id": "drop_2025_10",
+  "monthLabel": "October 2025",
+  "cartSkinId": "cart_cinder_cauldrn_v1",
+  "trailId": "trail_ember_dust_v1",
+  "badgeId": "badge_moonlit_pot_v1",
+  "frameId": "frame_obsidian_arc_v1",
+  "bonusCoins": 800,
+  "claimWindowDays": 45,
+  "previewArt": {
+    "cartSkinPng": "assets/previews/cart_cinder_cauldrn_v1.png",
+    "trailPng": "assets/previews/trail_ember_dust_v1.png",
+    "badgePng": "assets/previews/badge_moonlit_pot_v1.png",
+    "framePng": "assets/previews/frame_obsidian_arc_v1.png"
+  }
+}

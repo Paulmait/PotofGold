@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MonthlyDrop",
+  "type": "object",
+  "required": ["id", "monthLabel", "cartSkinId", "trailId", "badgeId", "frameId", "bonusCoins", "previewArt"],
+  "properties": {
+    "id": {"type": "string"},
+    "monthLabel": {"type": "string"},
+    "cartSkinId": {"type": "string"},
+    "trailId": {"type": "string"},
+    "badgeId": {"type": "string"},
+    "frameId": {"type": "string"},
+    "bonusCoins": {"type": "number", "minimum": 0},
+    "claimWindowDays": {"type": "number", "minimum": 1, "default": 45},
+    "previewArt": {
+      "type": "object",
+      "properties": {
+        "cartSkinPng": {"type": "string"},
+        "trailPng": {"type": "string"},
+        "badgePng": {"type": "string"},
+        "framePng": {"type": "string"}
+      },
+      "required": ["cartSkinPng", "trailPng", "badgePng", "framePng"]
+    }
+  }
+}

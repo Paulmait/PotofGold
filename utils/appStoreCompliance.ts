@@ -27,14 +27,14 @@ export class AppStoreCompliance {
 
   constructor() {
     this.requirements = {
-      privacyPolicy: 'https://yourgame.com/privacy',
-      termsOfService: 'https://yourgame.com/terms',
-      supportEmail: 'support@yourgame.com',
-      website: 'https://yourgame.com',
+      privacyPolicy: 'https://cienrios.com/potofgold/privacy',
+      termsOfService: 'https://cienrios.com/potofgold/terms',
+      supportEmail: 'support@cienrios.com',
+      website: 'https://cienrios.com/potofgold',
       ageRating: {
         age: 4,
-        content: ['No Violence', 'No Adult Content', 'No In-App Purchases'],
-        description: 'Suitable for all ages. Contains no objectionable content.'
+        content: ['No Violence', 'No Adult Content', 'In-App Purchases'],
+        description: 'Suitable for all ages. Contains optional in-app purchases.'
       }
     };
   }
