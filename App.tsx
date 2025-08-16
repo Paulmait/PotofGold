@@ -1,63 +1,163 @@
-
 import React, { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { GameProvider } from './context/GameContext';
 import { UserUnlockProvider } from './context/UserUnlockContext';
-import { AdaptiveQualityProvider } from './src/components/AdaptiveQualityProvider';
+import { UnlocksProvider } from './context/UnlocksContext';
+import { View, ActivityIndicator, Alert, StyleSheet } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from './firebase/auth';
+
+// Screens
 import GameScreen from './screens/GameScreen';
-import SkinShopScreen from './screens/SkinShopScreen';
-import SubscriptionVaultScreen from './screens/SubscriptionVaultScreen';
+import HomeScreen from './screens/HomeScreen';
+import AuthScreen from './screens/AuthScreen';
+import AdminPanel from './screens/AdminPanel';
 import SettingsScreen from './screens/SettingsScreen';
 import ShopScreen from './screens/ShopScreen';
+import SkinShopScreen from './screens/SkinShopScreen';
 import LockerScreen from './screens/LockerScreen';
-import HomeScreen from './screens/HomeScreen';
-import CampScreen from './screens/CampScreen';
-import MissionsScreen from './screens/MissionsScreen';
-import StateCollectionScreen from './screens/StateCollectionScreen';
 import LeaderboardScreen from './screens/LeaderboardScreen';
 import StatsScreen from './screens/StatsScreen';
-import StoreScreen from './screens/StoreScreen';
-import BuyGoldScreen from './screens/BuyGoldScreen';
-import UpgradeScreen from './screens/UpgradeScreen';
-import ChallengeFriendsScreen from './screens/ChallengeFriendsScreen';
-import LegalScreen from './screens/LegalScreen';
 import OnboardingScreen from './screens/OnboardingScreen';
-import AuthScreen from './screens/AuthScreen';
-import { RevenueCatManager } from './src/lib/revenuecat';
-import { deviceInfoManager } from './src/utils/deviceInfo';
-import { performanceMonitor } from './src/utils/performanceMonitor';
-import { telemetrySystem } from './src/systems/TelemetrySystem';
-import { crashReporting } from './src/systems/CrashReporting';
-import { hapticEngine } from './src/systems/HapticEngine';
-import { dynamicDifficulty } from './src/systems/DynamicDifficulty';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Alert, View, ActivityIndicator, Text, StyleSheet } from 'react-native';
+import PauseModal from './screens/PauseModal';
+import GameOverScreen from './screens/GameOverScreen';
+
+// Services
+import authService from './services/authService';
+import crashReporting from './services/crashReporting';
 
 const Stack = createStackNavigator();
 
-import { AuthProvider } from './context/AuthContext';
-import { GlobalErrorBoundary } from './components/GlobalErrorBoundary';
+// Mark app start time for performance tracking
+(global as any).appStartTime = Date.now();
 
 export default function App() {
-  // ...existing code...
-  // (Paste your initialization and state logic here, unchanged)
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [hasSeenOnboarding, setHasSeenOnboarding] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
-  // ...existing code...
+  useEffect(() => {
+    initializeApp();
+  }, []);
+
+  const initializeApp = async () => {
+    try {
+      // Initialize crash reporting
+      crashReporting.initialize();
+      crashReporting.trackAppPerformance();
+
+      // Check onboarding status
+      const onboardingStatus = await AsyncStorage.getItem('hasSeenOnboarding');
+      setHasSeenOnboarding(onboardingStatus === 'true');
+
+      // Set up auth listener
+      const unsubscribe = onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          setIsAuthenticated(true);
+          
+          // Load user profile
+          await authService.loadUserProfile(user.uid);
+          
+          // Check admin status
+          const adminStatus = await authService.checkAdminStatus();
+          setIsAdmin(adminStatus);
+          
+          // Set user context for crash reporting
+          crashReporting.setUser({
+            id: user.uid,
+            email: user.email || undefined,
+            username: user.displayName || undefined,
+          });
+
+          // Sync offline updates if any
+          await authService.syncOfflineUpdates();
+        } else {
+          setIsAuthenticated(false);
+          setIsAdmin(false);
+          crashReporting.setUser(null);
+        }
+        setIsLoading(false);
+      });
+
+      return () => unsubscribe();
+    } catch (error) {
+      console.error('App initialization error:', error);
+      crashReporting.logException(error as Error, { context: 'app_initialization' });
+      setIsLoading(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#FFD700" />
+      </View>
+    );
+  }
+
   return (
-    <GlobalErrorBoundary>
-      <AuthProvider>
-        <AdaptiveQualityProvider>
-          <NavigationContainer>
-            <UserUnlockProvider>
-              <GameProvider>
-                {/* ...existing Stack.Navigator and screens... */}
-                {/* ...existing code... */}
-              </GameProvider>
-            </UserUnlockProvider>
-          </NavigationContainer>
-        </AdaptiveQualityProvider>
-      </AuthProvider>
-    </GlobalErrorBoundary>
+    <NavigationContainer>
+      <UnlocksProvider>
+        <UserUnlockProvider>
+          <GameProvider>
+            <Stack.Navigator
+            screenOptions={{
+              headerShown: false,
+              animationEnabled: true,
+              cardStyleInterpolator: ({ current }) => ({
+                cardStyle: {
+                  opacity: current.progress,
+                },
+              }),
+            }}
+          >
+            {!hasSeenOnboarding ? (
+              <Stack.Screen 
+                name="Onboarding" 
+                component={OnboardingScreen}
+                initialParams={{
+                  onComplete: async () => {
+                    await AsyncStorage.setItem('hasSeenOnboarding', 'true');
+                    setHasSeenOnboarding(true);
+                  }
+                }}
+              />
+            ) : !isAuthenticated ? (
+              <>
+                <Stack.Screen name="Auth" component={AuthScreen} />
+                <Stack.Screen name="Game" component={GameScreen} />
+              </>
+            ) : (
+              <>
+                <Stack.Screen name="Home" component={HomeScreen} />
+                <Stack.Screen name="Game" component={GameScreen} />
+                <Stack.Screen name="Settings" component={SettingsScreen} />
+                <Stack.Screen name="Shop" component={ShopScreen} />
+                <Stack.Screen name="SkinShop" component={SkinShopScreen} />
+                <Stack.Screen name="Locker" component={LockerScreen} />
+                <Stack.Screen name="Leaderboard" component={LeaderboardScreen} />
+                <Stack.Screen name="Stats" component={StatsScreen} />
+                {isAdmin && (
+                  <Stack.Screen name="AdminPanel" component={AdminPanel} />
+                )}
+              </>
+            )}
+            </Stack.Navigator>
+          </GameProvider>
+        </UserUnlockProvider>
+      </UnlocksProvider>
+    </NavigationContainer>
   );
 }
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#1a1a2e',
+  },
+});

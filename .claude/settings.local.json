@@ -17,7 +17,13 @@
       "Bash(npm audit:*)",
       "Bash(git commit:*)",
       "Bash(git push:*)",
-      "Bash(npm test:*)"
+      "Bash(npm test:*)",
+      "Bash(grep:*)",
+      "Bash(sed:*)",
+      "Bash(od:*)",
+      "Bash(npm start)",
+      "Bash(npx expo start:*)",
+      "Bash(eas build:*)"
     ],
     "deny": [],
     "ask": [],

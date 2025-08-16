@@ -1,97 +1,62 @@
 {
   "cli": {
-    "version": ">= 5.0.0",
-    "requireCommit": false,
-    "appVersionSource": "remote"
+    "version": ">= 5.0.0"
   },
   "build": {
-    "base": {
-      "node": "18.18.0",
-      "env": {
-        "EXPO_NO_DOTENV": "1"
-      }
-    },
     "development": {
-      "extends": "base",
       "developmentClient": true,
       "distribution": "internal",
-      "channel": "development",
-      "env": {
-        "APP_VARIANT": "development",
-        "EXPO_PUBLIC_ENV": "development"
-      },
-      "ios": {
-        "simulator": false,
-        "resourceClass": "m-medium",
-        "bundleIdentifier": "com.cienrios.potofgold.dev",
-        "buildConfiguration": "Debug",
-        "credentialsSource": "local"
-      },
       "android": {
         "buildType": "apk",
-        "gradleCommand": ":app:assembleDebug",
-        "resourceClass": "m-medium",
-        "applicationId": "com.cienrios.potofgold.dev"
+        "gradleCommand": ":app:assembleDebug"
+      },
+      "ios": {
+        "simulator": true,
+        "buildConfiguration": "Debug"
+      },
+      "env": {
+        "EXPO_PUBLIC_ENV": "development"
       }
     },
     "preview": {
-      "extends": "base",
       "distribution": "internal",
-      "channel": "preview",
-      "env": {
-        "APP_VARIANT": "preview",
-        "EXPO_PUBLIC_ENV": "preview"
-      },
-      "ios": {
-        "resourceClass": "m-medium",
-        "bundleIdentifier": "com.cienrios.potofgold",
-        "buildConfiguration": "Release"
-      },
       "android": {
         "buildType": "apk",
-        "resourceClass": "m-medium",
-        "applicationId": "com.cienrios.potofgold"
+        "gradleCommand": ":app:assembleRelease"
+      },
+      "ios": {
+        "simulator": false,
+        "buildConfiguration": "Release"
+      },
+      "env": {
+        "EXPO_PUBLIC_ENV": "preview"
       }
     },
     "production": {
-      "extends": "base",
-      "channel": "production",
-      "env": {
-        "APP_VARIANT": "production",
-        "EXPO_PUBLIC_ENV": "production"
-      },
-      "ios": {
-        "resourceClass": "m-large",
-        "bundleIdentifier": "com.cienrios.potofgold",
-        "buildConfiguration": "Release",
-        "autoIncrement": true,
-        "credentialsSource": "remote"
-      },
       "android": {
         "buildType": "app-bundle",
-        "resourceClass": "m-large",
-        "applicationId": "com.cienrios.potofgold",
-        "autoIncrement": true,
-        "credentialsSource": "remote"
+        "gradleCommand": ":app:bundleRelease"
+      },
+      "ios": {
+        "buildConfiguration": "Release",
+        "autoIncrement": true
+      },
+      "env": {
+        "EXPO_PUBLIC_ENV": "production"
       }
     }
   },
   "submit": {
     "production": {
+      "android": {
+        "serviceAccountKeyPath": "./google-service-account.json",
+        "track": "production",
+        "releaseStatus": "completed"
+      },
       "ios": {
         "appleId": "your-apple-id@email.com",
-        "ascAppId": "1234567890",
-        "appleTeamId": "YOUR_TEAM_ID",
-        "companyName": "Cien Rios LLC",
-        "language": "en-US",
-        "sku": "POTOFGOLD001"
-      },
-      "android": {
-        "serviceAccountKeyPath": "./credentials/google-service-account.json",
-        "track": "internal",
-        "releaseStatus": "draft",
-        "rollout": 0.1,
-        "changesNotSentForReview": false
+        "ascAppId": "your-app-store-connect-app-id",
+        "appleTeamId": "your-apple-team-id"
       }
     }
   }

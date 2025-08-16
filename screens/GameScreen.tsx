@@ -54,6 +54,8 @@ import { auth } from '../firebase/auth';
 import { FirebaseUnlockSystem } from '../utils/firebaseUnlockSystem';
 import { UnlockManager, UserData, SkinConfig } from '../utils/unlockManager';
 import { useUserUnlocks, UserUnlockContextType } from '../context/UserUnlockContext';
+import { useUnlocks } from '../context/UnlocksContext';
+import { useGameUnlocks } from '../hooks/useGameUnlocks';
 import { MysterySkinSystem } from '../utils/mysterySkinSystem';
 import MysteryCrate from '../components/MysteryCrate';
 import { useSeasonalSkins } from '../hooks/useSeasonalSkins';
@@ -72,6 +74,10 @@ export default function GameScreen({ navigation }: GameScreenProps): React.React
   const { userUnlocks, isSkinUnlocked } = useUserUnlocks() as UserUnlockContextType;
   const unlockedSkins = userUnlocks.unlockedSkins;
   const selectedCartSkin = userUnlocks.selectedCartSkin;
+  
+  // New unlocks system integration
+  const unlocks = useUnlocks();
+  const gameUnlocks = useGameUnlocks();
   const { activeSeasonalSkins, isSkinCurrentlyAvailable } = useSeasonalSkins();
   const { isSubscriber, isLoading: entitlementsLoading } = useEntitlements();
   // const { getMultiplier } = useUnlockMultiplier(); // Not used or not exported

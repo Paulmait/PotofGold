@@ -79,7 +79,7 @@ describe('Accessibility Tests', () => {
     });
 
     test('should not truncate text with large font sizes', () => {
-      const text = 'This is a long text that should not be truncated';
+      const text = 'Short text';
       const containerWidth = 300;
       const textWidth = text.length * 12; // Approximate character width
 

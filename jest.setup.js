@@ -1,3 +1,151 @@
+// Mock @react-navigation/stack
+jest.mock('@react-navigation/stack', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+  return {
+    createStackNavigator: () => {
+      const Stack = {};
+      Stack.Navigator = ({ children }) => React.createElement(View, null, children);
+      Stack.Screen = ({ children }) => React.createElement(View, null, children);
+      return Stack;
+    },
+    StackView: View,
+    __esModule: true,
+  };
+});
+// Mock react-native-screens
+jest.mock('react-native-screens', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+  return {
+    Screen: React.forwardRef((props, ref) => React.createElement(View, { ...props, ref }, props.children)),
+    ScreenContainer: React.forwardRef((props, ref) => React.createElement(View, { ...props, ref }, props.children)),
+    enableScreens: jest.fn(),
+    __esModule: true,
+    ...require('react-native-screens/mock'),
+  };
+});
+
+// Mock react-native-safe-area-context
+jest.mock('react-native-safe-area-context', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+  return {
+    SafeAreaProvider: React.forwardRef((props, ref) => React.createElement(View, { ...props, ref }, props.children)),
+    SafeAreaView: React.forwardRef((props, ref) => React.createElement(View, { ...props, ref }, props.children)),
+    useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
+    useSafeAreaFrame: () => ({ x: 0, y: 0, width: 375, height: 812 }),
+    initialWindowMetrics: null,
+    __esModule: true,
+  };
+});
+// Mock useEntitlements hook
+jest.mock('./src/features/subscriptions/useEntitlements', () => ({
+  useEntitlements: () => ({ isSubscriber: false, isLoading: false }),
+  __esModule: true,
+}));
+
+// Mock useSeasonalSkins hook
+jest.mock('./hooks/useSeasonalSkins', () => ({
+  useSeasonalSkins: () => ({
+    activeSeasonalSkins: [],
+    isSkinCurrentlyAvailable: () => false,
+    isLoading: false,
+    error: null,
+  }),
+  __esModule: true,
+}));
+// Mock masterGameManager
+jest.mock('./utils/masterGameManager', () => ({
+  masterGameManager: {
+    initializeGame: jest.fn(() => Promise.resolve({
+      userId: 'test-user',
+      isInitialized: true,
+      currentLevel: 1,
+      currentWorld: { id: 1 },
+      playerProgress: {},
+      metaGameProgress: { pots: { currentPot: { speed: 0.5, size: 1 }, currentSkin: { image: 'default_pot' } } },
+      missionProgress: {},
+      powerUpCollection: {},
+      skillProgress: {},
+      seasonPass: {},
+      dailyStreak: {},
+      unlockTree: {},
+      adRewards: {},
+      lastUpdated: new Date(),
+    })),
+  },
+  __esModule: true,
+}));
+
+// Mock metaGameSystem
+jest.mock('./utils/metaGameSystem', () => ({
+  metaGameSystem: {
+    getProgress: jest.fn(() => ({ pots: { currentPot: { speed: 0.5, size: 1 }, currentSkin: { image: 'default_pot' } } })),
+  },
+  __esModule: true,
+}));
+
+// Mock skillMechanicsSystem
+jest.mock('./utils/skillMechanics', () => ({
+  skillMechanicsSystem: { initializeSkillProgress: jest.fn(() => Promise.resolve({})) },
+  __esModule: true,
+}));
+
+// Mock missionSystem
+jest.mock('./utils/missionSystem', () => ({
+  missionSystem: {
+    initializeMissions: jest.fn(() => Promise.resolve({})),
+    checkMissionRefresh: jest.fn(() => Promise.resolve()),
+  },
+  __esModule: true,
+}));
+
+// Mock seasonPassSystem
+jest.mock('./utils/seasonPassSystem', () => ({
+  seasonPassSystem: { initializeSeasonPass: jest.fn(() => Promise.resolve({})) },
+  __esModule: true,
+}));
+
+// Mock dailyStreakSystem
+jest.mock('./utils/dailyStreakSystem', () => ({
+  dailyStreakSystem: {
+    initializeStreak: jest.fn(() => Promise.resolve({})),
+    updateStreak: jest.fn(() => Promise.resolve()),
+  },
+  __esModule: true,
+}));
+
+// Mock unlockTreeSystem
+jest.mock('./utils/unlockTreeSystem', () => ({
+  unlockTreeSystem: { initializeTree: jest.fn(() => Promise.resolve({})) },
+  __esModule: true,
+}));
+
+// Mock powerUpEvolutionSystem
+jest.mock('./utils/powerUpEvolution', () => ({
+  powerUpEvolutionSystem: { initializeCollection: jest.fn(() => Promise.resolve({})) },
+  __esModule: true,
+}));
+
+// Mock progressionSystem
+jest.mock('./utils/progressionSystem', () => ({
+  progressionSystem: {
+    loadPlayerProgress: jest.fn(() => Promise.resolve({ currentWorld: 1 })),
+    getCurrentLevel: jest.fn(() => 1),
+    getWorlds: jest.fn(() => [{ id: 1 }]),
+  },
+  __esModule: true,
+}));
+
+// Mock pauseTriggerSystem
+jest.mock('./utils/pauseTriggerSystem', () => ({
+  pauseTriggerSystem: {
+    shouldShowPauseMenu: jest.fn(() => false),
+    GameContext: {},
+  },
+  __esModule: true,
+}));
 // Mock firebase/storage
 jest.mock('firebase/storage', () => ({
   getStorage: jest.fn(() => ({})),
@@ -143,6 +291,17 @@ jest.mock('./utils/adRewardsSystem', () => ({
     checkAdAvailability: jest.fn(() => Promise.resolve(true)),
     showAd: jest.fn(() => Promise.resolve()),
     grantReward: jest.fn(() => Promise.resolve()),
+    initializeAdRewards: jest.fn(() => Promise.resolve({
+      userId: 'test-user',
+      watchedAds: [],
+      totalAdsWatched: 0,
+      totalRewardsEarned: { coins: 0, gems: 0, powerups: 0, skins: 0 },
+      activeCampaigns: [],
+      dailyAdLimit: 10,
+      adsWatchedToday: 0,
+      lastAdDate: '',
+      lastUpdated: new Date(),
+    })),
   },
   __esModule: true,
 }));

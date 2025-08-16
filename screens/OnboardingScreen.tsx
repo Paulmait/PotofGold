@@ -17,9 +17,14 @@ const { width, height } = Dimensions.get('window');
 
 interface OnboardingScreenProps {
   navigation: any;
+  route?: {
+    params?: {
+      onComplete?: () => void;
+    };
+  };
 }
 
-export default function OnboardingScreen({ navigation }: OnboardingScreenProps) {
+export default function OnboardingScreen({ navigation, route }: OnboardingScreenProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [userData, setUserData] = useState<any>(null);
@@ -115,12 +120,20 @@ export default function OnboardingScreen({ navigation }: OnboardingScreenProps) 
       setCurrentStep(currentStep + 1);
     } else {
       // Complete onboarding
-      navigation.replace('Game');
+      if (route?.params?.onComplete) {
+        route.params.onComplete();
+      } else {
+        navigation.replace('Game');
+      }
     }
   };
 
   const handleSkipOnboarding = () => {
-    navigation.replace('Game');
+    if (route?.params?.onComplete) {
+      route.params.onComplete();
+    } else {
+      navigation.replace('Game');
+    }
   };
 
   const renderStep = () => {
