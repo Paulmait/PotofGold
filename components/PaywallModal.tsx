@@ -279,7 +279,7 @@ const PaywallModal: React.FC<PaywallModalProps> = ({
             <View style={styles.trustBadge}>
               <Ionicons name="lock-closed" size={16} color="#4CAF50" />
               <Text style={styles.trustText}>
-                Secure payment via {monthlyPackage?.product.store || 'App Store'}
+                Secure payment via App Store
               </Text>
             </View>
           </ScrollView>

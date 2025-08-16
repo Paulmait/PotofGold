@@ -87,7 +87,7 @@ const Coin: React.FC<CoinProps> = ({ value, isBonus = false }) => {
         ]}
       >
         <Ionicons
-          name="coin"
+          name="logo-bitcoin"
           size={getCoinSize() * 0.6}
           color={isBonus ? '#FFA500' : '#FFF'}
         />

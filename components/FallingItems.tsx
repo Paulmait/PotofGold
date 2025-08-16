@@ -36,11 +36,14 @@ export default function FallingItems({ items, onItemCollect }: FallingItemsProps
         sparkleAnimations[item.id] = new Animated.Value(0);
         
         // Start falling animation
-        Animated.timing(itemAnimations[item.id], {
-          toValue: height,
-          duration: (height - item.y) / item.speed * 1000,
-          useNativeDriver: true,
-        }).start();
+        const itemAnim = itemAnimations[item.id];
+        if (itemAnim) {
+          Animated.timing(itemAnim, {
+            toValue: height,
+            duration: (height - item.y) / item.speed * 1000,
+            useNativeDriver: true,
+          }).start();
+        }
 
         // Start sparkle animation for special items
         if (item.type === 'coin' || item.type === 'gemstone' || item.type === 'luckyStar') {

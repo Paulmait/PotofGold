@@ -1,4 +1,5 @@
 import { Dimensions } from 'react-native';
+import { offlineManager } from './offlineManager';
 
 const { width, height } = Dimensions.get('window');
 
@@ -114,7 +115,7 @@ export class SkillMechanicsSystem {
     };
 
     await this.saveSkillProgress();
-    return this.skillProgress;
+    return this.skillProgress!;
   }
 
   // Generate obstacles based on level and difficulty
@@ -147,7 +148,7 @@ export class SkillMechanicsSystem {
     for (let i = 0; i < types.length; i++) {
       cumulativeWeight += weights[i];
       if (random <= cumulativeWeight) {
-        return types[i];
+        return types[i] || 'falling_rock';
       }
     }
     

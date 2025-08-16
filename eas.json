@@ -1,7 +1,7 @@
 {
   "cli": {
     "version": ">= 5.0.0",
-    "requireCommit": true,
+    "requireCommit": false,
     "appVersionSource": "remote"
   },
   "build": {
@@ -21,15 +21,17 @@
         "EXPO_PUBLIC_ENV": "development"
       },
       "ios": {
-        "simulator": true,
+        "simulator": false,
         "resourceClass": "m-medium",
-        "bundleIdentifier": "com.yourcompany.potofgold.dev"
+        "bundleIdentifier": "com.cienrios.potofgold.dev",
+        "buildConfiguration": "Debug",
+        "credentialsSource": "local"
       },
       "android": {
         "buildType": "apk",
         "gradleCommand": ":app:assembleDebug",
         "resourceClass": "m-medium",
-        "applicationId": "com.yourcompany.potofgold.dev"
+        "applicationId": "com.cienrios.potofgold.dev"
       }
     },
     "preview": {
@@ -42,12 +44,13 @@
       },
       "ios": {
         "resourceClass": "m-medium",
-        "bundleIdentifier": "com.yourcompany.potofgold"
+        "bundleIdentifier": "com.cienrios.potofgold",
+        "buildConfiguration": "Release"
       },
       "android": {
         "buildType": "apk",
         "resourceClass": "m-medium",
-        "applicationId": "com.yourcompany.potofgold"
+        "applicationId": "com.cienrios.potofgold"
       }
     },
     "production": {
@@ -59,7 +62,7 @@
       },
       "ios": {
         "resourceClass": "m-large",
-        "bundleIdentifier": "com.yourcompany.potofgold",
+        "bundleIdentifier": "com.cienrios.potofgold",
         "buildConfiguration": "Release",
         "autoIncrement": true,
         "credentialsSource": "remote"
@@ -67,7 +70,7 @@
       "android": {
         "buildType": "app-bundle",
         "resourceClass": "m-large",
-        "applicationId": "com.yourcompany.potofgold",
+        "applicationId": "com.cienrios.potofgold",
         "autoIncrement": true,
         "credentialsSource": "remote"
       }
@@ -79,15 +82,15 @@
         "appleId": "your-apple-id@email.com",
         "ascAppId": "1234567890",
         "appleTeamId": "YOUR_TEAM_ID",
-        "companyName": "Your Company Name",
+        "companyName": "Cien Rios LLC",
         "language": "en-US",
         "sku": "POTOFGOLD001"
       },
       "android": {
         "serviceAccountKeyPath": "./credentials/google-service-account.json",
-        "track": "production",
-        "releaseStatus": "completed",
-        "rollout": 1.0,
+        "track": "internal",
+        "releaseStatus": "draft",
+        "rollout": 0.1,
         "changesNotSentForReview": false
       }
     }

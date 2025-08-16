@@ -1,12 +1,12 @@
 import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from '../firebase/config';
+import db from '../firebase/config';
 import { offlineManager } from './offlineManager';
 
 export interface UserProfile {
   uid: string;
   username: string;
   displayName: string;
-  email?: string;
+  email?: string | undefined;
   photoURL?: string;
   coins: number;
   highScore: number;
@@ -156,13 +156,13 @@ export class UserManager {
   }
 
   // Search users by username
-  async searchUsers(query: string, limit: number = 10): Promise<UserProfile[]> {
+  async searchUsers(searchQuery: string, limit: number = 10): Promise<UserProfile[]> {
     try {
       const usersRef = collection(db, 'users');
       const q = query(
         usersRef,
-        where('username', '>=', query.toLowerCase()),
-        where('username', '<=', query.toLowerCase() + '\uf8ff')
+        where('username', '>=', searchQuery.toLowerCase()),
+        where('username', '<=', searchQuery.toLowerCase() + '\uf8ff')
       );
       const snapshot = await getDocs(q);
       

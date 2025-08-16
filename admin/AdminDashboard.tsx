@@ -166,6 +166,8 @@ export const AdminDashboard: React.FC = () => {
             }}
             width={screenWidth - 40}
             height={200}
+            yAxisLabel=""
+            yAxisSuffix=""
             chartConfig={{
               backgroundColor: '#ffffff',
               backgroundGradientFrom: '#ffffff',

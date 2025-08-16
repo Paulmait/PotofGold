@@ -8,7 +8,7 @@ interface LottieAnimationProps {
   loop?: boolean;
   speed?: number;
   style?: any;
-  onAnimationFinish?: () => void;
+  onAnimationFinish?: (() => void) | undefined;
 }
 
 interface SparkleEffectProps {

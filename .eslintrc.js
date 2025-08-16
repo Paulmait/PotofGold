@@ -2,7 +2,7 @@ module.exports = {
   root: true,
   extends: [
     'expo',
-    '@react-native',
+    '@react-native-community',
     '@typescript-eslint/recommended',
   ],
   parser: '@typescript-eslint/parser',

@@ -100,25 +100,25 @@ export class UIManager {
     if (isLeftHand) {
       // Left-hand layout
       this.layout.buttonPositions = {
-        pause: { x: 20, y: 60 + safeAreaInsets.top },
-        powerUp: { x: width - 80, y: height - 120 - safeAreaInsets.bottom },
-        settings: { x: width - 80, y: 60 + safeAreaInsets.top },
+        pause: { x: 20, y: 60 + this.layout.safeAreaInsets.top },
+        powerUp: { x: width - 80, y: height - 120 - this.layout.safeAreaInsets.bottom },
+        settings: { x: width - 80, y: 60 + this.layout.safeAreaInsets.top },
       };
     } else {
       // Right-hand layout
       this.layout.buttonPositions = {
-        pause: { x: width - 80, y: 60 + safeAreaInsets.top },
-        powerUp: { x: 20, y: height - 120 - safeAreaInsets.bottom },
-        settings: { x: 20, y: 60 + safeAreaInsets.top },
+        pause: { x: width - 80, y: 60 + this.layout.safeAreaInsets.top },
+        powerUp: { x: 20, y: height - 120 - this.layout.safeAreaInsets.bottom },
+        settings: { x: 20, y: 60 + this.layout.safeAreaInsets.top },
       };
     }
 
     // Adjust game area for one-hand mode
     this.layout.gameArea = {
       x: 0,
-      y: 120 + safeAreaInsets.top,
+      y: 120 + this.layout.safeAreaInsets.top,
       width: width,
-      height: height - 240 - safeAreaInsets.top - safeAreaInsets.bottom,
+      height: height - 240 - this.layout.safeAreaInsets.top - this.layout.safeAreaInsets.bottom,
     };
   }
 
