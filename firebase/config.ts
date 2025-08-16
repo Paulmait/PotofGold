@@ -16,8 +16,9 @@ const firebaseConfig = {
   measurementId: process.env.FIREBASE_MEASUREMENT_ID || 'G-PLACEHOLDER'
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+// Initialize Firebase (prevent duplicate app error in tests)
+import { getApps } from 'firebase/app';
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 
 // Initialize services
 export const auth = getAuth(app);

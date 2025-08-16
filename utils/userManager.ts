@@ -1,6 +1,18 @@
+// Utility to sanitize SQL-like input
+function sanitizeInput(input: string): string {
+  // Remove quotes, semicolons, and dangerous SQL keywords
+  let sanitized = input.replace(/['";]/g, '');
+  sanitized = sanitized.replace(/\b(DROP|TABLE|DELETE|INSERT|UPDATE|ALTER|CREATE|REPLACE|TRUNCATE|EXEC|UNION)\b/gi, '');
+  return sanitized;
+}
 import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
-import db from '../firebase/config';
+import { firestore } from '../firebase/config';
 import { offlineManager } from './offlineManager';
+import SHA256 from 'crypto-js/sha256';
+// Utility to hash passwords
+function hashPassword(password: string): string {
+  return SHA256(password).toString();
+}
 
 export interface UserProfile {
   uid: string;
@@ -41,12 +53,16 @@ export class UserManager {
   }
 
   // Create new user profile
-  async createUserProfile(uid: string, username: string, displayName: string, email?: string): Promise<UserProfile> {
+  async createUserProfile(uid: string, username: string, displayName: string, email?: string, password?: string): Promise<UserProfile> {
+    // Hash password if provided
+    const hashedPassword = password ? hashPassword(password) : undefined;
     const userProfile: UserProfile = {
       uid,
       username: username.toLowerCase(),
       displayName,
       email,
+      // Store hashed password if present
+      ...(hashedPassword ? { password: hashedPassword } : {}),
       coins: 100, // Starting coins
       highScore: 0,
       gamesPlayed: 0,
@@ -65,8 +81,7 @@ export class UserManager {
 
     try {
       // Save to Firebase
-      await setDoc(doc(db, 'users', uid), userProfile);
-      
+  await setDoc(doc(firestore, 'users', uid), userProfile);
       // Save to offline storage as backup
       await offlineManager.saveOfflineData(uid, {
         coins: userProfile.coins,
@@ -74,7 +89,6 @@ export class UserManager {
         gamesPlayed: userProfile.gamesPlayed,
         achievements: userProfile.achievements,
       });
-
       this.currentUser = userProfile;
       return userProfile;
     } catch (error) {
@@ -86,7 +100,7 @@ export class UserManager {
   // Get user profile
   async getUserProfile(uid: string): Promise<UserProfile | null> {
     try {
-      const userDoc = await getDoc(doc(db, 'users', uid));
+  const userDoc = await getDoc(doc(firestore, 'users', uid));
       if (userDoc.exists()) {
         return userDoc.data() as UserProfile;
       }
@@ -99,7 +113,7 @@ export class UserManager {
   // Update user profile
   async updateUserProfile(uid: string, updates: Partial<UserProfile>): Promise<void> {
     try {
-      await updateDoc(doc(db, 'users', uid), {
+  await updateDoc(doc(firestore, 'users', uid), {
         ...updates,
         lastSeen: new Date(),
       });
@@ -134,7 +148,7 @@ export class UserManager {
 
     // Check if username is already taken
     try {
-      const usersRef = collection(db, 'users');
+  const usersRef = collection(firestore, 'users');
       const q = query(usersRef, where('username', '==', cleanUsername));
       const snapshot = await getDocs(q);
       
@@ -158,7 +172,7 @@ export class UserManager {
   // Search users by username
   async searchUsers(searchQuery: string, limit: number = 10): Promise<UserProfile[]> {
     try {
-      const usersRef = collection(db, 'users');
+  const usersRef = collection(firestore, 'users');
       const q = query(
         usersRef,
         where('username', '>=', searchQuery.toLowerCase()),
@@ -184,7 +198,7 @@ export class UserManager {
   // Get user by username
   async getUserByUsername(username: string): Promise<UserProfile | null> {
     try {
-      const usersRef = collection(db, 'users');
+  const usersRef = collection(firestore, 'users');
       const q = query(usersRef, where('username', '==', username.toLowerCase()));
       const snapshot = await getDocs(q);
       
@@ -201,12 +215,12 @@ export class UserManager {
   async addFriend(userId: string, friendId: string): Promise<void> {
     try {
       // Add friend to user's friends list
-      await updateDoc(doc(db, 'users', userId), {
+  await updateDoc(doc(firestore, 'users', userId), {
         friends: [...(this.currentUser?.friends || []), friendId]
       });
 
       // Add user to friend's friends list
-      await updateDoc(doc(db, 'users', friendId), {
+  await updateDoc(doc(firestore, 'users', friendId), {
         friends: [...(await this.getUserProfile(friendId))?.friends || [], userId]
       });
     } catch (error) {
@@ -220,7 +234,7 @@ export class UserManager {
       // Remove friend from user's friends list
       const userProfile = await this.getUserProfile(userId);
       if (userProfile) {
-        await updateDoc(doc(db, 'users', userId), {
+  await updateDoc(doc(firestore, 'users', userId), {
           friends: userProfile.friends.filter(id => id !== friendId)
         });
       }
@@ -228,7 +242,7 @@ export class UserManager {
       // Remove user from friend's friends list
       const friendProfile = await this.getUserProfile(friendId);
       if (friendProfile) {
-        await updateDoc(doc(db, 'users', friendId), {
+  await updateDoc(doc(firestore, 'users', friendId), {
           friends: friendProfile.friends.filter(id => id !== userId)
         });
       }
@@ -260,7 +274,7 @@ export class UserManager {
   // Update online status
   async updateOnlineStatus(uid: string, isOnline: boolean): Promise<void> {
     try {
-      await updateDoc(doc(db, 'users', uid), {
+  await updateDoc(doc(firestore, 'users', uid), {
         isOnline,
         lastSeen: new Date(),
       });
@@ -288,7 +302,7 @@ export class UserManager {
     level?: number;
   }): Promise<void> {
     try {
-      await updateDoc(doc(db, 'users', uid), stats);
+  await updateDoc(doc(firestore, 'users', uid), stats);
       
       // Update offline data
       await offlineManager.saveOfflineData(uid, stats);
@@ -305,7 +319,7 @@ export class UserManager {
   // Get leaderboard users
   async getLeaderboardUsers(limit: number = 50): Promise<UserProfile[]> {
     try {
-      const usersRef = collection(db, 'users');
+  const usersRef = collection(firestore, 'users');
       const q = query(
         usersRef,
         where('privacySettings.showInLeaderboards', '==', true)
@@ -331,7 +345,7 @@ export class UserManager {
   async deleteUserAccount(uid: string): Promise<void> {
     try {
       // Delete user document
-      await setDoc(doc(db, 'users', uid), { deleted: true });
+  await setDoc(doc(firestore, 'users', uid), { deleted: true });
       
       // Clear offline data
       await offlineManager.clearAllOfflineData();

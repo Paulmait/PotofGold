@@ -1,3 +1,61 @@
+// Clean up timers and async after each test
+import { cleanup } from '@testing-library/react-native';
+// Track all timers and intervals for robust cleanup
+let activeTimeouts: number[] = [];
+let activeIntervals: number[] = [];
+
+const originalSetTimeout = global.setTimeout;
+const originalSetInterval = global.setInterval;
+const originalClearTimeout = global.clearTimeout;
+const originalClearInterval = global.clearInterval;
+
+beforeAll(() => {
+  function patchedSetTimeout(handler: TimerHandler, timeout?: number, ...args: any[]): number {
+    const id = (originalSetTimeout as any)(handler, timeout, ...args);
+    activeTimeouts.push(id);
+    return id;
+  }
+  function patchedSetInterval(handler: TimerHandler, timeout?: number, ...args: any[]): number {
+    const id = (originalSetInterval as any)(handler, timeout, ...args);
+    activeIntervals.push(id);
+    return id;
+  }
+  (patchedSetTimeout as any).__promisify__ = (originalSetTimeout as any).__promisify__;
+  (patchedSetInterval as any).__promisify__ = (originalSetInterval as any).__promisify__;
+  global.setTimeout = patchedSetTimeout as typeof setTimeout;
+  global.setInterval = patchedSetInterval as typeof setInterval;
+  global.clearTimeout = (id: any) => {
+    activeTimeouts = activeTimeouts.filter(t => t !== id);
+    return originalClearTimeout(id);
+  };
+  global.clearInterval = (id: any) => {
+    activeIntervals = activeIntervals.filter(t => t !== id);
+    return originalClearInterval(id);
+  };
+});
+
+afterEach(async () => {
+  // Flush all pending timers and microtasks
+  await Promise.resolve();
+  jest.runOnlyPendingTimers();
+  jest.useRealTimers();
+  // Clear all tracked timeouts/intervals
+  activeTimeouts.forEach(id => originalClearTimeout(id));
+  activeIntervals.forEach(id => originalClearInterval(id));
+  activeTimeouts = [];
+  activeIntervals = [];
+  cleanup();
+});
+
+afterAll(() => {
+  jest.useRealTimers();
+  jest.clearAllMocks();
+  // Restore original timer functions
+  global.setTimeout = originalSetTimeout;
+  global.setInterval = originalSetInterval;
+  global.clearTimeout = originalClearTimeout;
+  global.clearInterval = originalClearInterval;
+});
 // Explicitly mock gesture-handler and reanimated for all import styles
 jest.mock('react-native-gesture-handler', () => {
   const React = require('react');

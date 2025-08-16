@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { useNavigation } from '@react-navigation/native';
 import {
   View,
   Text,
@@ -43,6 +45,15 @@ interface DashboardMetrics {
 }
 
 export const AdminDashboard: React.FC = () => {
+  const { user } = useAuth();
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    if (!user || user.role !== 'admin') {
+  // Fallback: use navigate for type compatibility
+  navigation.navigate('Home' as never);
+    }
+  }, [user, navigation]);
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedTab, setSelectedTab] = useState<'overview' | 'users' | 'revenue' | 'config'>('overview');
@@ -213,19 +224,25 @@ export const AdminDashboard: React.FC = () => {
 
         {/* User Management Actions */}
         <View style={styles.actionButtons}>
-          <TouchableOpacity style={styles.actionButton} onPress={() => handleUserAction('reset_password')}>
-            <Ionicons name="key" size={20} color="white" />
-            <Text style={styles.actionButtonText}>Reset Password</Text>
+          <TouchableOpacity style={styles.actionButton} onPress={() => handleUserAction('reset_account')}>
+            <Ionicons name="refresh" size={20} color="white" />
+            <Text style={styles.actionButtonText}>Reset Account</Text>
           </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.actionButton} onPress={() => handleUserAction('ban_user')}>
-            <Ionicons name="ban" size={20} color="white" />
-            <Text style={styles.actionButtonText}>Ban User</Text>
+          <TouchableOpacity style={styles.actionButton} onPress={() => handleUserAction('view_data')}>
+            <Ionicons name="eye" size={20} color="white" />
+            <Text style={styles.actionButtonText}>View Data</Text>
           </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.actionButton} onPress={() => handleUserAction('gift_coins')}>
-            <Ionicons name="gift" size={20} color="white" />
-            <Text style={styles.actionButtonText}>Gift Coins</Text>
+          <TouchableOpacity style={styles.actionButton} onPress={() => handleUserAction('edit_data')}>
+            <Ionicons name="create" size={20} color="white" />
+            <Text style={styles.actionButtonText}>Edit Data</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.actionButton} onPress={() => handleUserAction('download_data')}>
+            <Ionicons name="download" size={20} color="white" />
+            <Text style={styles.actionButtonText}>Download Data</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.actionButton} onPress={() => handleUserAction('distribute_data')}>
+            <Ionicons name="share-social" size={20} color="white" />
+            <Text style={styles.actionButtonText}>Distribute Data</Text>
           </TouchableOpacity>
         </View>
 
@@ -375,6 +392,14 @@ export const AdminDashboard: React.FC = () => {
   };
 
   const handleUserAction = (action: string) => {
+    // Audit log: send to backend
+    if (user) {
+      fetch('https://your-backend.com/api/audit-log', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user.token}` },
+        body: JSON.stringify({ userId: user.id, action, timestamp: Date.now() })
+      });
+    }
     Alert.alert(
       'User Action',
       `Perform ${action} for user?`,

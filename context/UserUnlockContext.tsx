@@ -11,7 +11,7 @@ export interface UserUnlocks {
   lastUpdated: Date;
 }
 
-interface UserUnlockContextType {
+export interface UserUnlockContextType {
   userUnlocks: UserUnlocks;
   isLoading: boolean;
   isSkinUnlocked: (skinId: string) => boolean;

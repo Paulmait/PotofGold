@@ -1,3 +1,76 @@
+// Mock firebase/storage
+jest.mock('firebase/storage', () => ({
+  getStorage: jest.fn(() => ({})),
+  __esModule: true,
+}));
+// Mock firebase/analytics
+jest.mock('firebase/analytics', () => ({
+  getAnalytics: jest.fn(() => ({})),
+  isSupported: jest.fn(() => Promise.resolve(false)),
+  __esModule: true,
+}));
+// Mock firebase/functions
+jest.mock('firebase/functions', () => ({
+  getFunctions: jest.fn(() => ({})),
+  __esModule: true,
+}));
+// Mock react-native-purchases to prevent NativeEventEmitter errors in tests
+jest.mock('react-native-purchases', () => {
+  return {
+    __esModule: true,
+    default: {
+      setup: jest.fn(),
+      setDebugLogsEnabled: jest.fn(),
+      setLogLevel: jest.fn(),
+      getOfferings: jest.fn(() => Promise.resolve({})),
+      getCustomerInfo: jest.fn(() => Promise.resolve({})),
+      purchasePackage: jest.fn(() => Promise.resolve({})),
+      restorePurchases: jest.fn(() => Promise.resolve({})),
+      addCustomerInfoUpdateListener: jest.fn(),
+      removeCustomerInfoUpdateListener: jest.fn(),
+      setAttributes: jest.fn(),
+      setEmail: jest.fn(),
+      setPhoneNumber: jest.fn(),
+      setDisplayName: jest.fn(),
+      setPushToken: jest.fn(),
+      logIn: jest.fn(() => Promise.resolve({})),
+      logOut: jest.fn(() => Promise.resolve({})),
+      isAnonymous: jest.fn(() => true),
+      getAppUserID: jest.fn(() => 'test-user'),
+      syncPurchases: jest.fn(),
+      setProxyURL: jest.fn(),
+      setSimulatesAskToBuyInSandbox: jest.fn(),
+      canMakePayments: jest.fn(() => true),
+      checkTrialOrIntroductoryPriceEligibility: jest.fn(() => Promise.resolve({})),
+      invalidateCustomerInfoCache: jest.fn(),
+      setAutomaticAppleSearchAdsAttributionCollection: jest.fn(),
+    },
+    PurchasesOfferings: {},
+    CustomerInfo: {},
+    PurchasesEntitlementInfos: {},
+    LOG_LEVEL: {},
+    PurchasesPackage: {},
+    PurchasesError: {},
+    PURCHASES_ERROR_CODE: {},
+  };
+});
+// Mock Firebase Firestore (getDoc, setDoc, doc, db, getFirestore)
+jest.mock('firebase/firestore', () => ({
+  getDoc: jest.fn(),
+  setDoc: jest.fn(),
+  doc: jest.fn(),
+  db: {},
+  getFirestore: jest.fn(() => ({})),
+  __esModule: true,
+}));
+// Mock expo-haptics
+jest.mock('expo-haptics', () => ({
+  impactAsync: jest.fn(),
+  notificationAsync: jest.fn(),
+  selectionAsync: jest.fn(),
+  ImpactFeedbackStyle: {},
+  NotificationFeedbackType: {},
+}));
 // Global cleanup for timers and mocks after each test
 if (typeof global.afterEach === 'function') {
   global.afterEach(() => {

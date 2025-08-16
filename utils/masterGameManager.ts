@@ -9,6 +9,9 @@ import { unlockTreeSystem } from './unlockTreeSystem';
 import { adRewardsSystem } from './adRewardsSystem';
 import { offlineManager } from './offlineManager';
 
+
+
+
 export interface GameState {
   userId: string;
   isInitialized: boolean;
@@ -94,6 +97,7 @@ export class MasterGameManager {
     timeSurvived: number;
     obstaclesAvoided: number;
     comboAchieved: number;
+    comboCount: number;
     powerUpsUsed: number;
     accuracy: number;
   }): Promise<{
@@ -176,6 +180,11 @@ export class MasterGameManager {
 
   // Get current game state
   getGameState(): GameState | null {
+    return this.gameState;
+  }
+
+  // Mockable for tests: get current user state
+  public getUserState(): GameState | null {
     return this.gameState;
   }
 
@@ -309,4 +318,4 @@ export class MasterGameManager {
   }
 }
 
-export const masterGameManager = MasterGameManager.getInstance(); 
+export const masterGameManager = MasterGameManager.getInstance();

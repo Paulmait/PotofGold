@@ -1,3 +1,10 @@
+// Clean up timers and async after each test
+import { cleanup } from '@testing-library/react-native';
+afterEach(() => {
+  jest.clearAllTimers();
+  jest.useRealTimers();
+  cleanup();
+});
 // Explicitly mock gesture-handler and reanimated for all import styles
 jest.mock('react-native-gesture-handler', () => {
   const React = require('react');
