@@ -1,6 +1,7 @@
 export interface ItemConfig {
   type: string;
   visual: string;
+  assetPath?: string; // Path to actual image asset
   purpose: string;
   rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'ultraRare';
   scoreValue: number;
@@ -10,109 +11,180 @@ export interface ItemConfig {
   soundEffect: string;
   animationEffect: string;
   specialEffect?: string;
+  size?: number; // Size multiplier for visual
+  rotationSpeed?: number; // Rotation animation speed
 }
 
 export const ITEM_CONFIGS: { [key: string]: ItemConfig } = {
+  // ========== COLLECTIBLES (Good Items) ==========
   coin: {
     type: 'coin',
     visual: '🪙',
-    purpose: '+1 Score',
+    assetPath: 'assets/items/coin.png',
+    purpose: 'Basic currency +1',
     rarity: 'common',
     scoreValue: 1,
     coinValue: 1,
     fallSpeed: 1.0,
-    spawnWeight: 40,
-    soundEffect: 'coin_ding.wav',
-    animationEffect: '✨Twinkle',
+    spawnWeight: 35,
+    soundEffect: 'coin_collect.wav',
+    animationEffect: 'sparkle_pop',
+    size: 1.0,
+    rotationSpeed: 2,
   },
+  
   moneyBag: {
     type: 'moneyBag',
     visual: '💰',
-    purpose: '+10 Score',
+    assetPath: 'assets/items/money_bag.png',
+    purpose: 'Coin bundle +10',
     rarity: 'uncommon',
     scoreValue: 10,
-    coinValue: 5,
-    fallSpeed: 0.8, // Slower fall
-    spawnWeight: 20,
-    soundEffect: 'money_bag.wav',
-    animationEffect: '💥Bounce',
+    coinValue: 10,
+    fallSpeed: 0.9,
+    spawnWeight: 15,
+    soundEffect: 'money_bag_collect.wav',
+    animationEffect: 'coin_burst',
+    size: 1.2,
+    rotationSpeed: 1,
   },
+  
+  diamond: {
+    type: 'diamond',
+    visual: '💎',
+    assetPath: 'assets/items/diamond.png',
+    purpose: 'Premium currency +1 gem',
+    rarity: 'rare',
+    scoreValue: 50,
+    coinValue: 0,
+    fallSpeed: 0.7,
+    spawnWeight: 5,
+    soundEffect: 'diamond_sparkle.wav',
+    animationEffect: 'rainbow_shine',
+    specialEffect: 'addGem',
+    size: 1.1,
+    rotationSpeed: 3,
+  },
+  
+  goldStar: {
+    type: 'goldStar',
+    visual: '⭐',
+    assetPath: 'assets/items/gold_star.png',
+    purpose: 'Score multiplier x2 for 10s',
+    rarity: 'rare',
+    scoreValue: 25,
+    coinValue: 5,
+    fallSpeed: 0.8,
+    spawnWeight: 8,
+    soundEffect: 'star_collect.wav',
+    animationEffect: 'star_trail',
+    specialEffect: 'scoreMultiplier',
+    size: 1.3,
+    rotationSpeed: 4,
+  },
+  
+  megaStar: {
+    type: 'megaStar',
+    visual: '🌟',
+    assetPath: 'assets/items/mega_star.png',
+    purpose: 'Frenzy mode - all coins x5 for 15s',
+    rarity: 'ultraRare',
+    scoreValue: 100,
+    coinValue: 20,
+    fallSpeed: 0.5,
+    spawnWeight: 1,
+    soundEffect: 'mega_star_fanfare.wav',
+    animationEffect: 'rainbow_explosion',
+    specialEffect: 'frenzyMode',
+    size: 1.5,
+    rotationSpeed: 5,
+  },
+  
+  treasureSack: {
+    type: 'treasureSack',
+    visual: '🎒',
+    assetPath: 'assets/items/treasure_sack.png',
+    purpose: 'Mystery reward (5-50 coins)',
+    rarity: 'uncommon',
+    scoreValue: 0,
+    coinValue: 0, // Handled by special effect
+    fallSpeed: 0.85,
+    spawnWeight: 10,
+    soundEffect: 'sack_open.wav',
+    animationEffect: 'sack_bounce',
+    specialEffect: 'mysteryReward',
+    size: 1.4,
+    rotationSpeed: 0.5,
+  },
+  
+  // ========== POWER-UPS ==========
   lightning: {
     type: 'lightning',
-    visual: '🔋',
-    purpose: 'Speed Boost for 5s',
+    visual: '⚡',
+    assetPath: 'assets/items/lightning.png',
+    purpose: 'Speed boost - move 2x faster for 8s',
     rarity: 'rare',
     scoreValue: 0,
     coinValue: 0,
-    fallSpeed: 1.5, // Fast fall
-    spawnWeight: 15,
-    soundEffect: 'lightning_zap.wav',
-    animationEffect: '⚡Flash trail',
+    fallSpeed: 1.5,
+    spawnWeight: 7,
+    soundEffect: 'lightning_strike.wav',
+    animationEffect: 'electric_surge',
     specialEffect: 'speedBoost',
+    size: 1.2,
+    rotationSpeed: 0,
   },
+  
   magnet: {
     type: 'magnet',
     visual: '🧲',
-    purpose: 'Attracts nearby coins',
+    assetPath: 'assets/items/magnet.png',
+    purpose: 'Auto-collect items in radius for 10s',
     rarity: 'rare',
     scoreValue: 0,
     coinValue: 0,
-    fallSpeed: 1.2,
-    spawnWeight: 10,
-    soundEffect: 'magnet_pull.wav',
-    animationEffect: '🌀Wobble pull',
+    fallSpeed: 1.1,
+    spawnWeight: 6,
+    soundEffect: 'magnet_activate.wav',
+    animationEffect: 'magnetic_field',
     specialEffect: 'magnetPull',
+    size: 1.2,
+    rotationSpeed: 6,
   },
-  gemstone: {
-    type: 'gemstone',
-    visual: '💎',
-    purpose: '+25 Score',
-    rarity: 'epic',
-    scoreValue: 25,
-    coinValue: 10,
-    fallSpeed: 0.6, // Very slow fall
-    spawnWeight: 8,
-    soundEffect: 'gem_sparkle.wav',
-    animationEffect: '💫Glow pulse',
+  
+  // ========== OBSTACLES (Bad Items) ==========
+  rock: {
+    type: 'rock',
+    visual: '🪨',
+    assetPath: 'assets/items/rock.png',
+    purpose: 'Obstacle - lose 1 life if hit',
+    rarity: 'common',
+    scoreValue: -10,
+    coinValue: 0,
+    fallSpeed: 1.4,
+    spawnWeight: 12,
+    soundEffect: 'rock_impact.wav',
+    animationEffect: 'dust_cloud',
+    specialEffect: 'damage',
+    size: 1.3,
+    rotationSpeed: 1.5,
   },
+  
   dynamite: {
     type: 'dynamite',
     visual: '🧨',
-    purpose: 'Explosion clears nearby coins',
-    rarity: 'epic',
-    scoreValue: 0,
+    assetPath: 'assets/items/dynamite.png',
+    purpose: 'Danger! Explodes and clears area',
+    rarity: 'uncommon',
+    scoreValue: -20,
     coinValue: 0,
-    fallSpeed: 1.8, // Very fast fall
-    spawnWeight: 5,
-    soundEffect: 'dynamite_boom.wav',
-    animationEffect: '🔥Spark explosion',
+    fallSpeed: 1.8,
+    spawnWeight: 4,
+    soundEffect: 'dynamite_explosion.wav',
+    animationEffect: 'explosion_blast',
     specialEffect: 'explosion',
-  },
-  blackRock: {
-    type: 'blackRock',
-    visual: '🕳',
-    purpose: '-1 life / miss',
-    rarity: 'common',
-    scoreValue: -5,
-    coinValue: 0,
-    fallSpeed: 1.3,
-    spawnWeight: 10,
-    soundEffect: 'rock_thud.wav',
-    animationEffect: '🗯 Dust poof',
-    specialEffect: 'damage',
-  },
-  luckyStar: {
-    type: 'luckyStar',
-    visual: '🌟',
-    purpose: 'Trigger "Frenzy Mode"',
-    rarity: 'ultraRare',
-    scoreValue: 500,
-    coinValue: 25,
-    fallSpeed: 0.5, // Slowest fall
-    spawnWeight: 2,
-    soundEffect: 'lucky_star.wav',
-    animationEffect: '🌈Trail burst',
-    specialEffect: 'frenzyMode',
+    size: 1.1,
+    rotationSpeed: 8,
   },
 };
 

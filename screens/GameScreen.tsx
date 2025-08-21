@@ -61,14 +61,30 @@ import MysteryCrate from '../components/MysteryCrate';
 import { useSeasonalSkins } from '../hooks/useSeasonalSkins';
 import { useEntitlements } from '../src/features/subscriptions/useEntitlements';
 // import { useUnlockMultiplier } from '../src/features/subscriptions/useUnlockMultiplier';
+import ResponsiveGameWrapper from '../components/ResponsiveGameWrapper';
+import { useOrientation } from '../hooks/useOrientation';
 
 const { width, height } = Dimensions.get('window');
 
 interface GameScreenProps {
   navigation: any;
+  orientation?: 'portrait' | 'landscape';
+  layout?: any;
+  isTablet?: boolean;
+  scale?: number;
+  savedGameState?: any;
+  clearSavedState?: () => void;
 }
 
-export default function GameScreen({ navigation }: GameScreenProps): React.ReactElement {
+export default function GameScreen({ 
+  navigation, 
+  orientation = 'portrait',
+  layout,
+  isTablet = false,
+  scale = 1,
+  savedGameState,
+  clearSavedState
+}: GameScreenProps): React.ReactElement {
   // (removed duplicate spawnFallingItem, keep only the correct one below)
   // Helper to select item type based on level/rarity
   const { userUnlocks, isSkinUnlocked } = useUserUnlocks() as UserUnlockContextType;
@@ -94,8 +110,10 @@ export default function GameScreen({ navigation }: GameScreenProps): React.React
   const [level, setLevel] = useState(1);
   const [timeSurvived, setTimeSurvived] = useState(0);
   const [combo, setCombo] = useState(0);
+  // Use responsive cart size from layout
+  const responsiveCartSize = layout?.cartSize || (isTablet ? 100 : 80);
   const [potPosition, setPotPosition] = useState(width / 2);
-  const [potSize, setPotSize] = useState(80);
+  const [potSize, setPotSize] = useState(responsiveCartSize);
   const [isCartMoving, setIsCartMoving] = useState(false);
   const [fallingItems, setFallingItems] = useState<any[]>([]);
   const [turboBoost, setTurboBoost] = useState(false);
@@ -123,6 +141,37 @@ export default function GameScreen({ navigation }: GameScreenProps): React.React
   
   // Apply subscription multiplier
   // const baseMultiplier = getMultiplier();
+
+  // Restore game state after orientation change
+  useEffect(() => {
+    if (savedGameState && !isGameActive) {
+      setScore(savedGameState.score || 0);
+      setCoins(savedGameState.coins || 0);
+      setLevel(savedGameState.level || 1);
+      setPotPosition(savedGameState.cartPosition || width / 2);
+      setFallingItems(savedGameState.fallingItems || []);
+      setCombo(savedGameState.combo || 0);
+      setTimeSurvived(savedGameState.timeSurvived || 0);
+      setPowerUpsUsed(savedGameState.powerUpsUsed || 0);
+      setObstaclesAvoided(savedGameState.obstaclesAvoided || 0);
+      
+      // Clear the saved state after restoration
+      if (clearSavedState) {
+        clearSavedState();
+      }
+      
+      // Resume game if it was active
+      if (!savedGameState.isPaused) {
+        setIsGameActive(true);
+      }
+    }
+  }, [savedGameState, clearSavedState]);
+
+  // Update cart size when orientation changes
+  useEffect(() => {
+    const newSize = layout?.cartSize || (isTablet ? 100 : 80);
+    setPotSize(newSize);
+  }, [orientation, layout, isTablet]);
 
   // Load active skin data when selected skin changes
   // --- Function declarations hoisted for reference ---

@@ -6,8 +6,12 @@ import { UserUnlockProvider } from './context/UserUnlockContext';
 import { UnlocksProvider } from './context/UnlocksContext';
 import { View, ActivityIndicator, Alert, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { onAuthStateChanged } from 'firebase/auth';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { auth } from './firebase/auth';
+import SplashScreen from './components/SplashScreen';
+import { useOrientation } from './hooks/useOrientation';
+import * as ScreenOrientation from 'expo-screen-orientation';
+import ResponsiveGameWrapper from './components/ResponsiveGameWrapper';
 
 // Screens
 import GameScreen from './screens/GameScreen';
@@ -33,13 +37,42 @@ const Stack = createStackNavigator();
 // Mark app start time for performance tracking
 (global as any).appStartTime = Date.now();
 
+// Wrapped GameScreen with responsive orientation support
+const ResponsiveGameScreen = (props: any) => {
+  const [gameState, setGameState] = useState({
+    isPaused: false,
+    score: 0,
+    coins: 0,
+    level: 1,
+    cartPosition: 0,
+    fallingItems: [],
+    powerUps: [],
+  });
+
+  return (
+    <ResponsiveGameWrapper
+      gameState={gameState}
+      onOrientationChange={(orientation) => {
+        console.log('Orientation changed to:', orientation);
+      }}
+    >
+      <GameScreen {...props} />
+    </ResponsiveGameWrapper>
+  );
+};
+
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
+  const [showSplash, setShowSplash] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [hasSeenOnboarding, setHasSeenOnboarding] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  
+  const orientation = useOrientation();
 
   useEffect(() => {
+    // Allow all orientations
+    ScreenOrientation.unlockAsync();
     initializeApp();
   }, []);
 
@@ -90,6 +123,16 @@ export default function App() {
     }
   };
 
+  // Show splash screen first
+  if (showSplash) {
+    return (
+      <SplashScreen 
+        onComplete={() => setShowSplash(false)}
+        duration={3000}
+      />
+    );
+  }
+
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
@@ -128,12 +171,12 @@ export default function App() {
             ) : !isAuthenticated ? (
               <>
                 <Stack.Screen name="Auth" component={AuthScreen} />
-                <Stack.Screen name="Game" component={GameScreen} />
+                <Stack.Screen name="Game" component={ResponsiveGameScreen} />
               </>
             ) : (
               <>
                 <Stack.Screen name="Home" component={HomeScreen} />
-                <Stack.Screen name="Game" component={GameScreen} />
+                <Stack.Screen name="Game" component={ResponsiveGameScreen} />
                 <Stack.Screen name="Settings" component={SettingsScreen} />
                 <Stack.Screen name="Shop" component={ShopScreen} />
                 <Stack.Screen name="SkinShop" component={SkinShopScreen} />

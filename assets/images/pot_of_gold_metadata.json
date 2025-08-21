@@ -1,0 +1,53 @@
+{
+  "pot_of_gold_logo": {
+    "description": "Main game logo - golden pot filled with coins",
+    "colors": {
+      "primary": "#FFD700",
+      "secondary": "#FFA500",
+      "accent": "#8B4513",
+      "background": "#FF8C00"
+    },
+    "dimensions": {
+      "icon": {
+        "width": 1024,
+        "height": 1024,
+        "format": "png"
+      },
+      "splash": {
+        "width": 2048,
+        "height": 2048,
+        "format": "png"
+      },
+      "ingame": {
+        "width": 512,
+        "height": 512,
+        "format": "png"
+      }
+    },
+    "elements": {
+      "pot": {
+        "style": "3D rendered",
+        "material": "metallic bronze/gold",
+        "handles": true,
+        "rim": "thick golden rim"
+      },
+      "coins": {
+        "style": "3D rendered",
+        "overflow": true,
+        "animation": "floating coins above pot",
+        "sparkles": true
+      },
+      "effects": {
+        "glow": "warm golden glow",
+        "sparkles": "white four-point stars",
+        "shadow": "soft drop shadow"
+      }
+    },
+    "usage": {
+      "app_icon": "pot_of_gold_icon.png",
+      "splash_screen": "pot_of_gold_splash.png",
+      "in_game_logo": "pot_of_gold_logo.png",
+      "marketing": "pot_of_gold_hero.png"
+    }
+  }
+}
