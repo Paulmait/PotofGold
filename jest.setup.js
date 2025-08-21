@@ -211,6 +211,77 @@ jest.mock('firebase/firestore', () => ({
   getFirestore: jest.fn(() => ({})),
   __esModule: true,
 }));
+// Mock expo-modules-core
+jest.mock('expo-modules-core', () => ({
+  NativeModule: {},
+  NativeModulesProxy: {},
+  requireNativeModule: jest.fn(),
+  __esModule: true,
+}));
+
+// Mock UnlocksContext globally
+jest.mock('./context/UnlocksContext', () => ({
+  useUnlocks: () => ({
+    unlockedFeatures: {
+      states: ['gold'],
+      backgrounds: ['default'],
+      themes: ['default'],
+      powerUps: [],
+      cartSkins: ['default'],
+      specialItems: [],
+    },
+    unlocks: {
+      stateFlags: [],
+      cartSkins: ['default'],
+      trails: [],
+    },
+    unlockFeature: jest.fn(),
+    isFeatureUnlocked: jest.fn(() => true),
+    getUnlockedFeatures: jest.fn(() => []),
+    saveUnlocks: jest.fn(),
+    loadUnlocks: jest.fn(),
+    resetUnlocks: jest.fn(),
+    getEquippedCartSkin: jest.fn(() => ({ id: 'default', name: 'Default' })),
+    getEquippedTrail: jest.fn(() => null),
+    getStateFlag: jest.fn(() => ({ progress: 100 })),
+    getTotalUnlocksCount: jest.fn(() => 5),
+    equipCartSkin: jest.fn(),
+    equipTrail: jest.fn(),
+    unlockCartSkin: jest.fn(),
+    unlockTrail: jest.fn(),
+    upgradePowerUp: jest.fn(),
+    loading: false,
+    error: null,
+  }),
+  UnlocksProvider: ({ children }) => children,
+  UnlocksContext: {},
+  __esModule: true,
+}));
+
+// Mock expo-av
+jest.mock('expo-av', () => ({
+  Audio: {
+    Sound: {
+      createAsync: jest.fn(() => Promise.resolve({
+        sound: {
+          playAsync: jest.fn(),
+          unloadAsync: jest.fn(),
+          setPositionAsync: jest.fn(),
+          pauseAsync: jest.fn(),
+          stopAsync: jest.fn(),
+          setVolumeAsync: jest.fn(),
+          setIsLoopingAsync: jest.fn(),
+        },
+        status: { isLoaded: true }
+      })),
+    },
+    setAudioModeAsync: jest.fn(() => Promise.resolve()),
+  },
+  Video: jest.fn(),
+  AVPlaybackStatus: {},
+  __esModule: true,
+}));
+
 // Mock expo-haptics
 jest.mock('expo-haptics', () => ({
   impactAsync: jest.fn(),

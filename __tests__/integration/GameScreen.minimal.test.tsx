@@ -163,6 +163,42 @@ jest.mock('../../context/UserUnlockContext', () => ({
   UserUnlockProvider: ({ children }: any) => children,
 }));
 
+jest.mock('../../context/UnlocksContext', () => ({
+  useUnlocks: () => ({
+    unlockedFeatures: {
+      states: ['gold'],
+      backgrounds: ['default'],
+      themes: ['default'],
+      powerUps: [],
+      cartSkins: ['default'],
+      specialItems: [],
+    },
+    unlocks: {
+      stateFlags: [],
+      cartSkins: ['default'],
+      trails: [],
+    },
+    unlockFeature: jest.fn(),
+    isFeatureUnlocked: jest.fn(() => true),
+    getUnlockedFeatures: jest.fn(() => []),
+    saveUnlocks: jest.fn(),
+    loadUnlocks: jest.fn(),
+    resetUnlocks: jest.fn(),
+    getEquippedCartSkin: jest.fn(() => ({ id: 'default', name: 'Default' })),
+    getEquippedTrail: jest.fn(() => null),
+    getStateFlag: jest.fn(() => ({ progress: 100 })),
+    getTotalUnlocksCount: jest.fn(() => 5),
+    equipCartSkin: jest.fn(),
+    equipTrail: jest.fn(),
+    unlockCartSkin: jest.fn(),
+    unlockTrail: jest.fn(),
+    upgradePowerUp: jest.fn(),
+    loading: false,
+    error: null,
+  }),
+  UnlocksProvider: ({ children }: any) => children,
+}));
+
 jest.mock('../../context/GameContext', () => ({
   useGameContext: () => ({
     gameState: {
@@ -394,8 +430,12 @@ describe('GameScreen minimal render', () => {
       addListener: jest.fn(() => jest.fn()),
     };
 
+    const UnlocksProvider = require('../../context/UnlocksContext').UnlocksProvider;
+    
     const { queryByTestId } = render(
-      <GameScreen navigation={mockNavigation} />
+      <UnlocksProvider>
+        <GameScreen navigation={mockNavigation} />
+      </UnlocksProvider>
     );
 
     await waitFor(() => {
@@ -415,8 +455,12 @@ describe('GameScreen minimal render', () => {
       addListener: jest.fn(() => jest.fn()),
     };
 
+    const UnlocksProvider = require('../../context/UnlocksContext').UnlocksProvider;
+    
     const { queryByTestId } = render(
-      <GameScreen navigation={mockNavigation} />
+      <UnlocksProvider>
+        <GameScreen navigation={mockNavigation} />
+      </UnlocksProvider>
     );
 
     // Component rendered successfully without crashing

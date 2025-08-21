@@ -29,7 +29,10 @@
       "Bash(mv:*)",
       "Bash(npm start:*)",
       "Bash(node:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(for file in __tests__/integration/GameScreen.minimal.test.tsx __tests__/integration/GameFlow.test.tsx __tests__/simulation/GameSimulation.test.tsx)",
+      "Bash(do)",
+      "Bash(done)"
     ],
     "deny": [],
     "ask": [],
