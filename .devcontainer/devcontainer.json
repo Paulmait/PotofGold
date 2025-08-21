@@ -1,11 +1,16 @@
 // This configuration ensures your Codespace uses Node 16 and installs Expo CLI for React Native/Expo projects.
 {
+  "workspaceFolder": "/workspaces/PotofGold",
   "name": "Expo React Native Dev",
   "build": {
     "dockerfile": "Dockerfile"
   },
-  "settings": {
-    "terminal.integrated.defaultProfile.linux": "bash"
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
+    }
   },
   "postCreateCommand": "npm install -g expo-cli && npm install",
   "features": {},
