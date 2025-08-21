@@ -64,7 +64,12 @@ jest.mock('./utils/masterGameManager', () => ({
       currentLevel: 1,
       currentWorld: { id: 1 },
       playerProgress: {},
-      metaGameProgress: { pots: { currentPot: { speed: 0.5, size: 1 }, currentSkin: { image: 'default_pot' } } },
+      metaGameProgress: { 
+        pots: { 
+          currentPot: { speed: 0.5, size: 1, level: 1 }, 
+          currentSkin: { image: 'default_pot' } 
+        } 
+      },
       missionProgress: {},
       powerUpCollection: {},
       skillProgress: {},
@@ -74,6 +79,16 @@ jest.mock('./utils/masterGameManager', () => ({
       adRewards: {},
       lastUpdated: new Date(),
     })),
+    initialize: jest.fn(() => Promise.resolve()),
+    update: jest.fn(),
+    getState: jest.fn(() => ({
+      metaGameProgress: { 
+        pots: { 
+          currentPot: { speed: 0.5, size: 1, level: 1 }, 
+          currentSkin: { image: 'default_pot' } 
+        } 
+      },
+    })),
   },
   __esModule: true,
 }));
@@ -81,7 +96,14 @@ jest.mock('./utils/masterGameManager', () => ({
 // Mock metaGameSystem
 jest.mock('./utils/metaGameSystem', () => ({
   metaGameSystem: {
-    getProgress: jest.fn(() => ({ pots: { currentPot: { speed: 0.5, size: 1 }, currentSkin: { image: 'default_pot' } } })),
+    getProgress: jest.fn(() => ({ 
+      pots: { 
+        currentPot: { speed: 0.5, size: 1, level: 1 }, 
+        currentSkin: { image: 'default_pot' } 
+      } 
+    })),
+    initialize: jest.fn(),
+    update: jest.fn(),
   },
   __esModule: true,
 }));
@@ -220,6 +242,10 @@ jest.mock('expo-modules-core', () => ({
 }));
 
 // Mock UnlocksContext globally
+const mockCartSkin = { id: 'default', name: 'Default' };
+const mockStateFlag = { progress: 100 };
+const mockUnlockedFeatures = [];
+
 jest.mock('./context/UnlocksContext', () => ({
   useUnlocks: () => ({
     unlockedFeatures: {
@@ -237,13 +263,13 @@ jest.mock('./context/UnlocksContext', () => ({
     },
     unlockFeature: jest.fn(),
     isFeatureUnlocked: jest.fn(() => true),
-    getUnlockedFeatures: jest.fn(() => []),
+    getUnlockedFeatures: jest.fn(() => mockUnlockedFeatures),
     saveUnlocks: jest.fn(),
     loadUnlocks: jest.fn(),
     resetUnlocks: jest.fn(),
-    getEquippedCartSkin: jest.fn(() => ({ id: 'default', name: 'Default' })),
+    getEquippedCartSkin: jest.fn(() => mockCartSkin),
     getEquippedTrail: jest.fn(() => null),
-    getStateFlag: jest.fn(() => ({ progress: 100 })),
+    getStateFlag: jest.fn(() => mockStateFlag),
     getTotalUnlocksCount: jest.fn(() => 5),
     equipCartSkin: jest.fn(),
     equipTrail: jest.fn(),
@@ -291,15 +317,8 @@ jest.mock('expo-haptics', () => ({
   NotificationFeedbackType: {},
 }));
 // Global cleanup for timers and mocks after each test
-if (typeof global.afterEach === 'function') {
-  global.afterEach(() => {
-    jest.clearAllMocks();
-    jest.clearAllTimers();
-    if (typeof global.gc === 'function') {
-      global.gc();
-    }
-  });
-}
+global.afterEach = global.afterEach || (() => {});
+global.beforeEach = global.beforeEach || (() => {});
 // jest.setup.js
 // Mock AsyncStorage
 jest.mock('@react-native-async-storage/async-storage', () => require('@react-native-async-storage/async-storage/jest/async-storage-mock'));
@@ -356,6 +375,33 @@ jest.mock('react-native-reanimated', () => {
 // Mock Animated from react-native
 jest.mock('react-native/Libraries/Animated/NativeAnimatedHelper');
 
+// Mock useGameUnlocks hook
+jest.mock('./hooks/useGameUnlocks', () => ({
+  useGameUnlocks: () => ({
+    currentCartSkin: { id: 'default', name: 'Default' },
+    currentTrail: null,
+    unlockedStates: [],
+    canSpawnItem: jest.fn(() => true),
+    applyTrailEffect: jest.fn(() => null),
+    getCartVisuals: jest.fn(() => ({ image: 'default_cart', color: '#FFD700' })),
+    checkStateUnlock: jest.fn(() => false),
+    handleItemCollection: jest.fn(),
+    isCartSkinUnlocked: jest.fn(() => true),
+    isTrailUnlocked: jest.fn(() => false),
+    canAffordUnlock: jest.fn(() => false),
+    getUnlockRequirements: jest.fn(() => ({ coins: 100, level: 1 })),
+    equipCartSkin: jest.fn(),
+    equipTrail: jest.fn(),
+    unlockCartSkin: jest.fn(),
+    unlockTrail: jest.fn(),
+    upgradePowerUp: jest.fn(),
+    totalUnlocks: 5,
+    isLoading: false,
+    error: null,
+  }),
+  __esModule: true,
+}));
+
 // Mock adRewardsSystem
 jest.mock('./utils/adRewardsSystem', () => ({
   adRewardsSystem: {
@@ -373,7 +419,11 @@ jest.mock('./utils/adRewardsSystem', () => ({
       lastAdDate: '',
       lastUpdated: new Date(),
     })),
+    showRewardedAd: jest.fn(() => Promise.resolve({ success: true, reward: 100 })),
   },
+  // Also export directly for destructuring imports
+  checkAdAvailability: jest.fn(() => Promise.resolve(true)),
+  showRewardedAd: jest.fn(() => Promise.resolve({ success: true, reward: 100 })),
   __esModule: true,
 }));
 

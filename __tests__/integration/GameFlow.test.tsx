@@ -43,6 +43,11 @@ jest.mock('react-native-reanimated', () => {
   return Reanimated;
 });
 
+// Stable references for mocked values
+const mockCartSkin = { id: 'default', name: 'Default' };
+const mockStateFlag = { progress: 100 };
+const mockUnlockedFeatures = [];
+
 // Mock UnlocksContext
 jest.mock('../../context/UnlocksContext', () => ({
   useUnlocks: () => ({
@@ -61,13 +66,13 @@ jest.mock('../../context/UnlocksContext', () => ({
     },
     unlockFeature: jest.fn(),
     isFeatureUnlocked: jest.fn(() => true),
-    getUnlockedFeatures: jest.fn(() => []),
+    getUnlockedFeatures: jest.fn(() => mockUnlockedFeatures),
     saveUnlocks: jest.fn(),
     loadUnlocks: jest.fn(),
     resetUnlocks: jest.fn(),
-    getEquippedCartSkin: jest.fn(() => ({ id: 'default', name: 'Default' })),
+    getEquippedCartSkin: jest.fn(() => mockCartSkin),
     getEquippedTrail: jest.fn(() => null),
-    getStateFlag: jest.fn(() => ({ progress: 100 })),
+    getStateFlag: jest.fn(() => mockStateFlag),
     getTotalUnlocksCount: jest.fn(() => 5),
     equipCartSkin: jest.fn(),
     equipTrail: jest.fn(),
