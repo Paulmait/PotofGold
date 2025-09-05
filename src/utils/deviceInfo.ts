@@ -120,9 +120,21 @@ class DeviceInfoManager {
       
       // Get network info
       const networkState = await Network.getNetworkStateAsync();
-      const batteryLevel = await Battery.getBatteryLevelAsync();
-      const batteryState = await Battery.getBatteryStateAsync();
-      const powerState = await Battery.getPowerStateAsync();
+      
+      // Battery APIs not available on web
+      let batteryLevel = null;
+      let batteryState = Battery.BatteryState.UNKNOWN;
+      let powerState = { lowPowerMode: false };
+      
+      if (Platform.OS !== 'web') {
+        try {
+          batteryLevel = await Battery.getBatteryLevelAsync();
+          batteryState = await Battery.getBatteryStateAsync();
+          powerState = await Battery.getPowerStateAsync();
+        } catch (e) {
+          // Battery API not available
+        }
+      }
       
       // Get cellular info (Android only)
       let cellularGeneration: string | null = null;
@@ -515,7 +527,8 @@ class DeviceInfoManager {
     });
 
     // Listen for network changes
-    Network.addNetworkStateListener((state) => {
+    if (Platform.OS !== 'web') {
+      Network.addNetworkStateListener((state) => {
       if (this.deviceProfile) {
         this.deviceProfile.networkType = state.type;
         this.deviceProfile.isConnected = state.isConnected || false;
@@ -527,10 +540,12 @@ class DeviceInfoManager {
         this.qualitySettings = this.calculateQualitySettings(this.deviceProfile);
         this.notifyListeners();
       }
-    });
+      });
+    }
 
-    // Listen for battery changes
-    Battery.addBatteryLevelListener(({ batteryLevel }) => {
+    // Listen for battery changes (not available on web)
+    if (Platform.OS !== 'web') {
+      Battery.addBatteryLevelListener(({ batteryLevel }) => {
       if (this.deviceProfile) {
         this.deviceProfile.batteryLevel = batteryLevel;
         
@@ -541,16 +556,18 @@ class DeviceInfoManager {
         
         this.notifyListeners();
       }
-    });
+      });
 
-    Battery.addBatteryStateListener(({ batteryState }) => {
+      Battery.addBatteryStateListener(({ batteryState }) => {
       if (this.deviceProfile) {
         this.deviceProfile.batteryState = this.getBatteryStateString(batteryState);
         this.notifyListeners();
       }
-    });
+      });
 
-    Battery.addPowerModeListener(({ lowPowerMode }) => {
+      // Power mode listener not available on all platforms
+      if (Battery.addPowerModeListener) {
+        Battery.addPowerModeListener(({ lowPowerMode }) => {
       if (this.deviceProfile) {
         this.deviceProfile.isLowPowerMode = lowPowerMode;
         
@@ -558,7 +575,9 @@ class DeviceInfoManager {
         this.qualitySettings = this.calculateQualitySettings(this.deviceProfile);
         this.notifyListeners();
       }
-    });
+        });
+      }
+    }
   }
 
   private notifyListeners(): void {
