@@ -3,7 +3,7 @@ import { Platform } from 'react-native';
 import { deviceInfoManager } from '../utils/deviceInfo';
 import { performanceMonitor } from '../utils/performanceMonitor';
 import { telemetrySystem, EventType } from './TelemetrySystem';
-import { crashReporting } from './CrashReporting';
+import crashReporting from '../../services/crashReporting';
 
 /**
  * Advanced Anti-Cheat System

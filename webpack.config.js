@@ -13,6 +13,7 @@ module.exports = async function (env, argv) {
           'react-native-safe-area-context',
           '@react-native-community/netinfo',
           'react-native-vector-icons',
+          '@sentry/react-native',
         ],
       },
       // offline: true, // Deprecated - using workbox plugin instead
@@ -106,6 +107,19 @@ module.exports = async function (env, argv) {
     'react-native$': 'react-native-web',
     'react-native-linear-gradient': 'react-native-web-linear-gradient',
   };
+
+  // Add rule to handle JSX/TSX in node_modules (for Sentry)
+  config.module.rules.push({
+    test: /\.(js|jsx|ts|tsx)$/,
+    include: /node_modules\/@sentry/,
+    use: {
+      loader: 'babel-loader',
+      options: {
+        presets: ['@babel/preset-react', '@babel/preset-typescript'],
+        plugins: ['@babel/plugin-transform-react-jsx'],
+      },
+    },
+  });
 
   return config;
 };

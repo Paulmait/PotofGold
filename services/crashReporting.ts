@@ -1,6 +1,15 @@
-import * as Sentry from '@sentry/react-native';
 import { Platform } from 'react-native';
 import Constants from 'expo-constants';
+
+// Only import Sentry for native platforms
+let Sentry: any = null;
+if (Platform.OS !== 'web') {
+  try {
+    Sentry = require('@sentry/react-native');
+  } catch (error) {
+    console.log('Sentry not available for web platform');
+  }
+}
 
 const SENTRY_DSN = 'YOUR_SENTRY_DSN_HERE'; // Replace with your actual Sentry DSN
 
@@ -8,7 +17,11 @@ class CrashReportingService {
   private initialized = false;
 
   initialize() {
-    if (this.initialized) return;
+    // Skip initialization for web platform
+    if (this.initialized || Platform.OS === 'web' || !Sentry) {
+      console.log('Crash reporting disabled for web platform');
+      return;
+    }
 
     try {
       Sentry.init({
@@ -19,7 +32,7 @@ class CrashReportingService {
         attachStacktrace: true,
         attachScreenshot: true,
         attachViewHierarchy: true,
-        beforeSend: (event, hint) => {
+        beforeSend: (event: any, hint: any) => {
           // Filter out sensitive information
           if (event.user) {
             delete event.user.ip_address;
@@ -34,22 +47,21 @@ class CrashReportingService {
         },
         integrations: [
           new Sentry.ReactNativeTracing({
-            tracingOrigins: ['localhost', /^\//, /^https:\/\//],
+            tracingOrigins: ['localhost', /^\//],
             routingInstrumentation: new Sentry.ReactNavigationInstrumentation(),
           }),
         ],
       });
 
       this.initialized = true;
-      console.log('Crash reporting initialized');
+      console.log('Crash reporting initialized successfully');
     } catch (error) {
       console.error('Failed to initialize crash reporting:', error);
     }
   }
 
-  // Log custom events
-  logEvent(message: string, level: Sentry.SeverityLevel = 'info', extra?: any) {
-    if (!this.initialized) return;
+  logEvent(message: string, level: string = 'info', extra?: any) {
+    if (!this.initialized || !Sentry) return;
 
     Sentry.captureMessage(message, level);
     if (extra) {
@@ -57,9 +69,12 @@ class CrashReportingService {
     }
   }
 
-  // Log exceptions
-  logException(error: Error, context?: any) {
-    if (!this.initialized) return;
+  logException(error: Error, context?: Record<string, any>) {
+    if (!this.initialized || !Sentry) {
+      // For web, just log to console
+      console.error('Error:', error, context);
+      return;
+    }
 
     if (context) {
       Sentry.setContext('error_context', context);
@@ -67,9 +82,8 @@ class CrashReportingService {
     Sentry.captureException(error);
   }
 
-  // Set user context
   setUser(user: { id: string; email?: string; username?: string } | null) {
-    if (!this.initialized) return;
+    if (!this.initialized || !Sentry) return;
 
     if (user) {
       Sentry.setUser({
@@ -82,22 +96,20 @@ class CrashReportingService {
     }
   }
 
-  // Add breadcrumb for debugging
-  addBreadcrumb(message: string, category: string, data?: any) {
-    if (!this.initialized) return;
+  addBreadcrumb(message: string, category?: string, data?: any) {
+    if (!this.initialized || !Sentry) return;
 
     Sentry.addBreadcrumb({
       message,
-      category,
+      category: category || 'default',
       level: 'info',
+      timestamp: Date.now() / 1000,
       data,
-      timestamp: Date.now(),
     });
   }
 
-  // Track performance
   startTransaction(name: string, op: string = 'navigation') {
-    if (!this.initialized) return null;
+    if (!this.initialized || !Sentry) return null;
 
     return Sentry.startTransaction({
       name,
@@ -105,99 +117,35 @@ class CrashReportingService {
     });
   }
 
-  // Custom crash test (for testing only)
-  testCrash() {
-    if (__DEV__) {
-      throw new Error('Test crash - This is a test crash for development');
-    }
-  }
-
-  // Log game-specific events
-  logGameEvent(eventType: string, data: any) {
-    const gameEvents = [
-      'game_started',
-      'game_ended',
-      'level_completed',
-      'purchase_made',
-      'achievement_unlocked',
-      'error_occurred',
-    ];
-
-    if (gameEvents.includes(eventType)) {
-      this.addBreadcrumb(eventType, 'game', data);
-      
-      // Log important events as messages
-      if (['purchase_made', 'error_occurred'].includes(eventType)) {
-        this.logEvent(`Game Event: ${eventType}`, 'info', data);
-      }
-    }
-  }
-
-  // Monitor app performance
   trackAppPerformance() {
-    if (!this.initialized) return;
-
     // Track app launch time
-    const appLaunchTime = Date.now() - (global as any).appStartTime || 0;
-    this.logEvent(`App launched in ${appLaunchTime}ms`, 'info', { launchTime: appLaunchTime });
-
-    // Track memory usage (React Native specific)
-    if (Platform.OS === 'android') {
-      // Android-specific memory tracking
-      const memoryInfo = (global as any).performance?.memory;
-      if (memoryInfo) {
-        this.addBreadcrumb('Memory usage', 'performance', {
-          usedJSHeapSize: memoryInfo.usedJSHeapSize,
-          totalJSHeapSize: memoryInfo.totalJSHeapSize,
-        });
-      }
+    const appStartTime = (global as any).appStartTime;
+    if (appStartTime) {
+      const launchTime = Date.now() - appStartTime;
+      this.logEvent('app_launch', 'info', {
+        launch_time_ms: launchTime,
+        platform: Platform.OS,
+        version: Constants.manifest?.version,
+      });
     }
   }
 
-  // Handle network errors
-  logNetworkError(url: string, error: any, requestData?: any) {
-    if (!this.initialized) return;
-
-    this.logException(new Error(`Network request failed: ${url}`), {
-      url,
-      error: error.message || error,
-      requestData,
-      timestamp: new Date().toISOString(),
+  setCurrentScreen(screenName: string) {
+    this.addBreadcrumb(`Navigated to ${screenName}`, 'navigation', {
+      screen: screenName,
     });
-  }
-
-  // Track user actions for better debugging
-  trackUserAction(action: string, details?: any) {
-    if (!this.initialized) return;
-
-    this.addBreadcrumb(`User Action: ${action}`, 'user', details);
-  }
-
-  // Monitor game performance metrics
-  trackGameMetrics(metrics: {
-    fps?: number;
-    memoryUsage?: number;
-    loadTime?: number;
-    frameDrops?: number;
-  }) {
-    if (!this.initialized) return;
-
-    // Log performance issues
-    if (metrics.fps && metrics.fps < 30) {
-      this.logEvent('Low FPS detected', 'warning', { fps: metrics.fps });
-    }
-
-    if (metrics.frameDrops && metrics.frameDrops > 10) {
-      this.logEvent('Frame drops detected', 'warning', { frameDrops: metrics.frameDrops });
-    }
-
-    if (metrics.memoryUsage && metrics.memoryUsage > 100) {
-      this.logEvent('High memory usage', 'warning', { memoryUsage: metrics.memoryUsage });
-    }
-
-    // Add as breadcrumb for context
-    this.addBreadcrumb('Game metrics', 'performance', metrics);
   }
 }
 
-export default new CrashReportingService();
+const crashReporting = new CrashReportingService();
+
+// Auto-initialize on app start (will be skipped for web)
+if (!__DEV__ || Constants.manifest?.extra?.enableCrashReporting) {
+  crashReporting.initialize();
+}
+
+export default crashReporting;
+export const logException = (error: Error, context?: Record<string, any>) => 
+  crashReporting.logException(error, context);
+export const setCurrentScreen = (screenName: string) => 
+  crashReporting.setCurrentScreen(screenName);

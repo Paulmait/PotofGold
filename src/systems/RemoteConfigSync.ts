@@ -8,7 +8,7 @@ import NetInfo from '@react-native-community/netinfo';
 import { Platform } from 'react-native';
 import { liveOpsManager, LiveOpsConfig } from './LiveOpsManager';
 import { telemetrySystem, EventType } from './TelemetrySystem';
-import { crashReporting } from './CrashReporting';
+import crashReporting from '../../services/crashReporting';
 
 export interface SyncStatus {
   lastSync: number;
