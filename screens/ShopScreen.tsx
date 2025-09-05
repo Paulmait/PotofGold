@@ -19,6 +19,8 @@ import { hapticEngine, HapticPattern } from '../src/systems/HapticEngine';
 import { crashReporting, setCurrentScreen } from '../src/systems/CrashReporting';
 import { SHOP_PRICING, formatPrice, getCurrencyEmoji } from '../src/constants/pricing';
 import { SCREEN_TITLES, ACTION_NAMES, getRarityInfo, formatItemName } from '../src/constants/naming';
+import LegalDisclaimer from '../components/LegalDisclaimer';
+import LegalAuditService from '../src/services/LegalAuditService';
 
 const { width, height } = Dimensions.get('window');
 const isTablet = width >= 768;
@@ -34,6 +36,8 @@ export default function ShopScreen({ navigation }: ShopScreenProps) {
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
+  const [showDisclaimer, setShowDisclaimer] = useState(false);
+  const [pendingPurchase, setPendingPurchase] = useState<any>(null);
 
   useEffect(() => {
     // Set current screen for crash reporting
@@ -166,6 +170,18 @@ export default function ShopScreen({ navigation }: ShopScreenProps) {
   };
 
   const handlePurchase = async (item: any) => {
+    // Check if this is a real money purchase (gems) 
+    if (item.price?.gems > 0 || item.price?.realMoney) {
+      // Show disclaimer for gem/real money purchases
+      setPendingPurchase(item);
+      setShowDisclaimer(true);
+    } else {
+      // Proceed with coin purchases directly
+      await processPurchase(item);
+    }
+  };
+
+  const processPurchase = async (item: any) => {
     setIsLoading(true);
     
     try {
@@ -177,6 +193,31 @@ export default function ShopScreen({ navigation }: ShopScreenProps) {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleDisclaimerAccept = async () => {
+    setShowDisclaimer(false);
+    
+    // Log the disclaimer acceptance
+    const purchaseAmount = pendingPurchase?.price?.realMoney || 
+                          `${pendingPurchase?.price?.gems} gems`;
+    await LegalAuditService.recordPurchaseDisclaimer(true, purchaseAmount, pendingPurchase);
+    
+    // Process the purchase
+    await processPurchase(pendingPurchase);
+    setPendingPurchase(null);
+  };
+
+  const handleDisclaimerDecline = async () => {
+    setShowDisclaimer(false);
+    
+    // Log the disclaimer decline
+    const purchaseAmount = pendingPurchase?.price?.realMoney || 
+                          `${pendingPurchase?.price?.gems} gems`;
+    await LegalAuditService.recordPurchaseDisclaimer(false, purchaseAmount, pendingPurchase);
+    
+    setPendingPurchase(null);
+    Alert.alert('Purchase Cancelled', 'You have cancelled the purchase.');
   };
 
   const renderShopItems = () => {
@@ -351,6 +392,15 @@ export default function ShopScreen({ navigation }: ShopScreenProps) {
 
   return (
     <View style={styles.container}>
+      {/* Legal Disclaimer Modal */}
+      <LegalDisclaimer
+        visible={showDisclaimer}
+        onAccept={handleDisclaimerAccept}
+        onDecline={handleDisclaimerDecline}
+        type="purchase"
+        purchaseAmount={pendingPurchase?.price?.realMoney || 
+                       `${pendingPurchase?.price?.gems} gems`}
+      />
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>🛒 {SCREEN_TITLES.SHOP}</Text>

@@ -1,6 +1,7 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    
     // Helper functions
     function isAuthenticated() {
       return request.auth != null;
@@ -10,57 +11,81 @@ service cloud.firestore {
       return isAuthenticated() && request.auth.uid == userId;
     }
     
-    function isSubscribed() {
+    function isAdmin() {
       return isAuthenticated() && 
-        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isGoldVaultMember == true;
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
     
-    // Config collection - read-only for all authenticated users
-    match /config/{document} {
-      allow read: if isAuthenticated();
-      allow write: if false; // Only admin SDK can write
-    }
-    
-    // Drops collection - read-only for all authenticated users
-    match /drops/{dropId} {
-      allow read: if isAuthenticated();
-      allow write: if false; // Only admin SDK can write
-    }
-    
-    // User claims - users can only access their own claims
-    match /claims/{userId}/drops/{dropId} {
-      allow read: if isOwner(userId);
-      allow create: if isOwner(userId) && isSubscribed() && 
-        request.resource.data.userId == userId &&
-        request.resource.data.dropId == dropId &&
-        request.resource.data.claimedAt is number;
-      allow update, delete: if false; // Claims cannot be modified or deleted
-    }
-    
-    // User inventory - users can only access their own inventory
-    match /users/{userId}/inventory/{document} {
-      allow read: if isOwner(userId);
-      allow write: if false; // Only through Cloud Functions
-    }
-    
-    // User notifications
-    match /users/{userId}/notifications/{notificationId} {
-      allow read: if isOwner(userId);
-      allow update: if isOwner(userId) && 
-        request.resource.data.read == true; // Can only mark as read
-      allow create, delete: if false;
-    }
-    
-    // User profile and settings
+    // User profiles
     match /users/{userId} {
-      allow read: if isOwner(userId);
-      allow update: if isOwner(userId) && 
-        // Only allow updating specific fields
-        request.resource.data.keys().hasAll(['lastUpdated']) &&
-        !request.resource.data.keys().hasAny(['coins', 'isGoldVaultMember', 'inventory']);
-      allow create: if isOwner(userId);
-      allow delete: if false;
+      allow read: if isOwner(userId) || isAdmin();
+      allow write: if isOwner(userId);
+    }
+    
+    // Legal audit trail - CRITICAL: Write-only for users, no deletion
+    match /legal_audit/{document} {
+      allow read: if isAdmin() || 
+        (isAuthenticated() && resource.data.userId == request.auth.uid);
+      allow create: if true; // Anyone can create (for legal acceptance)
+      allow update: if false; // No updates allowed (immutable audit trail)
+      allow delete: if false; // No deletion allowed (legal requirement)
+    }
+    
+    // Anonymous legal audit (pre-authentication)
+    match /legal_audit_anonymous/{document} {
+      allow read: if isAdmin();
+      allow create: if true; // Anyone can create
+      allow update: if isAdmin() && 
+        request.resource.data.keys().hasOnly(['linkedUserId']); // Only link user
+      allow delete: if false; // No deletion allowed
+    }
+    
+    // Purchase audit trail
+    match /purchase_audit/{document} {
+      allow read: if isAdmin() || 
+        (isAuthenticated() && resource.data.userId == request.auth.uid);
+      allow create: if isAuthenticated();
+      allow update: if false; // Immutable
+      allow delete: if false; // No deletion
+    }
+    
+    // Game data
+    match /game_data/{userId} {
+      allow read: if true; // Public leaderboards
+      allow write: if isOwner(userId);
+    }
+    
+    // Leaderboards
+    match /leaderboards/{document} {
+      allow read: if true; // Public
+      allow write: if isAuthenticated() && 
+        request.resource.data.userId == request.auth.uid;
+    }
+    
+    // Admin panel access
+    match /admin/{document} {
+      allow read, write: if isAdmin();
+    }
+    
+    // Shop transactions
+    match /transactions/{transactionId} {
+      allow read: if isAdmin() || 
+        (isAuthenticated() && resource.data.userId == request.auth.uid);
+      allow create: if isAuthenticated() && 
+        request.resource.data.userId == request.auth.uid;
+      allow update, delete: if false; // Immutable transaction log
+    }
+    
+    // Ban list
+    match /banned_users/{userId} {
+      allow read: if true; // Public to prevent banned user access
+      allow write: if isAdmin();
+    }
+    
+    // System configuration (read-only for users)
+    match /config/{document} {
+      allow read: if true;
+      allow write: if isAdmin();
     }
   }
 }

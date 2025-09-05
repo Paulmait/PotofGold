@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -14,6 +14,7 @@ import * as Haptics from 'expo-haptics';
 import { useNavigation } from '@react-navigation/native';
 import { RevenueCatManager } from '../src/lib/revenuecat';
 import { useEntitlements } from '../src/features/subscriptions/useEntitlements';
+import LegalAgreementScreen from './LegalAgreementScreen';
 
 const { width } = Dimensions.get('window');
 const isTablet = width >= 768;
@@ -24,6 +25,7 @@ export default function SettingsScreen() {
   const [soundEnabled, setSoundEnabled] = React.useState(true);
   const [hapticsEnabled, setHapticsEnabled] = React.useState(true);
   const [notificationsEnabled, setNotificationsEnabled] = React.useState(true);
+  const [showLegalReview, setShowLegalReview] = useState(false);
 
   React.useEffect(() => {
     loadSettings();
@@ -130,6 +132,28 @@ export default function SettingsScreen() {
     );
   };
 
+  const handleReviewLegalAgreements = () => {
+    setShowLegalReview(true);
+  };
+
+  const handleLegalReviewComplete = async () => {
+    setShowLegalReview(false);
+    Alert.alert(
+      'Legal Agreements Updated',
+      'Thank you for reviewing and accepting our updated legal agreements.',
+      [{ text: 'OK' }]
+    );
+  };
+
+  const handleLegalReviewDecline = () => {
+    setShowLegalReview(false);
+    Alert.alert(
+      'Legal Review',
+      'You can review and accept the legal agreements at any time from Settings.',
+      [{ text: 'OK' }]
+    );
+  };
+
   const handleSupport = () => {
     Alert.alert(
       'Support',
@@ -139,8 +163,16 @@ export default function SettingsScreen() {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.content}>
+    <>
+      {showLegalReview && (
+        <LegalAgreementScreen
+          onAccept={handleLegalReviewComplete}
+          onDecline={handleLegalReviewDecline}
+        />
+      )}
+      
+      <ScrollView style={styles.container}>
+        <View style={styles.content}>
         {/* Gold Vault Club Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Gold Vault Club</Text>
@@ -231,6 +263,13 @@ export default function SettingsScreen() {
           >
             <Text style={styles.buttonText}>Terms of Service</Text>
           </TouchableOpacity>
+          
+          <TouchableOpacity
+            style={[styles.button, styles.reviewButton]}
+            onPress={handleReviewLegalAgreements}
+          >
+            <Text style={styles.buttonText}>📋 Review Legal Agreements</Text>
+          </TouchableOpacity>
         </View>
 
         {/* Support */}
@@ -252,6 +291,7 @@ export default function SettingsScreen() {
         </View>
       </View>
     </ScrollView>
+    </>
   );
 }
 
@@ -342,5 +382,9 @@ const styles = StyleSheet.create({
     color: '#999',
     fontSize: isTablet ? 14 : 12,
     marginTop: 5,
+  },
+  reviewButton: {
+    backgroundColor: '#4A90E2',
+    marginTop: 10,
   },
 });

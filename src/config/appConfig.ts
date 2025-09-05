@@ -1,93 +1,104 @@
 /**
- * Pot of Gold - Application Configuration
- * Cien Rios LLC dba Pot of Gold
+ * Central Application Configuration
+ * All domain and URL references should use these values
  */
 
-export const APP_CONFIG = {
+const isDevelopment = process.env.NODE_ENV === 'development';
+const isPreview = process.env.VERCEL_ENV === 'preview';
+
+export const AppConfig = {
+  // Primary domain configuration
+  domain: {
+    production: 'pofgold.com',
+    preview: 'potofgold.vercel.app',
+    development: 'localhost:3000'
+  },
+  
+  // Get current domain based on environment
+  get currentDomain() {
+    if (isDevelopment) return this.domain.development;
+    if (isPreview) return this.domain.preview;
+    return this.domain.production;
+  },
+  
+  // Full URLs
+  get appUrl() {
+    const protocol = isDevelopment ? 'http' : 'https';
+    return `${protocol}://${this.currentDomain}`;
+  },
+  
+  // API Endpoints
+  api: {
+    get analytics() {
+      return process.env.ANALYTICS_ENDPOINT || `${AppConfig.appUrl}/api/analytics`;
+    },
+    get liveops() {
+      return process.env.LIVEOPS_SERVER_URL || `${AppConfig.appUrl}/api/liveops`;
+    },
+    get multiplayer() {
+      return process.env.MULTIPLAYER_SERVER_URL || `wss://multiplayer.${AppConfig.domain.production}`;
+    },
+    get admin() {
+      return process.env.ADMIN_API_ENDPOINT || `${AppConfig.appUrl}/api/admin`;
+    }
+  },
+  
+  // Legal and Support URLs
+  legal: {
+    privacyPolicy: `https://${AppConfig.domain.production}/privacy`,
+    termsOfService: `https://${AppConfig.domain.production}/terms`,
+    eula: `https://${AppConfig.domain.production}/eula`,
+    supportEmail: 'support@pofgold.com',
+    privacyEmail: 'privacy@pofgold.com',
+    legalEmail: 'legal@pofgold.com'
+  },
+  
   // Company Information
   company: {
     name: 'Cien Rios LLC',
     dba: 'Pot of Gold',
-    website: 'https://pofgold.com',
-    supportEmail: 'support@pofgold.com',
-    privacyEmail: 'privacy@pofgold.com',
-    location: 'Miami, FL, USA',
+    website: `https://${AppConfig.domain.production}`,
+    address: 'Miami, FL 33101, USA'
   },
-
-  // Legal URLs
-  legal: {
-    termsUrl: 'https://pofgold.com/terms',
-    privacyUrl: 'https://pofgold.com/privacy',
-    minAge: 13,
-    governingLaw: 'State of Florida, United States',
-    effectiveDate: 'August 22, 2025',
-  },
-
-  // App Store Information
+  
+  // App Store Configuration
   appStore: {
     ios: {
-      bundleId: 'com.pofgold.potofgold',
-      appId: '878598219',
-      teamId: 'LFB9Z5Q3Y9',
+      appId: '1234567890', // Replace with actual App Store ID
+      bundleId: 'com.cienrios.potofgold',
+      testFlightCode: process.env.TESTFLIGHT_CODE || ''
     },
     android: {
-      packageName: 'com.pofgold.potofgold',
-      playStoreUrl: 'https://play.google.com/store/apps/details?id=com.pofgold.potofgold',
-    },
+      packageName: 'com.cienrios.potofgold',
+      playStoreUrl: 'https://play.google.com/store/apps/details?id=com.cienrios.potofgold'
+    }
   },
-
-  // Subscription Information
-  subscriptions: {
-    proMembership: {
-      name: 'Pro Membership',
-      features: [
-        'Remove ads',
-        'Exclusive skins',
-        'Double coins',
-        'Early access to content',
-        'VIP badge',
-      ],
-      pricing: {
-        monthly: '$4.99',
-        yearly: '$39.99',
-      },
-    },
+  
+  // Firebase Configuration (keep existing)
+  firebase: {
+    apiKey: process.env.FIREBASE_API_KEY || "AIzaSyBJSp7vX2-SOWCpjbgTEAPj_T9QQL72JX4",
+    authDomain: process.env.FIREBASE_AUTH_DOMAIN || "potofgold-production.firebaseapp.com",
+    projectId: process.env.FIREBASE_PROJECT_ID || "potofgold-production",
+    storageBucket: process.env.FIREBASE_STORAGE_BUCKET || "potofgold-production.firebasestorage.app",
+    messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID || "511446280789",
+    appId: process.env.FIREBASE_APP_ID || "1:511446280789:web:f52cfd9a863631ad0b82dc",
+    measurementId: process.env.FIREBASE_MEASUREMENT_ID || "G-GFP64LBLZ3"
   },
-
-  // Game Settings
-  game: {
-    maxLevel: 100,
-    startingCoins: 100,
-    dailyBonusCoins: 50,
-    adRewardCoins: 25,
-    seasonalEvents: true,
-    monthlyDrops: true,
-  },
-
+  
   // Feature Flags
   features: {
-    inAppPurchases: true,
-    subscriptions: true,
-    ads: true,
-    leaderboards: true,
-    achievements: true,
-    cloudSave: true,
-    socialSharing: true,
+    enableAnalytics: process.env.ENABLE_ANALYTICS === 'true',
+    enableCrashReporting: process.env.ENABLE_CRASH_REPORTING === 'true',
+    requireMFA: process.env.REQUIRE_MFA === 'true',
+    maintenanceMode: process.env.MAINTENANCE_MODE === 'true'
   },
-
-  // API Endpoints
-  api: {
-    baseUrl: 'https://api.pofgold.com',
-    version: 'v1',
-  },
-
-  // Social Media
-  social: {
-    twitter: '@PotOfGoldGame',
-    instagram: '@potofgoldgame',
-    facebook: 'PotOfGoldGame',
-    discord: 'https://discord.gg/potofgold',
-  },
+  
+  // Version Information
+  version: {
+    app: process.env.APP_VERSION || '1.0.0',
+    build: process.env.VERCEL_GIT_COMMIT_SHA || 'local',
+    environment: process.env.NODE_ENV || 'development'
+  }
 };
 
-export default APP_CONFIG;
+export default AppConfig;

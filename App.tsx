@@ -30,6 +30,7 @@ import StatsScreen from './screens/StatsScreen';
 import OnboardingScreen from './screens/OnboardingScreen';
 import PauseModal from './screens/PauseModal';
 import GameOverScreen from './screens/GameOverScreen';
+import LegalAgreementScreen from './screens/LegalAgreementScreen';
 
 // Services
 import authService from './services/authService';
@@ -69,6 +70,8 @@ export default function App() {
   const [showSplash, setShowSplash] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [hasSeenOnboarding, setHasSeenOnboarding] = useState(false);
+  const [hasAcceptedLegal, setHasAcceptedLegal] = useState(false);
+  const [legalVersion, setLegalVersion] = useState('');
   const [isAdmin, setIsAdmin] = useState(false);
   
   const orientation = useOrientation();
@@ -84,6 +87,18 @@ export default function App() {
       // Initialize crash reporting
       crashReporting.initialize();
       crashReporting.trackAppPerformance();
+
+      // Check legal acceptance status
+      const legalAcceptance = await AsyncStorage.getItem('legal_accepted');
+      const acceptedVersion = await AsyncStorage.getItem('legal_version_accepted');
+      const currentLegalVersion = '2.0'; // Update this when legal terms change
+      
+      if (legalAcceptance && acceptedVersion === currentLegalVersion) {
+        setHasAcceptedLegal(true);
+      } else {
+        setHasAcceptedLegal(false);
+      }
+      setLegalVersion(currentLegalVersion);
 
       // Check onboarding status
       const onboardingStatus = await AsyncStorage.getItem('hasSeenOnboarding');
@@ -163,7 +178,26 @@ export default function App() {
               }),
             }}
           >
-            {!hasSeenOnboarding ? (
+            {!hasAcceptedLegal ? (
+              <Stack.Screen 
+                name="LegalAgreement" 
+                component={LegalAgreementScreen}
+                initialParams={{
+                  onAccept: async () => {
+                    await AsyncStorage.setItem('legal_accepted', 'true');
+                    await AsyncStorage.setItem('legal_version_accepted', legalVersion);
+                    setHasAcceptedLegal(true);
+                  },
+                  onDecline: () => {
+                    Alert.alert(
+                      'Agreement Required',
+                      'You must accept the legal agreements to use Pot of Gold.',
+                      [{ text: 'Exit', onPress: () => {} }]
+                    );
+                  }
+                }}
+              />
+            ) : !hasSeenOnboarding ? (
               <Stack.Screen 
                 name="Onboarding" 
                 component={OnboardingScreen}
