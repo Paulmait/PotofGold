@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pot of Gold - Debug</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #1a1a2e;
+            color: #FFD700;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #FFD700;
+            border-radius: 5px;
+        }
+        .success { background: #2a4a2a; }
+        .error { background: #4a2a2a; }
+        .warning { background: #4a4a2a; }
+        pre {
+            background: #000;
+            padding: 10px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Pot of Gold - Debug Page</h1>
+    <div id="debug-output"></div>
+
+    <script type="module">
+        const output = document.getElementById('debug-output');
+        
+        function addStatus(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.innerHTML = message;
+            output.appendChild(div);
+        }
+
+        // Test 1: Check if React is loaded
+        addStatus('Testing React...', 'info');
+        try {
+            import('react').then(() => {
+                addStatus('✅ React loaded successfully', 'success');
+            }).catch(err => {
+                addStatus(`❌ React failed to load: ${err.message}`, 'error');
+            });
+        } catch(e) {
+            addStatus(`❌ Import failed: ${e.message}`, 'error');
+        }
+
+        // Test 2: Check Firebase config
+        addStatus('Testing Firebase configuration...', 'info');
+        const firebaseConfig = {
+            apiKey: "AIzaSyBJSp7vX2-SOWCpjbgTEAPj_T9QQL72JX4",
+            authDomain: "potofgold-production.firebaseapp.com",
+            projectId: "potofgold-production",
+            storageBucket: "potofgold-production.firebasestorage.app",
+            messagingSenderId: "511446280789",
+            appId: "1:511446280789:web:f52cfd9a863631ad0b82dc",
+            measurementId: "G-GFP64LBLZ3"
+        };
+        
+        if (firebaseConfig.apiKey) {
+            addStatus('✅ Firebase config present', 'success');
+            addStatus(`<pre>${JSON.stringify(firebaseConfig, null, 2)}</pre>`, 'info');
+        } else {
+            addStatus('❌ Firebase config missing', 'error');
+        }
+
+        // Test 3: Check for console errors
+        window.addEventListener('error', (e) => {
+            addStatus(`❌ JavaScript Error: ${e.message} at ${e.filename}:${e.lineno}:${e.colno}`, 'error');
+        });
+
+        // Test 4: Check if main app can be loaded
+        addStatus('Attempting to load main app...', 'info');
+        
+        // Check if the script tags are present
+        const scripts = document.querySelectorAll('script');
+        addStatus(`Found ${scripts.length} script tags`, 'info');
+        
+        // Try to load the app
+        setTimeout(() => {
+            if (window.React) {
+                addStatus('✅ React is available globally', 'success');
+            } else {
+                addStatus('⚠️ React not available globally (may be bundled)', 'warning');
+            }
+            
+            if (document.getElementById('root')) {
+                addStatus('✅ Root element exists', 'success');
+            } else {
+                addStatus('❌ Root element missing', 'error');
+            }
+        }, 2000);
+
+        // Test 5: Network check
+        fetch('https://potofgold-production.firebaseapp.com')
+            .then(() => {
+                addStatus('✅ Can reach Firebase', 'success');
+            })
+            .catch(() => {
+                addStatus('⚠️ Cannot reach Firebase (may be CORS)', 'warning');
+            });
+
+        // Test 6: Check localStorage
+        try {
+            localStorage.setItem('test', 'test');
+            localStorage.removeItem('test');
+            addStatus('✅ localStorage is available', 'success');
+        } catch(e) {
+            addStatus('❌ localStorage not available', 'error');
+        }
+    </script>
+</body>
+</html>

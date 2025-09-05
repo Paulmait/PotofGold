@@ -2,9 +2,11 @@ const createExpoWebpackConfigAsync = require('@expo/webpack-config');
 const path = require('path');
 
 module.exports = async function (env, argv) {
+  // Create the default Expo webpack config
   const config = await createExpoWebpackConfigAsync(
     {
       ...env,
+      // Don't use offline flag - it's deprecated
       babel: {
         dangerouslyAddModulePathsToTranspile: [
           'react-native-reanimated',
@@ -13,109 +15,78 @@ module.exports = async function (env, argv) {
           'react-native-safe-area-context',
           '@react-native-community/netinfo',
           'react-native-vector-icons',
-          '@sentry/react-native',
         ],
       },
-      // offline: true, // Deprecated - using workbox plugin instead
     },
     argv
   );
 
-  // Customize the config for better web performance
-  if (config.mode === 'production') {
-    // Optimization for production
-    config.optimization = {
-      ...config.optimization,
-      splitChunks: {
-        chunks: 'all',
-        cacheGroups: {
-          default: false,
-          vendors: false,
-          vendor: {
-            name: 'vendor',
-            chunks: 'all',
-            test: /node_modules/,
-            priority: 20,
-          },
-          common: {
-            name: 'common',
-            minChunks: 2,
-            chunks: 'all',
-            priority: 10,
-            reuseExistingChunk: true,
-            enforce: true,
-          },
-        },
-      },
-    };
-  }
+  // Disable problematic plugins
+  config.plugins = config.plugins.filter(plugin => {
+    const name = plugin.constructor.name;
+    // Remove service worker plugin that might cause issues
+    return name !== 'GenerateSW' && name !== 'InjectManifest';
+  });
 
-  // Add PWA manifest
-  config.plugins.push(
-    new (require('webpack-pwa-manifest'))({
-      name: 'Pot of Gold',
-      short_name: 'PotOfGold',
-      description: 'An exciting mobile game where you collect falling treasures!',
-      background_color: '#1a1a2e',
-      theme_color: '#FFD700',
-      display: 'fullscreen',
-      orientation: 'any',
-      start_url: '/',
-      icons: [
+  // Simplified resolve configuration
+  config.resolve = {
+    ...config.resolve,
+    alias: {
+      ...config.resolve.alias,
+      'react-native$': 'react-native-web',
+      'react-native-linear-gradient': 'react-native-web-linear-gradient',
+      // Disable problematic modules for web
+      '@sentry/react-native': false,
+      'react-native-sound': false,
+      'expo-haptics': false,
+      'expo-av': false,
+      'expo-battery': false,
+      'expo-cellular': false,
+      'expo-sensors': false,
+      'expo-notifications': false,
+      'expo-in-app-purchases': false,
+      'react-native-purchases': false,
+    },
+  };
+
+  // Add fallbacks for Node.js modules
+  config.resolve.fallback = {
+    ...config.resolve.fallback,
+    crypto: false,
+    stream: false,
+    buffer: false,
+  };
+
+  // Ignore native modules that don't work on web
+  config.module.rules.push({
+    test: /\.(js|jsx|ts|tsx)$/,
+    loader: 'string-replace-loader',
+    options: {
+      multiple: [
         {
-          src: path.resolve('assets/images/pot_of_gold_icon.png'),
-          sizes: [96, 128, 192, 256, 384, 512],
+          search: "import.*@sentry/react-native.*",
+          replace: '// Sentry disabled for web',
+          flags: 'g'
+        },
+        {
+          search: "from '@sentry/react-native'",
+          replace: '// from Sentry',
+          flags: 'g'
         },
       ],
-    })
-  );
+    },
+  });
 
-  // Add service worker for offline support
+  // Ensure proper public path
+  config.output = {
+    ...config.output,
+    publicPath: '/',
+  };
+
+  // Disable source maps in production for smaller bundle
   if (config.mode === 'production') {
-    config.plugins.push(
-      new (require('workbox-webpack-plugin').GenerateSW)({
-        clientsClaim: true,
-        skipWaiting: true,
-        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/fonts\.googleapis\.com/,
-            handler: 'StaleWhileRevalidate',
-            options: {
-              cacheName: 'google-fonts-stylesheets',
-            },
-          },
-          {
-            urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'images',
-              expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 30 * 24 * 60 * 60, // 30 Days
-              },
-            },
-          },
-        ],
-      })
-    );
+    config.devtool = false;
   }
-
-  // Handle web-specific aliases
-  config.resolve.alias = {
-    ...config.resolve.alias,
-    'react-native$': 'react-native-web',
-    'react-native-linear-gradient': 'react-native-web-linear-gradient',
-    '@sentry/react-native': false, // Disable Sentry for web
-    './deviceInfo': './deviceInfo.web', // Use web version
-    '../utils/deviceInfo': '../utils/deviceInfo.web',
-  };
-
-  // Exclude Sentry from web builds
-  config.externals = {
-    ...config.externals,
-    '@sentry/react-native': 'null',
-  };
 
   return config;
 };

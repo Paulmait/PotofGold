@@ -1,7 +1,7 @@
 {
   "name": "pot-of-gold",
   "version": "1.0.0",
-  "main": "node_modules/expo/AppEntry.js",
+  "main": "index.web.js",
   "scripts": {
     "start": "expo start",
     "start:clean": "expo start -c",
@@ -34,7 +34,8 @@
     "submit:all": "eas submit --platform all",
     "prebuild": "expo prebuild",
     "prebuild:clean": "expo prebuild --clean",
-    "build": "expo export:web",
+    "build": "cross-env WEBPACK_CONFIG=web expo export:web",
+    "build:clean": "rm -rf web-build && npm run build",
     "web:build": "expo export --platform web --output-dir web-build",
     "web:serve": "npx serve web-build",
     "web:deploy:vercel": "vercel --prod",
@@ -42,14 +43,16 @@
     "build:all:platforms": "npm run build:ios:prod && npm run build:android:prod && npm run web:build"
   },
   "dependencies": {
+    "@babel/preset-react": "^7.18.6",
     "@expo/webpack-config": "^19.0.0",
     "@react-native-async-storage/async-storage": "1.18.2",
     "@react-native-community/netinfo": "9.3.10",
     "@react-navigation/native": "^6.1.0",
     "@react-navigation/stack": "^6.3.0",
-    "@sentry/react-native": "5.10.0",
+    "@sentry/react-native": "^7.0.1",
     "@types/crypto-js": "^4.2.2",
     "babel-plugin-module-resolver": "^5.0.2",
+    "babel-preset-expo": "~9.5.0",
     "crypto-js": "^4.2.0",
     "expo": "~49.0.0",
     "expo-av": "~13.4.0",
@@ -71,7 +74,7 @@
     "expo-sensors": "~12.3.0",
     "expo-splash-screen": "~0.20.5",
     "expo-status-bar": "~1.6.0",
-    "firebase": "^10.14.1",
+    "firebase": "^12.2.1",
     "lottie-react-native": "5.1.6",
     "react": "18.2.0",
     "react-dom": "18.2.0",
@@ -87,9 +90,7 @@
     "react-native-vector-icons": "^10.0.0",
     "react-native-web": "~0.19.6",
     "webpack-pwa-manifest": "^4.3.0",
-    "workbox-webpack-plugin": "^7.3.0",
-    "@babel/preset-react": "^7.18.6",
-    "babel-preset-expo": "~9.5.0"
+    "workbox-webpack-plugin": "^7.3.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
@@ -103,6 +104,7 @@
     "@types/sharp": "^0.31.1",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
+    "cross-env": "^10.0.0",
     "detox": "^20.0.0",
     "eslint": "^8.45.0",
     "eslint-config-expo": "^7.0.0",
@@ -119,6 +121,7 @@
     "react-native-web-linear-gradient": "^1.1.2",
     "sharp": "^0.34.3",
     "sharp-cli": "^5.2.0",
+    "string-replace-loader": "^3.2.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.1.3"
   },
