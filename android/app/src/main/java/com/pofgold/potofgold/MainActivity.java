@@ -1,4 +1,4 @@
-package com.potofgold;
+package com.pofgold.potofgold;
 
 import android.os.Build;
 import android.os.Bundle;
