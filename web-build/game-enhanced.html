@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Pot of Gold - Enhanced Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        #gameContainer {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header UI */
+        #header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        #stats {
+            display: flex;
+            gap: 15px;
+            color: white;
+            font-weight: bold;
+        }
+
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        #pauseBtn {
+            width: 50px;
+            height: 50px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid #FFD700;
+            border-radius: 50%;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        #pauseBtn:active {
+            transform: scale(0.95);
+        }
+
+        /* Game Canvas */
+        #gameCanvas {
+            position: absolute;
+            top: 70px;
+            left: 0;
+            right: 0;
+            bottom: 120px;
+            background: linear-gradient(to bottom, #87CEEB 0%, #98D8E8 100%);
+        }
+
+        /* Cart/Pot */
+        #cart {
+            position: absolute;
+            bottom: 120px;
+            width: 60px;
+            height: 50px;
+            background: #8B4513;
+            border: 3px solid #654321;
+            border-radius: 10px 10px 20px 20px;
+            transition: left 0.1s ease-out;
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+        }
+
+        #cart.gold-skin {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            border-color: #FF8C00;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        #cart.diamond-skin {
+            background: linear-gradient(135deg, #E0E0E0, #87CEEB);
+            border-color: #4169E1;
+            box-shadow: 0 0 20px rgba(135, 206, 235, 0.5);
+        }
+
+        #cart.rainbow-skin {
+            background: linear-gradient(135deg, red, orange, yellow, green, blue, indigo, violet);
+            border-color: #FF1493;
+            animation: rainbow 2s linear infinite;
+        }
+
+        @keyframes rainbow {
+            to { filter: hue-rotate(360deg); }
+        }
+
+        /* Falling Items */
+        .falling-item {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            font-size: 24px;
+            animation: fall linear;
+            z-index: 50;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh);
+            }
+        }
+
+        /* Missed Items (Blockage) */
+        .missed-item {
+            position: absolute;
+            bottom: 0;
+            width: 25px;
+            height: 25px;
+            font-size: 18px;
+            opacity: 0.7;
+            z-index: 60;
+        }
+
+        /* Power-up Bar */
+        #powerUpBar {
+            position: absolute;
+            top: 130px;
+            left: 20px;
+            right: 20px;
+            height: 30px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            display: none;
+            align-items: center;
+            padding: 0 10px;
+            z-index: 200;
+        }
+
+        #powerUpBar.active {
+            display: flex;
+        }
+
+        .power-up-fill {
+            height: 20px;
+            background: linear-gradient(90deg, #00FF00, #00AA00);
+            border-radius: 10px;
+            transition: width 0.3s;
+        }
+
+        /* Bottom Menu */
+        #bottomMenu {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 120px;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 10px;
+            z-index: 100;
+        }
+
+        .menu-btn {
+            flex: 1;
+            max-width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: 2px solid #FFD700;
+            border-radius: 15px;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .menu-btn:active {
+            transform: scale(0.95);
+        }
+
+        .menu-btn.locked {
+            opacity: 0.5;
+            background: gray;
+        }
+
+        .menu-btn .icon {
+            font-size: 24px;
+        }
+
+        .menu-btn .price {
+            font-size: 10px;
+            color: #FFD700;
+        }
+
+        /* Pause Menu */
+        #pauseMenu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        #pauseMenu.active {
+            display: flex;
+        }
+
+        .pause-content {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .pause-content h2 {
+            color: #FFD700;
+            margin-bottom: 20px;
+            font-size: 32px;
+        }
+
+        .pause-btn {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            background: #FFD700;
+            color: #1a1a2e;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .pause-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Shop Modal */
+        #shopModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+        }
+
+        #shopModal.active {
+            display: flex;
+        }
+
+        .shop-content {
+            background: linear-gradient(135deg, #1a1a2e, #0f0f1e);
+            border-radius: 20px;
+            padding: 20px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .shop-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #FFD700;
+            margin-bottom: 20px;
+        }
+
+        .shop-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .shop-tab {
+            flex: 1;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .shop-tab.active {
+            border-color: #FFD700;
+            background: rgba(255, 215, 0, 0.2);
+        }
+
+        .shop-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 15px;
+        }
+
+        .shop-item {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .shop-item:hover {
+            border-color: #FFD700;
+            transform: scale(1.05);
+        }
+
+        .shop-item.purchased {
+            border-color: #00FF00;
+            background: rgba(0, 255, 0, 0.1);
+        }
+
+        .shop-item.equipped {
+            border-color: #00FFFF;
+            background: rgba(0, 255, 255, 0.2);
+        }
+
+        .shop-item-icon {
+            font-size: 32px;
+            margin-bottom: 5px;
+        }
+
+        .shop-item-name {
+            color: white;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .shop-item-price {
+            color: #FFD700;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        /* Game Over */
+        #gameOver {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 4000;
+        }
+
+        #gameOver.active {
+            display: flex;
+        }
+
+        .game-over-content {
+            background: linear-gradient(135deg, #DC143C, #8B0000);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .game-over-content h2 {
+            color: #FFD700;
+            margin-bottom: 20px;
+            font-size: 36px;
+        }
+
+        .final-stats {
+            color: white;
+            margin: 20px 0;
+            font-size: 18px;
+            line-height: 1.5;
+        }
+
+        /* Warning Banner */
+        #warningBanner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 0, 0, 0.9);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            display: none;
+            z-index: 500;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.05); }
+        }
+
+        #warningBanner.active {
+            display: block;
+        }
+
+        /* Mobile Controls */
+        .touch-zone {
+            position: absolute;
+            top: 70px;
+            bottom: 120px;
+            width: 50%;
+            z-index: 10;
+        }
+
+        #leftTouch {
+            left: 0;
+        }
+
+        #rightTouch {
+            right: 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .stat {
+                font-size: 12px;
+                padding: 3px 6px;
+            }
+            
+            .menu-btn {
+                max-width: 60px;
+                height: 60px;
+                font-size: 10px;
+            }
+            
+            .menu-btn .icon {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <!-- Header UI -->
+        <div id="header">
+            <div id="stats">
+                <div class="stat">💰 <span id="coins">0</span></div>
+                <div class="stat">⭐ <span id="score">0</span></div>
+                <div class="stat">🎯 <span id="level">1</span></div>
+                <div class="stat">❤️ <span id="lives">3</span></div>
+            </div>
+            <button id="pauseBtn">⏸️</button>
+        </div>
+
+        <!-- Power-up Indicator -->
+        <div id="powerUpBar">
+            <div class="power-up-fill" style="width: 0%"></div>
+        </div>
+
+        <!-- Warning Banner -->
+        <div id="warningBanner">
+            ⚠️ Path is getting blocked! Use power-ups to clear!
+        </div>
+
+        <!-- Game Canvas -->
+        <div id="gameCanvas">
+            <!-- Cart/Pot -->
+            <div id="cart">🍯</div>
+            
+            <!-- Touch zones for mobile -->
+            <div id="leftTouch" class="touch-zone"></div>
+            <div id="rightTouch" class="touch-zone"></div>
+        </div>
+
+        <!-- Bottom Menu -->
+        <div id="bottomMenu">
+            <button class="menu-btn" id="shopBtn">
+                <span class="icon">🛍️</span>
+                <span>Shop</span>
+            </button>
+            <button class="menu-btn" id="vacuumBtn">
+                <span class="icon">🌪️</span>
+                <span>Vacuum</span>
+                <span class="price">50💰</span>
+            </button>
+            <button class="menu-btn" id="clearBtn">
+                <span class="icon">💥</span>
+                <span>Clear All</span>
+                <span class="price">100💰</span>
+            </button>
+            <button class="menu-btn" id="magnetBtn">
+                <span class="icon">🧲</span>
+                <span>Magnet</span>
+                <span class="price">75💰</span>
+            </button>
+            <button class="menu-btn" id="boostBtn">
+                <span class="icon">⚡</span>
+                <span>Boost</span>
+                <span class="price">25💰</span>
+            </button>
+        </div>
+
+        <!-- Pause Menu -->
+        <div id="pauseMenu">
+            <div class="pause-content">
+                <h2>⏸️ PAUSED</h2>
+                <button class="pause-btn" id="resumeBtn">Resume Game</button>
+                <button class="pause-btn" id="restartBtn">Restart</button>
+                <button class="pause-btn" id="shopPauseBtn">Shop</button>
+                <button class="pause-btn" id="quitBtn">Quit</button>
+            </div>
+        </div>
+
+        <!-- Shop Modal -->
+        <div id="shopModal">
+            <div class="shop-content">
+                <div class="shop-header">
+                    <h2>🛍️ SHOP</h2>
+                    <button id="closeShopBtn" style="background: none; border: none; color: white; font-size: 24px; cursor: pointer;">✖️</button>
+                </div>
+                
+                <div class="shop-tabs">
+                    <div class="shop-tab active" data-tab="skins">Skins</div>
+                    <div class="shop-tab" data-tab="upgrades">Upgrades</div>
+                    <div class="shop-tab" data-tab="powerups">Power-ups</div>
+                </div>
+                
+                <div class="shop-items" id="shopItems">
+                    <!-- Items will be dynamically added -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Over -->
+        <div id="gameOver">
+            <div class="game-over-content">
+                <h2>💀 GAME OVER</h2>
+                <div class="final-stats">
+                    <div>Final Score: <span id="finalScore">0</span></div>
+                    <div>Coins Collected: <span id="finalCoins">0</span></div>
+                    <div>Level Reached: <span id="finalLevel">1</span></div>
+                    <div>Time Survived: <span id="finalTime">0</span>s</div>
+                </div>
+                <button class="pause-btn" id="playAgainBtn">Play Again</button>
+                <button class="pause-btn" id="mainMenuBtn">Main Menu</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        const game = {
+            coins: 0,
+            score: 0,
+            level: 1,
+            lives: 3,
+            isPaused: false,
+            isGameOver: false,
+            cartPosition: window.innerWidth / 2,
+            cartSpeed: 5,
+            fallingItems: [],
+            missedItems: [],
+            blockageLevel: 0,
+            powerUps: {
+                magnet: false,
+                boost: false,
+                vacuum: false
+            },
+            startTime: Date.now(),
+            selectedSkin: 'default',
+            purchasedSkins: ['default'],
+            upgrades: {
+                cartSize: 1,
+                cartSpeed: 1,
+                magnetRange: 1,
+                coinValue: 1
+            }
+        };
+
+        // Shop Data
+        const shopData = {
+            skins: [
+                { id: 'default', name: 'Classic Pot', icon: '🍯', price: 0, purchased: true },
+                { id: 'gold', name: 'Golden Pot', icon: '🏆', price: 500, purchased: false },
+                { id: 'diamond', name: 'Diamond Cart', icon: '💎', price: 1000, purchased: false },
+                { id: 'rainbow', name: 'Rainbow Cart', icon: '🌈', price: 2000, purchased: false }
+            ],
+            upgrades: [
+                { id: 'size', name: 'Bigger Cart', icon: '📏', price: 300, level: 1, maxLevel: 5 },
+                { id: 'speed', name: 'Faster Move', icon: '🏃', price: 200, level: 1, maxLevel: 5 },
+                { id: 'magnet', name: 'Magnet Range', icon: '🧲', price: 400, level: 1, maxLevel: 5 },
+                { id: 'value', name: 'Coin Value', icon: '💰', price: 500, level: 1, maxLevel: 5 }
+            ],
+            powerups: [
+                { id: 'extra_life', name: 'Extra Life', icon: '❤️', price: 150, count: 0 },
+                { id: 'shield', name: 'Shield', icon: '🛡️', price: 100, count: 0 },
+                { id: 'double_coins', name: '2x Coins', icon: '💰💰', price: 200, count: 0 },
+                { id: 'slow_time', name: 'Slow Time', icon: '⏰', price: 250, count: 0 }
+            ]
+        };
+
+        // Item Types
+        const itemTypes = [
+            { type: 'coin', emoji: '🪙', value: 1, points: 10, harmful: false, probability: 0.4 },
+            { type: 'gem', emoji: '💎', value: 5, points: 50, harmful: false, probability: 0.15 },
+            { type: 'star', emoji: '⭐', value: 3, points: 30, harmful: false, probability: 0.2 },
+            { type: 'money', emoji: '💵', value: 10, points: 100, harmful: false, probability: 0.05 },
+            { type: 'bomb', emoji: '💣', value: 0, points: -50, harmful: true, probability: 0.15 },
+            { type: 'rock', emoji: '🪨', value: 0, points: 0, harmful: true, probability: 0.05 }
+        ];
+
+        // Load saved data
+        function loadGame() {
+            const saved = localStorage.getItem('potOfGoldGame');
+            if (saved) {
+                const data = JSON.parse(saved);
+                game.purchasedSkins = data.purchasedSkins || ['default'];
+                game.selectedSkin = data.selectedSkin || 'default';
+                game.upgrades = data.upgrades || game.upgrades;
+                shopData.skins.forEach(skin => {
+                    skin.purchased = game.purchasedSkins.includes(skin.id);
+                });
+                applySkin(game.selectedSkin);
+            }
+        }
+
+        // Save game data
+        function saveGame() {
+            const data = {
+                purchasedSkins: game.purchasedSkins,
+                selectedSkin: game.selectedSkin,
+                upgrades: game.upgrades
+            };
+            localStorage.setItem('potOfGoldGame', JSON.stringify(data));
+        }
+
+        // Apply skin to cart
+        function applySkin(skinId) {
+            const cart = document.getElementById('cart');
+            cart.className = '';
+            if (skinId === 'gold') {
+                cart.className = 'gold-skin';
+            } else if (skinId === 'diamond') {
+                cart.className = 'diamond-skin';
+            } else if (skinId === 'rainbow') {
+                cart.className = 'rainbow-skin';
+            }
+            game.selectedSkin = skinId;
+        }
+
+        // Initialize game
+        function init() {
+            loadGame();
+            updateUI();
+            startGame();
+            setupEventListeners();
+        }
+
+        // Start game
+        function startGame() {
+            game.isPaused = false;
+            game.isGameOver = false;
+            game.startTime = Date.now();
+            gameLoop();
+            spawnItems();
+        }
+
+        // Game loop
+        function gameLoop() {
+            if (game.isPaused || game.isGameOver) return;
+
+            updateFallingItems();
+            checkCollisions();
+            updateBlockage();
+            checkGameOver();
+            updateUI();
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Spawn falling items
+        function spawnItems() {
+            if (game.isPaused || game.isGameOver) return;
+
+            const spawnRate = Math.max(500, 2000 - (game.level * 100));
+            const item = selectRandomItem();
+            const x = Math.random() * (window.innerWidth - 30);
+            
+            createFallingItem(item, x);
+
+            setTimeout(spawnItems, spawnRate);
+        }
+
+        // Select random item based on probability
+        function selectRandomItem() {
+            const rand = Math.random();
+            let cumulative = 0;
+            
+            for (const item of itemTypes) {
+                cumulative += item.probability;
+                if (rand <= cumulative) {
+                    return item;
+                }
+            }
+            return itemTypes[0];
+        }
+
+        // Create falling item element
+        function createFallingItem(item, x) {
+            const element = document.createElement('div');
+            element.className = 'falling-item';
+            element.style.left = x + 'px';
+            element.style.top = '0px';
+            element.textContent = item.emoji;
+            element.dataset.type = item.type;
+            element.dataset.value = item.value;
+            element.dataset.points = item.points;
+            element.dataset.harmful = item.harmful;
+            
+            const fallSpeed = 3 + (game.level * 0.5);
+            element.style.animationDuration = (10 / fallSpeed) + 's';
+            
+            document.getElementById('gameCanvas').appendChild(element);
+            
+            game.fallingItems.push({
+                element: element,
+                x: x,
+                y: 0,
+                item: item
+            });
+        }
+
+        // Update falling items
+        function updateFallingItems() {
+            const canvas = document.getElementById('gameCanvas');
+            const canvasHeight = canvas.offsetHeight;
+            
+            game.fallingItems = game.fallingItems.filter(obj => {
+                const rect = obj.element.getBoundingClientRect();
+                const canvasRect = canvas.getBoundingClientRect();
+                const relativeY = rect.top - canvasRect.top;
+                
+                if (relativeY > canvasHeight - 30) {
+                    // Item missed
+                    if (!obj.item.harmful) {
+                        addMissedItem(obj.x, obj.item);
+                    }
+                    obj.element.remove();
+                    return false;
+                }
+                return true;
+            });
+        }
+
+        // Add missed item to blockage
+        function addMissedItem(x, item) {
+            const element = document.createElement('div');
+            element.className = 'missed-item';
+            element.style.left = x + 'px';
+            element.style.bottom = (game.missedItems.length * 5) + 'px';
+            element.textContent = item.emoji;
+            
+            document.getElementById('gameCanvas').appendChild(element);
+            game.missedItems.push({ element: element, x: x });
+            
+            updateBlockage();
+        }
+
+        // Update blockage level
+        function updateBlockage() {
+            game.blockageLevel = game.missedItems.length / 20; // 20 items = 100% blocked
+            
+            if (game.blockageLevel > 0.25 && game.blockageLevel < 0.5) {
+                showWarning();
+            } else {
+                hideWarning();
+            }
+            
+            // Restrict cart movement based on blockage
+            const cartWidth = 60 * game.upgrades.cartSize;
+            const maxBlockageHeight = game.missedItems.length * 5;
+            
+            if (maxBlockageHeight > 50) {
+                // Start restricting movement
+                const restrictionFactor = Math.min(1, maxBlockageHeight / 100);
+                game.cartSpeed = 5 * (1 - restrictionFactor * 0.5) * game.upgrades.cartSpeed;
+            }
+        }
+
+        // Show warning
+        function showWarning() {
+            const banner = document.getElementById('warningBanner');
+            banner.classList.add('active');
+            setTimeout(() => banner.classList.remove('active'), 3000);
+        }
+
+        // Hide warning
+        function hideWarning() {
+            document.getElementById('warningBanner').classList.remove('active');
+        }
+
+        // Check collisions
+        function checkCollisions() {
+            const cart = document.getElementById('cart');
+            const cartRect = cart.getBoundingClientRect();
+            const cartWidth = 60 * game.upgrades.cartSize;
+            
+            game.fallingItems.forEach((obj, index) => {
+                const itemRect = obj.element.getBoundingClientRect();
+                
+                // Check if item collides with cart
+                if (itemRect.bottom >= cartRect.top &&
+                    itemRect.top <= cartRect.bottom &&
+                    itemRect.left < cartRect.right &&
+                    itemRect.right > cartRect.left) {
+                    
+                    // Collision detected
+                    const item = obj.item;
+                    
+                    if (item.harmful) {
+                        game.lives--;
+                        flashScreen('red');
+                    } else {
+                        game.coins += item.value * game.upgrades.coinValue;
+                        game.score += item.points;
+                        flashScreen('gold');
+                    }
+                    
+                    obj.element.remove();
+                    game.fallingItems.splice(index, 1);
+                    
+                    // Check for level up
+                    if (game.score > game.level * 100) {
+                        game.level++;
+                    }
+                }
+                
+                // Magnet effect
+                if (game.powerUps.magnet && !item.harmful) {
+                    const magnetRange = 100 * game.upgrades.magnetRange;
+                    const distance = Math.abs(itemRect.left - cartRect.left);
+                    
+                    if (distance < magnetRange) {
+                        const pullSpeed = 5;
+                        const direction = cartRect.left > itemRect.left ? pullSpeed : -pullSpeed;
+                        obj.element.style.left = (parseFloat(obj.element.style.left) + direction) + 'px';
+                    }
+                }
+            });
+        }
+
+        // Flash screen effect
+        function flashScreen(color) {
+            const canvas = document.getElementById('gameCanvas');
+            canvas.style.transition = 'background 0.2s';
+            const original = canvas.style.background;
+            canvas.style.background = color === 'red' ? 'rgba(255,0,0,0.3)' : 'rgba(255,215,0,0.3)';
+            setTimeout(() => {
+                canvas.style.background = '';
+            }, 200);
+        }
+
+        // Check game over
+        function checkGameOver() {
+            if (game.lives <= 0 || game.blockageLevel >= 0.75) {
+                gameOver();
+            }
+        }
+
+        // Game over
+        function gameOver() {
+            game.isGameOver = true;
+            const finalTime = Math.floor((Date.now() - game.startTime) / 1000);
+            
+            document.getElementById('finalScore').textContent = game.score;
+            document.getElementById('finalCoins').textContent = game.coins;
+            document.getElementById('finalLevel').textContent = game.level;
+            document.getElementById('finalTime').textContent = finalTime;
+            document.getElementById('gameOver').classList.add('active');
+        }
+
+        // Update UI
+        function updateUI() {
+            document.getElementById('coins').textContent = game.coins;
+            document.getElementById('score').textContent = game.score;
+            document.getElementById('level').textContent = game.level;
+            document.getElementById('lives').textContent = game.lives;
+        }
+
+        // Move cart
+        function moveCart(direction) {
+            if (game.isPaused || game.isGameOver) return;
+            
+            const cart = document.getElementById('cart');
+            const speed = game.cartSpeed * (game.powerUps.boost ? 2 : 1);
+            const newPosition = game.cartPosition + (direction * speed);
+            const cartWidth = 60 * game.upgrades.cartSize;
+            
+            // Check boundaries
+            if (newPosition >= cartWidth/2 && newPosition <= window.innerWidth - cartWidth/2) {
+                // Check if path is blocked
+                const blockageRestriction = game.missedItems.some(item => {
+                    return Math.abs(item.x - newPosition) < cartWidth;
+                });
+                
+                if (!blockageRestriction || game.blockageLevel < 0.5) {
+                    game.cartPosition = newPosition;
+                    cart.style.left = (newPosition - cartWidth/2) + 'px';
+                    cart.style.width = cartWidth + 'px';
+                }
+            }
+        }
+
+        // Power-up functions
+        function activateVacuum() {
+            if (game.coins >= 50) {
+                game.coins -= 50;
+                
+                // Remove nearby missed items
+                const cartX = game.cartPosition;
+                const range = 150;
+                
+                game.missedItems = game.missedItems.filter(item => {
+                    if (Math.abs(item.x - cartX) <= range) {
+                        item.element.remove();
+                        game.coins += 1; // Recover some coins
+                        return false;
+                    }
+                    return true;
+                });
+                
+                updateBlockage();
+                updateUI();
+            }
+        }
+
+        function clearAllItems() {
+            if (game.coins >= 100) {
+                game.coins -= 100;
+                
+                // Clear all missed items
+                game.missedItems.forEach(item => {
+                    item.element.remove();
+                    game.coins += 1; // Recover some coins
+                });
+                game.missedItems = [];
+                game.blockageLevel = 0;
+                
+                updateUI();
+            }
+        }
+
+        function activateMagnet() {
+            if (game.coins >= 75) {
+                game.coins -= 75;
+                game.powerUps.magnet = true;
+                
+                const powerBar = document.getElementById('powerUpBar');
+                powerBar.classList.add('active');
+                const fill = powerBar.querySelector('.power-up-fill');
+                fill.style.width = '100%';
+                
+                let duration = 10000; // 10 seconds
+                let elapsed = 0;
+                
+                const interval = setInterval(() => {
+                    elapsed += 100;
+                    const remaining = Math.max(0, 100 - (elapsed / duration * 100));
+                    fill.style.width = remaining + '%';
+                    
+                    if (elapsed >= duration) {
+                        clearInterval(interval);
+                        game.powerUps.magnet = false;
+                        powerBar.classList.remove('active');
+                    }
+                }, 100);
+                
+                updateUI();
+            }
+        }
+
+        function activateBoost() {
+            if (game.coins >= 25) {
+                game.coins -= 25;
+                game.powerUps.boost = true;
+                
+                setTimeout(() => {
+                    game.powerUps.boost = false;
+                }, 5000);
+                
+                updateUI();
+            }
+        }
+
+        // Shop functions
+        function openShop() {
+            game.isPaused = true;
+            document.getElementById('shopModal').classList.add('active');
+            loadShopItems('skins');
+        }
+
+        function closeShop() {
+            document.getElementById('shopModal').classList.remove('active');
+            game.isPaused = false;
+            saveGame();
+        }
+
+        function loadShopItems(category) {
+            const container = document.getElementById('shopItems');
+            container.innerHTML = '';
+            
+            const items = shopData[category];
+            
+            items.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'shop-item';
+                
+                if (item.purchased) {
+                    div.classList.add('purchased');
+                }
+                
+                if (category === 'skins' && item.id === game.selectedSkin) {
+                    div.classList.add('equipped');
+                }
+                
+                div.innerHTML = `
+                    <div class="shop-item-icon">${item.icon}</div>
+                    <div class="shop-item-name">${item.name}</div>
+                    <div class="shop-item-price">${item.purchased ? 'Owned' : item.price + '💰'}</div>
+                `;
+                
+                div.onclick = () => {
+                    if (category === 'skins') {
+                        if (item.purchased) {
+                            applySkin(item.id);
+                            loadShopItems('skins'); // Refresh to show equipped
+                        } else if (game.coins >= item.price) {
+                            game.coins -= item.price;
+                            item.purchased = true;
+                            game.purchasedSkins.push(item.id);
+                            applySkin(item.id);
+                            updateUI();
+                            loadShopItems('skins');
+                        }
+                    } else if (category === 'upgrades') {
+                        if (item.level < item.maxLevel && game.coins >= item.price) {
+                            game.coins -= item.price;
+                            item.level++;
+                            
+                            if (item.id === 'size') game.upgrades.cartSize += 0.2;
+                            if (item.id === 'speed') game.upgrades.cartSpeed += 0.2;
+                            if (item.id === 'magnet') game.upgrades.magnetRange += 0.3;
+                            if (item.id === 'value') game.upgrades.coinValue += 0.5;
+                            
+                            item.price = Math.floor(item.price * 1.5);
+                            updateUI();
+                            loadShopItems('upgrades');
+                        }
+                    }
+                };
+                
+                container.appendChild(div);
+            });
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Keyboard controls
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowLeft') moveCart(-1);
+                if (e.key === 'ArrowRight') moveCart(1);
+                if (e.key === ' ' || e.key === 'p') togglePause();
+            });
+
+            // Touch controls
+            let touchStartX = 0;
+            let touchMoveInterval = null;
+
+            document.getElementById('leftTouch').addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                touchMoveInterval = setInterval(() => moveCart(-1), 50);
+            });
+
+            document.getElementById('rightTouch').addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                touchMoveInterval = setInterval(() => moveCart(1), 50);
+            });
+
+            document.addEventListener('touchend', () => {
+                if (touchMoveInterval) {
+                    clearInterval(touchMoveInterval);
+                    touchMoveInterval = null;
+                }
+            });
+
+            // Mouse controls for desktop
+            document.getElementById('leftTouch').addEventListener('mousedown', () => {
+                touchMoveInterval = setInterval(() => moveCart(-1), 50);
+            });
+
+            document.getElementById('rightTouch').addEventListener('mousedown', () => {
+                touchMoveInterval = setInterval(() => moveCart(1), 50);
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (touchMoveInterval) {
+                    clearInterval(touchMoveInterval);
+                    touchMoveInterval = null;
+                }
+            });
+
+            // UI buttons
+            document.getElementById('pauseBtn').onclick = togglePause;
+            document.getElementById('resumeBtn').onclick = togglePause;
+            document.getElementById('restartBtn').onclick = restart;
+            document.getElementById('quitBtn').onclick = () => location.reload();
+            
+            // Shop
+            document.getElementById('shopBtn').onclick = openShop;
+            document.getElementById('shopPauseBtn').onclick = openShop;
+            document.getElementById('closeShopBtn').onclick = closeShop;
+            
+            // Shop tabs
+            document.querySelectorAll('.shop-tab').forEach(tab => {
+                tab.onclick = () => {
+                    document.querySelectorAll('.shop-tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    loadShopItems(tab.dataset.tab);
+                };
+            });
+            
+            // Power-ups
+            document.getElementById('vacuumBtn').onclick = activateVacuum;
+            document.getElementById('clearBtn').onclick = clearAllItems;
+            document.getElementById('magnetBtn').onclick = activateMagnet;
+            document.getElementById('boostBtn').onclick = activateBoost;
+            
+            // Game over
+            document.getElementById('playAgainBtn').onclick = restart;
+            document.getElementById('mainMenuBtn').onclick = () => location.reload();
+        }
+
+        // Toggle pause
+        function togglePause() {
+            game.isPaused = !game.isPaused;
+            
+            if (game.isPaused) {
+                document.getElementById('pauseMenu').classList.add('active');
+            } else {
+                document.getElementById('pauseMenu').classList.remove('active');
+                gameLoop();
+            }
+        }
+
+        // Restart game
+        function restart() {
+            // Clear all items
+            game.fallingItems.forEach(obj => obj.element.remove());
+            game.missedItems.forEach(obj => obj.element.remove());
+            
+            // Reset game state
+            game.coins = 0;
+            game.score = 0;
+            game.level = 1;
+            game.lives = 3;
+            game.isPaused = false;
+            game.isGameOver = false;
+            game.fallingItems = [];
+            game.missedItems = [];
+            game.blockageLevel = 0;
+            game.startTime = Date.now();
+            
+            // Hide menus
+            document.getElementById('pauseMenu').classList.remove('active');
+            document.getElementById('gameOver').classList.remove('active');
+            
+            // Reset cart position
+            game.cartPosition = window.innerWidth / 2;
+            const cart = document.getElementById('cart');
+            cart.style.left = (game.cartPosition - 30) + 'px';
+            
+            updateUI();
+            startGame();
+        }
+
+        // Initialize on load
+        window.onload = init;
+        
+        // Handle resize
+        window.onresize = () => {
+            const cart = document.getElementById('cart');
+            const cartWidth = 60 * game.upgrades.cartSize;
+            
+            if (game.cartPosition > window.innerWidth - cartWidth/2) {
+                game.cartPosition = window.innerWidth - cartWidth/2;
+                cart.style.left = (game.cartPosition - cartWidth/2) + 'px';
+            }
+        };
+    </script>
+</body>
+</html>
