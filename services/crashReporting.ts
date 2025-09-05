@@ -3,11 +3,15 @@ import Constants from 'expo-constants';
 
 // Only import Sentry for native platforms
 let Sentry: any = null;
-if (Platform.OS !== 'web') {
+if (Platform.OS === 'web') {
+  // Use mock for web
+  Sentry = require('../src/utils/sentryMock').default;
+} else {
   try {
     Sentry = require('@sentry/react-native');
   } catch (error) {
-    console.log('Sentry not available for web platform');
+    console.log('Sentry not available');
+    Sentry = require('../src/utils/sentryMock').default;
   }
 }
 

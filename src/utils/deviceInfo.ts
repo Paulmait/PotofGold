@@ -526,57 +526,75 @@ class DeviceInfoManager {
       }
     });
 
-    // Listen for network changes
+    // Platform-specific listeners
     if (Platform.OS !== 'web') {
-      Network.addNetworkStateListener((state) => {
-      if (this.deviceProfile) {
-        this.deviceProfile.networkType = state.type;
-        this.deviceProfile.isConnected = state.isConnected || false;
-        this.deviceProfile.isWifi = state.type === Network.NetworkStateType.WIFI;
-        this.deviceProfile.isCellular = state.type === Network.NetworkStateType.CELLULAR;
-        this.deviceProfile.networkQuality = this.calculateNetworkQuality(state);
-        
-        // Recalculate quality settings
-        this.qualitySettings = this.calculateQualitySettings(this.deviceProfile);
-        this.notifyListeners();
-      }
-      });
+      this.setupNativeListeners();
     }
+  }
 
-    // Listen for battery changes (not available on web)
-    if (Platform.OS !== 'web') {
-      Battery.addBatteryLevelListener(({ batteryLevel }) => {
-      if (this.deviceProfile) {
-        this.deviceProfile.batteryLevel = batteryLevel;
-        
-        // Recalculate quality settings if battery is low
-        if (batteryLevel < 0.2) {
-          this.qualitySettings = this.calculateQualitySettings(this.deviceProfile);
-        }
-        
-        this.notifyListeners();
-      }
-      });
-
-      Battery.addBatteryStateListener(({ batteryState }) => {
-      if (this.deviceProfile) {
-        this.deviceProfile.batteryState = this.getBatteryStateString(batteryState);
-        this.notifyListeners();
-      }
-      });
-
-      // Power mode listener not available on all platforms
-      if (Battery.addPowerModeListener) {
-        Battery.addPowerModeListener(({ lowPowerMode }) => {
-      if (this.deviceProfile) {
-        this.deviceProfile.isLowPowerMode = lowPowerMode;
-        
-        // Recalculate quality settings
-        this.qualitySettings = this.calculateQualitySettings(this.deviceProfile);
-        this.notifyListeners();
-      }
+  private async setupNativeListeners(): Promise<void> {
+    try {
+      // Network listener
+      const networkListener = (Network as any).addNetworkStateListener;
+      if (networkListener) {
+        networkListener((state: any) => {
+          if (this.deviceProfile) {
+            this.deviceProfile.networkType = state.type;
+            this.deviceProfile.isConnected = state.isConnected || false;
+            this.deviceProfile.isWifi = state.type === Network.NetworkStateType.WIFI;
+            this.deviceProfile.isCellular = state.type === Network.NetworkStateType.CELLULAR;
+            this.deviceProfile.networkQuality = this.calculateNetworkQuality(state);
+            
+            // Recalculate quality settings
+            this.qualitySettings = this.calculateQualitySettings(this.deviceProfile);
+            this.notifyListeners();
+          }
         });
       }
+
+      // Battery level listener
+      const batteryLevelListener = (Battery as any).addBatteryLevelListener;
+      if (batteryLevelListener) {
+        batteryLevelListener(({ batteryLevel }: any) => {
+          if (this.deviceProfile) {
+            this.deviceProfile.batteryLevel = batteryLevel;
+            
+            // Recalculate quality settings if battery is low
+            if (batteryLevel < 0.2) {
+              this.qualitySettings = this.calculateQualitySettings(this.deviceProfile);
+            }
+            
+            this.notifyListeners();
+          }
+        });
+      }
+
+      // Battery state listener
+      const batteryStateListener = (Battery as any).addBatteryStateListener;
+      if (batteryStateListener) {
+        batteryStateListener(({ batteryState }: any) => {
+          if (this.deviceProfile) {
+            this.deviceProfile.batteryState = this.getBatteryStateString(batteryState);
+            this.notifyListeners();
+          }
+        });
+      }
+
+      // Power mode listener
+      const powerModeListener = (Battery as any).addPowerModeListener;
+      if (powerModeListener) {
+        powerModeListener(({ lowPowerMode }: any) => {
+          if (this.deviceProfile) {
+            this.deviceProfile.isLowPowerMode = lowPowerMode;
+            
+            // Recalculate quality settings
+            this.qualitySettings = this.calculateQualitySettings(this.deviceProfile);
+            this.notifyListeners();
+          }
+        });
+      }
+    } catch (error) {
+      console.log('Native listeners not available:', error);
     }
   }
 

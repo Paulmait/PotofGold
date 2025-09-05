@@ -106,20 +106,16 @@ module.exports = async function (env, argv) {
     ...config.resolve.alias,
     'react-native$': 'react-native-web',
     'react-native-linear-gradient': 'react-native-web-linear-gradient',
+    '@sentry/react-native': false, // Disable Sentry for web
+    './deviceInfo': './deviceInfo.web', // Use web version
+    '../utils/deviceInfo': '../utils/deviceInfo.web',
   };
 
-  // Add rule to handle JSX/TSX in node_modules (for Sentry)
-  config.module.rules.push({
-    test: /\.(js|jsx|ts|tsx)$/,
-    include: /node_modules\/@sentry/,
-    use: {
-      loader: 'babel-loader',
-      options: {
-        presets: ['@babel/preset-react', '@babel/preset-typescript'],
-        plugins: ['@babel/plugin-transform-react-jsx'],
-      },
-    },
-  });
+  // Exclude Sentry from web builds
+  config.externals = {
+    ...config.externals,
+    '@sentry/react-native': 'null',
+  };
 
   return config;
 };
