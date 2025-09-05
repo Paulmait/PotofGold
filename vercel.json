@@ -1,7 +1,7 @@
 {
   "name": "pot-of-gold-game",
   "version": 2,
-  "buildCommand": "expo export:web",
+  "buildCommand": "echo 'Using pre-built files'",
   "outputDirectory": "web-build",
   "installCommand": "npm install",
   "framework": null,

@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🍯 Pot of Gold - Gold Rush Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        
+        .game-container {
+            background: rgba(26, 26, 46, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+        }
+        
+        h1 {
+            color: #FFD700;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            animation: glow 2s ease-in-out infinite;
+        }
+        
+        @keyframes glow {
+            0%, 100% { text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5), 0 0 10px #FFD700; }
+            50% { text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5), 0 0 20px #FFD700, 0 0 30px #FFD700; }
+        }
+        
+        .game-area {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            min-height: 300px;
+            position: relative;
+        }
+        
+        .pot {
+            font-size: 80px;
+            margin: 20px 0;
+            animation: bounce 2s infinite;
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-10px) scale(1.1); }
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            color: white;
+        }
+        
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #FFD700;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            background: #FFD700;
+            color: #1a1a2e;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+        }
+        
+        button:hover {
+            background: #FFC700;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+        
+        .falling-coin {
+            position: absolute;
+            font-size: 30px;
+            animation: fall 2s linear;
+            pointer-events: none;
+        }
+        
+        @keyframes fall {
+            from {
+                transform: translateY(-50px) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            to {
+                transform: translateY(300px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        .message {
+            color: #4CAF50;
+            font-size: 1.2em;
+            margin: 10px 0;
+            min-height: 30px;
+        }
+        
+        .upgrade-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .upgrade-btn {
+            background: #9C27B0;
+            font-size: 0.9em;
+            padding: 10px 20px;
+        }
+        
+        .upgrade-btn:hover {
+            background: #7B1FA2;
+        }
+        
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2em;
+            }
+            
+            .pot {
+                font-size: 60px;
+            }
+            
+            button {
+                padding: 12px 24px;
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🍯 Pot of Gold</h1>
+        
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-value" id="score">0</div>
+                <div class="stat-label">Score</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="coins">0</div>
+                <div class="stat-label">Gold Coins</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="level">1</div>
+                <div class="stat-label">Level</div>
+            </div>
+        </div>
+        
+        <div class="game-area" id="gameArea">
+            <div class="pot" id="pot">🍯</div>
+            <div class="message" id="message">Click the pot to start collecting gold!</div>
+        </div>
+        
+        <div class="buttons">
+            <button id="collectBtn" onclick="collectGold()">Collect Gold</button>
+            <button id="boostBtn" onclick="activateBoost()">Gold Rush! (Cost: 50)</button>
+            <button id="resetBtn" onclick="resetGame()">Reset Game</button>
+        </div>
+        
+        <div class="upgrade-section">
+            <button class="upgrade-btn" onclick="upgradePot()">Upgrade Pot (Cost: 100)</button>
+            <button class="upgrade-btn" onclick="buyAutoCollector()">Auto-Collector (Cost: 500)</button>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        let gameState = {
+            score: 0,
+            coins: 0,
+            level: 1,
+            multiplier: 1,
+            potLevel: 1,
+            hasAutoCollector: false,
+            isBoostActive: false
+        };
+
+        // Load saved game
+        function loadGame() {
+            const saved = localStorage.getItem('potOfGoldSave');
+            if (saved) {
+                gameState = JSON.parse(saved);
+                updateDisplay();
+            }
+        }
+
+        // Save game
+        function saveGame() {
+            localStorage.setItem('potOfGoldSave', JSON.stringify(gameState));
+        }
+
+        // Update display
+        function updateDisplay() {
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('coins').textContent = gameState.coins;
+            document.getElementById('level').textContent = gameState.level;
+            
+            // Update button states
+            document.getElementById('boostBtn').disabled = gameState.coins < 50;
+        }
+
+        // Collect gold
+        function collectGold() {
+            const baseReward = gameState.potLevel * gameState.multiplier;
+            const reward = Math.floor(baseReward * (1 + Math.random()));
+            
+            gameState.coins += reward;
+            gameState.score += reward * 10;
+            
+            // Level up check
+            if (gameState.score >= gameState.level * 1000) {
+                levelUp();
+            }
+            
+            // Create falling coin animation
+            createFallingCoin();
+            
+            // Show message
+            showMessage(`+${reward} gold!`);
+            
+            // Pot animation
+            const pot = document.getElementById('pot');
+            pot.style.transform = 'scale(1.2) rotate(10deg)';
+            setTimeout(() => {
+                pot.style.transform = 'scale(1) rotate(0deg)';
+            }, 200);
+            
+            updateDisplay();
+            saveGame();
+        }
+
+        // Create falling coin
+        function createFallingCoin() {
+            const coin = document.createElement('div');
+            coin.className = 'falling-coin';
+            coin.textContent = '💰';
+            coin.style.left = Math.random() * 80 + 10 + '%';
+            document.getElementById('gameArea').appendChild(coin);
+            
+            setTimeout(() => {
+                coin.remove();
+            }, 2000);
+        }
+
+        // Show message
+        function showMessage(text) {
+            const message = document.getElementById('message');
+            message.textContent = text;
+            setTimeout(() => {
+                message.textContent = 'Keep collecting!';
+            }, 1500);
+        }
+
+        // Level up
+        function levelUp() {
+            gameState.level++;
+            gameState.multiplier = 1 + (gameState.level - 1) * 0.2;
+            showMessage(`Level ${gameState.level}! Multiplier: ${gameState.multiplier.toFixed(1)}x`);
+        }
+
+        // Activate boost
+        function activateBoost() {
+            if (gameState.coins >= 50 && !gameState.isBoostActive) {
+                gameState.coins -= 50;
+                gameState.isBoostActive = true;
+                const oldMultiplier = gameState.multiplier;
+                gameState.multiplier *= 3;
+                
+                showMessage('Gold Rush activated! 3x rewards for 10 seconds!');
+                document.body.style.background = 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)';
+                
+                setTimeout(() => {
+                    gameState.multiplier = oldMultiplier;
+                    gameState.isBoostActive = false;
+                    document.body.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                    showMessage('Gold Rush ended!');
+                }, 10000);
+                
+                updateDisplay();
+                saveGame();
+            }
+        }
+
+        // Upgrade pot
+        function upgradePot() {
+            if (gameState.coins >= 100) {
+                gameState.coins -= 100;
+                gameState.potLevel++;
+                showMessage(`Pot upgraded to level ${gameState.potLevel}!`);
+                updateDisplay();
+                saveGame();
+            } else {
+                showMessage('Not enough gold!');
+            }
+        }
+
+        // Buy auto collector
+        function buyAutoCollector() {
+            if (gameState.coins >= 500 && !gameState.hasAutoCollector) {
+                gameState.coins -= 500;
+                gameState.hasAutoCollector = true;
+                showMessage('Auto-Collector purchased!');
+                
+                // Start auto collection
+                setInterval(() => {
+                    if (gameState.hasAutoCollector) {
+                        gameState.coins += gameState.potLevel;
+                        gameState.score += gameState.potLevel * 5;
+                        updateDisplay();
+                        saveGame();
+                    }
+                }, 2000);
+                
+                updateDisplay();
+                saveGame();
+            } else {
+                showMessage('Not enough gold or already owned!');
+            }
+        }
+
+        // Reset game
+        function resetGame() {
+            if (confirm('Are you sure you want to reset your progress?')) {
+                gameState = {
+                    score: 0,
+                    coins: 0,
+                    level: 1,
+                    multiplier: 1,
+                    potLevel: 1,
+                    hasAutoCollector: false,
+                    isBoostActive: false
+                };
+                updateDisplay();
+                saveGame();
+                showMessage('Game reset!');
+            }
+        }
+
+        // Pot click animation
+        document.getElementById('pot').addEventListener('click', collectGold);
+
+        // Initialize game
+        loadGame();
+        updateDisplay();
+        
+        // Welcome message
+        showMessage('Welcome to Pot of Gold! Click the pot to start!');
+        
+        console.log('Pot of Gold game loaded successfully!');
+    </script>
+</body>
+</html>

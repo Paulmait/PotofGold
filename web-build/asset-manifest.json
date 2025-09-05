@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.js": "/static/js/main.b35655fd.js",
+    "static/js/238.538fb728.js": "/static/js/238.538fb728.js",
+    "favicon.ico": "/favicon.ico",
+    "index.html": "/index.html",
+    "favicon-32.png": "/favicon-32.png",
+    "manifest.json": "/manifest.json",
+    "favicon-16.png": "/favicon-16.png",
+    "serve.json": "/serve.json"
+  },
+  "entrypoints": [
+    "static/js/238.538fb728.js",
+    "static/js/main.b35655fd.js"
+  ]
+}
