@@ -33,7 +33,15 @@
       "Bash(for file in __tests__/integration/GameScreen.minimal.test.tsx __tests__/integration/GameFlow.test.tsx __tests__/simulation/GameSimulation.test.tsx)",
       "Bash(do)",
       "Bash(done)",
-      "Bash(npm cache clean:*)"
+      "Bash(npm cache clean:*)",
+      "Bash(eas:*)",
+      "Bash(npx expo config:*)",
+      "Bash(npx expo:*)",
+      "Bash(nvm:*)",
+      "Bash(powershell:*)",
+      "Bash(adb:*)",
+      "Bash(copy assetsimagespot_of_gold_icon.png assetsimagespot_of_gold_logo.png)",
+      "Bash(cp:*)"
     ],
     "deny": [],
     "ask": [],

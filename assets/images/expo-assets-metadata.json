@@ -1,0 +1,39 @@
+{
+  "generated": "2025-08-22T22:14:32.162Z",
+  "generator": "generate-expo-assets.js",
+  "theme": "Pot of Gold",
+  "colors": {
+    "gold": "#FFD700",
+    "darkGold": "#FFA500",
+    "brown": "#8B4513",
+    "green": "#228B22",
+    "lightGreen": "#90EE90"
+  },
+  "assets": [
+    {
+      "type": "icon",
+      "filename": "pot_of_gold_icon.png",
+      "size": 1024,
+      "description": "Main app icon"
+    },
+    {
+      "type": "splash",
+      "filename": "pot_of_gold_splash.png",
+      "size": "2048x2048",
+      "description": "Splash screen"
+    },
+    {
+      "type": "adaptiveIcon",
+      "filename": "adaptive-icon.png",
+      "size": 512,
+      "description": "Android adaptive icon"
+    },
+    {
+      "type": "favicon",
+      "filename": "favicon.png",
+      "size": 48,
+      "description": "Web favicon"
+    }
+  ],
+  "totalAssets": 4
+}

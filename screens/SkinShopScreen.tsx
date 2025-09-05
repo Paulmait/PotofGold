@@ -10,7 +10,7 @@ import {
   Image,
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import { StateThemeComponents } from '../components/StateThemeComponents';
+import { StateFlagPattern, StateShapeSilhouette, StateParticleEffect } from '../components/StateThemeComponents';
 import { StateSpecialItems } from '../components/StateSpecialItems';
 import { FirebaseUnlockSystem, UserUnlocks } from '../utils/firebaseUnlockSystem';
 import { auth } from '../firebase/auth';
@@ -247,21 +247,21 @@ export default function SkinShopScreen({ navigation }: SkinShopScreenProps) {
           {isUnlocked ? (
             <View style={styles.previewContainer}>
               {skin.type === 'flag' && (
-                <StateThemeComponents.StateFlagPattern
+                <StateFlagPattern
                   stateId={skinId}
                   theme={skin.theme}
                   visualElements={{ flagPattern: skinId }}
                 />
               )}
               {skin.type === 'shape' && (
-                <StateThemeComponents.StateShapeSilhouette
+                <StateShapeSilhouette
                   stateId={skinId}
                   theme={skin.theme}
                   visualElements={{ shapeOutline: skinId }}
                 />
               )}
               {skin.type === 'trail' && (
-                <StateThemeComponents.StateParticleEffect
+                <StateParticleEffect
                   stateId={skinId}
                   theme={skin.theme}
                   visualElements={{ particleEffect: skinId }}

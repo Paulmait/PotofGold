@@ -141,7 +141,7 @@ const FallingItem: React.FC<FallingItemProps> = ({
     }
   };
   
-  const glowColors = getRarityGlow() as readonly [string, ...string[]] | null;
+  const glowColors = getRarityGlow() as string[] | null;
   
   return (
     <Animated.View

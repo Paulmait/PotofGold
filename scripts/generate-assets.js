@@ -2,206 +2,271 @@
 
 const fs = require('fs');
 const path = require('path');
+const { createCanvas } = require('canvas');
 
-console.log('🎨 Generating App Store Assets...\n');
+// Colors for the Pot of Gold theme
+const COLORS = {
+  gold: '#FFD700',
+  darkGold: '#FFA500',
+  brown: '#8B4513',
+  darkBrown: '#654321',
+  green: '#228B22',
+  lightGreen: '#90EE90'
+};
 
-// Create assets directory structure
-const assetsDirs = [
-  'assets/images',
-  'assets/icons',
-  'assets/screenshots',
-  'assets/app-store'
-];
+// Draw a pot of gold
+function drawPotOfGold(ctx, width, height, includeTitle = false) {
+  const centerX = width / 2;
+  const centerY = height / 2;
+  const scale = Math.min(width, height) / 1024;
 
-assetsDirs.forEach(dir => {
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-    console.log(`✅ Created directory: ${dir}`);
+  // Clear canvas with gradient background
+  const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, width / 2);
+  gradient.addColorStop(0, COLORS.lightGreen);
+  gradient.addColorStop(1, COLORS.green);
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, width, height);
+
+  // Draw rainbow arc
+  const rainbowColors = ['#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#0000FF', '#4B0082', '#9400D3'];
+  const rainbowRadius = 350 * scale;
+  const rainbowWidth = 30 * scale;
+  
+  rainbowColors.forEach((color, index) => {
+    ctx.beginPath();
+    ctx.arc(centerX, centerY + 100 * scale, rainbowRadius - (index * rainbowWidth), Math.PI, 0, true);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = rainbowWidth;
+    ctx.stroke();
+  });
+
+  // Draw pot body
+  ctx.fillStyle = COLORS.brown;
+  ctx.beginPath();
+  ctx.ellipse(centerX, centerY + 100 * scale, 250 * scale, 300 * scale, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Draw pot rim
+  ctx.fillStyle = COLORS.darkBrown;
+  ctx.beginPath();
+  ctx.ellipse(centerX, centerY - 50 * scale, 280 * scale, 80 * scale, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Draw pot highlight
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+  ctx.beginPath();
+  ctx.ellipse(centerX - 100 * scale, centerY, 80 * scale, 150 * scale, -0.3, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Draw gold coins overflowing
+  const coinPositions = [
+    { x: 0, y: -100 },
+    { x: -80, y: -120 },
+    { x: 80, y: -120 },
+    { x: -40, y: -140 },
+    { x: 40, y: -140 },
+    { x: 0, y: -160 },
+    { x: -120, y: -80 },
+    { x: 120, y: -80 }
+  ];
+
+  coinPositions.forEach(pos => {
+    // Coin shadow
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+    ctx.beginPath();
+    ctx.ellipse(
+      centerX + (pos.x + 5) * scale,
+      centerY + (pos.y + 5) * scale,
+      40 * scale,
+      35 * scale,
+      0, 0, Math.PI * 2
+    );
+    ctx.fill();
+
+    // Coin body
+    const coinGradient = ctx.createRadialGradient(
+      centerX + pos.x * scale,
+      centerY + pos.y * scale,
+      0,
+      centerX + pos.x * scale,
+      centerY + pos.y * scale,
+      40 * scale
+    );
+    coinGradient.addColorStop(0, COLORS.gold);
+    coinGradient.addColorStop(1, COLORS.darkGold);
+    ctx.fillStyle = coinGradient;
+    ctx.beginPath();
+    ctx.ellipse(
+      centerX + pos.x * scale,
+      centerY + pos.y * scale,
+      40 * scale,
+      35 * scale,
+      0, 0, Math.PI * 2
+    );
+    ctx.fill();
+
+    // Coin shine
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+    ctx.beginPath();
+    ctx.ellipse(
+      centerX + (pos.x - 10) * scale,
+      centerY + (pos.y - 10) * scale,
+      15 * scale,
+      12 * scale,
+      0, 0, Math.PI * 2
+    );
+    ctx.fill();
+
+    // Dollar sign on coins
+    ctx.fillStyle = COLORS.darkGold;
+    ctx.font = `bold ${24 * scale}px Arial`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('$', centerX + pos.x * scale, centerY + pos.y * scale);
+  });
+
+  // Draw sparkles
+  const sparklePositions = [
+    { x: -150, y: -150 },
+    { x: 150, y: -150 },
+    { x: -200, y: 0 },
+    { x: 200, y: 0 },
+    { x: 0, y: -200 }
+  ];
+
+  sparklePositions.forEach(pos => {
+    drawSparkle(ctx, centerX + pos.x * scale, centerY + pos.y * scale, 20 * scale);
+  });
+
+  // Add game title for splash screens
+  if (includeTitle && width >= 1024) {
+    // Title shadow
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+    ctx.font = `bold ${120 * scale}px Arial`;
+    ctx.textAlign = 'center';
+    ctx.fillText('POT OF', centerX + 3, centerY + 350 * scale + 3);
+    ctx.fillText('GOLD', centerX + 3, centerY + 450 * scale + 3);
+
+    // Title text with gradient
+    const textGradient = ctx.createLinearGradient(0, centerY + 300 * scale, 0, centerY + 500 * scale);
+    textGradient.addColorStop(0, COLORS.gold);
+    textGradient.addColorStop(1, COLORS.darkGold);
+    ctx.fillStyle = textGradient;
+    ctx.fillText('POT OF', centerX, centerY + 350 * scale);
+    ctx.fillText('GOLD', centerX, centerY + 450 * scale);
   }
-});
+}
 
-// App icon specifications
-const iconSpecs = {
-  ios: [
-    { size: 20, name: 'icon-20.png' },
-    { size: 29, name: 'icon-29.png' },
-    { size: 40, name: 'icon-40.png' },
-    { size: 58, name: 'icon-58.png' },
-    { size: 60, name: 'icon-60.png' },
-    { size: 76, name: 'icon-76.png' },
-    { size: 80, name: 'icon-80.png' },
-    { size: 87, name: 'icon-87.png' },
-    { size: 120, name: 'icon-120.png' },
-    { size: 152, name: 'icon-152.png' },
-    { size: 167, name: 'icon-167.png' },
-    { size: 180, name: 'icon-180.png' },
-    { size: 1024, name: 'icon-1024.png' }
-  ],
-  android: [
-    { size: 36, name: 'icon-36.png' },
-    { size: 48, name: 'icon-48.png' },
-    { size: 72, name: 'icon-72.png' },
-    { size: 96, name: 'icon-96.png' },
-    { size: 144, name: 'icon-144.png' },
-    { size: 192, name: 'icon-192.png' },
-    { size: 512, name: 'icon-512.png' }
-  ]
-};
+// Draw a sparkle effect
+function drawSparkle(ctx, x, y, size) {
+  ctx.save();
+  ctx.fillStyle = COLORS.gold;
+  ctx.translate(x, y);
+  
+  for (let i = 0; i < 4; i++) {
+    ctx.rotate(Math.PI / 4);
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(size, 0);
+    ctx.lineTo(size / 2, size / 2);
+    ctx.closePath();
+    ctx.fill();
+  }
+  
+  ctx.restore();
+}
 
-// Create placeholder icon files
-Object.entries(iconSpecs).forEach(([platform, icons]) => {
-  icons.forEach(icon => {
-    const iconPath = path.join('assets/icons', icon.name);
-    if (!fs.existsSync(iconPath)) {
-      // Create a simple SVG placeholder
-      const svgContent = `
-<svg width="${icon.size}" height="${icon.size}" xmlns="http://www.w3.org/2000/svg">
-  <rect width="100%" height="100%" fill="#FFD700"/>
-  <circle cx="50%" cy="50%" r="40%" fill="#FFA500"/>
-  <text x="50%" y="50%" text-anchor="middle" dy=".3em" fill="#000" font-size="${icon.size * 0.3}">💰</text>
-</svg>`;
-      
-      fs.writeFileSync(iconPath.replace('.png', '.svg'), svgContent);
-      console.log(`✅ Created ${platform} icon: ${icon.name}`);
+// Generate app icon (1024x1024)
+function generateAppIcon() {
+  console.log('Generating app icon...');
+  const canvas = createCanvas(1024, 1024);
+  const ctx = canvas.getContext('2d');
+  drawPotOfGold(ctx, 1024, 1024, false);
+  return canvas;
+
+// Generate splash screen (2048x2048)
+function generateSplashScreen() {
+  console.log('Generating splash screen...');
+  const canvas = createCanvas(2048, 2048);
+  const ctx = canvas.getContext('2d');
+  drawPotOfGold(ctx, 2048, 2048, true);
+  return canvas;
+}
+
+// Generate adaptive icon (512x512)
+function generateAdaptiveIcon() {
+  console.log('Generating adaptive icon...');
+  const canvas = createCanvas(512, 512);
+  const ctx = canvas.getContext('2d');
+  drawPotOfGold(ctx, 512, 512, false);
+  return canvas;
+}
+
+// Generate favicon (48x48)
+function generateFavicon() {
+  console.log('Generating favicon...');
+  const canvas = createCanvas(48, 48);
+  const ctx = canvas.getContext('2d');
+  
+  // Simple gold background with pot icon
+  ctx.fillStyle = COLORS.gold;
+  ctx.fillRect(0, 0, 48, 48);
+  
+  // Draw mini pot
+  ctx.fillStyle = COLORS.brown;
+  ctx.beginPath();
+  ctx.ellipse(24, 28, 15, 12, 0, 0, Math.PI * 2);
+  ctx.fill();
+  
+  // Draw mini coins
+  ctx.fillStyle = COLORS.darkGold;
+  ctx.beginPath();
+  ctx.arc(24, 18, 8, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(18, 16, 6, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(30, 16, 6, 0, Math.PI * 2);
+  ctx.fill();
+  
+  return canvas;
+}
+
+// Main function
+function main() {
+  try {
+    const assetsDir = path.join(__dirname, '..', 'assets', 'images');
+    
+    // Ensure assets directory exists
+    if (!fs.existsSync(assetsDir)) {
+      fs.mkdirSync(assetsDir, { recursive: true });
     }
-  });
-});
+    
+    // Generate all assets
+    const appIcon = generateAppIcon();
+    const splashScreen = generateSplashScreen();
+    const adaptiveIcon = generateAdaptiveIcon();
+    const favicon = generateFavicon();
+    
+    // Save assets as PNG files
+    fs.writeFileSync(path.join(assetsDir, 'pot_of_gold_icon.png'), appIcon.toBuffer('image/png'));
+    fs.writeFileSync(path.join(assetsDir, 'pot_of_gold_splash.png'), splashScreen.toBuffer('image/png'));
+    fs.writeFileSync(path.join(assetsDir, 'adaptive-icon.png'), adaptiveIcon.toBuffer('image/png'));
+    fs.writeFileSync(path.join(assetsDir, 'favicon.png'), favicon.toBuffer('image/png'));
+    
+    console.log('✅ All app assets generated successfully!');
+    console.log('📱 Assets saved to assets/images/ directory');
+    
+  } catch (error) {
+    console.error('❌ Error generating assets:', error);
+    process.exit(1);
+  }
+}
 
-// Create app store screenshots
-const screenshotSpecs = {
-  ios: [
-    { width: 1290, height: 2796, name: 'iPhone-14-Pro-Max.png' },
-    { width: 1179, height: 2556, name: 'iPhone-14-Pro.png' },
-    { width: 1170, height: 2532, name: 'iPhone-14.png' },
-    { width: 2048, height: 2732, name: 'iPad-Pro-12-9.png' },
-    { width: 1668, height: 2388, name: 'iPad-Pro-11.png' }
-  ],
-  android: [
-    { width: 1080, height: 1920, name: 'Phone-1080x1920.png' },
-    { width: 1440, height: 2560, name: 'Phone-1440x2560.png' },
-    { width: 2560, height: 1600, name: 'Tablet-2560x1600.png' }
-  ]
-};
+// Run if called directly
+if (require.main === module) {
+  main();
+}
 
-Object.entries(screenshotSpecs).forEach(([platform, screenshots]) => {
-  screenshots.forEach(screenshot => {
-    const screenshotPath = path.join('assets/screenshots', screenshot.name);
-    if (!fs.existsSync(screenshotPath)) {
-      // Create a simple SVG placeholder
-      const svgContent = `
-<svg width="${screenshot.width}" height="${screenshot.height}" xmlns="http://www.w3.org/2000/svg">
-  <rect width="100%" height="100%" fill="#1a1a1a"/>
-  <rect x="10%" y="10%" width="80%" height="80%" fill="#FFD700" rx="20"/>
-  <text x="50%" y="50%" text-anchor="middle" dy=".3em" fill="#000" font-size="48">Pot of Gold</text>
-  <text x="50%" y="60%" text-anchor="middle" dy=".3em" fill="#000" font-size="24">Screenshot Placeholder</text>
-</svg>`;
-      
-      fs.writeFileSync(screenshotPath.replace('.png', '.svg'), svgContent);
-      console.log(`✅ Created ${platform} screenshot: ${screenshot.name}`);
-    }
-  });
-});
-
-// Create app store metadata
-const appStoreMetadata = {
-  name: 'Pot of Gold',
-  subtitle: 'Catch falling coins in this addictive mobile game!',
-  description: `
-🎮 Pot of Gold - The Ultimate Coin Catching Adventure!
-
-Catch falling coins, collect power-ups, and challenge friends in this addictive mobile game! Perfect for players of all ages.
-
-✨ FEATURES:
-• Smooth touch controls for precise coin catching
-• Multiple power-ups: Magnet, Double Points, Slow Motion, Gold Rush
-• Challenge friends to 60-second competitive matches
-• Real-time leaderboards and achievements
-• Beautiful graphics and satisfying sound effects
-• Watch ads to earn coins - no purchase required!
-
-🏆 GAME MODES:
-• Single Player: Endless gameplay with increasing difficulty
-• Challenge Mode: 60-second competitive matches
-• Multiplayer: Real-time friend challenges
-
-💰 MONETIZATION:
-• Watch rewarded ads to earn coins
-• Optional in-app purchases for premium upgrades
-• No pay-to-win mechanics
-• Fair and balanced gameplay
-
-🔒 PRIVACY & SAFETY:
-• COPPA compliant for children under 13
-• GDPR/CCPA compliant data handling
-• No personal data collection from children
-• Parental controls and privacy settings
-
-🎯 PERFECT FOR:
-• Casual gamers looking for quick fun
-• Families with children (4+ age rating)
-• Players who enjoy skill-based games
-• Anyone who loves collecting and achieving goals
-
-Download now and start your coin-catching adventure! 🪙✨
-  `,
-  keywords: [
-    'game', 'casual', 'puzzle', 'arcade', 'coins', 'collecting',
-    'family', 'kids', 'fun', 'addictive', 'challenge', 'multiplayer'
-  ],
-  category: 'Games',
-  subcategory: 'Arcade',
-  ageRating: '4+',
-  contentRating: 'Everyone',
-  languages: ['English'],
-  price: 'Free',
-  inAppPurchases: [
-    'Remove Ads ($1.99)',
-    'Premium Power-ups ($2.99)',
-    'Coin Packages ($0.99 - $14.99)'
-  ]
-};
-
-// Save metadata
-const metadataPath = path.join('assets/app-store', 'metadata.json');
-fs.writeFileSync(metadataPath, JSON.stringify(appStoreMetadata, null, 2));
-console.log(`✅ Created app store metadata: ${metadataPath}`);
-
-// Create privacy labels
-const privacyLabels = {
-  dataTypes: {
-    'Contact Info': {
-      used: false,
-      linked: false,
-      tracking: false
-    },
-    'Identifiers': {
-      used: true,
-      linked: false,
-      tracking: false
-    },
-    'Usage Data': {
-      used: true,
-      linked: false,
-      tracking: false
-    },
-    'Diagnostics': {
-      used: true,
-      linked: false,
-      tracking: false
-    }
-  },
-  dataUsedToTrack: [],
-  dataLinkedToUser: [],
-  dataNotLinkedToUser: ['Identifiers', 'Usage Data', 'Diagnostics']
-};
-
-const privacyLabelsPath = path.join('assets/app-store', 'privacy-labels.json');
-fs.writeFileSync(privacyLabelsPath, JSON.stringify(privacyLabels, null, 2));
-console.log(`✅ Created privacy labels: ${privacyLabelsPath}`);
-
-console.log('\n🎉 Asset generation complete!');
-console.log('\n📋 Next steps:');
-console.log('1. Replace placeholder SVGs with actual PNG icons');
-console.log('2. Create actual app screenshots');
-console.log('3. Update metadata with final content');
-console.log('4. Submit to app stores'); 
+module.exports = { generateAppIcon, generateSplashScreen, generateAdaptiveIcon, generateFavicon }; 

@@ -10,10 +10,14 @@
     "alwaysStrict": false,
     "allowSyntheticDefaultImports": true,
     "jsx": "react-native",
-    "lib": ["dom", "esnext"],
+    "lib": [
+      "dom",
+      "esnext"
+    ],
     "moduleResolution": "bundler",
     "noEmit": true,
     "skipLibCheck": true,
+    "typeRoots": ["node_modules/@types", "src/types"],
     "resolveJsonModule": true,
     "allowJs": true,
     "esModuleInterop": true,
@@ -25,18 +29,47 @@
     "exactOptionalPropertyTypes": false,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@components/*": ["components/*"],
-      "@screens/*": ["screens/*"],
-      "@utils/*": ["utils/*"],
-      "@hooks/*": ["hooks/*"],
-      "@context/*": ["context/*"],
-      "@firebase/*": ["firebase/*"],
-      "@systems/*": ["src/systems/*"],
-      "@config/*": ["config/*"],
-      "@assets/*": ["assets/*"]
+      "@/*": [
+        "src/*"
+      ],
+      "@components/*": [
+        "components/*"
+      ],
+      "@screens/*": [
+        "screens/*"
+      ],
+      "@utils/*": [
+        "utils/*"
+      ],
+      "@hooks/*": [
+        "hooks/*"
+      ],
+      "@context/*": [
+        "context/*"
+      ],
+      "@firebase/*": [
+        "firebase/*"
+      ],
+      "@systems/*": [
+        "src/systems/*"
+      ],
+      "@config/*": [
+        "config/*"
+      ],
+      "@assets/*": [
+        "assets/*"
+      ]
     }
   },
-  "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"],
-  "exclude": ["node_modules"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules",
+    "backend/**/*",
+    "scripts/**/*",
+    "tools/**/*",
+    "functions/**/*"
+  ]
 }

@@ -1,0 +1,6 @@
+@echo off
+echo Switching to Node.js 20...
+call nvm use 20.15.0
+echo.
+echo Submitting to App Store...
+call eas submit --platform ios

@@ -14,7 +14,7 @@
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.cienrios.potofgold",
+      "bundleIdentifier": "com.pofgold.potofgold",
       "buildNumber": "1.0.0",
       "requireFullScreen": false,
       "infoPlist": {
@@ -38,23 +38,28 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#FFD700"
       },
-      "package": "com.cienrios.potofgold",
+      "package": "com.pofgold.potofgold",
       "versionCode": 1,
       "permissions": ["VIBRATE"]
     },
     "web": {
       "favicon": "./assets/images/favicon.png"
     },
-    "plugins": [
-      "expo-av",
-      "expo-haptics",
-      "expo-sensors",
-      "expo-in-app-purchases",
-      "expo-notifications"
-    ],
+    "plugins": [],
     "extra": {
-      "eas": {
-        "projectId": "your-project-id"
+      "company": {
+        "name": "Cien Rios LLC",
+        "dba": "Pot of Gold",
+        "website": "https://pofgold.com",
+        "supportEmail": "support@pofgold.com",
+        "privacyEmail": "privacy@pofgold.com",
+        "location": "Miami, FL, USA"
+      },
+      "legal": {
+        "termsUrl": "https://pofgold.com/terms",
+        "privacyUrl": "https://pofgold.com/privacy",
+        "minAge": 13,
+        "governingLaw": "State of Florida, United States"
       }
     }
   }

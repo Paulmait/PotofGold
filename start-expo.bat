@@ -1,0 +1,9 @@
+@echo off
+echo Switching to Node.js 20...
+call nvm use 20.15.0
+echo.
+echo Disabling TypeScript experimental features...
+set NODE_OPTIONS=--no-experimental-strip-types
+echo.
+echo Starting Expo development server...
+call npm start

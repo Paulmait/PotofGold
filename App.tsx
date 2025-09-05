@@ -6,12 +6,15 @@ import { UserUnlockProvider } from './context/UserUnlockContext';
 import { UnlocksProvider } from './context/UnlocksContext';
 import { View, ActivityIndicator, Alert, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './firebase/auth';
 import SplashScreen from './components/SplashScreen';
 import { useOrientation } from './hooks/useOrientation';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import ResponsiveGameWrapper from './components/ResponsiveGameWrapper';
+import ErrorBoundary from './components/ErrorBoundary';
+import WebGameContainer from './components/WebGameContainer';
+import ResponsiveGameLayout from './components/ResponsiveGameLayout';
 
 // Screens
 import GameScreen from './screens/GameScreen';
@@ -142,10 +145,13 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer>
-      <UnlocksProvider>
-        <UserUnlockProvider>
-          <GameProvider>
+    <ErrorBoundary>
+      <WebGameContainer>
+        <ResponsiveGameLayout>
+          <NavigationContainer>
+            <UnlocksProvider>
+              <UserUnlockProvider>
+                <GameProvider>
             <Stack.Navigator
             screenOptions={{
               headerShown: false,
@@ -193,6 +199,9 @@ export default function App() {
         </UserUnlockProvider>
       </UnlocksProvider>
     </NavigationContainer>
+    </ResponsiveGameLayout>
+    </WebGameContainer>
+    </ErrorBoundary>
   );
 }
 

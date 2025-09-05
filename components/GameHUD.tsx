@@ -220,7 +220,7 @@ const ComboIndicator: React.FC<{ combo: number }> = ({ combo }) => {
     }
   }, [combo]);
   
-  const getComboColor = (): readonly [string, ...string[]] => {
+  const getComboColor = (): string[] => {
     if (combo >= 50) return ['#FF00FF', '#FFD700']; // Legendary
     if (combo >= 20) return ['#FFD700', '#FFA500']; // Gold
     if (combo >= 10) return ['#FF4500', '#FF6347']; // Orange
@@ -427,7 +427,7 @@ export default function GameHUD(props: GameHUDProps) {
   );
 }
 
-const getCartTierColors = (tier: string): readonly [string, ...string[]] => {
+const getCartTierColors = (tier: string): string[] => {
   switch (tier) {
     case 'bronze': return ['#CD7F32', '#8B4513'];
     case 'silver': return ['#C0C0C0', '#808080'];
