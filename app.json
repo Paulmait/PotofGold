@@ -43,7 +43,15 @@
       "permissions": ["VIBRATE"]
     },
     "web": {
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/favicon.png",
+      "bundler": "webpack",
+      "build": {
+        "babel": {
+          "include": [
+            "react-native-reanimated"
+          ]
+        }
+      }
     },
     "plugins": [],
     "extra": {
