@@ -308,6 +308,12 @@
             50% { transform: translate(-50%, -50%) scale(1.2); }
             100% { transform: translate(-50%, -50%) scale(1); }
         }
+        
+        @keyframes pulse {
+            0% { transform: translateX(-50%) scale(1); }
+            50% { transform: translateX(-50%) scale(1.05); }
+            100% { transform: translateX(-50%) scale(1); }
+        }
 
         /* Game Canvas */
         #gameCanvas {
@@ -721,12 +727,12 @@
                 <button class="menu-btn" id="vacuumBtn">
                     <span class="icon" style="font-size: 18px;">🌪️</span>
                     <span>Vacuum</span>
-                    <span style="font-size: 9px; color: #FFD700;">50💰</span>
+                    <span style="font-size: 9px; color: #FFD700;">25💰</span>
                 </button>
                 <button class="menu-btn" id="clearBtn">
                     <span class="icon" style="font-size: 18px;">💥</span>
-                    <span>Clear</span>
-                    <span style="font-size: 9px; color: #FFD700;">100💰</span>
+                    <span>Clear All</span>
+                    <span style="font-size: 9px; color: #FFD700;">50💰</span>
                 </button>
                 <button class="menu-btn" id="powerupBtn">
                     <span class="icon" style="font-size: 18px;">⚡</span>
@@ -1270,9 +1276,58 @@
             updateBlockage();
         }
 
-        // Update blockage
+        // Update blockage with warning system
         function updateBlockage() {
-            game.blockageLevel = Math.min(game.missedItems.length / 15, 1);
+            const BLOCKAGE_WARNING = 25;  // Show warning at 25 items
+            const BLOCKAGE_CRITICAL = 35; // Critical warning at 35 items  
+            const BLOCKAGE_MAX = 40;      // Game over at 40 items
+            
+            game.blockageLevel = Math.min(game.missedItems.length / BLOCKAGE_MAX, 1);
+            
+            // Show countdown warning
+            if (game.missedItems.length >= BLOCKAGE_WARNING) {
+                const remaining = BLOCKAGE_MAX - game.missedItems.length;
+                const warningDiv = document.getElementById('blockageWarning');
+                
+                if (!warningDiv) {
+                    const warning = document.createElement('div');
+                    warning.id = 'blockageWarning';
+                    warning.style.cssText = `
+                        position: fixed;
+                        top: 120px;
+                        left: 50%;
+                        transform: translateX(-50%);
+                        background: ${game.missedItems.length >= BLOCKAGE_CRITICAL ? 
+                            'linear-gradient(135deg, #FF0000, #FF6B6B)' : 
+                            'linear-gradient(135deg, #FFA500, #FFD700)'};
+                        color: white;
+                        padding: 10px 20px;
+                        border-radius: 20px;
+                        font-weight: bold;
+                        font-size: 14px;
+                        z-index: 1000;
+                        animation: pulse 1s infinite;
+                        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+                    `;
+                    warning.innerHTML = `⚠️ PATH BLOCKING: ${remaining} items until GAME OVER! Clear now!`;
+                    document.getElementById('gameCanvas').appendChild(warning);
+                } else {
+                    warningDiv.innerHTML = `⚠️ PATH BLOCKING: ${remaining} items until GAME OVER! ${remaining <= 5 ? '🚨' : ''}`;
+                    warningDiv.style.background = game.missedItems.length >= BLOCKAGE_CRITICAL ? 
+                        'linear-gradient(135deg, #FF0000, #FF6B6B)' : 
+                        'linear-gradient(135deg, #FFA500, #FFD700)';
+                }
+                
+                // Flash screen edges when critical
+                if (game.missedItems.length >= BLOCKAGE_CRITICAL) {
+                    document.getElementById('gameCanvas').style.boxShadow = '0 0 20px rgba(255,0,0,0.5)';
+                }
+            } else {
+                // Remove warning if below threshold
+                const warningDiv = document.getElementById('blockageWarning');
+                if (warningDiv) warningDiv.remove();
+                document.getElementById('gameCanvas').style.boxShadow = 'none';
+            }
         }
 
         // Check collisions
@@ -1407,7 +1462,7 @@
 
         // Check game over
         function checkGameOver() {
-            if (game.lives <= 0 || game.blockageLevel >= 0.75) {
+            if (game.lives <= 0 || game.blockageLevel >= 1.0) {
                 gameOver();
             }
         }
@@ -1540,34 +1595,81 @@
                 resetGame();
             }
             
-            // Power-ups
+            // Power-ups with auto-pause
             document.getElementById('vacuumBtn').onclick = () => {
-                if (game.coins >= 50) {
-                    game.coins -= 50;
-                    const cartX = game.cartPosition;
-                    const range = 150;
-                    
-                    game.missedItems = game.missedItems.filter(item => {
-                        if (Math.abs(item.x - cartX) <= range) {
-                            item.element.remove();
-                            game.coins += 1;
-                            return false;
-                        }
-                        return true;
-                    });
-                    
-                    updateBlockage();
-                    updateUI();
+                const VACUUM_PRICE = 25; // Reduced from 50
+                
+                // Auto-pause during transaction
+                const wasPlaying = !game.isPaused;
+                game.isPaused = true;
+                
+                if (game.coins >= VACUUM_PRICE) {
+                    if (confirm(`Use Vacuum Power?\nCost: ${VACUUM_PRICE} coins\n\nClears items in a 150px radius around your cart.`)) {
+                        game.coins -= VACUUM_PRICE;
+                        const cartX = game.cartPosition;
+                        const range = 150;
+                        
+                        let itemsCleared = 0;
+                        game.missedItems = game.missedItems.filter(item => {
+                            if (Math.abs(item.x - cartX) <= range) {
+                                item.element.remove();
+                                game.coins += 1; // Refund 1 coin per item cleared
+                                itemsCleared++;
+                                return false;
+                            }
+                            return true;
+                        });
+                        
+                        updateBlockage();
+                        updateUI();
+                        showAchievement({ name: `Vacuum used! Cleared ${itemsCleared} items!` });
+                    }
+                } else {
+                    alert(`Not enough coins! Need ${VACUUM_PRICE} coins.\nYou have: ${game.coins} coins`);
+                }
+                
+                // Resume if was playing
+                if (wasPlaying) {
+                    game.isPaused = false;
+                    gameLoop();
+                    spawnItems();
                 }
             };
             
             document.getElementById('clearBtn').onclick = () => {
-                if (game.coins >= 100) {
-                    game.coins -= 100;
-                    game.missedItems.forEach(item => item.element.remove());
-                    game.missedItems = [];
-                    game.blockageLevel = 0;
-                    updateUI();
+                const CLEAR_PRICE = 50; // Reduced from 100
+                
+                // Auto-pause during transaction
+                const wasPlaying = !game.isPaused;
+                game.isPaused = true;
+                
+                if (game.coins >= CLEAR_PRICE) {
+                    const itemCount = game.missedItems.length;
+                    if (itemCount === 0) {
+                        alert('No items to clear!');
+                    } else if (confirm(`Clear ALL blocked items?\nCost: ${CLEAR_PRICE} coins\n\n${itemCount} items will be cleared.`)) {
+                        game.coins -= CLEAR_PRICE;
+                        game.missedItems.forEach(item => item.element.remove());
+                        game.missedItems = [];
+                        game.blockageLevel = 0;
+                        
+                        // Remove warning
+                        const warningDiv = document.getElementById('blockageWarning');
+                        if (warningDiv) warningDiv.remove();
+                        document.getElementById('gameCanvas').style.boxShadow = 'none';
+                        
+                        updateUI();
+                        showAchievement({ name: `Path cleared! ${itemCount} items removed!` });
+                    }
+                } else {
+                    alert(`Not enough coins! Need ${CLEAR_PRICE} coins.\nYou have: ${game.coins} coins`);
+                }
+                
+                // Resume if was playing
+                if (wasPlaying) {
+                    game.isPaused = false;
+                    gameLoop();
+                    spawnItems();
                 }
             };
             
