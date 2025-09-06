@@ -376,9 +376,9 @@
         #cart {
             position: absolute;
             bottom: 100px;
-            width: 60px;
-            height: 50px;
-            background: #8B4513;
+            width: 70px;
+            height: 60px;
+            background: linear-gradient(135deg, #8B4513, #A0522D);
             border: 3px solid #654321;
             border-radius: 10px 10px 20px 20px;
             transition: left 0.1s ease-out;
@@ -386,7 +386,24 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 24px;
+            font-size: 32px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        
+        #cart.state-flag {
+            background: linear-gradient(135deg, #002868, #BF0A30);
+            border-color: #FFD700;
+        }
+        
+        #cart.special-edition {
+            background: linear-gradient(135deg, #9B59B6, #E74C3C);
+            border-color: #FFD700;
+            animation: specialGlow 2s infinite;
+        }
+        
+        @keyframes specialGlow {
+            0%, 100% { box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
+            50% { box-shadow: 0 4px 20px rgba(255,215,0,0.6); }
         }
 
         /* Collection Effect */
@@ -724,6 +741,10 @@
                     <span>Shop</span>
                     <span class="menu-btn-badge" id="shopBadge" style="display: none;">!</span>
                 </button>
+                <button class="menu-btn" id="skinBtn">
+                    <span class="icon" style="font-size: 18px;" id="skinIcon">🎨</span>
+                    <span>Skin</span>
+                </button>
                 <button class="menu-btn" id="vacuumBtn">
                     <span class="icon" style="font-size: 18px;">🌪️</span>
                     <span>Vacuum</span>
@@ -733,11 +754,6 @@
                     <span class="icon" style="font-size: 18px;">💥</span>
                     <span>Clear All</span>
                     <span style="font-size: 9px; color: #FFD700;">50💰</span>
-                </button>
-                <button class="menu-btn" id="powerupBtn">
-                    <span class="icon" style="font-size: 18px;">⚡</span>
-                    <span>Power</span>
-                    <span class="menu-btn-badge" id="powerupCount">3</span>
                 </button>
             </div>
         </div>
@@ -759,6 +775,25 @@
                 
                 <div id="shopItems" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
                     <!-- Shop items will be added here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Skin Selector Modal -->
+        <div id="skinModal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.95); display: none; justify-content: center; align-items: center; z-index: 3000;">
+            <div style="background: linear-gradient(135deg, #1a1a2e, #0f0f1e); border-radius: 20px; padding: 20px; max-width: 500px; width: 90%; max-height: 70vh; overflow-y: auto;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="color: #FFD700; margin: 0;">🎨 Select Cart Skin</h2>
+                    <button id="closeSkinBtn" style="background: #FF0000; color: white; border: none; padding: 5px 15px; border-radius: 15px; cursor: pointer;">✕</button>
+                </div>
+                
+                <div id="currentSkinDisplay" style="text-align: center; margin-bottom: 20px;">
+                    <div style="font-size: 48px;" id="currentSkinIcon">🍯</div>
+                    <div style="color: #FFD700; margin-top: 10px;">Current Skin</div>
+                </div>
+                
+                <div id="ownedSkins" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+                    <!-- Owned skins will be populated here -->
                 </div>
             </div>
         </div>
@@ -983,6 +1018,18 @@
                 ProManager.claimDailyBonus();
                 // Show pro badge
                 document.getElementById('proBadge').style.display = 'inline-block';
+            }
+            
+            // Load saved skin
+            const savedSkin = localStorage.getItem('currentSkin');
+            if (savedSkin) {
+                try {
+                    const skin = JSON.parse(savedSkin);
+                    applyCartSkin(skin);
+                } catch (e) {
+                    // Default skin if parse fails
+                    document.getElementById('cart').textContent = '🍯';
+                }
             }
             
             // Show random loading tip
@@ -1694,6 +1741,26 @@
                 game.isPaused = false;
             };
             
+            // Skin selector
+            document.getElementById('skinBtn').onclick = () => {
+                const wasPlaying = !game.isPaused;
+                game.isPaused = true;
+                
+                document.getElementById('currentSkinIcon').textContent = game.currentSkin;
+                loadOwnedSkins();
+                document.getElementById('skinModal').style.display = 'flex';
+            };
+            
+            document.getElementById('closeSkinBtn').onclick = () => {
+                document.getElementById('skinModal').style.display = 'none';
+                // Resume if was playing
+                if (!game.isGameOver) {
+                    game.isPaused = false;
+                    gameLoop();
+                    spawnItems();
+                }
+            };
+            
             // Play again
             document.getElementById('playAgainBtn').onclick = () => {
                 document.getElementById('gameOver').style.display = 'none';
@@ -1714,6 +1781,70 @@
                         document.getElementById('pauseMenu').style.display = 'flex';
                     }
                 }
+            });
+        }
+
+        // Apply cart skin
+        function applyCartSkin(skin) {
+            const cart = document.getElementById('cart');
+            cart.textContent = skin.icon || skin;
+            game.currentSkin = skin.icon || skin;
+            
+            // Apply special classes for different skin types
+            cart.className = ''; // Reset classes
+            if (skin.state) {
+                cart.classList.add('state-flag');
+            } else if (skin.special) {
+                cart.classList.add('special-edition');
+            }
+            
+            // Save current skin
+            localStorage.setItem('currentSkin', JSON.stringify(skin));
+        }
+        
+        // Load owned skins
+        function loadOwnedSkins() {
+            const container = document.getElementById('ownedSkins');
+            container.innerHTML = '';
+            
+            const ownedSkins = shopItems.filter(item => item.owned && !item.type);
+            
+            ownedSkins.forEach(skin => {
+                const div = document.createElement('div');
+                div.style.cssText = `
+                    background: ${skin.icon === game.currentSkin ? 
+                        'linear-gradient(135deg, #FFD700, #FFA500)' : 
+                        'rgba(255,255,255,0.1)'};
+                    border: 2px solid ${skin.icon === game.currentSkin ? '#00FF00' : '#FFD700'};
+                    border-radius: 10px;
+                    padding: 10px;
+                    text-align: center;
+                    cursor: pointer;
+                    transition: transform 0.2s;
+                `;
+                
+                div.innerHTML = `
+                    <div style="font-size: 32px;">${skin.icon}</div>
+                    <div style="color: white; font-size: 9px; margin-top: 5px;">${skin.name}</div>
+                    ${skin.icon === game.currentSkin ? '<div style="color: #00FF00; font-size: 8px;">✓ Active</div>' : ''}
+                `;
+                
+                div.onclick = () => {
+                    applyCartSkin(skin);
+                    document.getElementById('currentSkinIcon').textContent = skin.icon;
+                    loadOwnedSkins(); // Refresh display
+                    showAchievement({ name: `Equipped: ${skin.name}!` });
+                };
+                
+                div.onmouseover = () => {
+                    div.style.transform = 'scale(1.1)';
+                };
+                
+                div.onmouseout = () => {
+                    div.style.transform = 'scale(1)';
+                };
+                
+                container.appendChild(div);
             });
         }
 
@@ -1762,10 +1893,9 @@
                         } else if (!item.type) {
                             // Buy skin
                             item.owned = true;
-                            game.currentSkin = item.icon;
                             game.stats.totalCoins -= item.price;
+                            applyCartSkin(item); // Use the new applyCartSkin function
                             document.getElementById('shopPreviewCart').textContent = item.icon;
-                            document.getElementById('cart').textContent = item.icon;
                             saveGameData();
                             loadShopItems();
                             
@@ -1774,8 +1904,9 @@
                         }
                     } else if (item.owned && !item.type) {
                         // Equip skin
-                        document.getElementById('cart').textContent = item.icon;
+                        applyCartSkin(item);
                         document.getElementById('shopPreviewCart').textContent = item.icon;
+                        showAchievement({ name: `Equipped: ${item.name}!` });
                     }
                 };
                 
