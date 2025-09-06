@@ -276,25 +276,33 @@
         /* Achievement Popup */
         #achievementPopup {
             position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            top: 70px;
+            right: 10px;
+            transform: translateX(0);
             background: linear-gradient(135deg, #FFD700, #FFA500);
             color: #1a1a2e;
-            padding: 20px 30px;
-            border-radius: 20px;
+            padding: 8px 12px;
+            border-radius: 10px;
             font-weight: bold;
             display: none;
-            animation: achievementBounce 0.5s ease-out;
+            animation: slideInRight 0.3s ease-out;
             z-index: 2001;
             text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+            font-size: 11px;
+            max-width: 180px;
+            opacity: 0.9;
         }
 
         #achievementPopup.active {
             display: block;
         }
 
+        @keyframes slideInRight {
+            0% { transform: translateX(120%); opacity: 0; }
+            100% { transform: translateX(0); opacity: 0.9; }
+        }
+        
         @keyframes achievementBounce {
             0% { transform: translate(-50%, -50%) scale(0); }
             50% { transform: translate(-50%, -50%) scale(1.2); }
@@ -308,7 +316,8 @@
             left: 0;
             right: 0;
             bottom: 100px;
-            background: linear-gradient(to bottom, #87CEEB 0%, #98D8E8 100%);
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600"><defs><linearGradient id="sky" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:%2387CEEB"/><stop offset="100%" style="stop-color:%23E0F6FF"/></linearGradient></defs><rect width="800" height="600" fill="url(%23sky)"/><ellipse cx="150" cy="550" rx="200" ry="80" fill="%2390EE90" opacity="0.8"/><ellipse cx="650" cy="550" rx="200" ry="80" fill="%2390EE90" opacity="0.8"/><rect x="0" y="500" width="800" height="100" fill="%238B7355"/><g id="tracks"><rect x="50" y="520" width="700" height="3" fill="%23654321"/><rect x="50" y="540" width="700" height="3" fill="%23654321"/><g id="ties"><rect x="100" y="515" width="8" height="35" fill="%235C4033"/><rect x="200" y="515" width="8" height="35" fill="%235C4033"/><rect x="300" y="515" width="8" height="35" fill="%235C4033"/><rect x="400" y="515" width="8" height="35" fill="%235C4033"/><rect x="500" y="515" width="8" height="35" fill="%235C4033"/><rect x="600" y="515" width="8" height="35" fill="%235C4033"/><rect x="700" y="515" width="8" height="35" fill="%235C4033"/></g></g></svg>') no-repeat center center;
+            background-size: cover;
             overflow: hidden;
         }
 
@@ -682,9 +691,8 @@
 
             <!-- Achievement Popup -->
             <div id="achievementPopup">
-                <div style="font-size: 32px;">🏆</div>
-                <div style="font-size: 18px; margin-top: 10px;">Achievement Unlocked!</div>
-                <div id="achievementName" style="font-size: 14px; margin-top: 5px;">First Coin!</div>
+                <span style="font-size: 16px;">🏆</span>
+                <span id="achievementName" style="font-size: 11px; margin-left: 5px;">First Coin!</span>
             </div>
 
             <div id="gameCanvas">
@@ -820,6 +828,7 @@
             isGameOver: false,
             cartPosition: 0,
             cartSpeed: 4,
+            currentSkin: '🍯',
             fallingItems: [],
             missedItems: [],
             blockageLevel: 0,
@@ -865,12 +874,35 @@
 
         // Shop items
         const shopItems = [
-            { id: 'pot_classic', name: 'Classic Pot', icon: '🍯', price: 0, owned: true },
-            { id: 'pot_gold', name: 'Golden Pot', icon: '🏆', price: 500, owned: false },
-            { id: 'pot_diamond', name: 'Diamond Cart', icon: '💎', price: 1000, owned: false },
-            { id: 'powerup_shield', name: 'Shield Pack', icon: '🛡️', price: 100, type: 'powerup' },
-            { id: 'powerup_magnet', name: 'Magnet Pack', icon: '🧲', price: 150, type: 'powerup' },
-            { id: 'powerup_double', name: 'Double Coins', icon: 'x2', price: 200, type: 'powerup' }
+            // Basic Carts
+            { id: 'pot_classic', name: 'Classic Pot', icon: '🍯', price: 0, owned: true, rarity: 'common' },
+            { id: 'cart_wooden', name: 'Wooden Cart', icon: '🛒', price: 100, owned: false, rarity: 'common' },
+            { id: 'cart_gold', name: 'Golden Cart', icon: '🏆', price: 500, owned: false, rarity: 'rare' },
+            { id: 'cart_diamond', name: 'Diamond Cart', icon: '💎', price: 1000, owned: false, rarity: 'epic' },
+            { id: 'cart_mystery', name: 'Mystery Crate', icon: '📦', price: 1500, owned: false, rarity: 'legendary' },
+            
+            // State Flag Carts
+            { id: 'cart_texas', name: 'Texas Cart', icon: '🤠', price: 750, owned: false, rarity: 'epic', state: 'TX' },
+            { id: 'cart_california', name: 'California Cart', icon: '🌴', price: 750, owned: false, rarity: 'epic', state: 'CA' },
+            { id: 'cart_newyork', name: 'New York Cart', icon: '🗽', price: 750, owned: false, rarity: 'epic', state: 'NY' },
+            { id: 'cart_florida', name: 'Florida Cart', icon: '🌺', price: 750, owned: false, rarity: 'epic', state: 'FL' },
+            
+            // Special Edition Carts
+            { id: 'cart_blackhistory', name: 'Black History Cart', icon: '✊', price: 1000, owned: false, rarity: 'legendary', special: true },
+            { id: 'cart_hispanic', name: 'Hispanic Heritage', icon: '🎉', price: 1000, owned: false, rarity: 'seasonal', special: true },
+            { id: 'cart_holiday', name: 'Holiday Star', icon: '⭐', price: 1200, owned: false, rarity: 'seasonal', special: true },
+            { id: 'cart_ghost', name: 'Ghost Trail', icon: '👻', price: 800, owned: false, rarity: 'rare', special: true },
+            
+            // Power-ups
+            { id: 'powerup_shield', name: 'Shield Pack (3x)', icon: '🛡️', price: 100, type: 'powerup' },
+            { id: 'powerup_magnet', name: 'Magnet Pack (3x)', icon: '🧲', price: 150, type: 'powerup' },
+            { id: 'powerup_double', name: 'Double Coins (3x)', icon: 'x2', price: 200, type: 'powerup' },
+            { id: 'powerup_vacuum', name: 'Vacuum Pack (3x)', icon: '🌪️', price: 250, type: 'powerup' },
+            
+            // Special Items
+            { id: 'sparkle_peach', name: 'Peach Sparkle', icon: '🍑', price: 300, type: 'effect', rarity: 'rare' },
+            { id: 'sparkle_gold', name: 'Gold Sparkle', icon: '✨', price: 400, type: 'effect', rarity: 'rare' },
+            { id: 'unlock_holiday', name: 'Holiday Unlock', icon: '🎅', price: 2000, type: 'unlock', rarity: 'legendary' }
         ];
 
         // Initialize
@@ -1063,11 +1095,18 @@
             const rect = canvas.getBoundingClientRect();
             
             const itemTypes = [
-                { type: 'coin', emoji: '🪙', value: 1, points: 10, harmful: false, probability: 0.4 },
-                { type: 'gem', emoji: '💎', value: 5, points: 50, harmful: false, probability: 0.15 },
-                { type: 'star', emoji: '⭐', value: 3, points: 30, harmful: false, probability: 0.2 },
-                { type: 'bomb', emoji: '💣', value: 0, points: 0, harmful: true, probability: 0.15 },
-                { type: 'powerup', emoji: '🎁', value: 0, points: 20, harmful: false, probability: 0.05 }
+                // Regular drops
+                { type: 'coin', emoji: '🪙', value: 1, points: 10, harmful: false, probability: 0.3 },
+                { type: 'gold', emoji: '💰', value: 5, points: 50, harmful: false, probability: 0.12 },
+                { type: 'gem', emoji: '💎', value: 10, points: 100, harmful: false, probability: 0.08 },
+                { type: 'star', emoji: '⭐', value: 3, points: 30, harmful: false, probability: 0.15 },
+                { type: 'clover', emoji: '🍀', value: 7, points: 70, harmful: false, probability: 0.08 },
+                { type: 'horseshoe', emoji: '🧲', value: 4, points: 40, harmful: false, probability: 0.08 },
+                { type: 'bomb', emoji: '💣', value: 0, points: 0, harmful: true, probability: 0.12 },
+                { type: 'powerup', emoji: '🎁', value: 0, points: 20, harmful: false, probability: 0.03 },
+                // Pro-only special drops
+                { type: 'gem_purple', emoji: '💜', value: 15, points: 150, harmful: false, probability: 0.02, pro: true },
+                { type: 'coin_drop', emoji: '💸', value: 50, points: 500, harmful: false, probability: 0.02, pro: true }
             ];
             
             const item = selectRandomItem(itemTypes);
@@ -1373,6 +1412,12 @@
             document.getElementById('resumeBtn').onclick = () => {
                 game.isPaused = false;
                 document.getElementById('pauseMenu').style.display = 'none';
+                // Clear any stuck keyboard input
+                if (window.keys) {
+                    Object.keys(window.keys).forEach(key => {
+                        window.keys[key] = false;
+                    });
+                }
                 gameLoop();
             };
             
@@ -1479,7 +1524,18 @@
             shopItems.forEach(item => {
                 const div = document.createElement('div');
                 div.style.background = 'rgba(255,255,255,0.1)';
-                div.style.border = item.owned ? '2px solid #00FF00' : '2px solid #FFD700';
+                
+                // Add rarity colors
+                const rarityColors = {
+                    common: '#888',
+                    rare: '#4A90E2',
+                    epic: '#9B59B6',
+                    legendary: '#FFD700',
+                    seasonal: '#E74C3C'
+                };
+                
+                const borderColor = item.owned ? '#00FF00' : (rarityColors[item.rarity] || '#FFD700');
+                div.style.border = `2px solid ${borderColor}`;
                 div.style.borderRadius = '10px';
                 div.style.padding = '10px';
                 div.style.textAlign = 'center';
@@ -1488,7 +1544,8 @@
                 div.innerHTML = `
                     <div style="font-size: 24px;">${item.icon}</div>
                     <div style="color: white; font-size: 10px; margin: 5px 0;">${item.name}</div>
-                    <div style="color: #FFD700; font-size: 12px;">${item.owned ? 'Owned' : item.price + '💰'}</div>
+                    ${item.rarity ? `<div style="color: ${borderColor}; font-size: 9px; font-style: italic;">${item.rarity}</div>` : ''}
+                    <div style="color: #FFD700; font-size: 12px;">${item.owned ? '✓ Owned' : item.price + '💰'}</div>
                 `;
                 
                 div.onclick = () => {
@@ -1501,13 +1558,18 @@
                             updatePowerupInventory();
                             saveGameData();
                             loadShopItems();
-                        } else {
+                        } else if (!item.type) {
                             // Buy skin
                             item.owned = true;
+                            game.currentSkin = item.icon;
                             game.stats.totalCoins -= item.price;
                             document.getElementById('shopPreviewCart').textContent = item.icon;
+                            document.getElementById('cart').textContent = item.icon;
                             saveGameData();
                             loadShopItems();
+                            
+                            // Show purchase confirmation
+                            showAchievement({ name: `Purchased: ${item.name}!` });
                         }
                     } else if (item.owned && !item.type) {
                         // Equip skin
