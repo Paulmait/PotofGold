@@ -678,6 +678,7 @@
                     ⭐ Go Pro - 2x Coins & Exclusive Drops!
                     <span style="position: absolute; top: -5px; right: 10px; background: #FFD700; color: #333; padding: 2px 6px; border-radius: 10px; font-size: 10px;">NEW</span>
                 </button>
+                <button class="menu-button" id="profileBtn" style="background: rgba(255,255,255,0.2); color: white; border: 2px solid white; padding: 12px; border-radius: 25px;">👤 My Collection</button>
                 <button class="menu-button" id="statsBtn" style="background: rgba(255,255,255,0.2); color: white; border: 2px solid white; padding: 12px; border-radius: 25px;">Statistics</button>
                 <button class="menu-button" id="tutorialBtn" style="background: rgba(255,255,255,0.2); color: white; border: 2px solid white; padding: 12px; border-radius: 25px;">How to Play</button>
             </div>
@@ -794,6 +795,59 @@
                 
                 <div id="ownedSkins" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
                     <!-- Owned skins will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile/Collection Modal -->
+        <div id="profileModal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.95); display: none; justify-content: center; align-items: center; z-index: 3000;">
+            <div style="background: linear-gradient(135deg, #1a1a2e, #0f0f1e); border-radius: 20px; padding: 20px; max-width: 600px; width: 90%; max-height: 85vh; overflow-y: auto;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="color: #FFD700; margin: 0;">🏆 My Collection</h2>
+                    <button id="closeProfileBtn" style="background: #FF0000; color: white; border: none; padding: 5px 15px; border-radius: 15px; cursor: pointer;">✕</button>
+                </div>
+                
+                <!-- Collection Progress -->
+                <div style="background: rgba(255,255,255,0.1); border-radius: 15px; padding: 15px; margin-bottom: 20px;">
+                    <div style="color: white; font-size: 14px; margin-bottom: 10px;">Collection Progress</div>
+                    <div style="background: rgba(0,0,0,0.3); border-radius: 10px; height: 20px; overflow: hidden;">
+                        <div id="collectionProgress" style="height: 100%; background: linear-gradient(90deg, #FFD700, #FFA500); width: 0%; transition: width 1s ease;"></div>
+                    </div>
+                    <div style="color: #FFD700; font-size: 12px; margin-top: 5px; text-align: center;">
+                        <span id="collectionCount">0</span> / <span id="collectionTotal">0</span> Items Collected
+                    </div>
+                </div>
+                
+                <!-- Cart Skins Collection -->
+                <div style="margin-bottom: 20px;">
+                    <h3 style="color: #FFD700; font-size: 16px; margin-bottom: 10px;">🛒 Cart Skins</h3>
+                    <div id="cartCollection" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;">
+                        <!-- Cart display cases will be added here -->
+                    </div>
+                </div>
+                
+                <!-- State Flags Collection -->
+                <div style="margin-bottom: 20px;">
+                    <h3 style="color: #FFD700; font-size: 16px; margin-bottom: 10px;">🇺🇸 State Collection</h3>
+                    <div id="stateCollection" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;">
+                        <!-- State display cases will be added here -->
+                    </div>
+                </div>
+                
+                <!-- Special Edition Collection -->
+                <div style="margin-bottom: 20px;">
+                    <h3 style="color: #FFD700; font-size: 16px; margin-bottom: 10px;">✨ Special Editions</h3>
+                    <div id="specialCollection" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;">
+                        <!-- Special display cases will be added here -->
+                    </div>
+                </div>
+                
+                <!-- Power-ups Collection -->
+                <div style="margin-bottom: 20px;">
+                    <h3 style="color: #FFD700; font-size: 16px; margin-bottom: 10px;">⚡ Power-up Inventory</h3>
+                    <div id="powerupCollection" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+                        <!-- Power-up counts will be added here -->
+                    </div>
                 </div>
             </div>
         </div>
@@ -1588,6 +1642,16 @@
                 }
             };
             
+            // Profile/Collection
+            document.getElementById('profileBtn').onclick = () => {
+                loadCollection();
+                document.getElementById('profileModal').style.display = 'flex';
+            };
+            
+            document.getElementById('closeProfileBtn').onclick = () => {
+                document.getElementById('profileModal').style.display = 'none';
+            };
+            
             // Stats
             document.getElementById('statsBtn').onclick = () => {
                 document.getElementById('statGames').textContent = game.stats.gamesPlayed;
@@ -1781,6 +1845,195 @@
                         document.getElementById('pauseMenu').style.display = 'flex';
                     }
                 }
+            });
+        }
+
+        // Load collection display
+        function loadCollection() {
+            const cartSkins = shopItems.filter(item => !item.type && !item.state && !item.special);
+            const stateSkins = shopItems.filter(item => item.state);
+            const specialSkins = shopItems.filter(item => item.special);
+            
+            // Calculate progress
+            const totalItems = shopItems.filter(item => !item.type).length;
+            const ownedItems = shopItems.filter(item => !item.type && item.owned).length;
+            const progress = (ownedItems / totalItems) * 100;
+            
+            document.getElementById('collectionCount').textContent = ownedItems;
+            document.getElementById('collectionTotal').textContent = totalItems;
+            document.getElementById('collectionProgress').style.width = progress + '%';
+            
+            // Display cart skins
+            const cartContainer = document.getElementById('cartCollection');
+            cartContainer.innerHTML = '';
+            cartSkins.forEach(item => {
+                const div = document.createElement('div');
+                div.style.cssText = `
+                    background: ${item.owned ? 
+                        'linear-gradient(135deg, rgba(255,215,0,0.2), rgba(255,165,0,0.2))' : 
+                        'rgba(0,0,0,0.5)'};
+                    border: 2px solid ${item.owned ? '#FFD700' : '#333'};
+                    border-radius: 10px;
+                    padding: 8px;
+                    text-align: center;
+                    position: relative;
+                    min-height: 80px;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                    transition: transform 0.2s;
+                `;
+                
+                if (item.owned) {
+                    div.innerHTML = `
+                        <div style="font-size: 28px;">${item.icon}</div>
+                        <div style="color: #FFD700; font-size: 9px; margin-top: 5px;">${item.name}</div>
+                        <div style="position: absolute; top: 2px; right: 2px; color: #00FF00; font-size: 10px;">✓</div>
+                    `;
+                } else {
+                    div.innerHTML = `
+                        <div style="font-size: 24px; opacity: 0.3;">🔒</div>
+                        <div style="color: #666; font-size: 9px; margin-top: 5px;">${item.name}</div>
+                        <div style="color: #FFD700; font-size: 8px;">${item.price}💰</div>
+                    `;
+                    div.style.cursor = 'pointer';
+                    div.onclick = () => {
+                        document.getElementById('profileModal').style.display = 'none';
+                        document.getElementById('shopModal').classList.add('active');
+                        loadShopItems();
+                    };
+                }
+                
+                div.onmouseover = () => div.style.transform = 'scale(1.05)';
+                div.onmouseout = () => div.style.transform = 'scale(1)';
+                
+                cartContainer.appendChild(div);
+            });
+            
+            // Display state skins
+            const stateContainer = document.getElementById('stateCollection');
+            stateContainer.innerHTML = '';
+            stateSkins.forEach(item => {
+                const div = document.createElement('div');
+                div.style.cssText = `
+                    background: ${item.owned ? 
+                        'linear-gradient(135deg, rgba(0,40,104,0.3), rgba(191,10,48,0.3))' : 
+                        'rgba(0,0,0,0.5)'};
+                    border: 2px solid ${item.owned ? '#FFD700' : '#333'};
+                    border-radius: 10px;
+                    padding: 8px;
+                    text-align: center;
+                    position: relative;
+                    min-height: 80px;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                    transition: transform 0.2s;
+                `;
+                
+                if (item.owned) {
+                    div.innerHTML = `
+                        <div style="font-size: 28px;">${item.icon}</div>
+                        <div style="color: #FFD700; font-size: 9px; margin-top: 5px;">${item.state}</div>
+                        <div style="position: absolute; top: 2px; right: 2px; color: #00FF00; font-size: 10px;">✓</div>
+                    `;
+                } else {
+                    div.innerHTML = `
+                        <div style="font-size: 20px; opacity: 0.2;">🏴</div>
+                        <div style="color: #666; font-size: 9px; margin-top: 5px;">${item.state}</div>
+                        <div style="color: #FFD700; font-size: 8px;">${item.price}💰</div>
+                    `;
+                    div.style.cursor = 'pointer';
+                    div.onclick = () => {
+                        document.getElementById('profileModal').style.display = 'none';
+                        document.getElementById('shopModal').classList.add('active');
+                        loadShopItems();
+                    };
+                }
+                
+                div.onmouseover = () => div.style.transform = 'scale(1.05)';
+                div.onmouseout = () => div.style.transform = 'scale(1)';
+                
+                stateContainer.appendChild(div);
+            });
+            
+            // Display special skins
+            const specialContainer = document.getElementById('specialCollection');
+            specialContainer.innerHTML = '';
+            specialSkins.forEach(item => {
+                const div = document.createElement('div');
+                div.style.cssText = `
+                    background: ${item.owned ? 
+                        'linear-gradient(135deg, rgba(155,89,182,0.3), rgba(231,76,60,0.3))' : 
+                        'rgba(0,0,0,0.5)'};
+                    border: 2px solid ${item.owned ? '#FFD700' : '#333'};
+                    border-radius: 10px;
+                    padding: 8px;
+                    text-align: center;
+                    position: relative;
+                    min-height: 80px;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                    transition: transform 0.2s;
+                `;
+                
+                if (item.owned) {
+                    div.innerHTML = `
+                        <div style="font-size: 28px;">${item.icon}</div>
+                        <div style="color: #FFD700; font-size: 9px; margin-top: 5px;">${item.name}</div>
+                        <div style="position: absolute; top: 2px; right: 2px; color: #00FF00; font-size: 10px;">✓</div>
+                    `;
+                } else {
+                    div.innerHTML = `
+                        <div style="font-size: 24px; opacity: 0.3;">🎁</div>
+                        <div style="color: #666; font-size: 9px; margin-top: 5px;">${item.name}</div>
+                        <div style="color: #FFD700; font-size: 8px;">${item.price}💰</div>
+                    `;
+                    div.style.cursor = 'pointer';
+                    div.onclick = () => {
+                        document.getElementById('profileModal').style.display = 'none';
+                        document.getElementById('shopModal').classList.add('active');
+                        loadShopItems();
+                    };
+                }
+                
+                div.onmouseover = () => div.style.transform = 'scale(1.05)';
+                div.onmouseout = () => div.style.transform = 'scale(1)';
+                
+                specialContainer.appendChild(div);
+            });
+            
+            // Display power-ups
+            const powerupContainer = document.getElementById('powerupCollection');
+            powerupContainer.innerHTML = '';
+            const powerups = [
+                { name: 'Shield', icon: '🛡️', count: game.powerups.shield },
+                { name: 'Magnet', icon: '🧲', count: game.powerups.magnet },
+                { name: 'Double', icon: 'x2', count: game.powerups.double },
+                { name: 'Vacuum', icon: '🌪️', count: game.powerups.vacuum || 0 }
+            ];
+            
+            powerups.forEach(powerup => {
+                const div = document.createElement('div');
+                div.style.cssText = `
+                    background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+                    border: 2px solid #FFD700;
+                    border-radius: 10px;
+                    padding: 10px;
+                    text-align: center;
+                `;
+                
+                div.innerHTML = `
+                    <div style="font-size: 24px;">${powerup.icon}</div>
+                    <div style="color: white; font-size: 10px; margin: 5px 0;">${powerup.name}</div>
+                    <div style="color: #FFD700; font-size: 16px; font-weight: bold;">${powerup.count}</div>
+                `;
+                
+                powerupContainer.appendChild(div);
             });
         }
 
