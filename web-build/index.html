@@ -1538,6 +1538,10 @@
             setupTouchControls();
             initCartPosition();
             
+            // Initialize systems
+            DailyStreakManager.init();
+            SeasonPassManager.init();
+            
             // Check pro status
             game.isPro = ProManager.checkProStatus();
             if (game.isPro) {
@@ -1820,7 +1824,9 @@
                 const itemRect = obj.element.getBoundingClientRect();
                 const relativeY = itemRect.top - rect.top;
                 
-                if (relativeY > rect.height - 30) {
+                // Check if item reached bottom (cart area)
+                if (relativeY > rect.height - 60) {
+                    // Item missed the cart
                     if (!obj.item.harmful && obj.item.type !== 'powerup') {
                         addMissedItem(obj.x, obj.item);
                         game.combo = 0;
@@ -1835,16 +1841,19 @@
 
         // Add missed item
         function addMissedItem(x, item) {
+            const canvas = document.getElementById('gameCanvas');
             const element = document.createElement('div');
             element.className = 'missed-item';
             element.style.left = x + 'px';
-            element.style.bottom = (game.missedItems.length * 5) + 'px';
+            // Fix: Position from top of canvas at the bottom
+            const canvasHeight = canvas.getBoundingClientRect().height;
+            element.style.top = (canvasHeight - 60 - (game.missedItems.length * 20)) + 'px';
             element.style.position = 'absolute';
             element.style.fontSize = '18px';
             element.style.opacity = '0.7';
             element.textContent = item.emoji;
             
-            document.getElementById('gameCanvas').appendChild(element);
+            canvas.appendChild(element);
             game.missedItems.push({ element: element, x: x });
             
             updateBlockage();
@@ -1908,22 +1917,31 @@
         function checkCollisions() {
             const cart = document.getElementById('cart');
             const cartRect = cart.getBoundingClientRect();
+            const canvas = document.getElementById('gameCanvas');
+            const canvasRect = canvas.getBoundingClientRect();
             
-            game.fallingItems.forEach((obj, index) => {
+            game.fallingItems = game.fallingItems.filter((obj) => {
                 const itemRect = obj.element.getBoundingClientRect();
                 
-                if (itemRect.bottom >= cartRect.top &&
-                    itemRect.top <= cartRect.bottom &&
+                // Check if item is at cart level
+                const itemBottom = itemRect.bottom - canvasRect.top;
+                const cartTop = cartRect.top - canvasRect.top;
+                
+                if (itemBottom >= cartTop && itemBottom <= cartTop + 60 &&
                     itemRect.left < cartRect.right &&
                     itemRect.right > cartRect.left) {
                     
-                    handleItemCollection(obj, index);
+                    // Item caught by cart
+                    handleItemCollection(obj);
+                    obj.element.remove();
+                    return false; // Remove from array
                 }
+                return true; // Keep in array
             });
         }
 
         // Handle item collection
-        function handleItemCollection(obj, index) {
+        function handleItemCollection(obj) {
             const item = obj.item;
             
             if (item.harmful) {
@@ -1968,8 +1986,7 @@
                 }
             }
             
-            obj.element.remove();
-            game.fallingItems.splice(index, 1);
+            // Element removal handled in checkCollisions now
             
             // Check for level up
             if (game.score > game.level * 100) {
