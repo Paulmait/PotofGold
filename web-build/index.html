@@ -651,6 +651,10 @@
             
             <div style="display: flex; flex-direction: column; gap: 12px; width: 280px; max-width: 90%;">
                 <button class="menu-button" id="playBtn" style="background: linear-gradient(135deg, #FFD700, #FFA500); color: #1a1a2e; border: none; padding: 12px; border-radius: 25px; font-weight: bold;">Play Game</button>
+                <button class="menu-button" id="proBtn" style="background: linear-gradient(135deg, #9B59B6, #E74C3C); color: white; border: none; padding: 12px; border-radius: 25px; font-weight: bold; position: relative;">
+                    ⭐ Go Pro - 2x Coins & Exclusive Drops!
+                    <span style="position: absolute; top: -5px; right: 10px; background: #FFD700; color: #333; padding: 2px 6px; border-radius: 10px; font-size: 10px;">NEW</span>
+                </button>
                 <button class="menu-button" id="statsBtn" style="background: rgba(255,255,255,0.2); color: white; border: 2px solid white; padding: 12px; border-radius: 25px;">Statistics</button>
                 <button class="menu-button" id="tutorialBtn" style="background: rgba(255,255,255,0.2); color: white; border: 2px solid white; padding: 12px; border-radius: 25px;">How to Play</button>
             </div>
@@ -659,11 +663,12 @@
         <!-- Game Container -->
         <div id="gameContainer">
             <div id="header">
-                <div id="stats" style="display: flex; gap: 8px;">
+                <div id="stats" style="display: flex; gap: 8px; align-items: center;">
                     <div class="stat" style="background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 15px; color: white; font-size: 12px;">💰 <span id="coins">0</span></div>
                     <div class="stat" style="background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 15px; color: white; font-size: 12px;">⭐ <span id="score">0</span></div>
                     <div class="stat" style="background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 15px; color: white; font-size: 12px;">🎯 <span id="level">1</span></div>
                     <div class="stat" style="background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 15px; color: white; font-size: 12px;">❤️ <span id="lives">3</span></div>
+                    <div id="proBadge" style="display: none; background: linear-gradient(135deg, #FFD700, #FFA500); padding: 4px 8px; border-radius: 15px; color: #333; font-size: 11px; font-weight: bold;">PRO ⭐</div>
                 </div>
                 <button id="pauseBtn" style="width: 45px; height: 45px; background: rgba(0,0,0,0.5); border: 2px solid #FFD700; border-radius: 50%; color: white; font-size: 20px;">⏸️</button>
             </div>
@@ -826,6 +831,7 @@
             maxCombo: 0,
             isPaused: false,
             isGameOver: false,
+            isPro: false,
             cartPosition: 0,
             cartSpeed: 4,
             currentSkin: '🍯',
@@ -862,6 +868,59 @@
             { id: 'coins_100', name: 'Treasure Hunter', requirement: 'Collect 100 coins in one game', check: () => game.coins >= 100 },
             { id: 'no_damage', name: 'Untouchable', requirement: 'Reach level 3 without damage', check: () => game.level >= 3 && game.lives === 3 }
         ];
+
+        // Pro User System
+        const ProManager = {
+            checkProStatus: () => {
+                const proData = localStorage.getItem('proUser');
+                if (proData) {
+                    const { expiry } = JSON.parse(proData);
+                    return new Date() < new Date(expiry);
+                }
+                return false;
+            },
+            
+            activatePro: (days = 30) => {
+                const expiry = new Date();
+                expiry.setDate(expiry.getDate() + days);
+                localStorage.setItem('proUser', JSON.stringify({
+                    activated: new Date(),
+                    expiry: expiry,
+                    userId: 'user_' + Date.now()
+                }));
+                game.isPro = true;
+                showAchievement({ name: 'Gold Vault Activated! 🏆' });
+            },
+            
+            getProBenefits: () => {
+                if (ProManager.checkProStatus()) {
+                    return {
+                        coinMultiplier: 2,
+                        exclusiveDrops: true,
+                        noAds: true,
+                        dailyBonus: 500,
+                        specialSkins: ['gold_cart', 'diamond_cart', 'mystery_crate']
+                    };
+                }
+                return null;
+            },
+            
+            claimDailyBonus: () => {
+                const lastClaim = localStorage.getItem('lastDailyBonus');
+                const today = new Date().toDateString();
+                
+                if (!lastClaim || lastClaim !== today) {
+                    if (ProManager.checkProStatus()) {
+                        game.coins += 500;
+                        localStorage.setItem('lastDailyBonus', today);
+                        showAchievement({ name: 'Daily Bonus: +500 coins! 💰' });
+                        updateUI();
+                        return true;
+                    }
+                }
+                return false;
+            }
+        };
 
         // Loading tips
         const loadingTips = [
@@ -910,6 +969,15 @@
             loadGameData();
             setupTouchControls();
             initCartPosition();
+            
+            // Check pro status
+            game.isPro = ProManager.checkProStatus();
+            if (game.isPro) {
+                // Claim daily bonus if available
+                ProManager.claimDailyBonus();
+                // Show pro badge
+                document.getElementById('proBadge').style.display = 'inline-block';
+            }
             
             // Show random loading tip
             document.getElementById('loadingTip').textContent = loadingTips[Math.floor(Math.random() * loadingTips.length)];
@@ -1098,7 +1166,7 @@
             const canvas = document.getElementById('gameCanvas');
             const rect = canvas.getBoundingClientRect();
             
-            const itemTypes = [
+            let itemTypes = [
                 // Regular drops
                 { type: 'coin', emoji: '🪙', value: 1, points: 10, harmful: false, probability: 0.3 },
                 { type: 'gold', emoji: '💰', value: 5, points: 50, harmful: false, probability: 0.12 },
@@ -1107,11 +1175,17 @@
                 { type: 'clover', emoji: '🍀', value: 7, points: 70, harmful: false, probability: 0.08 },
                 { type: 'horseshoe', emoji: '🧲', value: 4, points: 40, harmful: false, probability: 0.08 },
                 { type: 'bomb', emoji: '💣', value: 0, points: 0, harmful: true, probability: 0.12 },
-                { type: 'powerup', emoji: '🎁', value: 0, points: 20, harmful: false, probability: 0.03 },
-                // Pro-only special drops
-                { type: 'gem_purple', emoji: '💜', value: 15, points: 150, harmful: false, probability: 0.02, pro: true },
-                { type: 'coin_drop', emoji: '💸', value: 50, points: 500, harmful: false, probability: 0.02, pro: true }
+                { type: 'powerup', emoji: '🎁', value: 0, points: 20, harmful: false, probability: 0.03 }
             ];
+            
+            // Add pro-only drops if user is pro
+            if (game.isPro) {
+                itemTypes.push(
+                    { type: 'gem_purple', emoji: '💜', value: 15, points: 150, harmful: false, probability: 0.03, pro: true },
+                    { type: 'coin_drop', emoji: '💸', value: 50, points: 500, harmful: false, probability: 0.02, pro: true },
+                    { type: 'rainbow', emoji: '🌈', value: 25, points: 250, harmful: false, probability: 0.02, pro: true }
+                );
+            }
             
             const item = selectRandomItem(itemTypes);
             const x = Math.random() * (rect.width - 30);
@@ -1232,7 +1306,11 @@
                     game.combo = 0;
                 }
             } else {
-                const multiplier = game.powerups.double > 0 ? 2 : 1;
+                let multiplier = game.powerups.double > 0 ? 2 : 1;
+                // Apply pro multiplier
+                if (game.isPro) {
+                    multiplier *= 2; // Pro users get 2x coins
+                }
                 game.coins += item.value * multiplier;
                 game.score += item.points * (1 + game.combo * 0.1);
                 
@@ -1391,6 +1469,21 @@
             document.getElementById('tutorialBtn').onclick = showTutorial;
             document.getElementById('closeTutorial').onclick = () => {
                 document.getElementById('tutorialOverlay').classList.remove('active');
+            };
+            
+            // Pro button
+            document.getElementById('proBtn').onclick = () => {
+                if (game.isPro) {
+                    alert('You are already a Pro member! Enjoying 2x coins and exclusive drops.');
+                } else {
+                    if (confirm('Activate Pro Membership?\n\n✨ Benefits:\n• 2x Coins on all collections\n• Exclusive pro-only drops (💜 💸 🌈)\n• Daily 500 coin bonus\n• Ad-free experience\n\n(Demo: 30-day free trial)')) {
+                        ProManager.activatePro(30);
+                        game.isPro = true;
+                        document.getElementById('proBadge').style.display = 'inline-block';
+                        document.getElementById('proBtn').innerHTML = '⭐ Pro Member - Active';
+                        document.getElementById('proBtn').style.background = 'linear-gradient(135deg, #00C851, #00FF00)';
+                    }
+                }
             };
             
             // Stats
