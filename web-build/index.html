@@ -1087,8 +1087,12 @@
         }
 
         // Spawn items
+        let spawnTimeout = null;
         function spawnItems() {
-            if (game.isPaused || game.isGameOver) return;
+            if (game.isPaused || game.isGameOver) {
+                clearTimeout(spawnTimeout);
+                return;
+            }
 
             const spawnRate = Math.max(500, 2000 - (game.level * 100));
             const canvas = document.getElementById('gameCanvas');
@@ -1114,7 +1118,8 @@
             
             createFallingItem(item, x);
 
-            setTimeout(spawnItems, spawnRate);
+            clearTimeout(spawnTimeout);
+            spawnTimeout = setTimeout(spawnItems, spawnRate);
         }
 
         // Select random item
@@ -1419,6 +1424,7 @@
                     });
                 }
                 gameLoop();
+                spawnItems(); // Restart the item spawning chain
             };
             
             document.getElementById('restartBtn').onclick = () => {
