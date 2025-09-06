@@ -764,7 +764,15 @@
             <div class="shop-content">
                 <div style="display: flex; justify-content: space-between; align-items: center; color: #FFD700; margin-bottom: 20px;">
                     <h2>🛍️ SHOP</h2>
-                    <button id="closeShopBtn" style="background: none; border: none; color: white; font-size: 24px;">✖️</button>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <div style="background: rgba(255,255,255,0.1); padding: 5px 10px; border-radius: 15px;">
+                            💰 <span id="shopCoins">${game.coins || 0}</span>
+                        </div>
+                        <button id="buyCoinsBtn" style="background: linear-gradient(135deg, #00C851, #00FF00); color: #333; border: none; padding: 8px 15px; border-radius: 15px; cursor: pointer; font-weight: bold; font-size: 12px;">
+                            💳 Buy Coins
+                        </button>
+                        <button id="closeShopBtn" style="background: none; border: none; color: white; font-size: 24px;">✖️</button>
+                    </div>
                 </div>
                 
                 <!-- Shop Preview -->
@@ -847,6 +855,69 @@
                     <h3 style="color: #FFD700; font-size: 16px; margin-bottom: 10px;">⚡ Power-up Inventory</h3>
                     <div id="powerupCollection" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
                         <!-- Power-up counts will be added here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Coin Purchase Modal -->
+        <div id="coinPurchaseModal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.95); display: none; justify-content: center; align-items: center; z-index: 4000;">
+            <div style="background: linear-gradient(135deg, #1a1a2e, #0f0f1e); border-radius: 20px; padding: 25px; max-width: 400px; width: 90%;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="color: #FFD700; margin: 0;">💰 Buy Coins</h2>
+                    <button id="closeCoinPurchaseBtn" style="background: #FF0000; color: white; border: none; padding: 5px 15px; border-radius: 15px; cursor: pointer;">✕</button>
+                </div>
+                
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <!-- Coin Packages -->
+                    <div class="coin-package" onclick="purchaseCoins(500, 0.99)" style="background: rgba(255,255,255,0.1); border: 2px solid #FFD700; border-radius: 15px; padding: 15px; cursor: pointer; transition: transform 0.2s;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="color: #FFD700; font-size: 18px; font-weight: bold;">500 Coins</div>
+                                <div style="color: #999; font-size: 12px;">Starter Pack</div>
+                            </div>
+                            <div style="background: linear-gradient(135deg, #00C851, #00FF00); color: #333; padding: 8px 15px; border-radius: 10px; font-weight: bold;">$0.99</div>
+                        </div>
+                    </div>
+                    
+                    <div class="coin-package" onclick="purchaseCoins(2500, 4.99)" style="background: rgba(255,255,255,0.1); border: 2px solid #FFD700; border-radius: 15px; padding: 15px; cursor: pointer; transition: transform 0.2s; position: relative;">
+                        <div style="position: absolute; top: -10px; right: 10px; background: #FF0000; color: white; padding: 2px 8px; border-radius: 10px; font-size: 10px;">POPULAR</div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="color: #FFD700; font-size: 18px; font-weight: bold;">2,500 Coins</div>
+                                <div style="color: #999; font-size: 12px;">Best Value!</div>
+                            </div>
+                            <div style="background: linear-gradient(135deg, #00C851, #00FF00); color: #333; padding: 8px 15px; border-radius: 10px; font-weight: bold;">$4.99</div>
+                        </div>
+                    </div>
+                    
+                    <div class="coin-package" onclick="purchaseCoins(5000, 9.99)" style="background: rgba(255,255,255,0.1); border: 2px solid #FFD700; border-radius: 15px; padding: 15px; cursor: pointer; transition: transform 0.2s;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="color: #FFD700; font-size: 18px; font-weight: bold;">5,000 Coins</div>
+                                <div style="color: #999; font-size: 12px;">Pro Pack</div>
+                            </div>
+                            <div style="background: linear-gradient(135deg, #00C851, #00FF00); color: #333; padding: 8px 15px; border-radius: 10px; font-weight: bold;">$9.99</div>
+                        </div>
+                    </div>
+                    
+                    <div class="coin-package" onclick="purchaseCoins(15000, 24.99)" style="background: linear-gradient(135deg, rgba(155,89,182,0.2), rgba(231,76,60,0.2)); border: 2px solid #9B59B6; border-radius: 15px; padding: 15px; cursor: pointer; transition: transform 0.2s;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="color: #FFD700; font-size: 18px; font-weight: bold;">15,000 Coins</div>
+                                <div style="color: #E74C3C; font-size: 12px;">🔥 Mega Pack + Bonus!</div>
+                            </div>
+                            <div style="background: linear-gradient(135deg, #9B59B6, #E74C3C); color: white; padding: 8px 15px; border-radius: 10px; font-weight: bold;">$24.99</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #333;">
+                    <div style="color: #666; font-size: 11px; text-align: center; margin-bottom: 10px;">
+                        🔒 Secure payment powered by Stripe
+                    </div>
+                    <div style="color: #666; font-size: 10px; text-align: center;">
+                        Note: This is a demo. No real charges will be made.
                     </div>
                 </div>
             </div>
@@ -1035,11 +1106,57 @@
             { id: 'cart_diamond', name: 'Diamond Cart', icon: '💎', price: 1000, owned: false, rarity: 'epic' },
             { id: 'cart_mystery', name: 'Mystery Crate', icon: '📦', price: 1500, owned: false, rarity: 'legendary' },
             
-            // State Flag Carts
-            { id: 'cart_texas', name: 'Texas Cart', icon: '🤠', price: 750, owned: false, rarity: 'epic', state: 'TX' },
+            // All 50 State Flag Carts
+            { id: 'cart_alabama', name: 'Alabama Cart', icon: '🌾', price: 500, owned: false, rarity: 'rare', state: 'AL' },
+            { id: 'cart_alaska', name: 'Alaska Cart', icon: '🐻', price: 500, owned: false, rarity: 'rare', state: 'AK' },
+            { id: 'cart_arizona', name: 'Arizona Cart', icon: '🌵', price: 500, owned: false, rarity: 'rare', state: 'AZ' },
+            { id: 'cart_arkansas', name: 'Arkansas Cart', icon: '💎', price: 500, owned: false, rarity: 'rare', state: 'AR' },
             { id: 'cart_california', name: 'California Cart', icon: '🌴', price: 750, owned: false, rarity: 'epic', state: 'CA' },
-            { id: 'cart_newyork', name: 'New York Cart', icon: '🗽', price: 750, owned: false, rarity: 'epic', state: 'NY' },
+            { id: 'cart_colorado', name: 'Colorado Cart', icon: '⛰️', price: 500, owned: false, rarity: 'rare', state: 'CO' },
+            { id: 'cart_connecticut', name: 'Connecticut Cart', icon: '🍂', price: 500, owned: false, rarity: 'rare', state: 'CT' },
+            { id: 'cart_delaware', name: 'Delaware Cart', icon: '🏖️', price: 500, owned: false, rarity: 'rare', state: 'DE' },
             { id: 'cart_florida', name: 'Florida Cart', icon: '🌺', price: 750, owned: false, rarity: 'epic', state: 'FL' },
+            { id: 'cart_georgia', name: 'Georgia Cart', icon: '🍑', price: 500, owned: false, rarity: 'rare', state: 'GA' },
+            { id: 'cart_hawaii', name: 'Hawaii Cart', icon: '🌺', price: 750, owned: false, rarity: 'epic', state: 'HI' },
+            { id: 'cart_idaho', name: 'Idaho Cart', icon: '🥔', price: 500, owned: false, rarity: 'rare', state: 'ID' },
+            { id: 'cart_illinois', name: 'Illinois Cart', icon: '🌆', price: 500, owned: false, rarity: 'rare', state: 'IL' },
+            { id: 'cart_indiana', name: 'Indiana Cart', icon: '🏁', price: 500, owned: false, rarity: 'rare', state: 'IN' },
+            { id: 'cart_iowa', name: 'Iowa Cart', icon: '🌽', price: 500, owned: false, rarity: 'rare', state: 'IA' },
+            { id: 'cart_kansas', name: 'Kansas Cart', icon: '🌻', price: 500, owned: false, rarity: 'rare', state: 'KS' },
+            { id: 'cart_kentucky', name: 'Kentucky Cart', icon: '🏇', price: 500, owned: false, rarity: 'rare', state: 'KY' },
+            { id: 'cart_louisiana', name: 'Louisiana Cart', icon: '🎺', price: 500, owned: false, rarity: 'rare', state: 'LA' },
+            { id: 'cart_maine', name: 'Maine Cart', icon: '🦞', price: 500, owned: false, rarity: 'rare', state: 'ME' },
+            { id: 'cart_maryland', name: 'Maryland Cart', icon: '🦀', price: 500, owned: false, rarity: 'rare', state: 'MD' },
+            { id: 'cart_massachusetts', name: 'Massachusetts Cart', icon: '📚', price: 500, owned: false, rarity: 'rare', state: 'MA' },
+            { id: 'cart_michigan', name: 'Michigan Cart', icon: '🚗', price: 500, owned: false, rarity: 'rare', state: 'MI' },
+            { id: 'cart_minnesota', name: 'Minnesota Cart', icon: '❄️', price: 500, owned: false, rarity: 'rare', state: 'MN' },
+            { id: 'cart_mississippi', name: 'Mississippi Cart', icon: '🎵', price: 500, owned: false, rarity: 'rare', state: 'MS' },
+            { id: 'cart_missouri', name: 'Missouri Cart', icon: '🏛️', price: 500, owned: false, rarity: 'rare', state: 'MO' },
+            { id: 'cart_montana', name: 'Montana Cart', icon: '🦌', price: 500, owned: false, rarity: 'rare', state: 'MT' },
+            { id: 'cart_nebraska', name: 'Nebraska Cart', icon: '🌾', price: 500, owned: false, rarity: 'rare', state: 'NE' },
+            { id: 'cart_nevada', name: 'Nevada Cart', icon: '🎰', price: 750, owned: false, rarity: 'epic', state: 'NV' },
+            { id: 'cart_newhampshire', name: 'New Hampshire Cart', icon: '🏔️', price: 500, owned: false, rarity: 'rare', state: 'NH' },
+            { id: 'cart_newjersey', name: 'New Jersey Cart', icon: '🏖️', price: 500, owned: false, rarity: 'rare', state: 'NJ' },
+            { id: 'cart_newmexico', name: 'New Mexico Cart', icon: '🌶️', price: 500, owned: false, rarity: 'rare', state: 'NM' },
+            { id: 'cart_newyork', name: 'New York Cart', icon: '🗽', price: 750, owned: false, rarity: 'epic', state: 'NY' },
+            { id: 'cart_northcarolina', name: 'North Carolina Cart', icon: '✈️', price: 500, owned: false, rarity: 'rare', state: 'NC' },
+            { id: 'cart_northdakota', name: 'North Dakota Cart', icon: '🦬', price: 500, owned: false, rarity: 'rare', state: 'ND' },
+            { id: 'cart_ohio', name: 'Ohio Cart', icon: '🎸', price: 500, owned: false, rarity: 'rare', state: 'OH' },
+            { id: 'cart_oklahoma', name: 'Oklahoma Cart', icon: '🌪️', price: 500, owned: false, rarity: 'rare', state: 'OK' },
+            { id: 'cart_oregon', name: 'Oregon Cart', icon: '🌲', price: 500, owned: false, rarity: 'rare', state: 'OR' },
+            { id: 'cart_pennsylvania', name: 'Pennsylvania Cart', icon: '🔔', price: 500, owned: false, rarity: 'rare', state: 'PA' },
+            { id: 'cart_rhodeisland', name: 'Rhode Island Cart', icon: '⚓', price: 500, owned: false, rarity: 'rare', state: 'RI' },
+            { id: 'cart_southcarolina', name: 'South Carolina Cart', icon: '🌴', price: 500, owned: false, rarity: 'rare', state: 'SC' },
+            { id: 'cart_southdakota', name: 'South Dakota Cart', icon: '🗿', price: 500, owned: false, rarity: 'rare', state: 'SD' },
+            { id: 'cart_tennessee', name: 'Tennessee Cart', icon: '🎸', price: 500, owned: false, rarity: 'rare', state: 'TN' },
+            { id: 'cart_texas', name: 'Texas Cart', icon: '🤠', price: 750, owned: false, rarity: 'epic', state: 'TX' },
+            { id: 'cart_utah', name: 'Utah Cart', icon: '🏔️', price: 500, owned: false, rarity: 'rare', state: 'UT' },
+            { id: 'cart_vermont', name: 'Vermont Cart', icon: '🍁', price: 500, owned: false, rarity: 'rare', state: 'VT' },
+            { id: 'cart_virginia', name: 'Virginia Cart', icon: '🏛️', price: 500, owned: false, rarity: 'rare', state: 'VA' },
+            { id: 'cart_washington', name: 'Washington Cart', icon: '☕', price: 500, owned: false, rarity: 'rare', state: 'WA' },
+            { id: 'cart_westvirginia', name: 'West Virginia Cart', icon: '⛏️', price: 500, owned: false, rarity: 'rare', state: 'WV' },
+            { id: 'cart_wisconsin', name: 'Wisconsin Cart', icon: '🧀', price: 500, owned: false, rarity: 'rare', state: 'WI' },
+            { id: 'cart_wyoming', name: 'Wyoming Cart', icon: '🦌', price: 500, owned: false, rarity: 'rare', state: 'WY' },
             
             // Special Edition Carts
             { id: 'cart_blackhistory', name: 'Black History Cart', icon: '✊', price: 1000, owned: false, rarity: 'legendary', special: true },
@@ -1797,12 +1914,22 @@
             document.getElementById('shopBtn').onclick = () => {
                 game.isPaused = true;
                 loadShopItems();
+                document.getElementById('shopCoins').textContent = game.coins;
                 document.getElementById('shopModal').classList.add('active');
             };
             
             document.getElementById('closeShopBtn').onclick = () => {
                 document.getElementById('shopModal').classList.remove('active');
                 game.isPaused = false;
+            };
+            
+            // Buy Coins button
+            document.getElementById('buyCoinsBtn').onclick = () => {
+                document.getElementById('coinPurchaseModal').style.display = 'flex';
+            };
+            
+            document.getElementById('closeCoinPurchaseBtn').onclick = () => {
+                document.getElementById('coinPurchaseModal').style.display = 'none';
             };
             
             // Skin selector
@@ -2035,6 +2162,45 @@
                 
                 powerupContainer.appendChild(div);
             });
+        }
+
+        // Purchase coins with Stripe (placeholder for demo)
+        function purchaseCoins(amount, price) {
+            // In production, this would integrate with Stripe Checkout
+            // For demo, we'll simulate the purchase
+            
+            if (confirm(`Purchase ${amount.toLocaleString()} coins for $${price}?\n\nDemo Mode: No real charge will be made.`)) {
+                // Simulate successful purchase
+                game.coins += amount;
+                game.stats.totalCoins += amount;
+                
+                // Update UI
+                updateUI();
+                document.getElementById('shopCoins').textContent = game.coins;
+                
+                // Close purchase modal
+                document.getElementById('coinPurchaseModal').style.display = 'none';
+                
+                // Show success message
+                showAchievement({ name: `Purchased ${amount.toLocaleString()} coins! 💰` });
+                
+                // Save data
+                saveGameData();
+                
+                // In production, this would be the Stripe integration:
+                /*
+                const stripe = Stripe('your-publishable-key');
+                stripe.redirectToCheckout({
+                    lineItems: [{
+                        price: 'price_id_for_coin_package',
+                        quantity: 1
+                    }],
+                    mode: 'payment',
+                    successUrl: window.location.origin + '/success',
+                    cancelUrl: window.location.origin + '/cancel'
+                });
+                */
+            }
         }
 
         // Apply cart skin
