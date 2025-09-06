@@ -737,6 +737,16 @@
             </div>
 
             <div id="bottomMenu">
+                <button class="menu-btn" id="streakBtn">
+                    <span class="icon" style="font-size: 18px;">🔥</span>
+                    <span>Streak</span>
+                    <span class="menu-btn-badge" id="streakBadge" style="display: none;">!</span>
+                </button>
+                <button class="menu-btn" id="seasonBtn">
+                    <span class="icon" style="font-size: 18px;">🏆</span>
+                    <span>Pass</span>
+                    <span class="menu-btn-badge" id="seasonBadge" style="display: none;">!</span>
+                </button>
                 <button class="menu-btn" id="shopBtn">
                     <span class="icon" style="font-size: 18px;">🛍️</span>
                     <span>Shop</span>
@@ -855,6 +865,98 @@
                     <h3 style="color: #FFD700; font-size: 16px; margin-bottom: 10px;">⚡ Power-up Inventory</h3>
                     <div id="powerupCollection" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
                         <!-- Power-up counts will be added here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Daily Streak Modal -->
+        <div id="streakModal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.95); display: none; justify-content: center; align-items: center; z-index: 3000;">
+            <div style="background: linear-gradient(135deg, #FF6B35, #F7931E); border-radius: 20px; padding: 20px; max-width: 500px; width: 90%; max-height: 85vh; overflow-y: auto;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="color: white; margin: 0;">🔥 Daily Streak</h2>
+                    <button id="closeStreakBtn" style="background: #FF0000; color: white; border: none; padding: 5px 15px; border-radius: 15px; cursor: pointer;">✕</button>
+                </div>
+                
+                <!-- Streak Stats -->
+                <div style="background: rgba(255,255,255,0.2); border-radius: 15px; padding: 15px; margin-bottom: 20px; text-align: center;">
+                    <div style="font-size: 48px; margin-bottom: 10px;">🔥</div>
+                    <div style="color: white; font-size: 24px; font-weight: bold;" id="currentStreak">0</div>
+                    <div style="color: rgba(255,255,255,0.8); font-size: 14px;">Day Streak</div>
+                    <div style="margin-top: 10px; display: flex; justify-content: space-around;">
+                        <div>
+                            <div style="color: rgba(255,255,255,0.7); font-size: 12px;">Longest</div>
+                            <div style="color: white; font-weight: bold;" id="longestStreak">0</div>
+                        </div>
+                        <div>
+                            <div style="color: rgba(255,255,255,0.7); font-size: 12px;">Total Logins</div>
+                            <div style="color: white; font-weight: bold;" id="totalLogins">0</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Daily Gifts -->
+                <div style="margin-bottom: 20px;">
+                    <h3 style="color: white; font-size: 16px; margin-bottom: 10px;">📅 Daily Gifts</h3>
+                    <div id="dailyGifts" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;">
+                        <!-- Daily gift items will be added here -->
+                    </div>
+                </div>
+                
+                <!-- Streak Rewards -->
+                <div>
+                    <h3 style="color: white; font-size: 16px; margin-bottom: 10px;">🏆 Streak Milestones</h3>
+                    <div id="streakRewards" style="display: flex; flex-direction: column; gap: 10px;">
+                        <!-- Streak reward milestones will be added here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Season Pass Modal -->
+        <div id="seasonModal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.95); display: none; justify-content: center; align-items: center; z-index: 3000;">
+            <div style="background: linear-gradient(135deg, #667EEA, #764BA2); border-radius: 20px; padding: 20px; max-width: 600px; width: 90%; max-height: 85vh; overflow-y: auto;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="color: white; margin: 0;">🏆 Season Pass</h2>
+                    <button id="closeSeasonBtn" style="background: #FF0000; color: white; border: none; padding: 5px 15px; border-radius: 15px; cursor: pointer;">✕</button>
+                </div>
+                
+                <!-- Season Info -->
+                <div style="background: rgba(255,255,255,0.2); border-radius: 15px; padding: 15px; margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <div>
+                            <div style="color: white; font-size: 18px; font-weight: bold;" id="seasonName">Gold Rush Season</div>
+                            <div style="color: rgba(255,255,255,0.8); font-size: 12px;" id="seasonDesc">Unlock rare skins and rewards</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="color: rgba(255,255,255,0.7); font-size: 12px;">Ends in</div>
+                            <div style="color: white; font-weight: bold;" id="seasonTimer">14 days</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Season Progress Bar -->
+                    <div style="background: rgba(0,0,0,0.3); border-radius: 10px; height: 30px; position: relative; overflow: hidden;">
+                        <div id="seasonProgress" style="height: 100%; background: linear-gradient(90deg, #FFD700, #FFA500); width: 0%; transition: width 1s ease;"></div>
+                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-weight: bold; font-size: 14px;">
+                            Tier <span id="currentTier">1</span> / <span id="totalTiers">50</span>
+                        </div>
+                    </div>
+                    <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="color: rgba(255,255,255,0.8); font-size: 12px;">
+                            <span id="seasonExp">0</span> / <span id="seasonExpNext">100</span> XP
+                        </div>
+                        <button id="upgradePremiumBtn" style="background: linear-gradient(135deg, #FFD700, #FFA500); color: #333; border: none; padding: 5px 15px; border-radius: 10px; font-weight: bold; cursor: pointer;">🌟 Upgrade to Premium</button>
+                    </div>
+                </div>
+                
+                <!-- Season Tiers -->
+                <div>
+                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                        <button id="freeRewardsBtn" class="season-tab active" style="flex: 1; background: rgba(255,255,255,0.2); color: white; border: none; padding: 10px; border-radius: 10px; cursor: pointer;">Free Rewards</button>
+                        <button id="premiumRewardsBtn" class="season-tab" style="flex: 1; background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.5); border: none; padding: 10px; border-radius: 10px; cursor: pointer;">Premium Rewards 🔒</button>
+                    </div>
+                    <div id="seasonTiers" style="display: flex; flex-direction: column; gap: 10px; max-height: 400px; overflow-y: auto;">
+                        <!-- Season tier rewards will be added here -->
                     </div>
                 </div>
             </div>
@@ -986,6 +1088,260 @@
         document.addEventListener('touchmove', function(e) {
             e.preventDefault();
         }, { passive: false });
+
+        // Daily Streak System
+        const DailyStreakManager = {
+            streak: {
+                current: 0,
+                longest: 0,
+                lastLogin: null,
+                totalLogins: 0,
+                gifts: [],
+                milestones: [
+                    { days: 7, rewards: { coins: 100, skin: 'streak_7_exclusive' }, claimed: false },
+                    { days: 14, rewards: { coins: 250, gems: 50, skin: 'streak_14_exclusive' }, claimed: false },
+                    { days: 30, rewards: { coins: 500, gems: 100, skin: 'streak_30_legendary' }, claimed: false }
+                ]
+            },
+            
+            init() {
+                const saved = localStorage.getItem('dailyStreak');
+                if (saved) {
+                    this.streak = JSON.parse(saved);
+                }
+                this.generateDailyGifts();
+                this.checkDailyLogin();
+            },
+            
+            generateDailyGifts() {
+                if (this.streak.gifts.length === 0) {
+                    for (let day = 1; day <= 30; day++) {
+                        const gift = {
+                            day,
+                            type: day % 7 === 0 ? 'skin' : day % 3 === 0 ? 'powerup' : day % 2 === 0 ? 'gems' : 'coins',
+                            amount: day % 7 === 0 ? 1 : day % 3 === 0 ? 1 : day % 2 === 0 ? Math.floor(5 + day * 0.5) : Math.floor(10 + day * 2),
+                            claimed: false,
+                            available: false
+                        };
+                        this.streak.gifts.push(gift);
+                    }
+                }
+            },
+            
+            checkDailyLogin() {
+                const today = new Date().toDateString();
+                const lastLogin = this.streak.lastLogin;
+                
+                if (lastLogin !== today) {
+                    const yesterday = new Date();
+                    yesterday.setDate(yesterday.getDate() - 1);
+                    
+                    if (lastLogin === yesterday.toDateString()) {
+                        this.streak.current++;
+                    } else {
+                        this.streak.current = 1;
+                    }
+                    
+                    this.streak.lastLogin = today;
+                    this.streak.totalLogins++;
+                    this.streak.longest = Math.max(this.streak.longest, this.streak.current);
+                    
+                    // Update available gifts
+                    this.streak.gifts.forEach(gift => {
+                        gift.available = gift.day <= this.streak.current && !gift.claimed;
+                    });
+                    
+                    this.save();
+                    this.showStreakNotification();
+                }
+            },
+            
+            claimGift(day) {
+                const gift = this.streak.gifts.find(g => g.day === day);
+                if (gift && gift.available && !gift.claimed) {
+                    gift.claimed = true;
+                    
+                    // Apply rewards
+                    if (gift.type === 'coins') {
+                        game.coins += gift.amount;
+                    } else if (gift.type === 'gems') {
+                        game.gems = (game.gems || 0) + gift.amount;
+                    }
+                    
+                    this.save();
+                    return gift;
+                }
+                return null;
+            },
+            
+            showStreakNotification() {
+                if (this.streak.current > 1) {
+                    showAchievement(`🔥 ${this.streak.current} Day Streak!`, `Keep it up! Daily gifts available.`);
+                    document.getElementById('streakBadge').style.display = 'inline';
+                }
+            },
+            
+            save() {
+                localStorage.setItem('dailyStreak', JSON.stringify(this.streak));
+            }
+        };
+
+        // Season Pass System
+        const SeasonPassManager = {
+            season: {
+                id: 'season_1',
+                name: 'Gold Rush Season',
+                description: 'Unlock rare pot skins and exclusive rewards',
+                startDate: new Date(),
+                endDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+                currentTier: 1,
+                experience: 0,
+                experienceToNext: 100,
+                premium: false,
+                tiers: []
+            },
+            
+            init() {
+                const saved = localStorage.getItem('seasonPass');
+                if (saved) {
+                    this.season = JSON.parse(saved);
+                    this.season.startDate = new Date(this.season.startDate);
+                    this.season.endDate = new Date(this.season.endDate);
+                }
+                
+                if (this.season.tiers.length === 0) {
+                    this.generateTiers();
+                }
+                
+                this.checkSeasonEnd();
+            },
+            
+            generateTiers() {
+                for (let level = 1; level <= 50; level++) {
+                    const tier = {
+                        level,
+                        experienceRequired: level * 100,
+                        freeRewards: [
+                            { type: 'coins', amount: 10 + level * 2 }
+                        ],
+                        premiumRewards: [
+                            { type: 'coins', amount: 25 + level * 5 }
+                        ],
+                        unlocked: false,
+                        claimed: false
+                    };
+                    
+                    // Add special rewards at milestones
+                    if (level % 5 === 0) {
+                        tier.freeRewards.push({ type: 'powerup', amount: 1 });
+                    }
+                    if (level % 10 === 0) {
+                        tier.freeRewards.push({ type: 'gems', amount: 5 });
+                        tier.premiumRewards.push({ type: 'skin', itemId: `season_skin_${level}` });
+                    }
+                    
+                    this.season.tiers.push(tier);
+                }
+            },
+            
+            addExperience(amount) {
+                this.season.experience += amount;
+                
+                // Check for tier unlocks
+                while (this.season.experience >= this.season.experienceToNext && this.season.currentTier < 50) {
+                    const tier = this.season.tiers[this.season.currentTier - 1];
+                    if (!tier.unlocked) {
+                        tier.unlocked = true;
+                        this.showTierUnlock(this.season.currentTier);
+                    }
+                    
+                    this.season.currentTier++;
+                    this.season.experienceToNext = this.season.currentTier * 100;
+                }
+                
+                this.save();
+                this.updateUI();
+            },
+            
+            claimTierRewards(tierLevel) {
+                const tier = this.season.tiers[tierLevel - 1];
+                if (tier && tier.unlocked && !tier.claimed) {
+                    tier.claimed = true;
+                    
+                    // Apply free rewards
+                    tier.freeRewards.forEach(reward => {
+                        if (reward.type === 'coins') {
+                            game.coins += reward.amount;
+                        } else if (reward.type === 'gems') {
+                            game.gems = (game.gems || 0) + reward.amount;
+                        }
+                    });
+                    
+                    // Apply premium rewards if premium
+                    if (this.season.premium) {
+                        tier.premiumRewards.forEach(reward => {
+                            if (reward.type === 'coins') {
+                                game.coins += reward.amount;
+                            } else if (reward.type === 'gems') {
+                                game.gems = (game.gems || 0) + reward.amount;
+                            } else if (reward.type === 'skin' && reward.itemId) {
+                                if (!game.ownedSkins) game.ownedSkins = [];
+                                game.ownedSkins.push(reward.itemId);
+                            }
+                        });
+                    }
+                    
+                    this.save();
+                    saveGameData();
+                    return tier;
+                }
+                return null;
+            },
+            
+            upgradeToPremium() {
+                this.season.premium = true;
+                this.save();
+                document.getElementById('seasonBadge').style.display = 'inline';
+                showAchievement('🌟 Season Pass Premium!', 'Unlock exclusive rewards!');
+            },
+            
+            checkSeasonEnd() {
+                if (new Date() > this.season.endDate) {
+                    // Start new season
+                    this.season = {
+                        id: `season_${parseInt(this.season.id.split('_')[1]) + 1}`,
+                        name: 'New Season',
+                        description: 'New challenges await!',
+                        startDate: new Date(),
+                        endDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+                        currentTier: 1,
+                        experience: 0,
+                        experienceToNext: 100,
+                        premium: false,
+                        tiers: []
+                    };
+                    this.generateTiers();
+                    this.save();
+                }
+            },
+            
+            showTierUnlock(tier) {
+                showAchievement(`🎉 Tier ${tier} Unlocked!`, 'New rewards available!');
+                document.getElementById('seasonBadge').style.display = 'inline';
+            },
+            
+            updateUI() {
+                const progress = (this.season.experience / this.season.experienceToNext) * 100;
+                const progressBar = document.getElementById('seasonProgress');
+                if (progressBar) {
+                    progressBar.style.width = progress + '%';
+                }
+            },
+            
+            save() {
+                localStorage.setItem('seasonPass', JSON.stringify(this.season));
+            }
+        };
 
         // Game State
         const game = {
@@ -1587,6 +1943,9 @@
                 game.coins += item.value * multiplier;
                 game.score += item.points * (1 + game.combo * 0.1);
                 
+                // Add season pass experience
+                SeasonPassManager.addExperience(Math.floor(item.points / 10));
+                
                 if (item.type === 'powerup') {
                     // Random powerup
                     const powerupType = ['shield', 'magnet', 'double'][Math.floor(Math.random() * 3)];
@@ -1757,6 +2116,16 @@
                         document.getElementById('proBtn').style.background = 'linear-gradient(135deg, #00C851, #00FF00)';
                     }
                 }
+            };
+            
+            // Daily Streak button
+            document.getElementById('streakBtn').onclick = () => {
+                openStreakModal();
+            };
+            
+            // Season Pass button  
+            document.getElementById('seasonBtn').onclick = () => {
+                openSeasonModal();
             };
             
             // Profile/Collection
@@ -2331,6 +2700,242 @@
                 
                 container.appendChild(div);
             });
+        }
+
+        // Open Streak Modal
+        function openStreakModal() {
+            const modal = document.getElementById('streakModal');
+            modal.style.display = 'flex';
+            
+            // Update UI
+            document.getElementById('currentStreak').innerText = DailyStreakManager.streak.current;
+            document.getElementById('longestStreak').innerText = DailyStreakManager.streak.longest;
+            document.getElementById('totalLogins').innerText = DailyStreakManager.streak.totalLogins;
+            
+            // Display daily gifts
+            const giftsContainer = document.getElementById('dailyGifts');
+            giftsContainer.innerHTML = '';
+            
+            DailyStreakManager.streak.gifts.slice(0, 30).forEach(gift => {
+                const giftDiv = document.createElement('div');
+                giftDiv.style.cssText = `
+                    background: ${gift.claimed ? 'rgba(0,0,0,0.5)' : gift.available ? 'linear-gradient(135deg, #FFD700, #FFA500)' : 'rgba(255,255,255,0.1)'};
+                    border-radius: 10px;
+                    padding: 8px;
+                    text-align: center;
+                    cursor: ${gift.available && !gift.claimed ? 'pointer' : 'default'};
+                    position: relative;
+                `;
+                
+                const icon = gift.type === 'coins' ? '💰' : gift.type === 'gems' ? '💎' : gift.type === 'powerup' ? '⚡' : '🎨';
+                giftDiv.innerHTML = `
+                    <div style="font-size: 20px;">${icon}</div>
+                    <div style="color: white; font-size: 10px;">Day ${gift.day}</div>
+                    <div style="color: white; font-size: 9px; font-weight: bold;">${gift.amount}</div>
+                    ${gift.claimed ? '<div style="position: absolute; top: 0; right: 0; font-size: 12px;">✓</div>' : ''}
+                `;
+                
+                if (gift.available && !gift.claimed) {
+                    giftDiv.addEventListener('click', () => {
+                        const claimed = DailyStreakManager.claimGift(gift.day);
+                        if (claimed) {
+                            saveGameData();
+                            updateUI();
+                            openStreakModal(); // Refresh modal
+                            showAchievement(`Gift Claimed!`, `+${claimed.amount} ${claimed.type}`);
+                        }
+                    });
+                }
+                
+                giftsContainer.appendChild(giftDiv);
+            });
+            
+            // Display streak milestones
+            const rewardsContainer = document.getElementById('streakRewards');
+            rewardsContainer.innerHTML = '';
+            
+            DailyStreakManager.streak.milestones.forEach(milestone => {
+                const milestoneDiv = document.createElement('div');
+                const unlocked = DailyStreakManager.streak.current >= milestone.days;
+                milestoneDiv.style.cssText = `
+                    background: ${milestone.claimed ? 'rgba(0,0,0,0.5)' : unlocked ? 'linear-gradient(135deg, #667EEA, #764BA2)' : 'rgba(255,255,255,0.1)'};
+                    border-radius: 10px;
+                    padding: 10px;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    cursor: ${unlocked && !milestone.claimed ? 'pointer' : 'default'};
+                `;
+                
+                milestoneDiv.innerHTML = `
+                    <div>
+                        <div style="color: white; font-weight: bold;">🏆 ${milestone.days} Day Streak</div>
+                        <div style="color: rgba(255,255,255,0.7); font-size: 12px;">
+                            ${milestone.rewards.coins ? `💰 ${milestone.rewards.coins} coins` : ''}
+                            ${milestone.rewards.gems ? ` 💎 ${milestone.rewards.gems} gems` : ''}
+                            ${milestone.rewards.skin ? ` 🎨 Exclusive skin` : ''}
+                        </div>
+                    </div>
+                    <button style="background: ${milestone.claimed ? 'gray' : unlocked ? '#FFD700' : 'rgba(255,255,255,0.2)'}; 
+                            color: ${unlocked ? '#333' : 'white'}; 
+                            border: none; padding: 5px 10px; border-radius: 5px;
+                            cursor: ${unlocked && !milestone.claimed ? 'pointer' : 'default'};">
+                        ${milestone.claimed ? 'Claimed' : unlocked ? 'Claim' : `🔒 ${milestone.days - DailyStreakManager.streak.current} days`}
+                    </button>
+                `;
+                
+                if (unlocked && !milestone.claimed) {
+                    milestoneDiv.querySelector('button').addEventListener('click', () => {
+                        milestone.claimed = true;
+                        if (milestone.rewards.coins) {
+                            game.coins += milestone.rewards.coins;
+                        }
+                        if (milestone.rewards.gems) {
+                            game.gems = (game.gems || 0) + milestone.rewards.gems;
+                        }
+                        if (milestone.rewards.skin) {
+                            if (!game.ownedSkins) game.ownedSkins = [];
+                            game.ownedSkins.push(milestone.rewards.skin);
+                        }
+                        DailyStreakManager.save();
+                        saveGameData();
+                        updateUI();
+                        openStreakModal();
+                        showAchievement('Milestone Claimed!', `${milestone.days} day streak reward!`);
+                    });
+                }
+                
+                rewardsContainer.appendChild(milestoneDiv);
+            });
+            
+            document.getElementById('closeStreakBtn').onclick = () => {
+                modal.style.display = 'none';
+            };
+        }
+        
+        // Open Season Modal
+        function openSeasonModal() {
+            const modal = document.getElementById('seasonModal');
+            modal.style.display = 'flex';
+            
+            const season = SeasonPassManager.season;
+            
+            // Update season info
+            document.getElementById('seasonName').innerText = season.name;
+            document.getElementById('seasonDesc').innerText = season.description;
+            
+            // Calculate days remaining
+            const daysLeft = Math.ceil((season.endDate - new Date()) / (1000 * 60 * 60 * 24));
+            document.getElementById('seasonTimer').innerText = `${daysLeft} days`;
+            
+            // Update progress
+            document.getElementById('currentTier').innerText = season.currentTier;
+            document.getElementById('totalTiers').innerText = season.tiers.length;
+            document.getElementById('seasonExp').innerText = season.experience;
+            document.getElementById('seasonExpNext').innerText = season.experienceToNext;
+            
+            const progress = (season.experience / season.experienceToNext) * 100;
+            document.getElementById('seasonProgress').style.width = progress + '%';
+            
+            // Display tiers
+            const tiersContainer = document.getElementById('seasonTiers');
+            let showPremium = false;
+            
+            const displayTiers = () => {
+                tiersContainer.innerHTML = '';
+                
+                season.tiers.forEach(tier => {
+                    const tierDiv = document.createElement('div');
+                    tierDiv.style.cssText = `
+                        background: ${tier.unlocked ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.3)'};
+                        border-radius: 10px;
+                        padding: 10px;
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                    `;
+                    
+                    const rewards = showPremium ? tier.premiumRewards : tier.freeRewards;
+                    const rewardText = rewards.map(r => 
+                        r.type === 'coins' ? `💰 ${r.amount}` : 
+                        r.type === 'gems' ? `💎 ${r.amount}` : 
+                        r.type === 'powerup' ? '⚡ Power-up' : 
+                        r.type === 'skin' ? '🎨 Skin' : ''
+                    ).join(' ');
+                    
+                    tierDiv.innerHTML = `
+                        <div>
+                            <div style="color: ${tier.unlocked ? '#FFD700' : 'rgba(255,255,255,0.5)'}; font-weight: bold;">Tier ${tier.level}</div>
+                            <div style="color: rgba(255,255,255,0.7); font-size: 12px;">${rewardText}</div>
+                        </div>
+                        <button style="background: ${tier.claimed ? 'gray' : tier.unlocked ? '#FFD700' : 'rgba(255,255,255,0.2)'};
+                                color: ${tier.unlocked ? '#333' : 'white'};
+                                border: none; padding: 5px 10px; border-radius: 5px;
+                                cursor: ${tier.unlocked && !tier.claimed ? 'pointer' : 'default'};">
+                            ${tier.claimed ? 'Claimed' : tier.unlocked ? 'Claim' : `🔒 ${tier.experienceRequired} XP`}
+                        </button>
+                    `;
+                    
+                    if (tier.unlocked && !tier.claimed) {
+                        tierDiv.querySelector('button').addEventListener('click', () => {
+                            const claimed = SeasonPassManager.claimTierRewards(tier.level);
+                            if (claimed) {
+                                updateUI();
+                                openSeasonModal();
+                                showAchievement('Rewards Claimed!', `Tier ${tier.level} rewards`);
+                            }
+                        });
+                    }
+                    
+                    tiersContainer.appendChild(tierDiv);
+                });
+            };
+            
+            displayTiers();
+            
+            // Tab buttons
+            document.getElementById('freeRewardsBtn').onclick = () => {
+                showPremium = false;
+                document.getElementById('freeRewardsBtn').style.background = 'rgba(255,255,255,0.2)';
+                document.getElementById('premiumRewardsBtn').style.background = 'rgba(255,255,255,0.1)';
+                displayTiers();
+            };
+            
+            document.getElementById('premiumRewardsBtn').onclick = () => {
+                if (!season.premium) {
+                    if (confirm('Upgrade to Premium Pass for $4.99 to unlock exclusive rewards?')) {
+                        SeasonPassManager.upgradeToPremium();
+                        openSeasonModal();
+                    }
+                    return;
+                }
+                showPremium = true;
+                document.getElementById('premiumRewardsBtn').style.background = 'rgba(255,255,255,0.2)';
+                document.getElementById('freeRewardsBtn').style.background = 'rgba(255,255,255,0.1)';
+                displayTiers();
+            };
+            
+            // Upgrade button
+            document.getElementById('upgradePremiumBtn').onclick = () => {
+                if (!season.premium) {
+                    if (confirm('Upgrade to Premium Pass for $4.99?\n\n✓ Exclusive skins\n✓ 5x more rewards\n✓ Special power-ups')) {
+                        SeasonPassManager.upgradeToPremium();
+                        openSeasonModal();
+                    }
+                } else {
+                    showAchievement('Already Premium!', 'Enjoy your exclusive rewards!');
+                }
+            };
+            
+            if (season.premium) {
+                document.getElementById('upgradePremiumBtn').innerText = '✓ Premium Active';
+                document.getElementById('upgradePremiumBtn').style.background = 'linear-gradient(135deg, #4CAF50, #45a049)';
+                document.getElementById('premiumRewardsBtn').innerHTML = 'Premium Rewards 🌟';
+            }
+            
+            document.getElementById('closeSeasonBtn').onclick = () => {
+                modal.style.display = 'none';
+            };
         }
 
         // Start the game
