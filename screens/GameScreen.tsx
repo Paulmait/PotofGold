@@ -12,7 +12,7 @@ function getFallSpeed(level: number) {
   return 1 + level * 0.05;
 }
 // --- End add ---
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   View,
   Text,
@@ -63,6 +63,7 @@ import { useEntitlements } from '../src/features/subscriptions/useEntitlements';
 // import { useUnlockMultiplier } from '../src/features/subscriptions/useUnlockMultiplier';
 import ResponsiveGameWrapper from '../components/ResponsiveGameWrapper';
 import { useOrientation } from '../hooks/useOrientation';
+import TouchHandler from '../components/TouchHandler';
 
 const { width, height } = Dimensions.get('window');
 
@@ -307,66 +308,58 @@ export default function GameScreen({
     rightZone: { x: width / 2, y: 0, width: width / 2, height: height },
   });
 
-  // Pan responder for improved touch handling
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: () => true,
-      onPanResponderGrant: (evt) => {
-        // Haptic feedback on touch start
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      },
-      onPanResponderMove: (evt, gestureState) => {
-        if (!isGameActive || isPaused) return;
+  // Touch movement tracking
+  const lastTouchX = useRef(potPosition);
 
-        const { dx } = gestureState;
-        const sensitivity = 0.5; // Adjust for better control
-        const newPosition = potPosition + dx * sensitivity * potSpeed;
-        
-        // Clamp cart position to stay within screen bounds
-        const cartWidth = potSize;
-        const minPosition = cartWidth / 2;
-        const maxPosition = width - cartWidth / 2;
-        const clampedPosition = Math.max(minPosition, Math.min(maxPosition, newPosition));
-        
-        setPotPosition(clampedPosition);
-        setIsCartMoving(Math.abs(dx) > 5);
-
-        // Animate cart movement
-        Animated.spring(potAnimation, {
-          toValue: clampedPosition,
-          useNativeDriver: false,
-        }).start();
-      },
-      onPanResponderRelease: () => {
-        setIsCartMoving(false);
-      },
-    })
-  ).current;
-
-  // Handle tap zones for left/right movement
-  const handleZoneTap = (zone: 'left' | 'right') => {
+  // Handle touch-to-move: Move cart to tap position
+  const handleTouchMove = useCallback((touchX: number) => {
     if (!isGameActive || isPaused) return;
 
-    const moveDistance = 50; // Distance to move per tap
-    const newPosition = zone === 'left' 
-      ? Math.max(potSize / 2, potPosition - moveDistance)
-      : Math.min(width - potSize / 2, potPosition + moveDistance);
-
-    setPotPosition(newPosition);
+    // Move cart directly to touch position
+    const cartWidth = potSize;
+    const minPosition = cartWidth / 2;
+    const maxPosition = width - cartWidth / 2;
+    const targetPosition = Math.max(minPosition, Math.min(maxPosition, touchX));
+    
+    setPotPosition(targetPosition);
     setIsCartMoving(true);
+    lastTouchX.current = targetPosition;
 
+    // Smooth animation to target position
+    Animated.timing(potAnimation, {
+      toValue: targetPosition,
+      duration: 100,
+      useNativeDriver: false,
+    }).start();
+  }, [isGameActive, isPaused, potSize, potAnimation]);
+  
+  // Handle tap to move
+  const handleTap = useCallback((touchX: number) => {
+    if (!isGameActive || isPaused) return;
+    
+    // Move cart to tap position with animation
+    const cartWidth = potSize;
+    const minPosition = cartWidth / 2;
+    const maxPosition = width - cartWidth / 2;
+    const targetPosition = Math.max(minPosition, Math.min(maxPosition, touchX));
+    
+    setPotPosition(targetPosition);
+    setIsCartMoving(true);
+    lastTouchX.current = targetPosition;
+    
     // Haptic feedback
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-
-    // Animate cart movement
+    
+    // Smooth spring animation
     Animated.spring(potAnimation, {
-      toValue: newPosition,
+      toValue: targetPosition,
       useNativeDriver: false,
+      tension: 40,
+      friction: 7,
     }).start(() => {
       setIsCartMoving(false);
     });
-  };
+  }, [isGameActive, isPaused, potSize, potAnimation]);
 
   // Initialize game
   useEffect(() => {
@@ -1277,9 +1270,14 @@ export default function GameScreen({
   };
 
   return (
-    <View style={styles.container}>
-      {/* Game Area */}
-      <View style={styles.gameArea}>
+    <TouchHandler
+      onMove={handleTouchMove}
+      onTap={handleTap}
+      enabled={isGameActive && !isPaused}
+    >
+      <View style={styles.container}>
+        {/* Game Area */}
+        <View style={styles.gameArea}>
         {/* Pause Button */}
         <TouchableOpacity 
           style={styles.pauseButton} 
@@ -1345,22 +1343,9 @@ export default function GameScreen({
           onItemCollect={onItemCollect}
         />
 
-        {/* Touch Zones for Mobile Controls */}
-        <View style={styles.touchZonesContainer}>
-          <TouchableOpacity
-            style={styles.touchZone}
-            onPress={() => handleZoneTap('left')}
-            activeOpacity={0.1}
-          />
-          <TouchableOpacity
-            style={styles.touchZone}
-            onPress={() => handleZoneTap('right')}
-            activeOpacity={0.1}
-          />
-        </View>
 
         {/* Mine Cart */}
-        <View {...panResponder.panHandlers}>
+        <View>
           <MineCart
             position={potPosition}
             size={potSize}
@@ -1492,7 +1477,8 @@ export default function GameScreen({
           onHide={() => setShowUnlockNotification(false)}
         />
       )}
-    </View>
+      </View>
+    </TouchHandler>
   );
 }
 
@@ -1758,20 +1744,6 @@ const styles = StyleSheet.create({
     color: '#1a1a1a',
     fontSize: 12,
     fontWeight: 'bold',
-  },
-  touchZonesContainer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    flexDirection: 'row',
-    zIndex: 15,
-  },
-  touchZone: {
-    flex: 1,
-    height: '100%',
-    // Invisible but touchable zones
   },
 
 });

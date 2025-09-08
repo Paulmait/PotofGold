@@ -17,7 +17,7 @@
     "moduleResolution": "bundler",
     "noEmit": true,
     "skipLibCheck": true,
-    "typeRoots": ["node_modules/@types", "src/types"],
+    "types": [],
     "resolveJsonModule": true,
     "allowJs": true,
     "esModuleInterop": true,

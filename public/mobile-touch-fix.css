@@ -1,0 +1,71 @@
+/* Mobile Touch Optimization Styles */
+
+/* Prevent pinch-to-zoom and double-tap zoom */
+* {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Game container specific */
+#root {
+  touch-action: none;
+  overscroll-behavior: none;
+}
+
+/* Prevent text selection on mobile */
+.game-area {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Prevent scrolling and bouncing on iOS */
+body {
+  position: fixed;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Disable context menu on long press */
+canvas,
+img,
+div {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+}
+
+/* Ensure buttons remain clickable but don't zoom */
+button,
+.touchable {
+  touch-action: manipulation;
+}
+
+/* Prevent horizontal scrolling */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* iOS specific fixes */
+@supports (-webkit-touch-callout: none) {
+  body {
+    height: 100vh;
+    height: -webkit-fill-available;
+  }
+  
+  #root {
+    height: 100vh;
+    height: -webkit-fill-available;
+  }
+}
+
+/* Android specific fixes */
+@media screen and (max-aspect-ratio: 13/9) {
+  body {
+    height: 100vh;
+    position: fixed;
+  }
+}

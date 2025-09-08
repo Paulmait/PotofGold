@@ -98,6 +98,7 @@
     "@testing-library/jest-native": "^5.4.0",
     "@testing-library/react-native": "^12.0.0",
     "@types/jest": "^29.5.0",
+    "@types/minimatch": "^6.0.0",
     "@types/node": "^24.2.1",
     "@types/react": "~18.2.14",
     "@types/react-native": "~0.72.0",

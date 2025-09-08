@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no, viewport-fit=cover" />
     <meta name="theme-color" content="#FFD700" />
     <meta name="description" content="An exciting mobile game where you collect falling treasures!" />
     
@@ -11,6 +11,7 @@
     
     <link rel="icon" href="/favicon.png" />
     <link rel="apple-touch-icon" href="/pot_of_gold_icon.png" />
+    <link rel="stylesheet" href="/mobile-touch-fix.css" />
     
     <style>
       html, body {
@@ -19,6 +20,10 @@
         height: 100%;
         overflow: hidden;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        touch-action: none;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        user-select: none;
       }
       
       #root {
