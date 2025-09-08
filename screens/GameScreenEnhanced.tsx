@@ -5,6 +5,7 @@ import {
   Dimensions,
   Animated,
   Text,
+  Image,
   AppState,
   AppStateStatus,
 } from 'react-native';
@@ -475,10 +476,25 @@ export default function GameScreenEnhanced({ navigation }: GameScreenEnhancedPro
     startGame();
   };
 
-  // Start screen
+  // Auto-start for returning players
+  useEffect(() => {
+    if (showStartScreen && !showTutorial && !isFirstTime) {
+      const autoStartTimer = setTimeout(() => {
+        startGame();
+      }, 1000);
+      return () => clearTimeout(autoStartTimer);
+    }
+  }, [showStartScreen, showTutorial, isFirstTime, startGame]);
+
+  // Start screen with quick start
   if (showStartScreen && !showTutorial) {
     return (
       <View style={styles.startScreen}>
+        <Image
+          source={require('../assets/images/pot_of_gold_logo.png')}
+          style={styles.startLogo}
+          resizeMode="contain"
+        />
         <Text style={styles.title}>Pot of Gold</Text>
         <Text style={styles.subtitle}>Tap anywhere to move the cart!</Text>
         <TouchableOpacity
@@ -491,8 +507,13 @@ export default function GameScreenEnhanced({ navigation }: GameScreenEnhancedPro
             }
           }}
         >
-          <Text style={styles.startButtonText}>Start Game</Text>
+          <Text style={styles.startButtonText}>
+            {isFirstTime ? 'Start Tutorial' : 'Play Now'}
+          </Text>
         </TouchableOpacity>
+        {!isFirstTime && (
+          <Text style={styles.autoStartText}>Auto-starting...</Text>
+        )}
       </View>
     );
   }
@@ -676,6 +697,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#1a1a2e',
   },
+  startLogo: {
+    width: 150,
+    height: 150,
+    marginBottom: 20,
+  },
   title: {
     fontSize: 48,
     fontWeight: 'bold',
@@ -700,6 +726,12 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: '#1a1a2e',
+  },
+  autoStartText: {
+    marginTop: 20,
+    fontSize: 14,
+    color: '#888',
+    fontStyle: 'italic',
   },
   pauseOverlay: {
     position: 'absolute',

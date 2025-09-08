@@ -8,7 +8,7 @@ import { View, ActivityIndicator, Alert, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './firebase/auth';
-import SplashScreen from './components/SplashScreen';
+import SplashScreenEnhanced from './components/SplashScreenEnhanced';
 import { useOrientation } from './hooks/useOrientation';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import ResponsiveGameWrapper from './components/ResponsiveGameWrapper';
@@ -145,9 +145,9 @@ export default function App() {
   // Show splash screen first
   if (showSplash) {
     return (
-      <SplashScreen 
+      <SplashScreenEnhanced 
         onComplete={() => setShowSplash(false)}
-        duration={3000}
+        duration={3500}
       />
     );
   }
