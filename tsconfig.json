@@ -70,6 +70,14 @@
     "backend/**/*",
     "scripts/**/*",
     "tools/**/*",
-    "functions/**/*"
+    "functions/**/*",
+    "__tests__/**/*",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "coverage/**/*",
+    "jest.config.js",
+    "babel.config.js"
   ]
 }
