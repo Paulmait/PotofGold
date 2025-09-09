@@ -14,6 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { gameSoundManager } from '../utils/gameSoundManager';
+import { markOnboardingCompleted } from '../utils/deviceTracking';
 import * as Haptics from 'expo-haptics';
 
 const { width, height } = Dimensions.get('window');
@@ -221,11 +222,13 @@ export default function OnboardingScreen({ route }: any) {
     console.log('Completing onboarding...');
     
     try {
-      // Save onboarding completion status
+      // Save onboarding completion status with device tracking
+      await markOnboardingCompleted();
+      // Also save legacy flags for backward compatibility
       await AsyncStorage.setItem('hasSeenOnboarding', 'true');
       await AsyncStorage.setItem('onboarding_completed', 'true');
       await AsyncStorage.setItem('onboarding_date', new Date().toISOString());
-      console.log('Onboarding data saved');
+      console.log('Onboarding data saved with device tracking');
     } catch (error) {
       console.error('Error saving onboarding data:', error);
     }

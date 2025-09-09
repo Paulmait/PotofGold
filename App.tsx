@@ -8,6 +8,7 @@ import { View, ActivityIndicator, Alert, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './firebase/auth';
+import { hasCompletedOnboarding, getDeviceAnalytics } from './utils/deviceTracking';
 import SplashScreenEnhanced from './components/SplashScreenEnhanced';
 import { useOrientation } from './hooks/useOrientation';
 import * as ScreenOrientation from 'expo-screen-orientation';
@@ -107,9 +108,13 @@ export default function App() {
       }
       setLegalVersion(currentLegalVersion);
 
-      // Check onboarding status
-      const onboardingStatus = await AsyncStorage.getItem('hasSeenOnboarding');
-      setHasSeenOnboarding(onboardingStatus === 'true');
+      // Check onboarding status with device tracking
+      const hasCompleted = await hasCompletedOnboarding();
+      setHasSeenOnboarding(hasCompleted);
+      
+      // Track device analytics
+      const analytics = await getDeviceAnalytics();
+      console.log('Device analytics:', analytics);
 
       // Set up auth listener
       const unsubscribe = onAuthStateChanged(auth, async (user) => {
