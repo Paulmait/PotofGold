@@ -61,8 +61,11 @@ export default function GameScreenWeb({ navigation }: GameScreenWebProps) {
   
   // Cart state
   const [cartPosition, setCartPosition] = useState(gameWidth / 2 - scale(35));
-  const cartSpeed = scale(12); // Increased speed for better control
+  const cartSpeed = scale(20); // Much faster for mobile
   const cartSize = scale(70); // Slightly larger for mining cart
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
+  const [isTouching, setIsTouching] = useState(false);
+  const [moveDirection, setMoveDirection] = useState<'left' | 'right' | null>(null);
   
   // Falling items
   const [fallingItems, setFallingItems] = useState<any[]>([]);
@@ -177,24 +180,65 @@ export default function GameScreenWeb({ navigation }: GameScreenWebProps) {
     }
   }, [isGameActive, isPaused, cartPosition, gameHeight, itemSize, cartSize, fallSpeed]);
 
-  const moveCart = (direction: 'left' | 'right') => {
+  const moveCart = (direction: 'left' | 'right', continuous = false) => {
     setIsCartMoving(true);
+    const speed = continuous ? cartSpeed / 2 : cartSpeed; // Slightly slower for continuous
     setCartPosition(prev => {
-      const newPos = direction === 'left' ? prev - cartSpeed : prev + cartSpeed;
+      const newPos = direction === 'left' ? prev - speed : prev + speed;
       return Math.max(0, Math.min(gameWidth - cartSize, newPos));
     });
-    // Stop movement animation after a short delay
-    setTimeout(() => setIsCartMoving(false), 150);
+    if (!continuous) {
+      setTimeout(() => setIsCartMoving(false), 150);
+    }
   };
 
-  const handleTouch = (e: any) => {
+  // Move cart to specific position (for touch/drag)
+  const moveCartToPosition = (targetX: number) => {
+    setIsCartMoving(true);
+    const clampedX = Math.max(0, Math.min(gameWidth - cartSize, targetX - cartSize / 2));
+    setCartPosition(clampedX);
+    setTimeout(() => setIsCartMoving(false), 100);
+  };
+
+  // Touch handlers for better mobile control
+  const handleTouchStart = (e: any) => {
     if (!isGameActive || isPaused) return;
     
-    // Get touch position relative to game container
-    const touchX = (e.nativeEvent.locationX || e.nativeEvent.pageX) - horizontalOffset;
+    const touch = e.nativeEvent.touches?.[0] || e.nativeEvent;
+    const touchX = (touch.locationX || touch.pageX) - horizontalOffset;
+    
+    setTouchStartX(touchX);
+    setIsTouching(true);
+    
+    // Move cart towards touch position
+    moveCartToPosition(touchX);
+  };
+
+  const handleTouchMove = (e: any) => {
+    if (!isGameActive || isPaused || !isTouching) return;
+    
+    const touch = e.nativeEvent.touches?.[0] || e.nativeEvent;
+    const touchX = (touch.locationX || touch.pageX) - horizontalOffset;
+    
+    // Direct cart movement to follow finger
+    moveCartToPosition(touchX);
+  };
+
+  const handleTouchEnd = () => {
+    setIsTouching(false);
+    setTouchStartX(null);
+    setMoveDirection(null);
+    setIsCartMoving(false);
+  };
+
+  // For desktop click
+  const handleClick = (e: any) => {
+    if (!isGameActive || isPaused || Platform.OS !== 'web') return;
+    
+    const clickX = (e.nativeEvent.locationX || e.nativeEvent.pageX) - horizontalOffset;
     const screenCenter = gameWidth / 2;
     
-    if (touchX < screenCenter) {
+    if (clickX < screenCenter) {
       moveCart('left');
     } else {
       moveCart('right');
@@ -241,6 +285,16 @@ export default function GameScreenWeb({ navigation }: GameScreenWebProps) {
       setLevel(newLevel);
     }
   }, [score]);
+
+  // Continuous movement for touch hold
+  useEffect(() => {
+    if (moveDirection && isTouching && isGameActive && !isPaused) {
+      const moveInterval = setInterval(() => {
+        moveCart(moveDirection, true);
+      }, 50);
+      return () => clearInterval(moveInterval);
+    }
+  }, [moveDirection, isTouching, isGameActive, isPaused]);
 
   // Game loop management
   useEffect(() => {
@@ -296,7 +350,13 @@ export default function GameScreenWeb({ navigation }: GameScreenWebProps) {
 
   return (
     <View style={styles.outerContainer}>
-      <View style={[styles.gameContainer, { width: gameWidth, height: gameHeight }]} onTouchStart={handleTouch}>
+      <View 
+        style={[styles.gameContainer, { width: gameWidth, height: gameHeight }]} 
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onClick={handleClick}
+      >
         <LinearGradient
           colors={['#87CEEB', '#4682B4', '#1E90FF']}
           style={styles.skyBackground}
@@ -411,15 +471,13 @@ export default function GameScreenWeb({ navigation }: GameScreenWebProps) {
         </View>
       )}
       
-        {/* Touch Indicators */}
-        <View style={styles.touchIndicators}>
-          <View style={[styles.touchZone, styles.leftZone]}>
-            <Ionicons name="arrow-back" size={scale(30)} color="rgba(255,255,255,0.3)" />
+        {/* Touch Indicator - Show drag hint on mobile */}
+        {Platform.OS !== 'web' && isGameActive && !isPaused && (
+          <View style={styles.mobileHint}>
+            <Ionicons name="hand-left" size={scale(25)} color="rgba(255,255,255,0.5)" />
+            <Text style={styles.mobileHintText}>Drag to move</Text>
           </View>
-          <View style={[styles.touchZone, styles.rightZone]}>
-            <Ionicons name="arrow-forward" size={scale(30)} color="rgba(255,255,255,0.3)" />
-          </View>
-        </View>
+        )}
       </View>
       
       {/* Game Instructions - Outside game viewport */}
@@ -427,8 +485,8 @@ export default function GameScreenWeb({ navigation }: GameScreenWebProps) {
         <View style={styles.instructions}>
           <Text style={styles.instructionText}>
             {Platform.OS === 'web' 
-              ? '⌨️ Arrow Keys or A/D to move • Space/Esc to pause • 🖱️ Click sides to move'
-              : 'Tap left or right side to move cart'}
+              ? '⌨️ Arrow Keys or A/D to move • Space/Esc to pause • 🖱️ Click or drag to move'
+              : 'Touch and drag to move cart • Cart follows your finger'}
           </Text>
         </View>
       )}
@@ -729,27 +787,21 @@ const styles = StyleSheet.create({
     color: '#FF6B6B',
     fontSize: fontScale(16),
   },
-  touchIndicators: {
+  mobileHint: {
     position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+    bottom: scale(120),
+    alignSelf: 'center',
     flexDirection: 'row',
-    pointerEvents: 'none',
-  },
-  touchZone: {
-    flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    paddingHorizontal: scale(15),
+    paddingVertical: scale(8),
+    borderRadius: scale(20),
   },
-  leftZone: {
-    alignItems: 'flex-start',
-    paddingLeft: scale(20),
-  },
-  rightZone: {
-    alignItems: 'flex-end',
-    paddingRight: scale(20),
+  mobileHintText: {
+    color: 'rgba(255,255,255,0.7)',
+    fontSize: fontScale(12),
+    marginLeft: scale(8),
   },
   instructions: {
     position: 'absolute',
