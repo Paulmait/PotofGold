@@ -20,8 +20,8 @@ import ResponsiveGameLayout from './components/ResponsiveGameLayout';
 import GameScreen from './screens/GameScreen';
 import GameScreenEnhanced from './screens/GameScreenEnhanced';
 import GameScreenResponsive from './screens/GameScreenResponsive';
-import HomeScreen from './screens/HomeScreen';
-import AuthScreen from './screens/AuthScreen';
+import HomeScreenGuestGuest from './screens/HomeScreenGuestGuest';
+import AuthScreenFixedFixed from './screens/AuthScreenFixedFixed';
 import AdminPanel from './screens/AdminPanel';
 import SettingsScreen from './screens/SettingsScreen';
 import ShopScreen from './screens/ShopScreen';
@@ -217,12 +217,16 @@ export default function App() {
               />
             ) : !isAuthenticated ? (
               <>
-                <Stack.Screen name="Auth" component={AuthScreen} />
+                <Stack.Screen name="Home" component={HomeScreenGuest} />
                 <Stack.Screen name="Game" component={GameScreenResponsive} />
+                <Stack.Screen name="GameOver" component={GameOverScreen} />
+                <Stack.Screen name="Auth" component={AuthScreenFixed} />
+                <Stack.Screen name="Shop" component={ShopScreenPro} />
+                <Stack.Screen name="HowToPlay" component={HowToPlayScreen} />
               </>
             ) : (
               <>
-                <Stack.Screen name="Home" component={HomeScreen} />
+                <Stack.Screen name="Home" component={HomeScreenGuest} />
                 <Stack.Screen name="Game" component={GameScreenResponsive} />
                 <Stack.Screen name="Settings" component={SettingsScreen} />
                 <Stack.Screen name="Shop" component={ShopScreenPro} />
