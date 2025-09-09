@@ -23,9 +23,12 @@ interface LegalAgreementScreenProps {
 }
 
 const LegalAgreementScreen: React.FC<LegalAgreementScreenProps> = ({
-  onAccept,
-  onDecline,
+  navigation,
+  route,
 }) => {
+  // Get callbacks from route params
+  const onAccept = route?.params?.onAccept;
+  const onDecline = route?.params?.onDecline;
   const [loading, setLoading] = useState(false);
   const [startTime] = useState(Date.now());
   const [acceptedTerms, setAcceptedTerms] = useState(false);
@@ -34,11 +37,16 @@ const LegalAgreementScreen: React.FC<LegalAgreementScreenProps> = ({
 
   const handleAccept = async () => {
     if (!acceptedTerms || !acceptedPrivacy || !acceptedEULA) {
-      Alert.alert('Required', 'You must accept all agreements to continue.');
+      if (Platform.OS === 'web') {
+        alert('You must accept all agreements to continue.');
+      } else {
+        Alert.alert('Required', 'You must accept all agreements to continue.');
+      }
       return;
     }
 
     setLoading(true);
+    console.log('Accepting legal agreements...');
     
     try {
       await AsyncStorage.setItem('legal_accepted', 'true');
@@ -55,20 +63,30 @@ const LegalAgreementScreen: React.FC<LegalAgreementScreenProps> = ({
         timeSpentReading
       );
 
+      console.log('Legal agreements accepted, calling onAccept callback...');
       if (onAccept) {
         onAccept();
+      } else {
+        console.warn('No onAccept callback provided');
       }
     } catch (error) {
       console.error('Error saving agreement:', error);
-      Alert.alert('Error', 'Failed to save agreement. Please try again.');
+      if (Platform.OS === 'web') {
+        alert('Failed to save agreement. Please try again.');
+      } else {
+        Alert.alert('Error', 'Failed to save agreement. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
   };
 
   const handleDecline = () => {
+    console.log('Legal agreements declined');
     if (onDecline) {
       onDecline();
+    } else {
+      console.warn('No onDecline callback provided');
     }
   };
 
