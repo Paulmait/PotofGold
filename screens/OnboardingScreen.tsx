@@ -131,8 +131,19 @@ export default function OnboardingScreen({ route }: any) {
   }, []);
 
   const handleNext = () => {
-    gameSoundManager.playSound('buttonTap');
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    console.log('Next button pressed, current step:', currentStep);
+    try {
+      gameSoundManager.playSound('buttonTap');
+    } catch (e) {
+      console.log('Sound error:', e);
+    }
+    try {
+      if (Platform.OS !== 'web') {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      }
+    } catch (e) {
+      console.log('Haptics error:', e);
+    }
 
     if (currentStep < onboardingSteps.length - 1) {
       Animated.timing(slideAnim, {
@@ -155,9 +166,20 @@ export default function OnboardingScreen({ route }: any) {
   };
 
   const handlePrevious = () => {
+    console.log('Previous button pressed, current step:', currentStep);
     if (currentStep > 0) {
-      gameSoundManager.playSound('buttonTap');
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      try {
+        gameSoundManager.playSound('buttonTap');
+      } catch (e) {
+        console.log('Sound error:', e);
+      }
+      try {
+        if (Platform.OS !== 'web') {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        }
+      } catch (e) {
+        console.log('Haptics error:', e);
+      }
       
       Animated.timing(slideAnim, {
         toValue: width,
@@ -177,8 +199,19 @@ export default function OnboardingScreen({ route }: any) {
   };
 
   const handleSkip = () => {
-    gameSoundManager.playSound('buttonTap');
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    console.log('Skip button pressed');
+    try {
+      gameSoundManager.playSound('buttonTap');
+    } catch (e) {
+      console.log('Sound error:', e);
+    }
+    try {
+      if (Platform.OS !== 'web') {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      }
+    } catch (e) {
+      console.log('Haptics error:', e);
+    }
     completeOnboarding();
   };
 
@@ -205,7 +238,11 @@ export default function OnboardingScreen({ route }: any) {
         }
       });
       
-      gameSoundManager.playSound('levelUp');
+      try {
+        gameSoundManager.playSound('levelUp');
+      } catch (soundError) {
+        console.log('Sound error in complete:', soundError);
+      }
     } catch (error) {
       console.error('Error completing onboarding:', error);
       // Still try to proceed even if there's an error
