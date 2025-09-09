@@ -64,20 +64,19 @@ const LegalAgreementScreen: React.FC<LegalAgreementScreenProps> = ({
       );
 
       console.log('Legal agreements accepted, calling onAccept callback...');
+      
+      // Call the onAccept callback first to update state
       if (onAccept) {
-        onAccept();
-        // Navigate to Onboarding after accepting
-        if (navigation) {
-          setTimeout(() => {
-            navigation.navigate('Onboarding');
-          }, 100);
-        }
+        await onAccept();
+      }
+      
+      // Always navigate after accepting, regardless of callback
+      console.log('Navigating to Onboarding screen...');
+      if (navigation) {
+        // Use replace to prevent going back to legal screen
+        navigation.replace('Onboarding');
       } else {
-        console.warn('No onAccept callback provided');
-        // Fallback navigation
-        if (navigation) {
-          navigation.navigate('Onboarding');
-        }
+        console.error('No navigation object available');
       }
     } catch (error) {
       console.error('Error saving agreement:', error);

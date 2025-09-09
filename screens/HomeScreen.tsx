@@ -44,7 +44,7 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
 
   const handleStorePress = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    navigation.navigate('Store');
+    navigation.navigate('Shop');
   };
 
   const handleSettingsPress = () => {
@@ -59,17 +59,17 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
 
   const handleUpgradePress = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    navigation.navigate('Upgrade');
+    navigation.navigate('Shop'); // Upgrades are in the shop
   };
 
   const handleBuyGoldPress = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    navigation.navigate('BuyGold');
+    navigation.navigate('Shop'); // Coin packages are in the shop
   };
 
   const handleChallengePress = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    navigation.navigate('ChallengeFriends');
+    navigation.navigate('Leaderboard'); // Social features via leaderboard
   };
 
   const handleLeaderboardPress = () => {

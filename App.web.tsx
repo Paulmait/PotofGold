@@ -169,8 +169,10 @@ export default function AppWeb() {
                           }
                         }}
                       />
-                      {/* Add Onboarding screen as fallback during transition */}
+                      {/* Add all screens as fallback during transition */}
                       <Stack.Screen name="Onboarding" component={OnboardingScreen} />
+                      <Stack.Screen name="Home" component={HomeScreenGuest} />
+                      <Stack.Screen name="Game" component={GameScreenResponsive} />
                     </>
                   ) : !hasSeenOnboarding ? (
                     <>
