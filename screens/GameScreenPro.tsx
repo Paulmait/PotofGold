@@ -15,8 +15,8 @@ import * as Haptics from 'expo-haptics';
 
 // Professional Components
 import GameLoadingSplash from '../components/GameLoadingSplash';
-import MineBackground from '../components/MineBackground';
-import GoldRushCart from '../components/GoldRushCart';
+import SimpleMineBackground from '../components/SimpleMineBackground';
+import MiningCart from '../components/MiningCart';
 import GoldRushItem from '../components/GoldRushItems';
 import EnhancedParticleEffect from '../components/EnhancedParticleEffects';
 import GameHUD from '../components/GameHUD';
@@ -435,7 +435,7 @@ export default function GameScreenPro({ navigation }: GameScreenProProps) {
     >
       <Animated.View style={[styles.container, shakeTransform]}>
         {/* Parallax mine background */}
-        <MineBackground 
+        <SimpleMineBackground 
           speed={isCartMoving ? 2 : 1} 
           isPaused={isPaused}
           level={level}
@@ -502,7 +502,7 @@ export default function GameScreenPro({ navigation }: GameScreenProProps) {
             />
           ))}
           
-          {/* Gold Rush Mine Cart */}
+          {/* Mining Rail Cart */}
           <Animated.View
             style={[
               styles.cartContainer,
@@ -513,7 +513,7 @@ export default function GameScreenPro({ navigation }: GameScreenProProps) {
               },
             ]}
           >
-            <GoldRushCart
+            <MiningCart
               position={(cartPosition as any)._value}
               size={cartSize}
               isTurboActive={magnetActive || multiplierActive}
