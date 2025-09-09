@@ -5,6 +5,28 @@ import { getStorage } from 'firebase/storage';
 import { getAnalytics, isSupported } from 'firebase/analytics';
 import { getFunctions } from 'firebase/functions';
 
+// Declare process.env types
+declare global {
+  namespace NodeJS {
+    interface ProcessEnv {
+      EXPO_PUBLIC_FIREBASE_API_KEY?: string;
+      EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN?: string;
+      EXPO_PUBLIC_FIREBASE_PROJECT_ID?: string;
+      EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET?: string;
+      EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID?: string;
+      EXPO_PUBLIC_FIREBASE_APP_ID?: string;
+      EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID?: string;
+      FIREBASE_API_KEY?: string;
+      FIREBASE_AUTH_DOMAIN?: string;
+      FIREBASE_PROJECT_ID?: string;
+      FIREBASE_STORAGE_BUCKET?: string;
+      FIREBASE_MESSAGING_SENDER_ID?: string;
+      FIREBASE_APP_ID?: string;
+      FIREBASE_MEASUREMENT_ID?: string;
+    }
+  }
+}
+
 // Firebase configuration from environment variables
 // CRITICAL: Never commit real API keys to source control
 const firebaseConfig = {

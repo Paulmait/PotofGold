@@ -123,12 +123,12 @@ function GameScreen({ navigation }: any) {
   const handleTouchStart = (e: any) => {
     if (!gameActive || isPaused) return;
     
-    const touch = e.nativeEvent.touches ? e.nativeEvent.touches[0] : e.nativeEvent;
+    const touch = 'touches' in e.nativeEvent && e.nativeEvent.touches ? e.nativeEvent.touches[0] : e.nativeEvent;
     
     // Get relative position within game area
     if (gameAreaRef.current) {
       (gameAreaRef.current as any).measure((x: number, y: number, width: number, height: number, pageX: number, pageY: number) => {
-        const relativeX = (touch.pageX || touch.clientX) - pageX;
+        const relativeX = (touch.pageX || touch.clientX || 0) - pageX;
         touchStartXRef.current = relativeX;
         lastTouchRef.current = relativeX;
       });
@@ -138,11 +138,11 @@ function GameScreen({ navigation }: any) {
   const handleTouchMove = (e: any) => {
     if (!gameActive || isPaused || !touchStartXRef.current) return;
     
-    const touch = e.nativeEvent.touches ? e.nativeEvent.touches[0] : e.nativeEvent;
+    const touch = 'touches' in e.nativeEvent && e.nativeEvent.touches ? e.nativeEvent.touches[0] : e.nativeEvent;
     
     if (gameAreaRef.current) {
       (gameAreaRef.current as any).measure((x: number, y: number, width: number, height: number, pageX: number, pageY: number) => {
-        const relativeX = (touch.pageX || touch.clientX) - pageX;
+        const relativeX = (touch.pageX || touch.clientX || 0) - pageX;
         
         if (lastTouchRef.current !== null) {
           const deltaX = relativeX - lastTouchRef.current;
@@ -405,10 +405,12 @@ function GameScreen({ navigation }: any) {
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
-            onMouseDown={handleTouchStart}
-            onMouseMove={handleTouchMove}
-            onMouseUp={handleTouchEnd}
-            onMouseLeave={handleTouchEnd}
+            {...(Platform.OS === 'web' ? {
+              onMouseDown: handleTouchStart,
+              onMouseMove: handleTouchMove,
+              onMouseUp: handleTouchEnd,
+              onMouseLeave: handleTouchEnd,
+            } : {})}
           >
             {/* Background decoration */}
             <View style={styles.gameBackground}>

@@ -249,6 +249,7 @@ export const useGameEngine = () => {
       timeSurvived: gameState.timeSurvived,
       obstaclesAvoided: gameState.obstaclesAvoided,
       comboAchieved: gameState.combo,
+      comboCount: gameState.combo,
       powerUpsUsed: gameState.powerUpsUsed,
       accuracy: Math.min(100, (gameState.coins / Math.max(gameState.timeSurvived, 1)) * 100),
     };

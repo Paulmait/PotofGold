@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   View,
+  Text,
   StyleSheet,
   Dimensions,
   Platform,
@@ -121,9 +122,9 @@ const ResponsiveGameLayout: React.FC<ResponsiveGameLayoutProps> = ({
       {__DEV__ && (
         <View style={styles.debugInfo}>
           <View style={[styles.debugBadge, { backgroundColor: '#4CAF50' }]}>
-            <View style={styles.debugText}>
+            <Text style={styles.debugText}>
               {dimensions.width}x{dimensions.height} | {orientation} | {Platform.OS}
-            </View>
+            </Text>
           </View>
         </View>
       )}

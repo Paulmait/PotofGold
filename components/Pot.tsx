@@ -174,7 +174,7 @@ const Pot: React.FC<PotProps> = ({ size, skin, magnetActive }) => {
           ]}
         >
           <Ionicons
-            name="sparkles"
+            name={"sparkles" as keyof typeof Ionicons.glyphMap}
             size={size * 0.3}
             color="rgba(255, 255, 255, 0.3)"
           />
@@ -191,7 +191,7 @@ const Pot: React.FC<PotProps> = ({ size, skin, magnetActive }) => {
             },
           ]}
         >
-          <Ionicons name="magnet" size={20} color="#FFD700" />
+          <Ionicons name={"magnet" as keyof typeof Ionicons.glyphMap} size={20} color="#FFD700" />
         </Animated.View>
       )}
     </Animated.View>

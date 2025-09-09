@@ -24,6 +24,7 @@ import CartTrail from '../components/CartTrail';
 import BlockageDisplay from '../components/BlockageDisplay';
 import TutorialOverlay from '../components/TutorialOverlay';
 import MagnetEffect from '../components/MagnetEffect';
+import GameLoadingSplash from '../components/GameLoadingSplash';
 
 // Hooks
 import { useScreenShake } from '../hooks/useScreenShake';
@@ -56,6 +57,7 @@ export default function GameScreenEnhanced({ navigation }: GameScreenEnhancedPro
   const [showStartScreen, setShowStartScreen] = useState(true);
   const [showTutorial, setShowTutorial] = useState(false);
   const [isFirstTime, setIsFirstTime] = useState(true);
+  const [showLoadingSplash, setShowLoadingSplash] = useState(true);
   
   // Cart state with momentum
   const { position: cartPosition, moveTo, isMoving } = useMomentumMovement({
@@ -177,28 +179,46 @@ export default function GameScreenEnhanced({ navigation }: GameScreenEnhancedPro
     };
   }, []);
 
-  // Handle touch movement with momentum
+  // Handle touch movement with momentum and blockage checking
   const handleTouchMove = useCallback((touchX: number) => {
     if (!isGameActive || isPaused) return;
-    moveTo(touchX);
-    setIsCartMoving(true);
-  }, [isGameActive, isPaused, moveTo]);
+    
+    // Check if cart can move to this position
+    const blockageCheck = blockageManager.checkCartPassage(touchX - cartSize/2, cartSize);
+    if (blockageCheck.canPass) {
+      moveTo(touchX);
+      setIsCartMoving(true);
+    } else {
+      // Cart is blocked - show visual feedback
+      shake({ intensity: 5, duration: 100 });
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+    }
+  }, [isGameActive, isPaused, moveTo, cartSize, shake]);
 
-  // Handle tap with visual feedback
+  // Handle tap with visual feedback and blockage checking
   const handleTap = useCallback((touchX: number) => {
     if (!isGameActive || isPaused) return;
     
     // Add tap indicator
     addTapIndicator(touchX, height - 150);
     
-    // Move cart with momentum
-    moveTo(touchX);
-    setIsCartMoving(true);
-    
-    // Haptic feedback
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    gameSoundManager.playSound('buttonTap');
-  }, [isGameActive, isPaused, moveTo]);
+    // Check if cart can move to this position
+    const blockageCheck = blockageManager.checkCartPassage(touchX - cartSize/2, cartSize);
+    if (blockageCheck.canPass) {
+      // Move cart with momentum
+      moveTo(touchX);
+      setIsCartMoving(true);
+      
+      // Haptic feedback
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      gameSoundManager.playSound('buttonTap');
+    } else {
+      // Cart is blocked - show visual feedback
+      shake({ intensity: 10, duration: 200 });
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+      gameSoundManager.playSound('bombHit');
+    }
+  }, [isGameActive, isPaused, moveTo, cartSize, shake]);
 
   // Visual effect helpers
   const addTapIndicator = (x: number, y: number) => {
@@ -275,7 +295,7 @@ export default function GameScreenEnhanced({ navigation }: GameScreenEnhancedPro
 
   // Check collisions with magnetism
   useEffect(() => {
-    if (!isGameActive || isPaused) return;
+    if (!isGameActive) return; // Continue checking collisions even when paused
     
     const checkInterval = setInterval(() => {
       const cartX = (cartPosition as any)._value;
@@ -299,9 +319,11 @@ export default function GameScreenEnhanced({ navigation }: GameScreenEnhancedPro
         });
       }
       
-      fallingItems.forEach(item => {
-        // Magnetism effect
-        if (magnetActive) {
+      // Only process item interactions when not paused
+      if (!isPaused) {
+        fallingItems.forEach(item => {
+          // Magnetism effect
+          if (magnetActive) {
           const distance = Math.abs(item.x - cartX);
           if (distance < 150 && item.type !== 'bomb') {
             // Pull item towards cart
@@ -324,9 +346,9 @@ export default function GameScreenEnhanced({ navigation }: GameScreenEnhancedPro
             shake({ intensity: 20, duration: 400 });
           }
         }
-        
-        // Check if item hit ground (missed)
-        if (item.y > height - 100) {
+          
+          // Check if item hit ground (missed)
+          if (item.y > height - 100) {
           if (item.type !== 'bomb' && difficultyManager.shouldCreateBlockage()) {
             const result = blockageManager.addMissedItem({
               x: item.x,
@@ -342,10 +364,11 @@ export default function GameScreenEnhanced({ navigation }: GameScreenEnhancedPro
             }
           }
           
-          // Remove missed item
-          setFallingItems(prev => prev.filter(i => i.id !== item.id));
-        }
-      });
+            // Remove missed item
+            setFallingItems(prev => prev.filter(i => i.id !== item.id));
+          }
+        });
+      }
     }, 16);
     
     return () => clearInterval(checkInterval);
@@ -485,6 +508,16 @@ export default function GameScreenEnhanced({ navigation }: GameScreenEnhancedPro
       return () => clearTimeout(autoStartTimer);
     }
   }, [showStartScreen, showTutorial, isFirstTime, startGame]);
+
+  // Show loading splash first
+  if (showLoadingSplash) {
+    return (
+      <GameLoadingSplash
+        onComplete={() => setShowLoadingSplash(false)}
+        duration={2000}
+      />
+    );
+  }
 
   // Start screen with quick start
   if (showStartScreen && !showTutorial) {

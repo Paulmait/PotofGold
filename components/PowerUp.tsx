@@ -169,7 +169,7 @@ const PowerUp: React.FC<PowerUpProps> = ({ type }) => {
         ]}
       >
         <Ionicons
-          name={config.icon as any}
+          name={config.icon as keyof typeof Ionicons.glyphMap}
           size={config.size * 0.6}
           color="white"
         />
@@ -185,7 +185,7 @@ const PowerUp: React.FC<PowerUpProps> = ({ type }) => {
           },
         ]}
       >
-        <Ionicons name="sparkles" size={12} color={config.glowColor} />
+        <Ionicons name={"sparkles" as keyof typeof Ionicons.glyphMap} size={12} color={config.glowColor} />
       </Animated.View>
     </Animated.View>
   );

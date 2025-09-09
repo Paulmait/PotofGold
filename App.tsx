@@ -40,7 +40,10 @@ import crashReporting from './services/crashReporting';
 const Stack = createStackNavigator();
 
 // Mark app start time for performance tracking
-(global as any).appStartTime = Date.now();
+declare global {
+  var appStartTime: number;
+}
+globalThis.appStartTime = Date.now();
 
 // Wrapped GameScreen with responsive orientation support
 const ResponsiveGameScreen = (props: any) => {

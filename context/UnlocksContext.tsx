@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { onAuthStateChanged, User } from 'firebase/auth';
+import { onAuthStateChanged, type User } from 'firebase/auth';
 import { 
   doc, 
   collection, 
@@ -10,7 +10,7 @@ import {
   DocumentData,
   Unsubscribe
 } from 'firebase/firestore';
-import { auth, db } from '../firebase/firebase';
+import { auth, db } from '../firebase/config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Types for different unlock categories
@@ -137,7 +137,7 @@ export const UnlocksProvider: React.FC<UnlocksProviderProps> = ({ children }) =>
   const [unlocks, setUnlocks] = useState<UserUnlocks | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const [unsubscribe, setUnsubscribe] = useState<Unsubscribe | null>(null);
 
   // Initialize auth listener

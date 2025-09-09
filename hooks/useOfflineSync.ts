@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import NetInfo from '@react-native-async-storage/async-storage';
+import NetInfo from '@react-native-community/netinfo';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { offlineManager } from '../utils/offlineManager';
 import { masterGameManager } from '../utils/masterGameManager';
 
@@ -62,7 +63,9 @@ export const useOfflineSync = () => {
     setSyncState(prev => ({ ...prev, isSyncing: true, syncError: null }));
 
     try {
-      const pendingActions = await offlineManager.getPendingActions();
+      // Get pending actions from storage
+      const pendingActionsData = await AsyncStorage.getItem('offline_actions');
+      const pendingActions = pendingActionsData ? JSON.parse(pendingActionsData) : [];
       
       if (pendingActions.length === 0) {
         setSyncState(prev => ({
