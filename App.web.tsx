@@ -13,8 +13,8 @@ import { hasCompletedOnboarding, getDeviceAnalytics } from './utils/deviceTracki
 // Components
 import GameLoadingSplash from './components/GameLoadingSplash';
 
-// Screens - Use responsive version for web
-import GameScreenResponsive from './screens/GameScreenResponsive';
+// Screens - Use web-optimized versions
+import GameScreenWeb from './screens/GameScreenWeb';
 import HomeScreenWeb from './screens/HomeScreenWeb';
 import AuthScreenFixed from './screens/AuthScreenFixed';
 import AdminPanel from './screens/AdminPanel';
@@ -170,7 +170,7 @@ export default function AppWeb() {
                       {/* Add all screens as fallback during transition */}
                       <Stack.Screen name="Onboarding" component={OnboardingScreen} />
                       <Stack.Screen name="Home" component={HomeScreenWeb} />
-                      <Stack.Screen name="Game" component={GameScreenResponsive} />
+                      <Stack.Screen name="Game" component={GameScreenWeb} />
                     </>
                   ) : !hasSeenOnboarding ? (
                     <>
@@ -190,7 +190,7 @@ export default function AppWeb() {
                   ) : !isAuthenticated ? (
                     <>
                       <Stack.Screen name="Home" component={HomeScreenWeb} />
-                      <Stack.Screen name="Game" component={GameScreenResponsive} />
+                      <Stack.Screen name="Game" component={GameScreenWeb} />
                       <Stack.Screen name="GameOver" component={GameOverScreen} />
                       <Stack.Screen name="Auth" component={AuthScreenFixed} />
                       <Stack.Screen name="Shop" component={ShopScreenPro} />
@@ -199,7 +199,7 @@ export default function AppWeb() {
                   ) : (
                     <>
                       <Stack.Screen name="Home" component={HomeScreenWeb} />
-                      <Stack.Screen name="Game" component={GameScreenResponsive} />
+                      <Stack.Screen name="Game" component={GameScreenWeb} />
                       <Stack.Screen name="GameOver" component={GameOverScreen} />
                       <Stack.Screen name="Settings" component={SettingsScreen} />
                       <Stack.Screen name="Shop" component={ShopScreenPro} />
