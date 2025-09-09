@@ -25,6 +25,7 @@ import AuthScreen from './screens/AuthScreen';
 import AdminPanel from './screens/AdminPanel';
 import SettingsScreen from './screens/SettingsScreen';
 import ShopScreen from './screens/ShopScreen';
+import ShopScreenPro from './screens/ShopScreenPro';
 import SkinShopScreen from './screens/SkinShopScreen';
 import LockerScreen from './screens/LockerScreen';
 import LeaderboardScreen from './screens/LeaderboardScreen';
@@ -224,7 +225,7 @@ export default function App() {
                 <Stack.Screen name="Home" component={HomeScreen} />
                 <Stack.Screen name="Game" component={GameScreenPro} />
                 <Stack.Screen name="Settings" component={SettingsScreen} />
-                <Stack.Screen name="Shop" component={ShopScreen} />
+                <Stack.Screen name="Shop" component={ShopScreenPro} />
                 <Stack.Screen name="SkinShop" component={SkinShopScreen} />
                 <Stack.Screen name="Locker" component={LockerScreen} />
                 <Stack.Screen name="Leaderboard" component={LeaderboardScreen} />
