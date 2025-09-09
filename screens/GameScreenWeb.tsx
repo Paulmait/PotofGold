@@ -339,14 +339,39 @@ export default function GameScreenWeb({ navigation }: GameScreenWebProps) {
               top: item.y,
               width: itemSize,
               height: itemSize,
-              backgroundColor: 
-                item.type === 'gold' ? '#FFD700' :
-                item.type === 'diamond' ? '#B9F2FF' :
-                item.type === 'ruby' ? '#DC143C' :
-                '#808080',
             },
           ]}
-        />
+        >
+          {item.type === 'gold' && (
+            <View style={styles.goldCoin}>
+              <View style={styles.goldInner}>
+                <Text style={styles.goldText}>$</Text>
+              </View>
+              <View style={styles.goldShine} />
+            </View>
+          )}
+          {item.type === 'diamond' && (
+            <View style={styles.diamond}>
+              <View style={styles.diamondTop} />
+              <View style={styles.diamondBottom} />
+              <View style={styles.diamondShine} />
+            </View>
+          )}
+          {item.type === 'ruby' && (
+            <View style={styles.ruby}>
+              <View style={styles.rubyTop} />
+              <View style={styles.rubyMiddle} />
+              <View style={styles.rubyBottom} />
+            </View>
+          )}
+          {item.type === 'rock' && (
+            <View style={styles.rock}>
+              <View style={styles.rockLayer1} />
+              <View style={styles.rockLayer2} />
+              <View style={styles.rockCrack} />
+            </View>
+          )}
+        </View>
       ))}
       
       {/* Mining Cart */}
@@ -507,7 +532,147 @@ const styles = StyleSheet.create({
   },
   fallingItem: {
     position: 'absolute',
-    borderRadius: scale(5),
+  },
+  // Gold coin styles
+  goldCoin: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#FFD700',
+    borderRadius: scale(15),
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: scale(2),
+    borderColor: '#FFA500',
+    shadowColor: '#FFD700',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.5,
+    shadowRadius: 4,
+  },
+  goldInner: {
+    width: '80%',
+    height: '80%',
+    backgroundColor: '#FFC700',
+    borderRadius: scale(12),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  goldText: {
+    fontSize: fontScale(16),
+    fontWeight: 'bold',
+    color: '#B8860B',
+  },
+  goldShine: {
+    position: 'absolute',
+    top: scale(3),
+    right: scale(5),
+    width: scale(6),
+    height: scale(6),
+    backgroundColor: '#FFF',
+    borderRadius: scale(3),
+    opacity: 0.8,
+  },
+  // Diamond styles
+  diamond: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  diamondTop: {
+    width: 0,
+    height: 0,
+    borderLeftWidth: scale(15),
+    borderRightWidth: scale(15),
+    borderBottomWidth: scale(10),
+    borderStyle: 'solid',
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+    borderBottomColor: '#B9F2FF',
+    position: 'absolute',
+    top: 0,
+  },
+  diamondBottom: {
+    width: 0,
+    height: 0,
+    borderLeftWidth: scale(15),
+    borderRightWidth: scale(15),
+    borderTopWidth: scale(20),
+    borderStyle: 'solid',
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+    borderTopColor: '#87CEEB',
+    position: 'absolute',
+    bottom: 0,
+  },
+  diamondShine: {
+    position: 'absolute',
+    top: scale(8),
+    width: scale(4),
+    height: scale(4),
+    backgroundColor: '#FFF',
+    borderRadius: scale(2),
+    opacity: 0.9,
+  },
+  // Ruby styles
+  ruby: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  rubyTop: {
+    width: scale(25),
+    height: scale(8),
+    backgroundColor: '#DC143C',
+    position: 'absolute',
+    top: scale(2),
+  },
+  rubyMiddle: {
+    width: scale(28),
+    height: scale(14),
+    backgroundColor: '#E0115F',
+    borderRadius: scale(3),
+  },
+  rubyBottom: {
+    width: scale(20),
+    height: scale(8),
+    backgroundColor: '#8B0000',
+    position: 'absolute',
+    bottom: scale(2),
+    borderRadius: scale(2),
+  },
+  // Rock styles
+  rock: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#696969',
+    borderRadius: scale(8),
+    overflow: 'hidden',
+  },
+  rockLayer1: {
+    position: 'absolute',
+    width: '100%',
+    height: '40%',
+    backgroundColor: '#808080',
+    top: 0,
+  },
+  rockLayer2: {
+    position: 'absolute',
+    width: '70%',
+    height: '30%',
+    backgroundColor: '#A9A9A9',
+    bottom: scale(5),
+    left: scale(5),
+    borderRadius: scale(3),
+  },
+  rockCrack: {
+    position: 'absolute',
+    width: scale(2),
+    height: '60%',
+    backgroundColor: '#2C2C2C',
+    top: '20%',
+    left: '45%',
+    transform: [{ rotate: '15deg' }],
   },
   cartContainer: {
     position: 'absolute',
