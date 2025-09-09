@@ -191,24 +191,28 @@ export default function App() {
             }}
           >
             {!hasAcceptedLegal ? (
-              <Stack.Screen 
-                name="LegalAgreement" 
-                component={LegalAgreementScreen}
-                initialParams={{
-                  onAccept: async () => {
-                    await AsyncStorage.setItem('legal_accepted', 'true');
-                    await AsyncStorage.setItem('legal_version_accepted', legalVersion);
-                    setHasAcceptedLegal(true);
-                  },
-                  onDecline: () => {
-                    Alert.alert(
-                      'Agreement Required',
-                      'You must accept the legal agreements to use Pot of Gold.',
-                      [{ text: 'Exit', onPress: () => {} }]
-                    );
-                  }
-                }}
-              />
+              <>
+                <Stack.Screen 
+                  name="LegalAgreement" 
+                  component={LegalAgreementScreen}
+                  initialParams={{
+                    onAccept: async () => {
+                      await AsyncStorage.setItem('legal_accepted', 'true');
+                      await AsyncStorage.setItem('legal_version_accepted', legalVersion);
+                      setHasAcceptedLegal(true);
+                    },
+                    onDecline: () => {
+                      Alert.alert(
+                        'Agreement Required',
+                        'You must accept the legal agreements to use Pot of Gold.',
+                        [{ text: 'Exit', onPress: () => {} }]
+                      );
+                    }
+                  }}
+                />
+                {/* Add Onboarding screen as fallback during transition */}
+                <Stack.Screen name="Onboarding" component={OnboardingScreen} />
+              </>
             ) : !hasSeenOnboarding ? (
               <>
                 <Stack.Screen 

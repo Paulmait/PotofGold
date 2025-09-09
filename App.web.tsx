@@ -154,20 +154,24 @@ export default function AppWeb() {
                   }}
                 >
                   {!hasAcceptedLegal ? (
-                    <Stack.Screen 
-                      name="LegalAgreement" 
-                      component={LegalAgreementScreen}
-                      initialParams={{
-                        onAccept: async () => {
-                          await AsyncStorage.setItem('legal_accepted', 'true');
-                          await AsyncStorage.setItem('legal_version_accepted', legalVersion);
-                          setHasAcceptedLegal(true);
-                        },
-                        onDecline: () => {
-                          alert('You must accept the legal agreements to use Pot of Gold.');
-                        }
-                      }}
-                    />
+                    <>
+                      <Stack.Screen 
+                        name="LegalAgreement" 
+                        component={LegalAgreementScreen}
+                        initialParams={{
+                          onAccept: async () => {
+                            await AsyncStorage.setItem('legal_accepted', 'true');
+                            await AsyncStorage.setItem('legal_version_accepted', legalVersion);
+                            setHasAcceptedLegal(true);
+                          },
+                          onDecline: () => {
+                            alert('You must accept the legal agreements to use Pot of Gold.');
+                          }
+                        }}
+                      />
+                      {/* Add Onboarding screen as fallback during transition */}
+                      <Stack.Screen name="Onboarding" component={OnboardingScreen} />
+                    </>
                   ) : !hasSeenOnboarding ? (
                     <>
                       <Stack.Screen 
