@@ -184,8 +184,12 @@ export default function OnboardingScreen({ route }: any) {
 
   const completeOnboarding = async () => {
     try {
+      console.log('Completing onboarding...');
+      await AsyncStorage.setItem('hasSeenOnboarding', 'true');
       await AsyncStorage.setItem('onboarding_completed', 'true');
       await AsyncStorage.setItem('onboarding_date', new Date().toISOString());
+      
+      console.log('Onboarding data saved, calling callback...');
       
       Animated.timing(fadeAnim, {
         toValue: 0,
@@ -193,8 +197,10 @@ export default function OnboardingScreen({ route }: any) {
         useNativeDriver: true,
       }).start(() => {
         if (route?.params?.onComplete) {
+          console.log('Calling onComplete callback from route params');
           route.params.onComplete();
         } else {
+          console.log('No onComplete callback, navigating to Home');
           navigation.navigate('Home' as never);
         }
       });
@@ -202,7 +208,12 @@ export default function OnboardingScreen({ route }: any) {
       gameSoundManager.playSound('levelUp');
     } catch (error) {
       console.error('Error completing onboarding:', error);
-      navigation.navigate('Home' as never);
+      // Still try to proceed even if there's an error
+      if (route?.params?.onComplete) {
+        route.params.onComplete();
+      } else {
+        navigation.navigate('Home' as never);
+      }
     }
   };
 
