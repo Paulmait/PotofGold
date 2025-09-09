@@ -16,8 +16,8 @@ import ErrorBoundary from './components/ErrorBoundary';
 
 // Screens - Use responsive version for web
 import GameScreenResponsive from './screens/GameScreenResponsive';
-import HomeScreenGuestGuest from './screens/HomeScreenGuestGuest';
-import AuthScreenFixedFixed from './screens/AuthScreenFixedFixed';
+import HomeScreenGuest from './screens/HomeScreenGuest';
+import AuthScreenFixed from './screens/AuthScreenFixed';
 import AdminPanel from './screens/AdminPanel';
 import SettingsScreen from './screens/SettingsScreen';
 import ShopScreenPro from './screens/ShopScreenPro';
