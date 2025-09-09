@@ -14,13 +14,24 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 
 // Get screen dimensions
-const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+const { width: windowWidth, height: windowHeight } = Dimensions.get('window');
 
-// Web-optimized scaling
+// Game viewport dimensions - contained size for better playability
+const MAX_GAME_WIDTH = 450;
+const MAX_GAME_HEIGHT = 700;
+
+const gameWidth = Math.min(windowWidth, MAX_GAME_WIDTH);
+const gameHeight = Math.min(windowHeight, MAX_GAME_HEIGHT);
+
+// Calculate centering offsets for larger screens
+const horizontalOffset = windowWidth > MAX_GAME_WIDTH ? (windowWidth - MAX_GAME_WIDTH) / 2 : 0;
+const verticalOffset = windowHeight > MAX_GAME_HEIGHT ? (windowHeight - MAX_GAME_HEIGHT) / 2 : 0;
+
+// Web-optimized scaling based on game viewport
 const getWebScale = () => {
   if (Platform.OS === 'web') {
     const baseWidth = 375;
-    const scale = Math.min(screenWidth / baseWidth, 1.5);
+    const scale = Math.min(gameWidth / baseWidth, 1.2);
     return scale;
   }
   return 1;
@@ -46,8 +57,8 @@ export default function GameScreenWeb({ navigation }: GameScreenWebProps) {
   const [showStartScreen, setShowStartScreen] = useState(true);
   
   // Cart state
-  const [cartPosition, setCartPosition] = useState(screenWidth / 2 - scale(30));
-  const cartSpeed = scale(8);
+  const [cartPosition, setCartPosition] = useState(gameWidth / 2 - scale(30));
+  const cartSpeed = scale(12); // Increased speed for better control
   const cartSize = scale(60);
   
   // Falling items
@@ -60,12 +71,36 @@ export default function GameScreenWeb({ navigation }: GameScreenWebProps) {
   const spawnTimerRef = useRef<any>(null);
   
   useEffect(() => {
+    // Add keyboard controls for desktop
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (!isGameActive || isPaused) return;
+      
+      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+        moveCart('left');
+      } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+        moveCart('right');
+      } else if (e.key === ' ' || e.key === 'Escape') {
+        if (isPaused) {
+          resumeGame();
+        } else {
+          pauseGame();
+        }
+      }
+    };
+
+    if (Platform.OS === 'web') {
+      window.addEventListener('keydown', handleKeyPress);
+    }
+
     return () => {
       // Cleanup on unmount
       if (gameLoopRef.current) cancelAnimationFrame(gameLoopRef.current);
       if (spawnTimerRef.current) clearInterval(spawnTimerRef.current);
+      if (Platform.OS === 'web') {
+        window.removeEventListener('keydown', handleKeyPress);
+      }
     };
-  }, []);
+  }, [isGameActive, isPaused]);
 
   const startGame = () => {
     setShowStartScreen(false);
@@ -85,7 +120,7 @@ export default function GameScreenWeb({ navigation }: GameScreenWebProps) {
   const spawnItem = () => {
     const types = ['gold', 'diamond', 'ruby', 'rock'];
     const randomType = types[Math.floor(Math.random() * types.length)];
-    const randomX = Math.random() * (screenWidth - itemSize);
+    const randomX = Math.random() * (gameWidth - itemSize);
     
     setFallingItems(prev => [...prev, {
       id: Date.now() + Math.random(),
@@ -106,8 +141,8 @@ export default function GameScreenWeb({ navigation }: GameScreenWebProps) {
       })).filter(item => {
         // Check collision with cart
         if (
-          item.y + itemSize > screenHeight - scale(100) &&
-          item.y < screenHeight - scale(70) &&
+          item.y + itemSize > gameHeight - scale(100) &&
+          item.y < gameHeight - scale(70) &&
           item.x + itemSize > cartPosition &&
           item.x < cartPosition + cartSize
         ) {
@@ -122,7 +157,7 @@ export default function GameScreenWeb({ navigation }: GameScreenWebProps) {
         }
         
         // Remove items that fell off screen
-        return item.y < screenHeight;
+        return item.y < gameHeight;
       });
     });
     
@@ -132,15 +167,16 @@ export default function GameScreenWeb({ navigation }: GameScreenWebProps) {
   const moveCart = (direction: 'left' | 'right') => {
     setCartPosition(prev => {
       const newPos = direction === 'left' ? prev - cartSpeed : prev + cartSpeed;
-      return Math.max(0, Math.min(screenWidth - cartSize, newPos));
+      return Math.max(0, Math.min(gameWidth - cartSize, newPos));
     });
   };
 
   const handleTouch = (e: any) => {
     if (!isGameActive || isPaused) return;
     
-    const touchX = e.nativeEvent.locationX || e.nativeEvent.pageX;
-    const screenCenter = screenWidth / 2;
+    // Get touch position relative to game container
+    const touchX = (e.nativeEvent.locationX || e.nativeEvent.pageX) - horizontalOffset;
+    const screenCenter = gameWidth / 2;
     
     if (touchX < screenCenter) {
       moveCart('left');
@@ -214,11 +250,12 @@ export default function GameScreenWeb({ navigation }: GameScreenWebProps) {
   }
 
   return (
-    <View style={styles.container} onTouchStart={handleTouch}>
-      <LinearGradient
-        colors={['#87CEEB', '#4682B4', '#1E90FF']}
-        style={styles.skyBackground}
-      />
+    <View style={styles.outerContainer}>
+      <View style={[styles.gameContainer, { width: gameWidth, height: gameHeight }]} onTouchStart={handleTouch}>
+        <LinearGradient
+          colors={['#87CEEB', '#4682B4', '#1E90FF']}
+          style={styles.skyBackground}
+        />
       
       {/* Game HUD */}
       <View style={styles.hud}>
@@ -299,23 +336,48 @@ export default function GameScreenWeb({ navigation }: GameScreenWebProps) {
         </View>
       )}
       
-      {/* Touch Indicators */}
-      <View style={styles.touchIndicators}>
-        <View style={[styles.touchZone, styles.leftZone]}>
-          <Ionicons name="arrow-back" size={scale(30)} color="rgba(255,255,255,0.3)" />
-        </View>
-        <View style={[styles.touchZone, styles.rightZone]}>
-          <Ionicons name="arrow-forward" size={scale(30)} color="rgba(255,255,255,0.3)" />
+        {/* Touch Indicators */}
+        <View style={styles.touchIndicators}>
+          <View style={[styles.touchZone, styles.leftZone]}>
+            <Ionicons name="arrow-back" size={scale(30)} color="rgba(255,255,255,0.3)" />
+          </View>
+          <View style={[styles.touchZone, styles.rightZone]}>
+            <Ionicons name="arrow-forward" size={scale(30)} color="rgba(255,255,255,0.3)" />
+          </View>
         </View>
       </View>
+      
+      {/* Game Instructions - Outside game viewport */}
+      {isGameActive && !isPaused && (
+        <View style={styles.instructions}>
+          <Text style={styles.instructionText}>
+            {Platform.OS === 'web' 
+              ? '⌨️ Arrow Keys or A/D to move • Space/Esc to pause • 🖱️ Click sides to move'
+              : 'Tap left or right side to move cart'}
+          </Text>
+        </View>
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  outerContainer: {
     flex: 1,
+    backgroundColor: '#0a0a0a',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  gameContainer: {
     position: 'relative',
+    overflow: 'hidden',
+    borderRadius: scale(20),
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.5,
+    shadowRadius: 20,
+    elevation: 20,
+    backgroundColor: '#000',
   },
   skyBackground: {
     position: 'absolute',
@@ -480,5 +542,18 @@ const styles = StyleSheet.create({
   rightZone: {
     alignItems: 'flex-end',
     paddingRight: scale(20),
+  },
+  instructions: {
+    position: 'absolute',
+    bottom: scale(20),
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    paddingHorizontal: scale(20),
+    paddingVertical: scale(10),
+    borderRadius: scale(20),
+  },
+  instructionText: {
+    color: '#FFF',
+    fontSize: fontScale(14),
+    textAlign: 'center',
   },
 });
