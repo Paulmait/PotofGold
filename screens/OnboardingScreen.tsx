@@ -1,172 +1,298 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
-  ScrollView,
   Dimensions,
+  TouchableOpacity,
   Animated,
-  Alert,
+  ScrollView,
+  Platform,
 } from 'react-native';
-import { authSystem } from '../utils/authSystem';
-import { skinSystem } from '../utils/skinSystem';
-import { masterGameManager } from '../utils/masterGameManager';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
+import { gameSoundManager } from '../utils/gameSoundManager';
+import * as Haptics from 'expo-haptics';
 
 const { width, height } = Dimensions.get('window');
 
-interface OnboardingScreenProps {
-  navigation: any;
-  route?: {
-    params?: {
-      onComplete?: () => void;
-    };
-  };
+interface OnboardingStep {
+  id: number;
+  title: string;
+  description: string;
+  icon: string;
+  action?: 'swipe' | 'tap' | 'drag';
+  demo?: React.ReactNode;
 }
 
-export default function OnboardingScreen({ navigation, route }: OnboardingScreenProps) {
+export default function OnboardingScreen({ route }: any) {
+  const navigation = useNavigation();
   const [currentStep, setCurrentStep] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
-  const [userData, setUserData] = useState<any>(null);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(0.9)).current;
+  const rotateAnim = useRef(new Animated.Value(0)).current;
+  const pulseAnim = useRef(new Animated.Value(1)).current;
 
-  const fadeAnim = new Animated.Value(0);
-  const slideAnim = new Animated.Value(50);
-
-  useEffect(() => {
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 1000,
-        useNativeDriver: true,
-      }),
-      Animated.timing(slideAnim, {
-        toValue: 0,
-        duration: 1000,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  }, []);
-
-  const onboardingSteps = [
+  const onboardingSteps: OnboardingStep[] = [
     {
-      title: '🎉 Welcome to Pot of Gold!',
-      subtitle: 'Your gold-collecting adventure begins here',
-      description: 'We\'ve set up your account with everything you need to start your journey.',
-      icon: '🏆',
+      id: 0,
+      title: 'Welcome to Pot of Gold!',
+      description: 'Collect falling treasures and become the richest miner!',
+      icon: 'trophy',
     },
     {
-      title: '💰 Starting Bonus',
-      subtitle: '100 coins to get you started',
-      description: 'Use these coins to buy your first upgrades and unlock new content.',
-      icon: '💎',
+      id: 1,
+      title: 'Move Your Cart',
+      description: 'Tap anywhere on the screen to move your cart instantly',
+      icon: 'finger-print',
+      action: 'tap',
     },
     {
-      title: '🎨 Your First Skin',
-      subtitle: 'Florida Pot - The Sunshine State',
-      description: 'A beautiful pot with orange and palm tree vibes. More skins await!',
-      icon: '🌴',
+      id: 2,
+      title: 'Collect Treasures',
+      description: 'Catch coins, gems, and diamonds to earn points',
+      icon: 'diamond',
     },
     {
-      title: '📱 Cloud Sync Ready',
-      subtitle: 'Play anywhere, anytime',
-      description: 'Your progress syncs across all devices. Never lose your gold!',
-      icon: '☁️',
+      id: 3,
+      title: 'Avoid Bombs',
+      description: 'Watch out for bombs! They damage your cart',
+      icon: 'warning',
     },
     {
-      title: '🎯 Ready to Play!',
-      subtitle: 'Your adventure awaits',
-      description: 'Start collecting gold and building your empire!',
-      icon: '🚀',
+      id: 4,
+      title: 'Build Combos',
+      description: 'Collect items consecutively for huge multipliers',
+      icon: 'flame',
+    },
+    {
+      id: 5,
+      title: 'Use Power-Ups',
+      description: 'Grab special power-ups for temporary advantages',
+      icon: 'flash',
+    },
+    {
+      id: 6,
+      title: 'Clear Blockages',
+      description: 'Missed items create blockages - clear them quickly!',
+      icon: 'cube',
+    },
+    {
+      id: 7,
+      title: "Let's Play!",
+      description: 'Start collecting treasures and climb the leaderboard!',
+      icon: 'rocket',
     },
   ];
 
-  const handleSignUp = async () => {
-    setIsLoading(true);
-    
-    try {
-      // Simulate sign up process
-      const result = await authSystem.signUp('demo@example.com', 'password123', 'Demo User');
-      
-      if (result.success) {
-        // Initialize skin collection
-        await skinSystem.initializeCollection(result.user!.userId);
-        
-        // Initialize game manager
-        await masterGameManager.initializeGame(result.user!.userId);
-        
-        setUserData({
-          coins: 100,
-          potLevel: 1,
-          ownedSkins: ['florida'],
-          currentSkin: 'florida',
-          gems: 10,
-          experience: 0,
-          level: 1,
-        });
+  useEffect(() => {
+    // Entry animation
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true,
+      }),
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        friction: 8,
+        tension: 40,
+        useNativeDriver: true,
+      }),
+    ]).start();
 
-        setCurrentStep(1);
-      } else {
-        Alert.alert('Error', result.message);
-      }
-    } catch (error) {
-      Alert.alert('Error', 'Failed to create account');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    // Pulse animation
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
 
-  const handleNextStep = () => {
+    // Icon rotation
+    Animated.loop(
+      Animated.timing(rotateAnim, {
+        toValue: 1,
+        duration: 3000,
+        useNativeDriver: true,
+      })
+    ).start();
+  }, []);
+
+  const handleNext = () => {
+    gameSoundManager.playSound('buttonTap');
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
     if (currentStep < onboardingSteps.length - 1) {
-      setCurrentStep(currentStep + 1);
+      Animated.timing(slideAnim, {
+        toValue: -width,
+        duration: 300,
+        useNativeDriver: true,
+      }).start(() => {
+        setCurrentStep(currentStep + 1);
+        slideAnim.setValue(width);
+        Animated.spring(slideAnim, {
+          toValue: 0,
+          friction: 8,
+          tension: 40,
+          useNativeDriver: true,
+        }).start();
+      });
     } else {
-      // Complete onboarding
-      if (route?.params?.onComplete) {
-        route.params.onComplete();
-      } else {
-        navigation.replace('Game');
-      }
+      completeOnboarding();
     }
   };
 
-  const handleSkipOnboarding = () => {
-    if (route?.params?.onComplete) {
-      route.params.onComplete();
-    } else {
-      navigation.replace('Game');
+  const handlePrevious = () => {
+    if (currentStep > 0) {
+      gameSoundManager.playSound('buttonTap');
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      
+      Animated.timing(slideAnim, {
+        toValue: width,
+        duration: 300,
+        useNativeDriver: true,
+      }).start(() => {
+        setCurrentStep(currentStep - 1);
+        slideAnim.setValue(-width);
+        Animated.spring(slideAnim, {
+          toValue: 0,
+          friction: 8,
+          tension: 40,
+          useNativeDriver: true,
+        }).start();
+      });
     }
   };
 
-  const renderStep = () => {
-    const step = onboardingSteps[currentStep];
-    
+  const handleSkip = () => {
+    gameSoundManager.playSound('buttonTap');
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    completeOnboarding();
+  };
+
+  const completeOnboarding = async () => {
+    try {
+      await AsyncStorage.setItem('onboarding_completed', 'true');
+      await AsyncStorage.setItem('onboarding_date', new Date().toISOString());
+      
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start(() => {
+        if (route?.params?.onComplete) {
+          route.params.onComplete();
+        } else {
+          navigation.navigate('Home' as never);
+        }
+      });
+      
+      gameSoundManager.playSound('levelUp');
+    } catch (error) {
+      console.error('Error completing onboarding:', error);
+      navigation.navigate('Home' as never);
+    }
+  };
+
+  const renderStep = (step: OnboardingStep) => {
+    const spin = rotateAnim.interpolate({
+      inputRange: [0, 1],
+      outputRange: ['0deg', '360deg'],
+    });
+
     return (
-      <Animated.View 
+      <Animated.View
         style={[
           styles.stepContainer,
           {
+            transform: [
+              { translateX: slideAnim },
+              { scale: scaleAnim },
+            ],
             opacity: fadeAnim,
-            transform: [{ translateY: slideAnim }],
           },
         ]}
       >
-        <Text style={styles.stepIcon}>{step.icon}</Text>
-        <Text style={styles.stepTitle}>{step.title}</Text>
-        <Text style={styles.stepSubtitle}>{step.subtitle}</Text>
-        <Text style={styles.stepDescription}>{step.description}</Text>
-        
-        {currentStep === 1 && userData && (
-          <View style={styles.bonusContainer}>
-            <View style={styles.bonusItem}>
-              <Text style={styles.bonusIcon}>💰</Text>
-              <Text style={styles.bonusText}>{userData.coins} Coins</Text>
+        <Animated.View
+          style={[
+            styles.iconContainer,
+            step.id === 0 && {
+              transform: [{ rotate: spin }, { scale: pulseAnim }],
+            },
+          ]}
+        >
+          <Ionicons
+            name={step.icon as any}
+            size={80}
+            color="#FFD700"
+          />
+        </Animated.View>
+
+        <Text style={styles.title}>{step.title}</Text>
+        <Text style={styles.description}>{step.description}</Text>
+
+        {/* Demos for specific steps */}
+        {step.id === 1 && (
+          <View style={styles.demoContainer}>
+            <Animated.View
+              style={[
+                styles.demoCart,
+                { transform: [{ scale: pulseAnim }] },
+              ]}
+            />
+            <Text style={styles.demoText}>👆 Tap to move here</Text>
+          </View>
+        )}
+
+        {step.id === 2 && (
+          <View style={styles.itemsDemo}>
+            <View style={styles.demoItem}>
+              <Text style={styles.itemEmoji}>🪙</Text>
+              <Text style={styles.itemLabel}>Coin</Text>
+              <Text style={styles.itemValue}>+10</Text>
             </View>
-            <View style={styles.bonusItem}>
-              <Text style={styles.bonusIcon}>💎</Text>
-              <Text style={styles.bonusText}>{userData.gems} Gems</Text>
+            <View style={styles.demoItem}>
+              <Text style={styles.itemEmoji}>💎</Text>
+              <Text style={styles.itemLabel}>Gem</Text>
+              <Text style={styles.itemValue}>+25</Text>
             </View>
-            <View style={styles.bonusItem}>
-              <Text style={styles.bonusIcon}>🎨</Text>
-              <Text style={styles.bonusText}>Florida Pot Skin</Text>
+            <View style={styles.demoItem}>
+              <Text style={styles.itemEmoji}>💠</Text>
+              <Text style={styles.itemLabel}>Diamond</Text>
+              <Text style={styles.itemValue}>+50</Text>
+            </View>
+          </View>
+        )}
+
+        {step.id === 5 && (
+          <View style={styles.powerUpsDemo}>
+            <View style={styles.powerUpItem}>
+              <Text style={styles.powerUpEmoji}>🧲</Text>
+              <Text style={styles.powerUpLabel}>Magnet</Text>
+            </View>
+            <View style={styles.powerUpItem}>
+              <Text style={styles.powerUpEmoji}>🛡️</Text>
+              <Text style={styles.powerUpLabel}>Shield</Text>
+            </View>
+            <View style={styles.powerUpItem}>
+              <Text style={styles.powerUpEmoji}>⚡</Text>
+              <Text style={styles.powerUpLabel}>2x Points</Text>
+            </View>
+            <View style={styles.powerUpItem}>
+              <Text style={styles.powerUpEmoji}>⏰</Text>
+              <Text style={styles.powerUpLabel}>Slow Time</Text>
             </View>
           </View>
         )}
@@ -174,8 +300,12 @@ export default function OnboardingScreen({ navigation, route }: OnboardingScreen
     );
   };
 
-  const renderProgressDots = () => {
-    return (
+  return (
+    <LinearGradient
+      colors={['#1a1a2e', '#16213e', '#0f3460']}
+      style={styles.container}
+    >
+      {/* Progress dots */}
       <View style={styles.progressContainer}>
         {onboardingSteps.map((_, index) => (
           <View
@@ -183,240 +313,226 @@ export default function OnboardingScreen({ navigation, route }: OnboardingScreen
             style={[
               styles.progressDot,
               index === currentStep && styles.progressDotActive,
+              index < currentStep && styles.progressDotCompleted,
             ]}
           />
         ))}
       </View>
-    );
-  };
 
-  if (currentStep === 0) {
-    return (
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.logo}>🏆</Text>
-          <Text style={styles.title}>Pot of Gold</Text>
-          <Text style={styles.subtitle}>Collect gold, build your empire!</Text>
-        </View>
+      {/* Skip button */}
+      {currentStep < onboardingSteps.length - 1 && (
+        <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
+          <Text style={styles.skipText}>Skip</Text>
+        </TouchableOpacity>
+      )}
 
-        <View style={styles.content}>
-          <Text style={styles.welcomeText}>
-            Welcome to your gold-collecting adventure! We've prepared everything you need to start your journey.
-          </Text>
-
-          <View style={styles.featuresContainer}>
-            <View style={styles.featureItem}>
-              <Text style={styles.featureIcon}>💰</Text>
-              <Text style={styles.featureText}>100 Starting Coins</Text>
-            </View>
-            <View style={styles.featureItem}>
-              <Text style={styles.featureIcon}>🎨</Text>
-              <Text style={styles.featureText}>Free Florida Pot Skin</Text>
-            </View>
-            <View style={styles.featureItem}>
-              <Text style={styles.featureIcon}>☁️</Text>
-              <Text style={styles.featureText}>Cloud Sync Enabled</Text>
-            </View>
-            <View style={styles.featureItem}>
-              <Text style={styles.featureIcon}>📱</Text>
-              <Text style={styles.featureText}>Play Anywhere</Text>
-            </View>
-          </View>
-        </View>
-
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            style={[styles.primaryButton, isLoading && styles.buttonDisabled]}
-            onPress={handleSignUp}
-            disabled={isLoading}
-          >
-            <Text style={styles.primaryButtonText}>
-              {isLoading ? 'Setting up...' : 'Start Your Adventure'}
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.secondaryButton} onPress={handleSkipOnboarding}>
-            <Text style={styles.secondaryButtonText}>Skip Setup</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
-  }
-
-  return (
-    <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        {renderStep()}
+      {/* Content */}
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {renderStep(onboardingSteps[currentStep])}
       </ScrollView>
 
-      {renderProgressDots()}
+      {/* Navigation */}
+      <View style={styles.navigationContainer}>
+        {currentStep > 0 && (
+          <TouchableOpacity
+            style={[styles.navButton, styles.previousButton]}
+            onPress={handlePrevious}
+          >
+            <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
+          </TouchableOpacity>
+        )}
 
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.primaryButton} onPress={handleNextStep}>
-          <Text style={styles.primaryButtonText}>
-            {currentStep === onboardingSteps.length - 1 ? 'Start Playing!' : 'Next'}
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.secondaryButton} onPress={handleSkipOnboarding}>
-          <Text style={styles.secondaryButtonText}>Skip</Text>
+        <TouchableOpacity
+          style={[
+            styles.navButton,
+            styles.nextButton,
+            currentStep === onboardingSteps.length - 1 && styles.startButton,
+          ]}
+          onPress={handleNext}
+        >
+          {currentStep === onboardingSteps.length - 1 ? (
+            <>
+              <Text style={styles.startButtonText}>Start Playing</Text>
+              <Ionicons name="play" size={24} color="#FFFFFF" />
+            </>
+          ) : (
+            <>
+              <Text style={styles.nextButtonText}>Next</Text>
+              <Ionicons name="arrow-forward" size={24} color="#000000" />
+            </>
+          )}
         </TouchableOpacity>
       </View>
-    </View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a1a',
-  },
-  header: {
-    alignItems: 'center',
-    paddingTop: 60,
-    paddingBottom: 40,
-  },
-  logo: {
-    fontSize: 60,
-    marginBottom: 10,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#FFD700',
-    marginBottom: 10,
-  },
-  subtitle: {
-    fontSize: 18,
-    color: '#ccc',
-    textAlign: 'center',
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 30,
-  },
-  welcomeText: {
-    fontSize: 16,
-    color: '#fff',
-    textAlign: 'center',
-    lineHeight: 24,
-    marginBottom: 40,
-  },
-  featuresContainer: {
-    marginBottom: 40,
-  },
-  featureItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    backgroundColor: '#2a2a2a',
-    borderRadius: 15,
-  },
-  featureIcon: {
-    fontSize: 24,
-    marginRight: 15,
-  },
-  featureText: {
-    fontSize: 16,
-    color: '#fff',
-    fontWeight: '500',
   },
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'center',
-    paddingHorizontal: 30,
+    paddingHorizontal: 20,
+  },
+  progressContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: Platform.OS === 'ios' ? 60 : 40,
+    paddingBottom: 20,
+  },
+  progressDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    marginHorizontal: 4,
+  },
+  progressDotActive: {
+    width: 24,
+    backgroundColor: '#FFD700',
+  },
+  progressDotCompleted: {
+    backgroundColor: '#4CAF50',
+  },
+  skipButton: {
+    position: 'absolute',
+    top: Platform.OS === 'ios' ? 60 : 40,
+    right: 20,
+    zIndex: 1,
+  },
+  skipText: {
+    color: 'rgba(255, 255, 255, 0.7)',
+    fontSize: 16,
   },
   stepContainer: {
     alignItems: 'center',
     paddingVertical: 40,
   },
-  stepIcon: {
-    fontSize: 80,
-    marginBottom: 20,
+  iconContainer: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: 'rgba(255, 215, 0, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 30,
+    borderWidth: 2,
+    borderColor: 'rgba(255, 215, 0, 0.3)',
   },
-  stepTitle: {
+  title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#FFD700',
-    textAlign: 'center',
-    marginBottom: 10,
-  },
-  stepSubtitle: {
-    fontSize: 20,
-    color: '#fff',
+    color: '#FFFFFF',
     textAlign: 'center',
     marginBottom: 15,
   },
-  stepDescription: {
-    fontSize: 16,
-    color: '#ccc',
-    textAlign: 'center',
-    lineHeight: 24,
-    marginBottom: 30,
-  },
-  bonusContainer: {
-    width: '100%',
-    marginTop: 20,
-  },
-  bonusItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#2a2a2a',
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 10,
-  },
-  bonusIcon: {
-    fontSize: 24,
-    marginRight: 15,
-  },
-  bonusText: {
-    fontSize: 16,
-    color: '#fff',
-    fontWeight: '500',
-  },
-  progressContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    paddingVertical: 20,
-  },
-  progressDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: '#444',
-    marginHorizontal: 5,
-  },
-  progressDotActive: {
-    backgroundColor: '#FFD700',
-  },
-  buttonContainer: {
-    paddingHorizontal: 30,
-    paddingBottom: 40,
-  },
-  primaryButton: {
-    backgroundColor: '#FFD700',
-    paddingVertical: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginBottom: 15,
-  },
-  primaryButtonText: {
-    color: '#1a1a1a',
+  description: {
     fontSize: 18,
+    color: 'rgba(255, 255, 255, 0.8)',
+    textAlign: 'center',
+    lineHeight: 26,
+    paddingHorizontal: 20,
+  },
+  demoContainer: {
+    marginTop: 40,
+    alignItems: 'center',
+  },
+  demoCart: {
+    width: 60,
+    height: 40,
+    backgroundColor: '#8B4513',
+    borderRadius: 5,
+    marginBottom: 10,
+    borderWidth: 2,
+    borderColor: '#D2691E',
+  },
+  demoText: {
+    color: 'rgba(255, 255, 255, 0.6)',
+    fontSize: 14,
+  },
+  itemsDemo: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: 30,
+    width: '100%',
+  },
+  demoItem: {
+    alignItems: 'center',
+  },
+  itemEmoji: {
+    fontSize: 40,
+    marginBottom: 5,
+  },
+  itemLabel: {
+    color: 'rgba(255, 255, 255, 0.7)',
+    fontSize: 12,
+    marginBottom: 2,
+  },
+  itemValue: {
+    color: '#4CAF50',
+    fontSize: 14,
     fontWeight: 'bold',
   },
-  secondaryButton: {
-    paddingVertical: 15,
+  powerUpsDemo: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    marginTop: 30,
+  },
+  powerUpItem: {
     alignItems: 'center',
+    margin: 10,
   },
-  secondaryButtonText: {
-    color: '#ccc',
+  powerUpEmoji: {
+    fontSize: 36,
+    marginBottom: 5,
+  },
+  powerUpLabel: {
+    color: 'rgba(255, 255, 255, 0.7)',
+    fontSize: 11,
+  },
+  navigationContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingBottom: Platform.OS === 'ios' ? 40 : 20,
+    paddingTop: 20,
+  },
+  navButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 25,
+    minWidth: 100,
+    justifyContent: 'center',
+  },
+  previousButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  nextButton: {
+    backgroundColor: '#FFD700',
+  },
+  startButton: {
+    backgroundColor: '#4CAF50',
+    paddingHorizontal: 30,
+  },
+  nextButtonText: {
+    color: '#000000',
     fontSize: 16,
+    fontWeight: 'bold',
+    marginRight: 5,
   },
-  buttonDisabled: {
-    opacity: 0.6,
+  startButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginRight: 5,
   },
-}); 
+});
