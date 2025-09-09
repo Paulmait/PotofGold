@@ -1,5 +1,7 @@
 import { Audio } from 'expo-av';
 import * as Haptics from 'expo-haptics';
+import { soundGenerator } from './soundGenerator';
+import { Platform } from 'react-native';
 
 interface SoundEffect {
   sound: Audio.Sound | null;
@@ -9,15 +11,14 @@ interface SoundEffect {
 class GameSoundManager {
   private sounds: Map<string, SoundEffect> = new Map();
   private backgroundMusic: Audio.Sound | null = null;
+  private backgroundMusicWeb: AudioBufferSourceNode | null = null;
   private isMuted: boolean = false;
   private soundVolume: number = 0.7;
   private musicVolume: number = 0.3;
+  private useProceduralSounds: boolean = true; // Use generated sounds
   
-  // Sound file mappings - using placeholders for now
-  private soundFiles: { [key: string]: any } = {
-    // These will be actual sound files in production
-    // For now, using empty objects to prevent require errors
-  };
+  // Sound file mappings - using procedural generation
+  private soundFiles: { [key: string]: any } = {};
   
   constructor() {
     this.initialize();
@@ -76,7 +77,28 @@ class GameSoundManager {
         this.playHaptic(soundName);
       }
       
-      // Get or load the sound
+      // Use procedural sounds for web or if enabled
+      if (this.useProceduralSounds || Platform.OS === 'web') {
+        // Map sound names to procedural sound types
+        const soundMap: { [key: string]: string } = {
+          coinCollect: 'coin',
+          gemCollect: 'gem',
+          diamondCollect: 'diamond',
+          bombHit: 'explosion',
+          powerupCollect: 'powerup',
+          levelUp: 'levelup',
+          comboIncrease: 'combo',
+          gameOver: 'gameover',
+          buttonTap: 'tap',
+          pause: 'pause',
+        };
+        
+        const proceduralSound = soundMap[soundName] || soundName;
+        soundGenerator.playSound(proceduralSound, options?.volume ?? this.soundVolume);
+        return;
+      }
+      
+      // Fallback to file-based sounds
       let soundEffect = this.sounds.get(soundName);
       
       if (!soundEffect || !soundEffect.isLoaded) {
@@ -120,7 +142,25 @@ class GameSoundManager {
   }
   
   public async startBackgroundMusic() {
-    if (this.isMuted || this.backgroundMusic) return;
+    if (this.isMuted) return;
+    
+    // Use procedural music for web
+    if (this.useProceduralSounds || Platform.OS === 'web') {
+      if (this.backgroundMusicWeb) return; // Already playing
+      
+      try {
+        this.backgroundMusicWeb = soundGenerator.createBackgroundMusic();
+        if (this.backgroundMusicWeb) {
+          this.backgroundMusicWeb.start(0);
+        }
+      } catch (error) {
+        console.log('Error starting procedural background music:', error);
+      }
+      return;
+    }
+    
+    // File-based music for native
+    if (this.backgroundMusic) return;
     
     try {
       const { sound } = await Audio.Sound.createAsync(
