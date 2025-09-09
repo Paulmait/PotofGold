@@ -169,16 +169,20 @@ export default function AppWeb() {
                       }}
                     />
                   ) : !hasSeenOnboarding ? (
-                    <Stack.Screen 
-                      name="Onboarding" 
-                      component={OnboardingScreen}
-                      initialParams={{
-                        onComplete: async () => {
-                          await AsyncStorage.setItem('hasSeenOnboarding', 'true');
-                          setHasSeenOnboarding(true);
-                        }
-                      }}
-                    />
+                    <>
+                      <Stack.Screen 
+                        name="Onboarding" 
+                        component={OnboardingScreen}
+                        initialParams={{
+                          onComplete: async () => {
+                            await AsyncStorage.setItem('hasSeenOnboarding', 'true');
+                            setHasSeenOnboarding(true);
+                          }
+                        }}
+                      />
+                      {/* Add Home screen as fallback during transition */}
+                      <Stack.Screen name="Home" component={HomeScreenGuest} />
+                    </>
                   ) : !isAuthenticated ? (
                     <>
                       <Stack.Screen name="Home" component={HomeScreenGuest} />

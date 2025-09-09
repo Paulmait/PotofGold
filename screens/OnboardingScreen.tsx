@@ -243,10 +243,17 @@ export default function OnboardingScreen({ route }: any) {
     // Navigate immediately without animation to prevent screen disappearing
     if (route?.params?.onComplete) {
       console.log('Calling onComplete callback from route params');
-      route.params.onComplete();
+      try {
+        route.params.onComplete();
+      } catch (error) {
+        console.error('Error calling onComplete:', error);
+        // Fallback navigation
+        navigation.replace('Home' as never);
+      }
     } else {
-      console.log('No onComplete callback, navigating to Home');
-      navigation.navigate('Home' as never);
+      console.log('No onComplete callback, using navigation.replace to Home');
+      // Use replace instead of navigate to ensure proper screen transition
+      navigation.replace('Home' as never);
     }
   };
 
