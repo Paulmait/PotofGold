@@ -198,7 +198,7 @@ export default function OnboardingScreen({ route }: any) {
     }
   };
 
-  const handleSkip = () => {
+  const handleSkip = async () => {
     console.log('Skip button pressed');
     try {
       gameSoundManager.playSound('buttonTap');
@@ -212,45 +212,38 @@ export default function OnboardingScreen({ route }: any) {
     } catch (e) {
       console.log('Haptics error:', e);
     }
-    completeOnboarding();
+    
+    // Call completeOnboarding and wait for it
+    await completeOnboarding();
   };
 
   const completeOnboarding = async () => {
+    console.log('Completing onboarding...');
+    
     try {
-      console.log('Completing onboarding...');
+      // Save onboarding completion status
       await AsyncStorage.setItem('hasSeenOnboarding', 'true');
       await AsyncStorage.setItem('onboarding_completed', 'true');
       await AsyncStorage.setItem('onboarding_date', new Date().toISOString());
-      
-      console.log('Onboarding data saved, calling callback...');
-      
-      Animated.timing(fadeAnim, {
-        toValue: 0,
-        duration: 300,
-        useNativeDriver: true,
-      }).start(() => {
-        if (route?.params?.onComplete) {
-          console.log('Calling onComplete callback from route params');
-          route.params.onComplete();
-        } else {
-          console.log('No onComplete callback, navigating to Home');
-          navigation.navigate('Home' as never);
-        }
-      });
-      
-      try {
-        gameSoundManager.playSound('levelUp');
-      } catch (soundError) {
-        console.log('Sound error in complete:', soundError);
-      }
+      console.log('Onboarding data saved');
     } catch (error) {
-      console.error('Error completing onboarding:', error);
-      // Still try to proceed even if there's an error
-      if (route?.params?.onComplete) {
-        route.params.onComplete();
-      } else {
-        navigation.navigate('Home' as never);
-      }
+      console.error('Error saving onboarding data:', error);
+    }
+
+    // Try to play sound (non-blocking)
+    try {
+      gameSoundManager.playSound('levelUp');
+    } catch (soundError) {
+      console.log('Sound error in complete:', soundError);
+    }
+
+    // Navigate immediately without animation to prevent screen disappearing
+    if (route?.params?.onComplete) {
+      console.log('Calling onComplete callback from route params');
+      route.params.onComplete();
+    } else {
+      console.log('No onComplete callback, navigating to Home');
+      navigation.navigate('Home' as never);
     }
   };
 
