@@ -61,7 +61,7 @@ class BlockageManager {
     const blockage: Blockage = {
       id: `blockage_${Date.now()}_${Math.random()}`,
       x: item.x - blockageWidth / 2,
-      y: height - 100 - (targetLayer * (this.blockageHeight + this.blockageSpacing)),
+      y: height - 120 - (targetLayer * (this.blockageHeight + this.blockageSpacing)), // Position on rail track level
       width: blockageWidth,
       height: this.blockageHeight,
       type: item.type,

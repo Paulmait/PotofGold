@@ -326,6 +326,9 @@ const styles = StyleSheet.create({
   statsButton: {
     backgroundColor: 'rgba(155, 89, 182, 0.9)',
   },
+  howToPlayButton: {
+    backgroundColor: 'rgba(0, 188, 212, 0.9)',
+  },
   tertiaryButtonText: {
     fontSize: 14,
     fontWeight: 'bold',

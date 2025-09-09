@@ -19,6 +19,7 @@ import ResponsiveGameLayout from './components/ResponsiveGameLayout';
 // Screens
 import GameScreen from './screens/GameScreen';
 import GameScreenEnhanced from './screens/GameScreenEnhanced';
+import GameScreenPro from './screens/GameScreenPro';
 import HomeScreen from './screens/HomeScreen';
 import AuthScreen from './screens/AuthScreen';
 import AdminPanel from './screens/AdminPanel';
@@ -29,6 +30,7 @@ import LockerScreen from './screens/LockerScreen';
 import LeaderboardScreen from './screens/LeaderboardScreen';
 import StatsScreen from './screens/StatsScreen';
 import OnboardingScreen from './screens/OnboardingScreen';
+import HowToPlayScreen from './screens/HowToPlayScreen';
 import PauseModal from './screens/PauseModal';
 import GameOverScreen from './screens/GameOverScreen';
 import LegalAgreementScreen from './screens/LegalAgreementScreen';
@@ -215,18 +217,19 @@ export default function App() {
             ) : !isAuthenticated ? (
               <>
                 <Stack.Screen name="Auth" component={AuthScreen} />
-                <Stack.Screen name="Game" component={GameScreenEnhanced} />
+                <Stack.Screen name="Game" component={GameScreenPro} />
               </>
             ) : (
               <>
                 <Stack.Screen name="Home" component={HomeScreen} />
-                <Stack.Screen name="Game" component={GameScreenEnhanced} />
+                <Stack.Screen name="Game" component={GameScreenPro} />
                 <Stack.Screen name="Settings" component={SettingsScreen} />
                 <Stack.Screen name="Shop" component={ShopScreen} />
                 <Stack.Screen name="SkinShop" component={SkinShopScreen} />
                 <Stack.Screen name="Locker" component={LockerScreen} />
                 <Stack.Screen name="Leaderboard" component={LeaderboardScreen} />
                 <Stack.Screen name="Stats" component={StatsScreen} />
+                <Stack.Screen name="HowToPlay" component={HowToPlayScreen} />
                 {isAdmin && (
                   <Stack.Screen name="AdminPanel" component={AdminPanel} />
                 )}
