@@ -16,7 +16,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 
 // Screens - Use responsive version for web
 import GameScreenResponsive from './screens/GameScreenResponsive';
-import HomeScreenGuest from './screens/HomeScreenGuest';
+import HomeScreenWeb from './screens/HomeScreenWeb';
 import AuthScreenFixed from './screens/AuthScreenFixed';
 import AdminPanel from './screens/AdminPanel';
 import SettingsScreen from './screens/SettingsScreen';
@@ -171,7 +171,7 @@ export default function AppWeb() {
                       />
                       {/* Add all screens as fallback during transition */}
                       <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-                      <Stack.Screen name="Home" component={HomeScreenGuest} />
+                      <Stack.Screen name="Home" component={HomeScreenWeb} />
                       <Stack.Screen name="Game" component={GameScreenResponsive} />
                     </>
                   ) : !hasSeenOnboarding ? (
@@ -187,11 +187,11 @@ export default function AppWeb() {
                         }}
                       />
                       {/* Add Home screen as fallback during transition */}
-                      <Stack.Screen name="Home" component={HomeScreenGuest} />
+                      <Stack.Screen name="Home" component={HomeScreenWeb} />
                     </>
                   ) : !isAuthenticated ? (
                     <>
-                      <Stack.Screen name="Home" component={HomeScreenGuest} />
+                      <Stack.Screen name="Home" component={HomeScreenWeb} />
                       <Stack.Screen name="Game" component={GameScreenResponsive} />
                       <Stack.Screen name="GameOver" component={GameOverScreen} />
                       <Stack.Screen name="Auth" component={AuthScreenFixed} />
@@ -200,7 +200,7 @@ export default function AppWeb() {
                     </>
                   ) : (
                     <>
-                      <Stack.Screen name="Home" component={HomeScreenGuest} />
+                      <Stack.Screen name="Home" component={HomeScreenWeb} />
                       <Stack.Screen name="Game" component={GameScreenResponsive} />
                       <Stack.Screen name="GameOver" component={GameOverScreen} />
                       <Stack.Screen name="Settings" component={SettingsScreen} />
