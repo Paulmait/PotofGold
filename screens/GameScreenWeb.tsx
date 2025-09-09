@@ -12,6 +12,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import MiningCart from '../components/MiningCart';
 
 // Get screen dimensions
 const { width: windowWidth, height: windowHeight } = Dimensions.get('window');
@@ -55,11 +56,13 @@ export default function GameScreenWeb({ navigation }: GameScreenWebProps) {
   const [lives, setLives] = useState(5);
   const [level, setLevel] = useState(1);
   const [showStartScreen, setShowStartScreen] = useState(true);
+  const [cartSkin, setCartSkin] = useState<'default' | 'golden' | 'diamond' | 'emerald' | 'ruby'>('default');
+  const [isCartMoving, setIsCartMoving] = useState(false);
   
   // Cart state
-  const [cartPosition, setCartPosition] = useState(gameWidth / 2 - scale(30));
+  const [cartPosition, setCartPosition] = useState(gameWidth / 2 - scale(35));
   const cartSpeed = scale(12); // Increased speed for better control
-  const cartSize = scale(60);
+  const cartSize = scale(70); // Slightly larger for mining cart
   
   // Falling items
   const [fallingItems, setFallingItems] = useState<any[]>([]);
@@ -70,6 +73,22 @@ export default function GameScreenWeb({ navigation }: GameScreenWebProps) {
   const gameLoopRef = useRef<any>(null);
   const spawnTimerRef = useRef<any>(null);
   
+  // Load saved cart skin
+  useEffect(() => {
+    loadCartSkin();
+  }, []);
+
+  const loadCartSkin = async () => {
+    try {
+      const savedSkin = await AsyncStorage.getItem('selected_cart_skin');
+      if (savedSkin) {
+        setCartSkin(savedSkin as any);
+      }
+    } catch (error) {
+      console.error('Error loading cart skin:', error);
+    }
+  };
+
   useEffect(() => {
     // Add keyboard controls for desktop
     const handleKeyPress = (e: KeyboardEvent) => {
@@ -139,9 +158,9 @@ export default function GameScreenWeb({ navigation }: GameScreenWebProps) {
         ...item,
         y: item.y + fallSpeed,
       })).filter(item => {
-        // Check collision with cart
+        // Check collision with cart (adjusted for mining cart height)
         if (
-          item.y + itemSize > gameHeight - scale(100) &&
+          item.y + itemSize > gameHeight - scale(110) &&
           item.y < gameHeight - scale(70) &&
           item.x + itemSize > cartPosition &&
           item.x < cartPosition + cartSize
@@ -165,10 +184,13 @@ export default function GameScreenWeb({ navigation }: GameScreenWebProps) {
   };
 
   const moveCart = (direction: 'left' | 'right') => {
+    setIsCartMoving(true);
     setCartPosition(prev => {
       const newPos = direction === 'left' ? prev - cartSpeed : prev + cartSpeed;
       return Math.max(0, Math.min(gameWidth - cartSize, newPos));
     });
+    // Stop movement animation after a short delay
+    setTimeout(() => setIsCartMoving(false), 150);
   };
 
   const handleTouch = (e: any) => {
@@ -221,6 +243,14 @@ export default function GameScreenWeb({ navigation }: GameScreenWebProps) {
       endGame();
     }
   }, [lives]);
+
+  // Level progression based on score
+  useEffect(() => {
+    const newLevel = Math.floor(score / 100) + 1;
+    if (newLevel > level) {
+      setLevel(newLevel);
+    }
+  }, [score]);
 
   if (showStartScreen) {
     return (
@@ -304,18 +334,23 @@ export default function GameScreenWeb({ navigation }: GameScreenWebProps) {
         />
       ))}
       
-      {/* Cart */}
+      {/* Mining Cart */}
       <View
         style={[
-          styles.cart,
+          styles.cartContainer,
           {
             left: cartPosition,
-            width: cartSize,
-            height: scale(40),
+            bottom: scale(60),
           },
         ]}
       >
-        <Text style={styles.cartEmoji}>🛒</Text>
+        <MiningCart
+          position={0}
+          size={cartSize}
+          skin={cartSkin}
+          isMoving={isCartMoving}
+          level={Math.min(level, 5)}
+        />
       </View>
       
       {/* Ground */}
@@ -459,16 +494,9 @@ const styles = StyleSheet.create({
     position: 'absolute',
     borderRadius: scale(5),
   },
-  cart: {
+  cartContainer: {
     position: 'absolute',
-    bottom: scale(60),
-    backgroundColor: '#8B4513',
-    borderRadius: scale(10),
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  cartEmoji: {
-    fontSize: fontScale(30),
+    zIndex: 10,
   },
   ground: {
     position: 'absolute',
