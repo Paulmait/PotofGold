@@ -12,7 +12,6 @@ import { hasCompletedOnboarding, getDeviceAnalytics } from './utils/deviceTracki
 
 // Components
 import GameLoadingSplash from './components/GameLoadingSplash';
-import ErrorBoundary from './components/ErrorBoundary';
 
 // Screens - Use responsive version for web
 import GameScreenResponsive from './screens/GameScreenResponsive';
@@ -136,9 +135,8 @@ export default function AppWeb() {
   }
 
   return (
-    <ErrorBoundary>
-      <View style={styles.appContainer}>
-        <NavigationContainer>
+    <View style={styles.appContainer}>
+      <NavigationContainer>
           <UnlocksProvider>
             <UserUnlockProvider>
               <GameProvider>
@@ -221,7 +219,6 @@ export default function AppWeb() {
           </UnlocksProvider>
         </NavigationContainer>
       </View>
-    </ErrorBoundary>
   );
 }
 
