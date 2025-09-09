@@ -13,8 +13,8 @@ import { auth } from './firebase/auth';
 import GameLoadingSplash from './components/GameLoadingSplash';
 import ErrorBoundary from './components/ErrorBoundary';
 
-// Screens - Use Pro versions for web
-import GameScreenPro from './screens/GameScreenPro';
+// Screens - Use responsive version for web
+import GameScreenResponsive from './screens/GameScreenResponsive';
 import HomeScreen from './screens/HomeScreen';
 import AuthScreen from './screens/AuthScreen';
 import AdminPanel from './screens/AdminPanel';
@@ -177,13 +177,13 @@ export default function AppWeb() {
                   ) : !isAuthenticated ? (
                     <>
                       <Stack.Screen name="Auth" component={AuthScreen} />
-                      <Stack.Screen name="Game" component={GameScreenPro} />
+                      <Stack.Screen name="Game" component={GameScreenResponsive} />
                       <Stack.Screen name="GameOver" component={GameOverScreen} />
                     </>
                   ) : (
                     <>
                       <Stack.Screen name="Home" component={HomeScreen} />
-                      <Stack.Screen name="Game" component={GameScreenPro} />
+                      <Stack.Screen name="Game" component={GameScreenResponsive} />
                       <Stack.Screen name="GameOver" component={GameOverScreen} />
                       <Stack.Screen name="Settings" component={SettingsScreen} />
                       <Stack.Screen name="Shop" component={ShopScreenPro} />
