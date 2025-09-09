@@ -123,17 +123,11 @@ export default function GameScreenWeb({ navigation }: GameScreenWebProps) {
 
   const startGame = () => {
     setShowStartScreen(false);
-    setIsGameActive(true);
     setScore(0);
     setLives(5);
     setLevel(1);
     setFallingItems([]);
-    
-    // Start spawning items
-    spawnTimerRef.current = setInterval(spawnItem, 1500);
-    
-    // Start game loop
-    gameLoop();
+    setIsGameActive(true); // Set this last to trigger the useEffect
   };
 
   const spawnItem = () => {
@@ -150,9 +144,7 @@ export default function GameScreenWeb({ navigation }: GameScreenWebProps) {
     }]);
   };
 
-  const gameLoop = () => {
-    if (!isGameActive) return;
-    
+  const gameLoop = useCallback(() => {
     setFallingItems(prev => {
       return prev.map(item => ({
         ...item,
@@ -180,8 +172,10 @@ export default function GameScreenWeb({ navigation }: GameScreenWebProps) {
       });
     });
     
-    gameLoopRef.current = requestAnimationFrame(gameLoop);
-  };
+    if (isGameActive && !isPaused) {
+      gameLoopRef.current = requestAnimationFrame(gameLoop);
+    }
+  }, [isGameActive, isPaused, cartPosition, gameHeight, itemSize, cartSize, fallSpeed]);
 
   const moveCart = (direction: 'left' | 'right') => {
     setIsCartMoving(true);
@@ -209,14 +203,10 @@ export default function GameScreenWeb({ navigation }: GameScreenWebProps) {
 
   const pauseGame = () => {
     setIsPaused(true);
-    if (gameLoopRef.current) cancelAnimationFrame(gameLoopRef.current);
-    if (spawnTimerRef.current) clearInterval(spawnTimerRef.current);
   };
 
   const resumeGame = () => {
     setIsPaused(false);
-    spawnTimerRef.current = setInterval(spawnItem, 1500);
-    gameLoop();
   };
 
   const endGame = async () => {
@@ -251,6 +241,31 @@ export default function GameScreenWeb({ navigation }: GameScreenWebProps) {
       setLevel(newLevel);
     }
   }, [score]);
+
+  // Game loop management
+  useEffect(() => {
+    if (isGameActive && !isPaused) {
+      // Start spawning items
+      spawnTimerRef.current = setInterval(spawnItem, 1500);
+      
+      // Start game loop
+      gameLoop();
+    } else {
+      // Stop spawning
+      if (spawnTimerRef.current) {
+        clearInterval(spawnTimerRef.current);
+      }
+      // Stop game loop
+      if (gameLoopRef.current) {
+        cancelAnimationFrame(gameLoopRef.current);
+      }
+    }
+    
+    return () => {
+      if (spawnTimerRef.current) clearInterval(spawnTimerRef.current);
+      if (gameLoopRef.current) cancelAnimationFrame(gameLoopRef.current);
+    };
+  }, [isGameActive, isPaused, gameLoop]);
 
   if (showStartScreen) {
     return (
