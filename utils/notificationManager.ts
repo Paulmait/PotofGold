@@ -95,9 +95,10 @@ class NotificationManager {
       }
       
       // Get push token
-      const tokenData = await Notifications.getExpoPushTokenAsync({
-        projectId: Constants.expoConfig?.extra?.eas?.projectId,
-      });
+      const projectId = Constants.expoConfig?.extra?.eas?.projectId || Constants.expoConfig?.extra?.projectId;
+      const tokenData = await Notifications.getExpoPushTokenAsync(
+        projectId ? { projectId } : undefined
+      );
       
       this.pushToken = tokenData.data;
       console.log('Push token:', this.pushToken);
