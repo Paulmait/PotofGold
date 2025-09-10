@@ -480,16 +480,7 @@ export default function GameScreenWeb({ navigation }: GameScreenWebProps) {
         )}
       </View>
       
-      {/* Game Instructions - Outside game viewport */}
-      {isGameActive && !isPaused && (
-        <View style={styles.instructions}>
-          <Text style={styles.instructionText}>
-            {Platform.OS === 'web' 
-              ? '⌨️ Arrow Keys or A/D to move • Space/Esc to pause • 🖱️ Click or drag to move'
-              : 'Touch and drag to move cart • Cart follows your finger'}
-          </Text>
-        </View>
-      )}
+      {/* Instructions moved to start screen - no longer blocking gameplay */}
     </View>
   );
 }

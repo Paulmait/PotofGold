@@ -32,7 +32,7 @@ interface GameScreenCleanProps {
 }
 
 // Minimal HUD component at the top
-const GameHUD = memo(({ score, coins, lives, fps }: any) => {
+const GameHUD = memo(({ score, coins, lives, blockages, activePowerUps, fps }: any) => {
   const { scaleFont: sf, scaleSpacing: ss } = useResponsive();
   
   return (
@@ -42,6 +42,30 @@ const GameHUD = memo(({ score, coins, lives, fps }: any) => {
         <Text style={[styles.hudText, { fontSize: sf(16) }]}>Score: {score}</Text>
         <Text style={[styles.hudText, { fontSize: sf(14) }]}>{'❤️'.repeat(Math.max(0, lives))}</Text>
       </View>
+      
+      {/* Blockage indicator */}
+      {blockages > 0 && (
+        <View style={styles.blockageRow}>
+          <Text style={[styles.blockageText, { fontSize: sf(12) }]}>
+            Blockages: {'🚫'.repeat(blockages)} ({blockages}/5)
+          </Text>
+        </View>
+      )}
+      
+      {/* Active power-ups */}
+      {activePowerUps.size > 0 && (
+        <View style={styles.powerUpRow}>
+          {Array.from(activePowerUps.keys()).map(powerUp => (
+            <Text key={powerUp} style={[styles.powerUpText, { fontSize: sf(12) }]}>
+              {powerUp === 'magnet' && '🧲'}
+              {powerUp === 'shield' && '🛡️'}
+              {powerUp === 'doublePoints' && '⚡x2'}
+              {powerUp === 'timeBonus' && '⏰'}
+            </Text>
+          ))}
+        </View>
+      )}
+      
       {__DEV__ && (
         <Text style={[styles.fpsText, { fontSize: sf(10) }]}>FPS: {fps}</Text>
       )}
@@ -81,6 +105,14 @@ const GameScreenClean: React.FC<GameScreenCleanProps> = memo(({
   const itemIdCounter = useRef(0);
   const spawnTimer = useRef<NodeJS.Timeout | null>(null);
   const cleanupTimer = useRef<NodeJS.Timeout | null>(null);
+  
+  // Power-ups
+  const [activePowerUps, setActivePowerUps] = useState<Map<string, number>>(new Map());
+  const powerUpTimers = useRef<Map<string, NodeJS.Timeout>>(new Map());
+  
+  // Blockages
+  const [blockages, setBlockages] = useState<number>(0);
+  const MAX_BLOCKAGES = 5;
   
   // Auto-start if coming from home/onboarding
   useEffect(() => {
@@ -127,9 +159,16 @@ const GameScreenClean: React.FC<GameScreenCleanProps> = memo(({
       // Remove items that fell off screen
       const filtered = updated.filter(item => {
         if (!item.collected && item.y > height) {
-          // Lose a life for missed valuable items
-          if (item.type === 'coin' || item.type === 'gem') {
-            setLives(prev => Math.max(0, prev - 1));
+          // Create blockages for missed treasure items (unless shield is active)
+          if (!item.isPowerUp && !activePowerUps.has('shield')) {
+            setBlockages(prev => {
+              const newBlockages = Math.min(prev + 1, MAX_BLOCKAGES);
+              // Game over if too many blockages
+              if (newBlockages >= MAX_BLOCKAGES) {
+                setLives(0);
+              }
+              return newBlockages;
+            });
           }
           return false;
         }
@@ -186,8 +225,31 @@ const GameScreenClean: React.FC<GameScreenCleanProps> = memo(({
   const spawnFallingItem = useCallback(() => {
     if (!isGameActive || isPaused) return;
     
-    const types = ['coin', 'gem', 'star', 'heart'];
-    const itemType = types[Math.floor(Math.random() * types.length)];
+    // Decide if spawning power-up (15% chance) or treasure (85% chance)
+    const isPowerUp = Math.random() < 0.15;
+    
+    let itemType: string;
+    if (isPowerUp) {
+      // Power-ups
+      const powerUps = ['magnet', 'shield', 'doublePoints', 'timeBonus'];
+      itemType = powerUps[Math.floor(Math.random() * powerUps.length)];
+    } else {
+      // Treasures: coins, gems, and diamonds
+      const types = ['coin', 'gem', 'diamond'];
+      const weights = [60, 30, 10]; // 60% coins, 30% gems, 10% diamonds
+      const totalWeight = weights.reduce((a, b) => a + b, 0);
+      const random = Math.random() * totalWeight;
+      
+      itemType = 'coin';
+      let cumWeight = 0;
+      for (let i = 0; i < types.length; i++) {
+        cumWeight += weights[i];
+        if (random <= cumWeight) {
+          itemType = types[i];
+          break;
+        }
+      }
+    }
     
     const newItem = {
       id: `item_${itemIdCounter.current++}`,
@@ -196,6 +258,7 @@ const GameScreenClean: React.FC<GameScreenCleanProps> = memo(({
       type: itemType,
       speed: getFallSpeed(level), // Use consistent speed
       collected: false,
+      isPowerUp,
     };
     
     setFallingItems(prev => [...prev, newItem].slice(-MAX_FALLING_ITEMS));
@@ -207,14 +270,39 @@ const GameScreenClean: React.FC<GameScreenCleanProps> = memo(({
       prev.map(i => i.id === item.id ? { ...i, collected: true } : i)
     );
     
-    const points = item.type === 'coin' ? 10 : item.type === 'gem' ? 25 : 5;
-    setScore(prev => prev + points);
-    
-    if (item.type === 'coin') {
-      setCoins(prev => prev + 1);
-    } else if (item.type === 'heart') {
-      setLives(prev => Math.min(5, prev + 1));
+    // Correct point values as specified
+    let points = 0;
+    switch(item.type) {
+      case 'coin':
+        points = 10;
+        setCoins(prev => prev + 1);
+        break;
+      case 'gem':
+        points = 25;
+        break;
+      case 'diamond':
+        points = 50;
+        break;
+      case 'magnet':
+        activatePowerUp('magnet', 5000); // 5 seconds
+        return;
+      case 'shield':
+        activatePowerUp('shield', 8000); // 8 seconds
+        return;
+      case 'doublePoints':
+        activatePowerUp('doublePoints', 10000); // 10 seconds
+        return;
+      case 'timeBonus':
+        activatePowerUp('timeBonus', 15000); // 15 seconds
+        return;
     }
+    
+    // Apply double points if active
+    if (activePowerUps.has('doublePoints')) {
+      points *= 2;
+    }
+    
+    setScore(prev => prev + points);
     
     // Level up every 100 points
     const newLevel = Math.floor((score + points) / 100) + 1;
@@ -230,7 +318,61 @@ const GameScreenClean: React.FC<GameScreenCleanProps> = memo(({
     }
     
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-  }, [score, level, spawnFallingItem]);
+  }, [score, level, spawnFallingItem, activePowerUps]);
+  
+  // Activate power-up
+  const activatePowerUp = useCallback((type: string, duration: number) => {
+    // Clear existing timer if any
+    const existingTimer = powerUpTimers.current.get(type);
+    if (existingTimer) {
+      clearTimeout(existingTimer);
+    }
+    
+    // Set power-up active
+    setActivePowerUps(prev => new Map(prev.set(type, Date.now() + duration)));
+    
+    // Set timer to deactivate
+    const timer = setTimeout(() => {
+      setActivePowerUps(prev => {
+        const newMap = new Map(prev);
+        newMap.delete(type);
+        return newMap;
+      });
+      powerUpTimers.current.delete(type);
+    }, duration);
+    
+    powerUpTimers.current.set(type, timer);
+    
+    // Special effects for certain power-ups
+    if (type === 'magnet') {
+      // Auto-collect nearby items
+      magnetEffect();
+    } else if (type === 'shield') {
+      // Protect from blockages
+      setBlockages(0);
+    }
+    
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+  }, []);
+  
+  // Magnet effect - attract nearby items
+  const magnetEffect = useCallback(() => {
+    const magnetInterval = setInterval(() => {
+      if (!activePowerUps.has('magnet')) {
+        clearInterval(magnetInterval);
+        return;
+      }
+      
+      setFallingItems(prev => prev.map(item => {
+        if (!item.collected && Math.abs(item.x - cartPosition) < 100) {
+          // Move item towards cart
+          const newX = item.x + (cartPosition - item.x) * 0.2;
+          return { ...item, x: newX };
+        }
+        return item;
+      }));
+    }, 50);
+  }, [cartPosition, activePowerUps]);
   
   // Touch handlers
   const handleCartMove = useCallback((x: number, velocity: number) => {
@@ -306,7 +448,14 @@ const GameScreenClean: React.FC<GameScreenCleanProps> = memo(({
         <View style={styles.gameArea}>
           {/* Compact HUD at top */}
           {isGameActive && (
-            <GameHUD score={score} coins={coins} lives={lives} fps={fps} />
+            <GameHUD 
+              score={score} 
+              coins={coins} 
+              lives={lives} 
+              blockages={blockages}
+              activePowerUps={activePowerUps}
+              fps={fps} 
+            />
           )}
           
           {/* Pause button - only when game is active */}
@@ -453,6 +602,28 @@ const styles = StyleSheet.create({
   hudText: {
     color: '#FFD700',
     fontWeight: 'bold',
+  },
+  blockageRow: {
+    marginTop: 5,
+    alignItems: 'center',
+  },
+  blockageText: {
+    color: '#FF6B6B',
+    fontWeight: 'bold',
+  },
+  powerUpRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 5,
+    gap: 10,
+  },
+  powerUpText: {
+    color: '#FFF',
+    fontWeight: 'bold',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 10,
   },
   fpsText: {
     color: '#0F0',

@@ -216,41 +216,51 @@ function getItemStyle(item: FallingItem) {
   };
 
   const typeStyles: { [key: string]: any } = {
+    // Treasures
     coin: {
-      backgroundColor: '#FFD700',
+      backgroundColor: 'rgba(255, 215, 0, 0.2)',
       borderRadius: 15,
+      borderWidth: 2,
+      borderColor: '#FFD700',
+    },
+    gem: {
+      backgroundColor: 'rgba(255, 20, 147, 0.2)',
+      borderRadius: 0,
+      transform: [{ rotate: '45deg' }],
+      borderWidth: 2,
+      borderColor: '#FF1493',
+    },
+    diamond: {
+      backgroundColor: 'rgba(185, 242, 255, 0.2)',
+      borderRadius: 0,
+      transform: [{ rotate: '45deg' }],
+      borderWidth: 2,
+      borderColor: '#B9F2FF',
+    },
+    // Power-ups
+    magnet: {
+      backgroundColor: 'rgba(255, 0, 0, 0.2)',
+      borderRadius: 15,
+      borderWidth: 2,
+      borderColor: '#FF0000',
+    },
+    shield: {
+      backgroundColor: 'rgba(135, 206, 235, 0.2)',
+      borderRadius: 10,
+      borderWidth: 2,
+      borderColor: '#87CEEB',
+    },
+    doublePoints: {
+      backgroundColor: 'rgba(255, 165, 0, 0.2)',
+      borderRadius: 0,
       borderWidth: 2,
       borderColor: '#FFA500',
     },
-    moneyBag: {
-      backgroundColor: '#8B4513',
-      borderRadius: 8,
-      borderWidth: 2,
-      borderColor: '#654321',
-    },
-    lightning: {
-      backgroundColor: '#FFA500',
-      borderRadius: 0,
-    },
-    magnet: {
-      backgroundColor: '#FF0000',
+    timeBonus: {
+      backgroundColor: 'rgba(50, 205, 50, 0.2)',
       borderRadius: 15,
       borderWidth: 2,
-      borderColor: '#8B0000',
-    },
-    gemstone: {
-      backgroundColor: '#4169E1',
-      borderRadius: 0,
-      transform: [{ rotate: '45deg' }],
-    },
-    diamond: {
-      backgroundColor: '#B9F2FF',
-      borderRadius: 0,
-      transform: [{ rotate: '45deg' }],
-    },
-    star: {
-      backgroundColor: '#FFD700',
-      borderRadius: 0,
+      borderColor: '#32CD32',
     },
   };
 
@@ -259,25 +269,18 @@ function getItemStyle(item: FallingItem) {
 
 function getItemEmoji(type: string): string {
   const emojis: { [key: string]: string } = {
+    // Treasures (exact as specified)
     coin: '🪙',
-    gem: '💎',
-    diamond: '💎',
-    ruby: '🔴',
-    emerald: '💚',
-    sapphire: '💙',
-    gold: '🥇',
-    silver: '🥈',
-    bronze: '🥉',
+    gem: '💎', 
+    diamond: '💠',
+    // Power-ups (exact as specified)
+    magnet: '🧲',
+    shield: '🛡️',
+    doublePoints: '⚡', // 2x Points
+    timeBonus: '⏰',
+    // Fallbacks
     star: '⭐',
     heart: '❤️',
-    lightning: '⚡',
-    shield: '🛡️',
-    crown: '👑',
-    trophy: '🏆',
-    moneyBag: '💰',
-    magnet: '🧲',
-    gemstone: '💎',
-    luckyStar: '🌟',
   };
   return emojis[type] || '✨';
 }
