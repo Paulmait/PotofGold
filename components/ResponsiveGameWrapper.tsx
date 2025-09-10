@@ -28,15 +28,17 @@ const ResponsiveGameWrapper: React.FC<ResponsiveGameWrapperProps> = ({ children 
   const getGameDimensions = () => {
     const { width, height } = dimensions;
     
-    // Constants
-    const MAX_WIDTH = 900; // Maximum width as requested
+    // CONTAINED VIEWPORT for better gameplay (based on working reference)
+    const MAX_GAME_WIDTH = 450;  // Optimal width for gameplay
+    const MAX_GAME_HEIGHT = 700; // Optimal height for gameplay
     const MIN_WIDTH = 320; // Minimum for small phones
     
     // Mobile phones (width < 768px)
     if (width < 768) {
+      // Use full screen on mobile, but respect max dimensions
       return {
-        gameWidth: width,
-        gameHeight: height,
+        gameWidth: Math.min(width, MAX_GAME_WIDTH),
+        gameHeight: Math.min(height, MAX_GAME_HEIGHT),
         scale: 1,
         containerStyle: styles.mobileContainer,
       };
@@ -44,22 +46,20 @@ const ResponsiveGameWrapper: React.FC<ResponsiveGameWrapperProps> = ({ children 
     
     // Tablets (768px <= width < 1024px)
     if (width < 1024) {
-      const gameWidth = Math.min(width * 0.95, MAX_WIDTH);
+      // Contained viewport centered on screen
       return {
-        gameWidth,
-        gameHeight: height * 0.95,
+        gameWidth: MAX_GAME_WIDTH,
+        gameHeight: Math.min(height * 0.9, MAX_GAME_HEIGHT),
         scale: 1,
         containerStyle: styles.tabletContainer,
       };
     }
     
-    // Desktop/Laptop (width >= 1024px) - USE FULL WIDTH
-    const gameWidth = Math.min(width * 0.95, MAX_WIDTH);
-    const gameHeight = height * 0.92; // Leave small margin for browser UI
-    
+    // Desktop/Laptop (width >= 1024px) - CONTAINED VIEWPORT
+    // Use optimal fixed size for best gameplay experience
     return {
-      gameWidth,
-      gameHeight,
+      gameWidth: MAX_GAME_WIDTH,
+      gameHeight: MAX_GAME_HEIGHT,
       scale: 1,
       containerStyle: styles.desktopContainer,
     };
@@ -89,7 +89,7 @@ const ResponsiveGameWrapper: React.FC<ResponsiveGameWrapperProps> = ({ children 
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
+    backgroundColor: '#0a0a0a', // Dark background for contrast
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -97,11 +97,19 @@ const styles = StyleSheet.create({
     backgroundColor: '#000',
     overflow: 'hidden',
     position: 'relative',
+    borderRadius: 20, // Rounded corners for contained viewport
+    // Shadow for depth
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.5,
+    shadowRadius: 20,
+    elevation: 20,
     // Enable GPU acceleration on web
     ...Platform.select({
       web: {
         transform: [{ translateZ: 0 }] as any,
         willChange: 'transform',
+        boxShadow: '0 10px 40px rgba(0,0,0,0.8)' as any,
       },
       default: {},
     }),
@@ -110,10 +118,10 @@ const styles = StyleSheet.create({
     padding: 0,
   },
   tabletContainer: {
-    padding: 10,
+    padding: 20,
   },
   desktopContainer: {
-    padding: 20,
+    padding: 30,
   },
 });
 
