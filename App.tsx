@@ -12,14 +12,13 @@ import { hasCompletedOnboarding, getDeviceAnalytics } from './utils/deviceTracki
 import SplashScreenEnhanced from './components/SplashScreenEnhanced';
 import { useOrientation } from './hooks/useOrientation';
 import * as ScreenOrientation from 'expo-screen-orientation';
-import ResponsiveGameWrapper from './components/ResponsiveGameWrapper';
 import ErrorBoundary from './components/ErrorBoundary';
 
 // Screens
 import GameScreen from './screens/GameScreen';
 import GameScreenEnhanced from './screens/GameScreenEnhanced';
 import GameScreenResponsive from './screens/GameScreenResponsive';
-import GameScreenClean from './screens/GameScreenClean';
+import GameScreenWrapped from './screens/GameScreenWrapped';
 import HomeScreenGuest from './screens/HomeScreenGuest';
 import AuthScreenFixed from './screens/AuthScreenFixed';
 import AdminPanel from './screens/AdminPanel';
@@ -188,7 +187,7 @@ export default function App() {
                 {/* Add all screens as fallback during transition */}
                 <Stack.Screen name="Onboarding" component={OnboardingScreen} />
                 <Stack.Screen name="Home" component={HomeScreenGuest} />
-                <Stack.Screen name="Game" component={GameScreenClean} />
+                <Stack.Screen name="Game" component={GameScreenWrapped} />
               </>
             ) : !hasSeenOnboarding ? (
               <>
@@ -208,7 +207,7 @@ export default function App() {
             ) : !isAuthenticated ? (
               <>
                 <Stack.Screen name="Home" component={HomeScreenGuest} />
-                <Stack.Screen name="Game" component={GameScreenClean} />
+                <Stack.Screen name="Game" component={GameScreenWrapped} />
                 <Stack.Screen name="GameOver" component={GameOverScreen} />
                 <Stack.Screen name="Auth" component={AuthScreenFixed} />
                 <Stack.Screen name="Shop" component={ShopScreenPro} />
@@ -217,7 +216,7 @@ export default function App() {
             ) : (
               <>
                 <Stack.Screen name="Home" component={HomeScreenGuest} />
-                <Stack.Screen name="Game" component={GameScreenClean} />
+                <Stack.Screen name="Game" component={GameScreenWrapped} />
                 <Stack.Screen name="Settings" component={SettingsScreen} />
                 <Stack.Screen name="Shop" component={ShopScreenPro} />
                 <Stack.Screen name="SkinShop" component={SkinShopScreen} />
@@ -237,12 +236,10 @@ export default function App() {
       </NavigationContainer>
   );
 
-  // Wrap with ResponsiveGameWrapper for proper screen sizing
+  // Don't wrap navigation with ResponsiveGameWrapper - only game screens need it
   return (
     <ErrorBoundary>
-      <ResponsiveGameWrapper>
-        {AppContent}
-      </ResponsiveGameWrapper>
+      {AppContent}
     </ErrorBoundary>
   );
 }

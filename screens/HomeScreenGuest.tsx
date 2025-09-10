@@ -278,11 +278,22 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
+    // Center content on larger screens
+    ...Platform.select({
+      web: {
+        maxWidth: 800,
+        width: '100%',
+        alignSelf: 'center',
+      },
+      default: {},
+    }),
   },
   content: {
     flex: 1,
     padding: scale(20),
     paddingTop: Platform.OS === 'ios' ? scale(60) : scale(40),
+    // Ensure content is visible on all screen sizes
+    minHeight: '100%',
   },
   header: {
     alignItems: 'center',
@@ -362,6 +373,15 @@ const styles = StyleSheet.create({
   },
   playButton: {
     marginBottom: verticalScale(30),
+    // Center and limit width on desktop
+    ...Platform.select({
+      web: {
+        maxWidth: 300,
+        alignSelf: 'center',
+        width: '100%',
+      },
+      default: {},
+    }),
   },
   playButtonGradient: {
     flexDirection: 'row',
@@ -369,6 +389,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: scale(20),
     borderRadius: scale(30),
+    // Add hover effect for desktop
+    ...Platform.select({
+      web: {
+        cursor: 'pointer' as any,
+        transition: 'transform 0.2s ease' as any,
+      },
+      default: {},
+    }),
     elevation: 5,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -386,14 +414,35 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'space-between',
     marginBottom: verticalScale(20),
+    // Better layout on desktop
+    ...Platform.select({
+      web: {
+        maxWidth: 600,
+        alignSelf: 'center',
+        width: '100%',
+      },
+      default: {},
+    }),
   },
   menuButton: {
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderRadius: scale(15),
     padding: scale(15),
     alignItems: 'center',
-    width: '48%',
+    width: Platform.OS === 'web' && width >= 768 ? '23%' : '48%',
     marginBottom: verticalScale(10),
+    // Better hover effect for desktop
+    ...Platform.select({
+      web: {
+        cursor: 'pointer' as any,
+        transition: 'all 0.3s ease' as any,
+        '&:hover': {
+          backgroundColor: 'rgba(255, 255, 255, 0.2)',
+          transform: 'scale(1.05)',
+        } as any,
+      },
+      default: {},
+    }),
   },
   menuButtonText: {
     fontSize: fontScale(14),
