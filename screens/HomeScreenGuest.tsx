@@ -177,7 +177,7 @@ const HomeScreenGuest: React.FC<HomeScreenGuestProps> = ({ navigation }) => {
             <View style={styles.userStatus}>
               <Ionicons 
                 name={isGuest ? "person-outline" : "person"} 
-                size={scale(20)} 
+                size={Platform.OS === 'web' ? 24 : scale(20)} 
                 color="#FFD700" 
               />
               <Text style={styles.userName}>{userName}</Text>
@@ -192,14 +192,14 @@ const HomeScreenGuest: React.FC<HomeScreenGuestProps> = ({ navigation }) => {
           {/* Stats Cards */}
           <View style={styles.statsContainer}>
             <View style={styles.statCard}>
-              <Ionicons name="star" size={scale(24)} color="#FFD700" />
+              <Ionicons name="star" size={Platform.OS === 'web' ? 28 : scale(24)} color="#FFD700" />
               <Text style={styles.statValue}>
                 {isGuest ? guestHighScore.toLocaleString() : gameState.highScore.toLocaleString()}
               </Text>
               <Text style={styles.statLabel}>High Score</Text>
             </View>
             <View style={styles.statCard}>
-              <Ionicons name="cash" size={scale(24)} color="#FFD700" />
+              <Ionicons name="cash" size={Platform.OS === 'web' ? 28 : scale(24)} color="#FFD700" />
               <Text style={styles.statValue}>
                 {isGuest ? guestCoins.toLocaleString() : gameState.coins.toLocaleString()}
               </Text>
@@ -207,7 +207,7 @@ const HomeScreenGuest: React.FC<HomeScreenGuestProps> = ({ navigation }) => {
               {isGuest && <Text style={styles.guestWarning}>Not Saved</Text>}
             </View>
             <View style={styles.statCard}>
-              <Ionicons name="trophy" size={scale(24)} color="#FFD700" />
+              <Ionicons name="trophy" size={Platform.OS === 'web' ? 28 : scale(24)} color="#FFD700" />
               <Text style={styles.statValue}>{gameState.gamesPlayed}</Text>
               <Text style={styles.statLabel}>Games</Text>
             </View>
@@ -219,7 +219,7 @@ const HomeScreenGuest: React.FC<HomeScreenGuestProps> = ({ navigation }) => {
               colors={['#FFD700', '#FFA500', '#FF8C00']}
               style={styles.playButtonGradient}
             >
-              <Ionicons name="play" size={scale(32)} color="#FFF" />
+              <Ionicons name="play" size={Platform.OS === 'web' ? 36 : scale(32)} color="#FFF" />
               <Text style={styles.playButtonText}>PLAY</Text>
             </LinearGradient>
           </TouchableOpacity>
@@ -227,22 +227,22 @@ const HomeScreenGuest: React.FC<HomeScreenGuestProps> = ({ navigation }) => {
           {/* Menu Buttons */}
           <View style={styles.menuGrid}>
             <TouchableOpacity style={styles.menuButton} onPress={handleShopPress}>
-              <Ionicons name="cart" size={scale(24)} color="#FFD700" />
+              <Ionicons name="cart" size={Platform.OS === 'web' ? 32 : scale(24)} color="#FFD700" />
               <Text style={styles.menuButtonText}>Shop</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.menuButton} onPress={handleLeaderboardPress}>
-              <Ionicons name="podium" size={scale(24)} color="#FFD700" />
+              <Ionicons name="podium" size={Platform.OS === 'web' ? 32 : scale(24)} color="#FFD700" />
               <Text style={styles.menuButtonText}>Leaderboard</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.menuButton} onPress={handleStatsPress}>
-              <Ionicons name="stats-chart" size={scale(24)} color="#FFD700" />
+              <Ionicons name="stats-chart" size={Platform.OS === 'web' ? 32 : scale(24)} color="#FFD700" />
               <Text style={styles.menuButtonText}>Stats</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.menuButton} onPress={handleHowToPlayPress}>
-              <Ionicons name="help-circle" size={scale(24)} color="#FFD700" />
+              <Ionicons name="help-circle" size={Platform.OS === 'web' ? 32 : scale(24)} color="#FFD700" />
               <Text style={styles.menuButtonText}>How to Play</Text>
             </TouchableOpacity>
           </View>
@@ -356,15 +356,15 @@ const styles = StyleSheet.create({
     minWidth: scale(90),
   },
   statValue: {
-    fontSize: fontScale(20),
+    fontSize: Platform.OS === 'web' ? 22 : fontScale(20),
     fontWeight: 'bold',
     color: '#FFF',
-    marginTop: verticalScale(5),
+    marginTop: Platform.OS === 'web' ? 6 : verticalScale(5),
   },
   statLabel: {
-    fontSize: fontScale(12),
+    fontSize: Platform.OS === 'web' ? 14 : fontScale(12),
     color: '#AAA',
-    marginTop: verticalScale(2),
+    marginTop: Platform.OS === 'web' ? 3 : verticalScale(2),
   },
   guestWarning: {
     fontSize: fontScale(10),
@@ -427,10 +427,10 @@ const styles = StyleSheet.create({
   menuButton: {
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderRadius: scale(15),
-    padding: scale(15),
+    padding: Platform.OS === 'web' ? 20 : scale(15),
     alignItems: 'center',
     width: Platform.OS === 'web' && width >= 768 ? '23%' : '48%',
-    marginBottom: verticalScale(10),
+    marginBottom: Platform.OS === 'web' ? 15 : verticalScale(10),
     // Better hover effect for desktop
     ...Platform.select({
       web: {
@@ -445,9 +445,9 @@ const styles = StyleSheet.create({
     }),
   },
   menuButtonText: {
-    fontSize: fontScale(14),
+    fontSize: Platform.OS === 'web' ? 16 : fontScale(14),
     color: '#FFF',
-    marginTop: verticalScale(5),
+    marginTop: Platform.OS === 'web' ? 8 : verticalScale(5),
   },
   guestBenefits: {
     backgroundColor: 'rgba(255, 255, 255, 0.05)',
