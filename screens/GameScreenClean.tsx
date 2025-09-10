@@ -20,6 +20,10 @@ import MineCart from '../components/MineCart';
 import RailTrack from '../components/RailTrack';
 import PauseModal from './PauseModal';
 import { CollisionDetection } from '../utils/collisionDetection';
+import GameBottomBar from '../components/GameBottomBar';
+import MobileZoomPrevention from '../components/MobileZoomPrevention';
+import { dailyStreakSystem } from '../utils/dailyStreakSystem';
+import { seasonPassSystem } from '../utils/seasonPassSystem';
 
 const { width, height } = Dimensions.get('window');
 
@@ -121,6 +125,19 @@ const GameScreenClean: React.FC<GameScreenCleanProps> = memo(({
   
   // Auto-start if coming from home/onboarding
   useEffect(() => {
+    // Initialize Daily Streak and Season Pass systems (as per commit 055da6b)
+    const initializeSystems = async () => {
+      try {
+        // Initialize with guest user for now (will be replaced with actual user ID when logged in)
+        await dailyStreakSystem.initializeStreak('guest');
+        await seasonPassSystem.initializeSeasonPass('guest');
+      } catch (error) {
+        console.log('Systems initialization:', error);
+      }
+    };
+    
+    initializeSystems();
+    
     if (autoStart) {
       // Small delay for smooth transition
       setTimeout(() => startGame(), 500);
@@ -145,15 +162,19 @@ const GameScreenClean: React.FC<GameScreenCleanProps> = memo(({
         y: item.y + currentSpeed * deltaTime * 60, // Consistent speed based on level
       }));
       
-      // Check collisions with improved item size
+      // Check collisions with improved accuracy (60px cart height as per commit 055da6b)
       updated.forEach(item => {
-        if (!item.collected && item.y > height - 150 && item.y < height - 20) {
-          // Cart collision box
+        // Check if item is at cart level (more accurate collision detection)
+        const cartTop = height - 100;
+        const cartHeight = 60; // More accurate cart height for better collision
+        
+        if (!item.collected && item.y >= cartTop - 30 && item.y <= cartTop + cartHeight) {
+          // Cart collision box with improved boundaries
           const cartBounds = {
             x: cartPosition - cartSize / 2,
-            y: height - 100,
+            y: cartTop,
             width: cartSize,
-            height: cartSize * 0.67,
+            height: cartHeight,
           };
           
           // Item collision box (50x50 size)
@@ -329,7 +350,7 @@ const GameScreenClean: React.FC<GameScreenCleanProps> = memo(({
         if (!activePowerUps.has('shield')) {
           setLives(prev => Math.max(0, prev - 1));
           if (lives <= 1) {
-            setGameOver(true);
+            setShowGameOver(true);
           }
           // Visual feedback
           if (Platform.OS !== 'web') {
@@ -478,14 +499,16 @@ const GameScreenClean: React.FC<GameScreenCleanProps> = memo(({
   }, [gameLoop]);
   
   return (
-    <EnhancedTouchHandler
-      onMove={handleCartMove}
-      onTap={handleTap}
-      enabled={!showGameOver && !showPauseMenu}
-      smoothingFactor={0.4}
-      velocityThreshold={30}
-    >
-      <View style={styles.container}>
+    <>
+      <MobileZoomPrevention />
+      <EnhancedTouchHandler
+        onMove={handleCartMove}
+        onTap={handleTap}
+        enabled={!showGameOver && !showPauseMenu}
+        smoothingFactor={0.4}
+        velocityThreshold={30}
+      >
+        <View style={styles.container}>
         {/* Clean game area */}
         <View style={styles.gameArea}>
           {/* Enhanced HUD with inventory and progress */}
@@ -624,8 +647,60 @@ const GameScreenClean: React.FC<GameScreenCleanProps> = memo(({
             </View>
           </View>
         )}
+        
+        {/* Bottom Action Bar - Always visible during gameplay */}
+        {isGameActive && !showGameOver && (
+          <GameBottomBar
+            coins={coins}
+            streakDays={7} // TODO: Get from DailyStreakSystem
+            seasonTier={1} // TODO: Get from SeasonPassSystem
+            onStreakPress={() => {
+              pauseGame();
+              // Navigate to streak modal
+              console.log('Open streak modal');
+            }}
+            onSeasonPassPress={() => {
+              pauseGame();
+              // Navigate to season pass
+              console.log('Open season pass');
+            }}
+            onShopPress={() => {
+              pauseGame();
+              // Navigate to shop
+              console.log('Open shop');
+            }}
+            onSkinsPress={() => {
+              pauseGame();
+              // Navigate to skins
+              console.log('Open skins');
+            }}
+            onVacuumPress={() => {
+              if (coins >= 25) {
+                setCoins(prev => prev - 25);
+                // Vacuum all items on screen
+                setFallingItems(prev => 
+                  prev.map(item => ({ ...item, collected: true }))
+                );
+                setBlockages(0);
+              }
+            }}
+            onClearAllPress={() => {
+              if (coins >= 50) {
+                setCoins(prev => prev - 50);
+                // Clear all blockages
+                setBlockages(0);
+                setFallingItems([]);
+              }
+            }}
+            vacuumCost={25}
+            clearAllCost={50}
+            hasNewStreak={false}
+            hasNewTier={false}
+          />
+        )}
       </View>
-    </EnhancedTouchHandler>
+      </EnhancedTouchHandler>
+    </>
   );
 });
 
