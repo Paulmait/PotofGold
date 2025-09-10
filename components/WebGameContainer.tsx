@@ -99,73 +99,33 @@ const WebGameContainer: React.FC<WebGameContainerProps> = ({
 
   const isDesktop = dimensions.width >= 1024;
   
-  // Optimal game dimensions based on device type
-  const MAX_GAME_WIDTH = 900;  // Maximum width constraint
-  const MAX_GAME_HEIGHT = 900; // Maximum height for better visibility
-  const MOBILE_BASE_WIDTH = 375;
-  const MOBILE_BASE_HEIGHT = 667;
-  const TABLET_BASE_WIDTH = 768;
-  const TABLET_BASE_HEIGHT = 1024;
+  // Game dimensions configuration
+  const MAX_GAME_WIDTH = 900;  // Maximum width constraint as requested
+  const MAX_GAME_HEIGHT = dimensions.height * 0.95; // Use most of screen height
   
-  // Determine base dimensions based on device type
-  let baseWidth: number;
-  let baseHeight: number;
+  let gameWidth: number;
+  let gameHeight: number;
   
   if (dimensions.width < 768) {
-    // Mobile devices
-    baseWidth = MOBILE_BASE_WIDTH;
-    baseHeight = MOBILE_BASE_HEIGHT;
+    // Mobile devices - use full width
+    gameWidth = dimensions.width;
+    gameHeight = dimensions.height;
   } else if (dimensions.width < 1024) {
-    // Tablets
-    baseWidth = TABLET_BASE_WIDTH;
-    baseHeight = TABLET_BASE_HEIGHT;
+    // Tablets - use most of screen with some padding
+    gameWidth = Math.min(dimensions.width * 0.95, MAX_GAME_WIDTH);
+    gameHeight = Math.min(dimensions.height * 0.95, MAX_GAME_HEIGHT);
   } else {
-    // Desktop - use optimal fixed size
-    baseWidth = 600;
-    baseHeight = 900;
+    // Desktop/Laptop - use full width up to max
+    gameWidth = Math.min(dimensions.width * 0.90, MAX_GAME_WIDTH);
+    gameHeight = Math.min(dimensions.height * 0.90, MAX_GAME_HEIGHT);
   }
-  
-  // Calculate scale to fit screen while respecting max dimensions
-  const scaleX = Math.min(dimensions.width * 0.95 / baseWidth, MAX_GAME_WIDTH / baseWidth);
-  const scaleY = Math.min(dimensions.height * 0.9 / baseHeight, MAX_GAME_HEIGHT / baseHeight);
-  const gameScale = Math.min(scaleX, scaleY, 2.5);
-  
-  // Final game dimensions
-  const gameWidth = Math.min(baseWidth * gameScale, MAX_GAME_WIDTH);
-  const gameHeight = Math.min(baseHeight * gameScale, MAX_GAME_HEIGHT);
 
   return (
     <View style={styles.container}>
-      {/* Desktop wrapper with controls */}
+      {/* Desktop/Laptop - full screen game */}
       {isDesktop && (
         <View style={styles.desktopContainer}>
-          {/* Game title bar */}
-          <View style={styles.titleBar}>
-            <Text style={styles.title}>Pot of Gold</Text>
-            <View style={styles.controls}>
-              {showInstallPrompt && (
-                <TouchableOpacity
-                  style={styles.installButton}
-                  onPress={handleInstallPWA}
-                >
-                  <Icon name="download-outline" size={20} color="#fff" />
-                  <Text style={styles.installText}>Install App</Text>
-                </TouchableOpacity>
-              )}
-              <TouchableOpacity
-                style={styles.controlButton}
-                onPress={toggleFullscreen}
-              >
-                <Icon
-                  name={isFullscreen ? 'contract-outline' : 'expand-outline'}
-                  size={24}
-                  color="#fff"
-                />
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          {/* Game viewport with HTML5 optimization */}
+          {/* Game uses full viewport */}
           <View
             style={[
               styles.gameViewport,
@@ -186,22 +146,36 @@ const WebGameContainer: React.FC<WebGameContainerProps> = ({
             <View style={styles.gameContent}>
               {children}
             </View>
+            
+            {/* Floating controls in top-right corner */}
+            <View style={styles.floatingControls}>
+              {showInstallPrompt && (
+                <TouchableOpacity
+                  style={styles.installButton}
+                  onPress={handleInstallPWA}
+                >
+                  <Icon name="download-outline" size={20} color="#fff" />
+                  <Text style={styles.installText}>Install</Text>
+                </TouchableOpacity>
+              )}
+              <TouchableOpacity
+                style={styles.controlButton}
+                onPress={toggleFullscreen}
+              >
+                <Icon
+                  name={isFullscreen ? 'contract-outline' : 'expand-outline'}
+                  size={24}
+                  color="#fff"
+                />
+              </TouchableOpacity>
+            </View>
           </View>
-
-          {/* Removed instructions to avoid blocking gameplay view */}
         </View>
       )}
 
-      {/* Mobile/tablet view with responsive scaling */}
+      {/* Mobile/tablet view - full screen */}
       {!isDesktop && (
-        <View style={[
-          styles.mobileContainer,
-          {
-            // Apply max dimensions for tablets
-            maxWidth: dimensions.width >= 768 ? MAX_GAME_WIDTH : '100%',
-            alignSelf: 'center',
-          },
-        ]}>
+        <View style={styles.mobileContainer}>
           {children}
           
           {/* PWA install banner for mobile */}
@@ -249,41 +223,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 20,
   },
-  titleBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    width: '100%',
-    maxWidth: 800,
-    marginBottom: 20,
-    paddingHorizontal: 20,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#FFD700',
-    textShadowColor: 'rgba(0, 0, 0, 0.75)',
-    textShadowOffset: { width: 2, height: 2 },
-    textShadowRadius: 5,
-  },
-  controls: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 15,
-  },
   controlButton: {
-    padding: 10,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    padding: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
     borderRadius: 8,
   },
   installButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#4CAF50',
-    paddingHorizontal: 15,
-    paddingVertical: 8,
-    borderRadius: 20,
-    gap: 8,
+    backgroundColor: 'rgba(76, 175, 80, 0.9)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 15,
+    gap: 5,
   },
   installText: {
     color: '#fff',
@@ -291,13 +243,8 @@ const styles = StyleSheet.create({
   },
   gameViewport: {
     backgroundColor: '#000',
-    borderRadius: 15,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
-    elevation: 10,
+    // Remove border radius for full screen
     // Optimize rendering on web
     ...Platform.select({
       web: {
@@ -307,28 +254,24 @@ const styles = StyleSheet.create({
       default: {},
     }),
   },
+  floatingControls: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    zIndex: 1000,
+  },
   gameContent: {
     flex: 1,
     // Enable GPU acceleration
     ...Platform.select({
       web: {
-        transform: [{ translateZ: 0 }],
+        transform: [{ translateZ: 0 }] as any,
       },
       default: {},
     }),
-  },
-  instructions: {
-    marginTop: 20,
-    padding: 15,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: 10,
-    maxWidth: 600,
-  },
-  instructionText: {
-    color: '#fff',
-    fontSize: 14,
-    marginVertical: 5,
-    textAlign: 'center',
   },
   mobileContainer: {
     flex: 1,

@@ -14,8 +14,6 @@ import { useOrientation } from './hooks/useOrientation';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import ResponsiveGameWrapper from './components/ResponsiveGameWrapper';
 import ErrorBoundary from './components/ErrorBoundary';
-import WebGameContainer from './components/WebGameContainer';
-import ResponsiveGameLayout from './components/ResponsiveGameLayout';
 
 // Screens
 import GameScreen from './screens/GameScreen';
@@ -50,29 +48,7 @@ declare global {
 }
 globalThis.appStartTime = Date.now();
 
-// Wrapped GameScreen with responsive orientation support
-const ResponsiveGameScreen = (props: any) => {
-  const [gameState, setGameState] = useState({
-    isPaused: false,
-    score: 0,
-    coins: 0,
-    level: 1,
-    cartPosition: 0,
-    fallingItems: [],
-    powerUps: [],
-  });
-
-  return (
-    <ResponsiveGameWrapper
-      gameState={gameState}
-      onOrientationChange={(orientation) => {
-        console.log('Orientation changed to:', orientation);
-      }}
-    >
-      <GameScreenClean {...props} />
-    </ResponsiveGameWrapper>
-  );
-};
+// GameScreenClean is already responsive and doesn't need additional wrapping
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -172,10 +148,9 @@ export default function App() {
     );
   }
 
-  // Conditionally wrap with WebGameContainer only for web
+  // Main app content
   const AppContent = (
-    <ResponsiveGameLayout>
-      <NavigationContainer>
+    <NavigationContainer>
         <UnlocksProvider>
           <UserUnlockProvider>
             <GameProvider>
@@ -260,24 +235,14 @@ export default function App() {
           </UserUnlockProvider>
         </UnlocksProvider>
       </NavigationContainer>
-    </ResponsiveGameLayout>
   );
 
-  // Only wrap with WebGameContainer on web platform
-  if (Platform.OS === 'web') {
-    return (
-      <ErrorBoundary>
-        <WebGameContainer>
-          {AppContent}
-        </WebGameContainer>
-      </ErrorBoundary>
-    );
-  }
-
-  // For mobile platforms, render without WebGameContainer
+  // Wrap with ResponsiveGameWrapper for proper screen sizing
   return (
     <ErrorBoundary>
-      {AppContent}
+      <ResponsiveGameWrapper>
+        {AppContent}
+      </ResponsiveGameWrapper>
     </ErrorBoundary>
   );
 }

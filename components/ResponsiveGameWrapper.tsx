@@ -1,142 +1,120 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   StyleSheet,
   Dimensions,
-  Animated,
-  Text,
-  SafeAreaView,
+  Platform,
 } from 'react-native';
-import { useOrientation, responsive } from '../hooks/useOrientation';
 
 interface ResponsiveGameWrapperProps {
   children: React.ReactNode;
-  gameState?: any;
-  onOrientationChange?: (orientation: 'portrait' | 'landscape') => void;
 }
 
-export default function ResponsiveGameWrapper({
-  children,
-  gameState,
-  onOrientationChange,
-}: ResponsiveGameWrapperProps) {
-  const orientation = useOrientation(gameState);
-  const fadeAnim = useRef(new Animated.Value(1)).current;
-  const [isRotating, setIsRotating] = useState(false);
-  const [savedGameState, setSavedGameState] = useState<any>(null);
-  const layout = orientation.getLayout();
-
-  useEffect(() => {
-    if (orientation.isTransitioning) {
-      // Fade out during transition
-      setIsRotating(true);
-      
-      Animated.timing(fadeAnim, {
-        toValue: 0.3,
-        duration: 150,
-        useNativeDriver: true,
-      }).start(() => {
-        // Restore game state after orientation change
-        orientation.restoreGameState().then(restoredState => {
-          if (restoredState) {
-            setSavedGameState(restoredState);
-          }
-        });
-        
-        // Fade back in
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 150,
-          useNativeDriver: true,
-        }).start(() => {
-          setIsRotating(false);
-          if (onOrientationChange) {
-            onOrientationChange(orientation.orientation);
-          }
-        });
-      });
-    }
-  }, [orientation.isTransitioning, orientation.orientation, fadeAnim, onOrientationChange]);
-
-  // Dynamic styles based on orientation
-  const dynamicStyles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: '#000',
-    },
-    gameArea: {
-      flex: 1,
-      height: layout.gameAreaHeight,
-    },
-    uiArea: {
-      height: layout.uiAreaHeight,
-      padding: layout.padding.medium,
-    },
-    safeArea: {
-      flex: 1,
-      backgroundColor: orientation.orientation === 'portrait' ? '#1a1a1a' : '#0a0a0a',
-    },
+const ResponsiveGameWrapper: React.FC<ResponsiveGameWrapperProps> = ({ children }) => {
+  const [dimensions, setDimensions] = useState(() => {
+    const { width, height } = Dimensions.get('window');
+    return { width, height };
   });
 
+  useEffect(() => {
+    const subscription = Dimensions.addEventListener('change', ({ window }) => {
+      setDimensions({ width: window.width, height: window.height });
+    });
+
+    return () => subscription?.remove();
+  }, []);
+
+  // Determine device type and optimal sizing
+  const getGameDimensions = () => {
+    const { width, height } = dimensions;
+    
+    // Constants
+    const MAX_WIDTH = 900; // Maximum width as requested
+    const MIN_WIDTH = 320; // Minimum for small phones
+    
+    // Mobile phones (width < 768px)
+    if (width < 768) {
+      return {
+        gameWidth: width,
+        gameHeight: height,
+        scale: 1,
+        containerStyle: styles.mobileContainer,
+      };
+    }
+    
+    // Tablets (768px <= width < 1024px)
+    if (width < 1024) {
+      const gameWidth = Math.min(width * 0.95, MAX_WIDTH);
+      return {
+        gameWidth,
+        gameHeight: height * 0.95,
+        scale: 1,
+        containerStyle: styles.tabletContainer,
+      };
+    }
+    
+    // Desktop/Laptop (width >= 1024px) - USE FULL WIDTH
+    const gameWidth = Math.min(width * 0.95, MAX_WIDTH);
+    const gameHeight = height * 0.92; // Leave small margin for browser UI
+    
+    return {
+      gameWidth,
+      gameHeight,
+      scale: 1,
+      containerStyle: styles.desktopContainer,
+    };
+  };
+
+  const { gameWidth, gameHeight, containerStyle } = getGameDimensions();
+
   return (
-    <SafeAreaView style={dynamicStyles.safeArea}>
-      <Animated.View style={[dynamicStyles.container, { opacity: fadeAnim }]}>
-        {isRotating && (
-          <View style={styles.transitionOverlay}>
-            <View style={styles.transitionContent}>
-              <Text style={styles.transitionText}>Adjusting view...</Text>
-              <Text style={styles.transitionSubtext}>Your game is saved</Text>
-            </View>
-          </View>
-        )}
-        
-        {/* Pass orientation data to children */}
-        {React.Children.map(children, child => {
-          if (React.isValidElement(child)) {
-            return React.cloneElement(child as React.ReactElement<any>, {
-              orientation: orientation.orientation,
-              layout,
-              isTablet: orientation.isTablet,
-              scale: orientation.scale,
-              savedGameState: savedGameState,
-              clearSavedState: () => setSavedGameState(null),
-            });
+    <View style={[styles.wrapper, containerStyle]}>
+      <View 
+        style={[
+          styles.gameContainer,
+          {
+            width: gameWidth,
+            height: gameHeight,
+            // Center the game if narrower than screen
+            alignSelf: 'center',
           }
-          return child;
-        })}
-      </Animated.View>
-    </SafeAreaView>
+        ]}
+      >
+        {children}
+      </View>
+    </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  transitionOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+  wrapper: {
+    flex: 1,
+    backgroundColor: '#1a1a2e',
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 9999,
   },
-  transitionContent: {
-    backgroundColor: 'rgba(255, 215, 0, 0.1)',
+  gameContainer: {
+    backgroundColor: '#000',
+    overflow: 'hidden',
+    position: 'relative',
+    // Enable GPU acceleration on web
+    ...Platform.select({
+      web: {
+        transform: [{ translateZ: 0 }] as any,
+        willChange: 'transform',
+      },
+      default: {},
+    }),
+  },
+  mobileContainer: {
+    padding: 0,
+  },
+  tabletContainer: {
+    padding: 10,
+  },
+  desktopContainer: {
     padding: 20,
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: '#FFD700',
-    alignItems: 'center',
-  },
-  transitionText: {
-    color: '#FFD700',
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 5,
-  },
-  transitionSubtext: {
-    color: '#FFA500',
-    fontSize: 14,
   },
 });
+
+export default ResponsiveGameWrapper;
