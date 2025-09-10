@@ -11,7 +11,7 @@ import {
 import * as Haptics from 'expo-haptics';
 import { useGameLoop } from '../utils/gameLoop';
 import { useResponsive, scale, scaleFont, scaleSpacing } from '../utils/responsiveScaling';
-import VirtualFallingItems from '../components/VirtualFallingItems';
+import FallingItemsVisual from '../components/FallingItemsVisual';
 import EnhancedTouchHandler from '../components/EnhancedTouchHandler';
 import MineCart from '../components/MineCart';
 import RailTrack from '../components/RailTrack';
@@ -140,9 +140,10 @@ const GameScreenClean: React.FC<GameScreenCleanProps> = memo(({
         y: item.y + currentSpeed * deltaTime * 60, // Consistent speed based on level
       }));
       
-      // Check collisions
+      // Check collisions with improved item size
       updated.forEach(item => {
-        if (!item.collected && item.y > height - 150 && item.y < height - 50) {
+        if (!item.collected && item.y > height - 150 && item.y < height - 20) {
+          // Cart collision box
           const cartBounds = {
             x: cartPosition - cartSize / 2,
             y: height - 100,
@@ -150,7 +151,21 @@ const GameScreenClean: React.FC<GameScreenCleanProps> = memo(({
             height: cartSize * 0.67,
           };
           
-          if (CollisionDetection.checkItemCollision(item, cartBounds)) {
+          // Item collision box (50x50 size)
+          const itemBounds = {
+            x: item.x - 25,
+            y: item.y,
+            width: 50,
+            height: 50,
+          };
+          
+          // Check if item overlaps with cart
+          if (
+            itemBounds.x < cartBounds.x + cartBounds.width &&
+            itemBounds.x + itemBounds.width > cartBounds.x &&
+            itemBounds.y < cartBounds.y + cartBounds.height &&
+            itemBounds.y + itemBounds.height > cartBounds.y
+          ) {
             collectItem(item);
           }
         }
@@ -470,8 +485,8 @@ const GameScreenClean: React.FC<GameScreenCleanProps> = memo(({
             <RailTrack showDust={Math.abs(cartVelocity) > 10} isMoving={false} />
           </View>
           
-          {/* Falling Items */}
-          <VirtualFallingItems
+          {/* Falling Items with improved visuals */}
+          <FallingItemsVisual
             items={fallingItems}
             onItemCollect={collectItem}
             viewportHeight={height}
