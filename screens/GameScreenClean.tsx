@@ -246,16 +246,21 @@ const GameScreenClean: React.FC<GameScreenCleanProps> = memo(({
   const spawnFallingItem = useCallback(() => {
     if (!isGameActive || isPaused) return;
     
-    // Decide if spawning power-up (15% chance) or treasure (85% chance)
-    const isPowerUp = Math.random() < 0.15;
-    
+    // Decide type of item to spawn
+    const rand = Math.random();
     let itemType: string;
-    if (isPowerUp) {
-      // Power-ups
+    let isDangerous = false;
+    
+    if (rand < 0.12) {
+      // Power-ups (12% chance)
       const powerUps = ['magnet', 'shield', 'doublePoints', 'timeBonus'];
       itemType = powerUps[Math.floor(Math.random() * powerUps.length)];
+    } else if (rand < 0.25) {
+      // Dangerous items (13% chance) - BOMBS!
+      itemType = 'bomb';
+      isDangerous = true;
     } else {
-      // Treasures: coins, gems, and diamonds
+      // Treasures (75% chance): coins, gems, and diamonds
       const types = ['coin', 'gem', 'diamond'];
       const weights = [60, 30, 10]; // 60% coins, 30% gems, 10% diamonds
       const totalWeight = weights.reduce((a, b) => a + b, 0);
@@ -279,7 +284,8 @@ const GameScreenClean: React.FC<GameScreenCleanProps> = memo(({
       type: itemType,
       speed: getFallSpeed(level), // Use consistent speed
       collected: false,
-      isPowerUp,
+      isPowerUp: itemType === 'magnet' || itemType === 'shield' || itemType === 'doublePoints' || itemType === 'timeBonus',
+      isDangerous,
     };
     
     setFallingItems(prev => [...prev, newItem].slice(-MAX_FALLING_ITEMS));
@@ -317,6 +323,19 @@ const GameScreenClean: React.FC<GameScreenCleanProps> = memo(({
         return;
       case 'timeBonus':
         activatePowerUp('timeBonus', 15000); // 15 seconds
+        return;
+      case 'bomb':
+        // Bomb damages player!
+        if (!activePowerUps.has('shield')) {
+          setLives(prev => Math.max(0, prev - 1));
+          if (lives <= 1) {
+            setGameOver(true);
+          }
+          // Visual feedback
+          if (Platform.OS !== 'web') {
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+          }
+        }
         return;
     }
     

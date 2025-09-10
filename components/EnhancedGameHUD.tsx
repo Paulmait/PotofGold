@@ -89,33 +89,33 @@ const EnhancedGameHUD: React.FC<EnhancedGameHUDProps> = memo(({
   };
 
   return (
-    <View style={[styles.container, { padding: ss(8) }]}>
+    <View style={[styles.container, { padding: ss(6) }]}>
       {/* Top Row - Score and Resources */}
       <View style={styles.topRow}>
         <View style={styles.scoreSection}>
-          <Text style={[styles.scoreLabel, { fontSize: sf(10) }]}>SCORE</Text>
-          <Text style={[styles.scoreText, { fontSize: sf(18) }]}>
+          <Text style={[styles.scoreLabel, { fontSize: sf(8) }]}>SCORE</Text>
+          <Text style={[styles.scoreText, { fontSize: sf(14) }]}>
             {score.toLocaleString()}
           </Text>
         </View>
 
         <View style={styles.resourcesSection}>
           <View style={styles.resourceItem}>
-            <Text style={[styles.resourceEmoji, { fontSize: sf(16) }]}>🪙</Text>
-            <Text style={[styles.resourceText, { fontSize: sf(14) }]}>
+            <Text style={[styles.resourceEmoji, { fontSize: sf(14) }]}>🪙</Text>
+            <Text style={[styles.resourceText, { fontSize: sf(12) }]}>
               {coins.toLocaleString()}
             </Text>
           </View>
           
           <View style={styles.resourceItem}>
-            <Text style={[styles.resourceEmoji, { fontSize: sf(16) }]}>💎</Text>
-            <Text style={[styles.resourceText, { fontSize: sf(14) }]}>
+            <Text style={[styles.resourceEmoji, { fontSize: sf(14) }]}>💎</Text>
+            <Text style={[styles.resourceText, { fontSize: sf(12) }]}>
               {gems.toLocaleString()}
             </Text>
           </View>
 
           <View style={styles.resourceItem}>
-            <Text style={[styles.livesEmoji, { fontSize: sf(14) }]}>
+            <Text style={[styles.livesEmoji, { fontSize: sf(12) }]}>
               {'❤️'.repeat(Math.max(0, lives))}
             </Text>
           </View>
@@ -221,20 +221,21 @@ const EnhancedGameHUD: React.FC<EnhancedGameHUDProps> = memo(({
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    top: Platform.select({ ios: 50, android: 30, web: 10 }),
+    top: Platform.select({ ios: 40, android: 25, web: 5 }),
     left: 0,
     right: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.85)',
-    borderRadius: 15,
-    marginHorizontal: 10,
-    borderWidth: 2,
-    borderColor: 'rgba(255, 215, 0, 0.3)',
+    backgroundColor: 'rgba(0, 0, 0, 0.75)', // More transparent
+    borderRadius: 12,
+    marginHorizontal: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 215, 0, 0.2)',
+    maxHeight: 120, // Limit height to not obstruct gameplay
   },
   topRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 5,
   },
   scoreSection: {
     flex: 1,
@@ -287,7 +288,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 5,
   },
   streakContainer: {
     flexDirection: 'row',

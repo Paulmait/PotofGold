@@ -188,18 +188,7 @@ const WebGameContainer: React.FC<WebGameContainerProps> = ({
             </View>
           </View>
 
-          {/* Instructions for desktop */}
-          <View style={styles.instructions}>
-            <Text style={styles.instructionText}>
-              🎮 Use arrow keys or mouse to control the cart
-            </Text>
-            <Text style={styles.instructionText}>
-              💰 Collect falling items to earn points
-            </Text>
-            <Text style={styles.instructionText}>
-              ⚡ Activate power-ups for special abilities
-            </Text>
-          </View>
+          {/* Removed instructions to avoid blocking gameplay view */}
         </View>
       )}
 

@@ -18,6 +18,7 @@ interface FallingItem {
   speed: number;
   collected: boolean;
   isPowerUp?: boolean;
+  isDangerous?: boolean;
   rarity?: string;
 }
 
@@ -103,6 +104,29 @@ const FallingItemVisual = memo(({
       {/* Glow effect for power-ups */}
       {item.isPowerUp && (
         <View style={styles.powerUpGlow} />
+      )}
+      
+      {/* Danger warning for bombs */}
+      {item.type === 'bomb' && (
+        <Animated.View 
+          style={[
+            styles.dangerWarning,
+            {
+              opacity: animation.interpolate({
+                inputRange: [0, height],
+                outputRange: [1, 1],
+              }),
+              transform: [{
+                scale: animation.interpolate({
+                  inputRange: [0, height/2, height],
+                  outputRange: [1, 1.5, 1],
+                }),
+              }],
+            },
+          ]}
+        >
+          <Text style={styles.dangerText}>⚠️</Text>
+        </Animated.View>
       )}
     </Animated.View>
   );
@@ -289,6 +313,26 @@ function getItemStyle(item: FallingItem) {
       shadowRadius: 8,
       elevation: 8,
     },
+    // DANGEROUS - Bomb with warning appearance
+    bomb: {
+      backgroundColor: 'rgba(255, 0, 0, 0.3)',
+      borderRadius: 25,
+      borderWidth: 3,
+      borderColor: '#FF0000',
+      borderStyle: 'dashed',
+      shadowColor: '#FF0000',
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0.8,
+      shadowRadius: 10,
+      elevation: 10,
+      // Add pulsing red background
+      ...Platform.select({
+        web: {
+          animation: 'pulse 1s infinite',
+        },
+        default: {},
+      }),
+    },
   };
 
   return { ...baseStyle, ...(typeStyles[item.type] || {}) };
@@ -305,6 +349,8 @@ function getItemEmoji(type: string): string {
     shield: '🛡️',
     doublePoints: '⚡',
     timeBonus: '⏰',
+    // DANGEROUS ITEMS
+    bomb: '💣',  // Clear bomb emoji
   };
   return emojis[type] || '✨';
 }
@@ -344,6 +390,23 @@ const styles = StyleSheet.create({
     bottom: -10,
     backgroundColor: 'rgba(255, 255, 255, 0.3)',
     borderRadius: 30,
+  },
+  dangerWarning: {
+    position: 'absolute',
+    top: -15,
+    right: -15,
+    width: 30,
+    height: 30,
+    backgroundColor: 'rgba(255, 0, 0, 0.8)',
+    borderRadius: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#FFFF00',
+  },
+  dangerText: {
+    fontSize: 18,
+    fontWeight: 'bold',
   },
   powerUpGlow: {
     position: 'absolute',
