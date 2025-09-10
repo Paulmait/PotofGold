@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  
+  <!-- SEO & Social Media -->
+  <title>Pot of Gold - Addictive Treasure Collection Game</title>
+  <meta name="description" content="Collect coins, dodge bombs, and compete for high scores in this addictive HTML5 game! Play Pot of Gold free in your browser - no download required!">
+  <meta name="keywords" content="pot of gold, treasure game, coin collector, HTML5 game, browser game, free game, mobile game">
+  
+  <!-- Open Graph for Social Sharing -->
+  <meta property="og:title" content="Pot of Gold - Can you beat my high score?">
+  <meta property="og:description" content="I scored {score} points in Pot of Gold! Can you beat me? Play now for free!">
+  <meta property="og:image" content="/assets/images/social-preview.png">
+  <meta property="og:url" content="https://potofgold.vercel.app">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Pot of Gold">
+  
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Pot of Gold - Addictive Treasure Game">
+  <meta name="twitter:description" content="Collect treasures, avoid bombs, compete globally! Play free now!">
+  <meta name="twitter:image" content="/assets/images/social-preview.png">
+  
+  <!-- Mobile App Meta -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#FFD700">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="/assets/images/pot_of_gold_icon.png">
+  <link rel="apple-touch-icon" href="/assets/images/pot_of_gold_icon.png">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Fredoka', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      overflow: hidden;
+      background: linear-gradient(180deg, #87CEEB 0%, #98D8E8 100%);
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    
+    #gameCanvas {
+      display: block;
+      cursor: pointer;
+    }
+    
+    /* Loading Screen */
+    #loadingScreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      transition: opacity 0.5s ease;
+    }
+    
+    .loading-logo {
+      width: 150px;
+      height: 150px;
+      animation: bounce 1s infinite;
+    }
+    
+    .loading-text {
+      color: white;
+      font-size: 24px;
+      margin-top: 20px;
+      font-weight: 600;
+    }
+    
+    .loading-bar {
+      width: 200px;
+      height: 10px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 5px;
+      margin-top: 20px;
+      overflow: hidden;
+    }
+    
+    .loading-progress {
+      height: 100%;
+      background: #FFD700;
+      border-radius: 5px;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+    
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+    
+    /* Menu Overlay */
+    #menuOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    
+    .menu-container {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 20px;
+      padding: 40px;
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+    
+    .menu-title {
+      color: #FFD700;
+      font-size: 48px;
+      margin-bottom: 30px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      font-weight: 700;
+    }
+    
+    .menu-button {
+      background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+      color: #333;
+      border: none;
+      border-radius: 50px;
+      padding: 15px 40px;
+      font-size: 20px;
+      font-weight: 600;
+      margin: 10px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+    }
+    
+    .menu-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+    }
+    
+    .menu-button:active {
+      transform: translateY(0);
+    }
+    
+    /* Share Buttons */
+    .share-container {
+      margin-top: 30px;
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+    }
+    
+    .share-button {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: white;
+      color: #333;
+      text-decoration: none;
+      transition: transform 0.2s;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+    
+    .share-button:hover {
+      transform: scale(1.1);
+    }
+    
+    /* Leaderboard */
+    .leaderboard-container {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+    
+    .leaderboard-title {
+      color: #FFD700;
+      font-size: 24px;
+      margin-bottom: 15px;
+    }
+    
+    .leaderboard-item {
+      display: flex;
+      justify-content: space-between;
+      color: white;
+      padding: 8px;
+      margin: 5px 0;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 5px;
+    }
+    
+    .leaderboard-rank {
+      font-weight: 600;
+      color: #FFD700;
+    }
+    
+    /* Mobile optimizations */
+    @media (max-width: 768px) {
+      .menu-title {
+        font-size: 36px;
+      }
+      
+      .menu-button {
+        font-size: 18px;
+        padding: 12px 30px;
+      }
+    }
+    
+    /* Prevent pull-to-refresh on mobile */
+    body {
+      overscroll-behavior-y: none;
+    }
+  </style>
+  
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX');
+  </script>
+</head>
+<body>
+  <!-- Game Canvas -->
+  <canvas id="gameCanvas"></canvas>
+  
+  <!-- Loading Screen -->
+  <div id="loadingScreen">
+    <img src="/assets/images/pot_of_gold_logo.png" alt="Pot of Gold" class="loading-logo">
+    <div class="loading-text">Loading...</div>
+    <div class="loading-bar">
+      <div class="loading-progress" id="loadingProgress"></div>
+    </div>
+  </div>
+  
+  <!-- Main Menu Overlay -->
+  <div id="menuOverlay">
+    <div class="menu-container">
+      <h1 class="menu-title">Pot of Gold</h1>
+      
+      <div id="mainMenu">
+        <button class="menu-button" onclick="startGame()">Play Game</button>
+        <button class="menu-button" onclick="showLeaderboard()">Leaderboard</button>
+        <button class="menu-button" onclick="showSettings()">Settings</button>
+      </div>
+      
+      <div id="gameOverMenu" style="display: none;">
+        <h2 style="color: white; font-size: 24px; margin-bottom: 10px;">Game Over!</h2>
+        <p style="color: #FFD700; font-size: 36px; margin-bottom: 20px;">Score: <span id="finalScore">0</span></p>
+        <p style="color: white; font-size: 18px; margin-bottom: 20px;">High Score: <span id="highScore">0</span></p>
+        <button class="menu-button" onclick="restartGame()">Play Again</button>
+        <button class="menu-button" onclick="shareScore()">Share Score</button>
+        <button class="menu-button" onclick="showMainMenu()">Main Menu</button>
+      </div>
+      
+      <!-- Share buttons -->
+      <div class="share-container">
+        <a href="#" class="share-button" onclick="shareOnTwitter()">🐦</a>
+        <a href="#" class="share-button" onclick="shareOnFacebook()">📘</a>
+        <a href="#" class="share-button" onclick="shareOnWhatsApp()">💬</a>
+        <a href="#" class="share-button" onclick="copyLink()">🔗</a>
+      </div>
+      
+      <!-- Leaderboard -->
+      <div id="leaderboard" class="leaderboard-container" style="display: none;">
+        <h3 class="leaderboard-title">Top Players</h3>
+        <div id="leaderboardList"></div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Game Scripts -->
+  <script type="module">
+    import { PotOfGoldGame } from './game-engine/PotOfGoldGame.js';
+    
+    let game = null;
+    let isLoading = true;
+    
+    // Initialize when DOM is ready
+    document.addEventListener('DOMContentLoaded', () => {
+      initializeGame();
+    });
+    
+    async function initializeGame() {
+      try {
+        // Show loading screen
+        updateLoadingProgress(20);
+        
+        // Load game assets
+        await loadGameAssets();
+        updateLoadingProgress(60);
+        
+        // Initialize game
+        game = new PotOfGoldGame('gameCanvas');
+        updateLoadingProgress(100);
+        
+        // Hide loading screen after a short delay
+        setTimeout(() => {
+          document.getElementById('loadingScreen').style.opacity = '0';
+          setTimeout(() => {
+            document.getElementById('loadingScreen').style.display = 'none';
+            showMainMenu();
+          }, 500);
+        }, 500);
+        
+      } catch (error) {
+        console.error('Failed to initialize game:', error);
+        alert('Failed to load game. Please refresh the page.');
+      }
+    }
+    
+    function updateLoadingProgress(percentage) {
+      document.getElementById('loadingProgress').style.width = percentage + '%';
+    }
+    
+    async function loadGameAssets() {
+      // Preload images
+      const imagesToLoad = [
+        '/assets/images/pot_of_gold_icon.png',
+        '/assets/images/pot_of_gold_logo.png',
+        '/assets/images/coins.png',
+        '/assets/images/diamond.png',
+        '/assets/images/star.png',
+        '/assets/images/bomb.png',
+      ];
+      
+      const loadPromises = imagesToLoad.map(src => {
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          img.onload = resolve;
+          img.onerror = reject;
+          img.src = src;
+        });
+      });
+      
+      await Promise.all(loadPromises);
+    }
+    
+    // Game control functions
+    window.startGame = function() {
+      document.getElementById('menuOverlay').style.display = 'none';
+      if (game) {
+        game.restart();
+        game.start();
+      }
+      
+      // Track event
+      gtag('event', 'game_start', {
+        'event_category': 'game',
+        'event_label': 'start'
+      });
+    };
+    
+    window.restartGame = function() {
+      document.getElementById('gameOverMenu').style.display = 'none';
+      document.getElementById('menuOverlay').style.display = 'none';
+      if (game) {
+        game.restart();
+      }
+      
+      gtag('event', 'game_restart', {
+        'event_category': 'game',
+        'event_label': 'restart'
+      });
+    };
+    
+    window.showMainMenu = function() {
+      document.getElementById('mainMenu').style.display = 'block';
+      document.getElementById('gameOverMenu').style.display = 'none';
+      document.getElementById('leaderboard').style.display = 'none';
+      document.getElementById('menuOverlay').style.display = 'flex';
+      if (game) {
+        game.pause();
+      }
+    };
+    
+    window.showGameOver = function(score, highScore) {
+      document.getElementById('finalScore').textContent = score;
+      document.getElementById('highScore').textContent = highScore;
+      document.getElementById('mainMenu').style.display = 'none';
+      document.getElementById('gameOverMenu').style.display = 'block';
+      document.getElementById('menuOverlay').style.display = 'flex';
+      
+      gtag('event', 'game_over', {
+        'event_category': 'game',
+        'event_label': 'score',
+        'value': score
+      });
+    };
+    
+    window.showLeaderboard = async function() {
+      document.getElementById('leaderboard').style.display = 'block';
+      // Load leaderboard data from Firebase
+      // This will be implemented with Firebase integration
+    };
+    
+    // Social sharing functions
+    window.shareScore = function() {
+      const score = document.getElementById('finalScore').textContent;
+      const text = `I scored ${score} points in Pot of Gold! Can you beat me?`;
+      
+      if (navigator.share) {
+        navigator.share({
+          title: 'Pot of Gold',
+          text: text,
+          url: window.location.href
+        });
+      } else {
+        shareOnTwitter();
+      }
+    };
+    
+    window.shareOnTwitter = function() {
+      const score = document.getElementById('finalScore').textContent || '0';
+      const text = `I scored ${score} points in Pot of Gold! Can you beat me?`;
+      const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(window.location.href)}`;
+      window.open(url, '_blank');
+      
+      gtag('event', 'share', {
+        'event_category': 'social',
+        'event_label': 'twitter'
+      });
+    };
+    
+    window.shareOnFacebook = function() {
+      const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`;
+      window.open(url, '_blank');
+      
+      gtag('event', 'share', {
+        'event_category': 'social',
+        'event_label': 'facebook'
+      });
+    };
+    
+    window.shareOnWhatsApp = function() {
+      const score = document.getElementById('finalScore').textContent || '0';
+      const text = `I scored ${score} points in Pot of Gold! Can you beat me? ${window.location.href}`;
+      const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+      window.open(url, '_blank');
+      
+      gtag('event', 'share', {
+        'event_category': 'social',
+        'event_label': 'whatsapp'
+      });
+    };
+    
+    window.copyLink = function() {
+      navigator.clipboard.writeText(window.location.href);
+      alert('Link copied to clipboard!');
+      
+      gtag('event', 'share', {
+        'event_category': 'social',
+        'event_label': 'copy_link'
+      });
+    };
+    
+    // Prevent scrolling on mobile
+    document.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+    }, { passive: false });
+    
+    // Handle visibility change
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && game) {
+        game.pause();
+      }
+    });
+  </script>
+</body>
+</html>

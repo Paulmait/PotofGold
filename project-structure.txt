@@ -1,0 +1,167 @@
+POT OF GOLD PROJECT STRUCTURE
+=============================
+
+Root Files
+----------
+├── App.tsx                     # Main React Native app entry
+├── App.web.tsx                 # Web-specific app entry
+├── app.json                    # Expo configuration
+├── package.json                # Project dependencies
+├── tsconfig.json               # TypeScript configuration
+├── babel.config.js             # Babel configuration
+├── .eslintrc.js                # ESLint configuration
+├── .prettierrc.js              # Prettier configuration
+├── jest.config.js              # Jest test configuration
+├── eas.json                    # EAS Build configuration
+├── metro.config.js             # Metro bundler configuration
+├── webpack.config.js           # Webpack configuration for web
+
+Directories
+-----------
+├── __tests__/                  # Test files
+│   ├── integration/            # Integration tests
+│   ├── simulation/             # Game simulation tests
+│   └── unit/                   # Unit tests
+│
+├── admin/                      # Admin dashboard
+│   └── AdminDashboard.tsx
+│
+├── assets/                     # Static assets
+│   ├── drops/                  # Monthly drop configurations
+│   │   ├── calendar.json
+│   │   ├── month_YYYY_MM.json files
+│   │   └── schema/
+│   ├── images/                 # Game images
+│   │   ├── pot_of_gold_icon.png
+│   │   ├── pot_of_gold_logo.png
+│   │   └── pot_of_gold_metadata.json
+│   └── sounds/                 # Game sounds
+│
+├── backend/                    # Backend code
+│   ├── admin/                  # Admin API
+│   │   ├── adminAuth.ts
+│   │   └── adminDashboardAPI.ts
+│   ├── functions/              # Firebase functions
+│   │   ├── antiCheat.ts
+│   │   ├── gameOperations.ts
+│   │   ├── leaderboards.ts
+│   │   └── testingAPIs.ts
+│   ├── firebaseConfig.ts
+│   └── package.json
+│
+├── components/                 # React Native components
+│   ├── AdminPasswordChange.tsx
+│   ├── BlockageDisplay.tsx
+│   ├── BlockageVisual.tsx
+│   ├── CartTrail.tsx
+│   ├── Coin.tsx
+│   ├── EnhancedFallingItems.tsx
+│   ├── EnhancedFallingItemsV2.tsx
+│   ├── EnhancedGameHUD.tsx
+│   ├── EnhancedParticleEffects.tsx
+│   ├── EnhancedTouchHandler.tsx
+│   ├── ErrorBoundary.tsx
+│   ├── FallingItems.tsx
+│   ├── FallingItemsImproved.tsx
+│   ├── GameHUD.tsx
+│   ├── GameSummary.tsx
+│   ├── GameSummaryModal.tsx
+│   ├── GlobalLeaderboard.tsx
+│   ├── Leprechaun.tsx
+│   ├── LoadingScreen.tsx
+│   ├── ParticleEffects.tsx
+│   ├── PasswordChange.tsx
+│   ├── PowerUpIndicator.tsx
+│   ├── PowerUpOverlay.tsx
+│   ├── PremiumAdvertisement.tsx
+│   ├── PremiumShopCart.tsx
+│   ├── StreakCounter.tsx
+│   ├── TouchHandler.tsx
+│   └── TrophyDisplay.tsx
+│
+├── contexts/                   # React contexts
+│   ├── GameContext.tsx
+│   └── SessionContext.tsx
+│
+├── hooks/                      # Custom React hooks
+│   ├── useAudioEffects.ts
+│   ├── useCompetitionCountdown.ts
+│   ├── useGameAudio.ts
+│   ├── useGameLogic.ts
+│   ├── useGameScreenLifecycle.ts
+│   └── useSessionContext.ts
+│
+├── screens/                    # App screens
+│   ├── AuthScreen.tsx
+│   ├── CompetitionScreen.tsx
+│   ├── GameEndedScreen.tsx
+│   ├── GameScreen.tsx
+│   ├── GameScreenUI.tsx
+│   ├── HomeScreen.tsx
+│   ├── LeaderboardScreen.tsx
+│   ├── PremiumScreen.tsx
+│   ├── PurchaseScreen.tsx
+│   ├── SettingsScreen.tsx
+│   └── SplashScreen.tsx
+│
+├── services/                   # Services and utilities
+│   ├── auth.ts
+│   ├── authHelpers.ts
+│   ├── audioService.ts
+│   ├── firebase.ts
+│   ├── gameplayService.ts
+│   ├── locationService.ts
+│   ├── monthlyDropService.ts
+│   ├── premiumService.ts
+│   ├── sessionService.ts
+│   └── userService.ts
+│
+├── styles/                     # Style definitions
+│   ├── authStyles.ts
+│   ├── gameScreenStyles.ts
+│   ├── homeScreenStyles.ts
+│   └── ...other style files
+│
+├── types/                      # TypeScript type definitions
+│   ├── antiCheat.ts
+│   ├── drop.ts
+│   ├── firebase.ts
+│   ├── game.ts
+│   ├── leaderboard.ts
+│   ├── monthlyDrop.ts
+│   ├── navigation.ts
+│   ├── premium.ts
+│   └── session.ts
+│
+├── utils/                      # Utility functions
+│   ├── antiCheat.ts
+│   ├── collisionDetection.ts
+│   ├── constants.ts
+│   ├── errorHelpers.ts
+│   ├── gameCalculations.ts
+│   ├── gameCalibration.ts
+│   ├── gameLogic.ts
+│   ├── mockData.ts
+│   ├── monthlyDrops.ts
+│   ├── premiumGameChanges.ts
+│   └── testHelpers.ts
+│
+├── web/                        # Web-specific files
+│   ├── index.html
+│   └── webpack.config.js
+│
+└── .vercel/                    # Vercel deployment config
+    └── project.json
+
+Key Features
+------------
+- React Native + Expo for cross-platform mobile/web
+- Firebase for backend (Auth, Firestore, Functions)
+- TypeScript for type safety
+- Jest for testing
+- EAS for building and deployment
+- Monthly drop system for game content
+- Premium features and subscriptions
+- Leaderboards and competitions
+- Anti-cheat mechanisms
+- Admin dashboard for management

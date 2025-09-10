@@ -12,6 +12,7 @@
     "ios:device": "expo run:ios --device",
     "ios:simulator": "expo run:ios --simulator=\"iPhone 15 Pro\"",
     "web": "expo start --web",
+    "web:game": "npx serve web -p 3000",
     "test": "jest --config jest.config.js",
     "test:integration": "node src/tests/IntegrationTests.js",
     "test:security": "jest --testPathPattern=__tests__/security",
