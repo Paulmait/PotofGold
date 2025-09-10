@@ -16,6 +16,7 @@ import { useNavigation } from '@react-navigation/native';
 import { gameSoundManager } from '../utils/gameSoundManager';
 import { markOnboardingCompleted } from '../utils/deviceTracking';
 import * as Haptics from 'expo-haptics';
+import sessionPersistence from '../services/sessionPersistence';
 
 const { width, height } = Dimensions.get('window');
 
@@ -222,13 +223,16 @@ export default function OnboardingScreen({ route }: any) {
     console.log('Completing onboarding...');
     
     try {
+      // Save onboarding completion status with session persistence
+      await sessionPersistence.completeOnboarding();
+      
       // Save onboarding completion status with device tracking
       await markOnboardingCompleted();
       // Also save legacy flags for backward compatibility
       await AsyncStorage.setItem('hasSeenOnboarding', 'true');
       await AsyncStorage.setItem('onboarding_completed', 'true');
       await AsyncStorage.setItem('onboarding_date', new Date().toISOString());
-      console.log('Onboarding data saved with device tracking');
+      console.log('Onboarding data saved with session persistence and device tracking');
     } catch (error) {
       console.error('Error saving onboarding data:', error);
     }

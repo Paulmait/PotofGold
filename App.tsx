@@ -13,9 +13,11 @@ import SplashScreenEnhanced from './components/SplashScreenEnhanced';
 import { useOrientation } from './hooks/useOrientation';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import ErrorBoundary from './components/ErrorBoundary';
+import sessionPersistence from './services/sessionPersistence';
 
 // Screens
 import GameScreen from './screens/GameScreen';
+import GameScreenPerfect from './screens/GameScreenPerfect';
 import GameScreenEnhanced from './screens/GameScreenEnhanced';
 import GameScreenResponsive from './screens/GameScreenResponsive';
 import GameScreenWrapped from './screens/GameScreenWrapped';
@@ -72,21 +74,21 @@ export default function App() {
       crashReporting.initialize();
       crashReporting.trackAppPerformance();
 
-      // Check legal acceptance status
-      const legalAcceptance = await AsyncStorage.getItem('legal_accepted');
-      const acceptedVersion = await AsyncStorage.getItem('legal_version_accepted');
-      const currentLegalVersion = '2.0'; // Update this when legal terms change
+      // Check session and user preferences
+      const session = await sessionPersistence.getSession();
+      const currentLegalVersion = '2.0';
       
-      if (legalAcceptance && acceptedVersion === currentLegalVersion) {
-        setHasAcceptedLegal(true);
-      } else {
-        setHasAcceptedLegal(false);
-      }
+      // Check legal acceptance with session persistence
+      const legalAccepted = await sessionPersistence.hasAcceptedLegal(currentLegalVersion);
+      setHasAcceptedLegal(legalAccepted);
       setLegalVersion(currentLegalVersion);
 
-      // Check onboarding status with device tracking
-      const hasCompleted = await hasCompletedOnboarding();
-      setHasSeenOnboarding(hasCompleted);
+      // Check onboarding status with session persistence
+      const hasCompletedOnb = await sessionPersistence.hasCompletedOnboarding();
+      setHasSeenOnboarding(hasCompletedOnb);
+      
+      // Update last active time
+      await sessionPersistence.updateLastActive();
       
       // Track device analytics
       const analytics = await getDeviceAnalytics();
@@ -97,6 +99,14 @@ export default function App() {
         try {
           if (user) {
             setIsAuthenticated(true);
+            
+            // Save user data to session
+            await sessionPersistence.saveUserData(
+              user.uid,
+              user.email || undefined,
+              user.displayName || undefined,
+              false
+            );
             
             // Load user profile
             await authService.loadUserProfile(user.uid);
@@ -177,8 +187,7 @@ export default function App() {
                   component={LegalAgreementScreen}
                   initialParams={{
                     onAccept: async () => {
-                      await AsyncStorage.setItem('legal_accepted', 'true');
-                      await AsyncStorage.setItem('legal_version_accepted', legalVersion);
+                      await sessionPersistence.acceptLegal(legalVersion);
                       setHasAcceptedLegal(true);
                     },
                     onDecline: () => {
@@ -193,7 +202,7 @@ export default function App() {
                 {/* Add all screens as fallback during transition */}
                 <Stack.Screen name="Onboarding" component={OnboardingScreen} />
                 <Stack.Screen name="Home" component={HomeScreenGuest} />
-                <Stack.Screen name="Game" component={GameScreenWrapped} />
+                <Stack.Screen name="Game" component={GameScreenPerfect} />
               </>
             ) : !hasSeenOnboarding ? (
               <>
@@ -213,7 +222,7 @@ export default function App() {
             ) : !isAuthenticated ? (
               <>
                 <Stack.Screen name="Home" component={HomeScreenGuest} />
-                <Stack.Screen name="Game" component={GameScreenWrapped} />
+                <Stack.Screen name="Game" component={GameScreenPerfect} />
                 <Stack.Screen name="GameOver" component={GameOverScreen} />
                 <Stack.Screen name="Auth" component={AuthScreenFixed} />
                 <Stack.Screen name="Shop" component={ShopScreenPro} />
@@ -222,7 +231,7 @@ export default function App() {
             ) : (
               <>
                 <Stack.Screen name="Home" component={HomeScreenGuest} />
-                <Stack.Screen name="Game" component={GameScreenWrapped} />
+                <Stack.Screen name="Game" component={GameScreenPerfect} />
                 <Stack.Screen name="Settings" component={SettingsScreen} />
                 <Stack.Screen name="Shop" component={ShopScreenPro} />
                 <Stack.Screen name="SkinShop" component={SkinShopScreen} />
