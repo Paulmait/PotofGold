@@ -13,6 +13,8 @@ interface GameBottomBarProps {
   coins: number;
   streakDays: number;
   seasonTier: number;
+  blockages?: number;
+  maxBlockages?: number;
   onStreakPress?: () => void;
   onSeasonPassPress?: () => void;
   onShopPress?: () => void;
@@ -29,6 +31,8 @@ const GameBottomBar: React.FC<GameBottomBarProps> = memo(({
   coins,
   streakDays,
   seasonTier,
+  blockages = 0,
+  maxBlockages = 5,
   onStreakPress,
   onSeasonPassPress,
   onShopPress,
@@ -66,6 +70,22 @@ const GameBottomBar: React.FC<GameBottomBarProps> = memo(({
           <Text style={styles.statText}>T{seasonTier}</Text>
           {hasNewTier && <View style={styles.notificationDot} />}
         </TouchableOpacity>
+        
+        {/* Blockage indicator */}
+        {blockages > 0 && (
+          <View style={[
+            styles.statButton,
+            blockages >= maxBlockages * 0.8 && styles.criticalStat
+          ]}>
+            <Text style={styles.statEmoji}>🚫</Text>
+            <Text style={[
+              styles.statText,
+              blockages >= maxBlockages * 0.8 && styles.criticalText
+            ]}>
+              {blockages}/{maxBlockages}
+            </Text>
+          </View>
+        )}
       </View>
 
       {/* Action Buttons Section */}
@@ -255,6 +275,14 @@ const styles = StyleSheet.create({
   },
   disabledButton: {
     opacity: 0.5,
+  },
+  criticalStat: {
+    backgroundColor: 'rgba(255, 0, 0, 0.2)',
+    borderColor: '#FF0000',
+    borderWidth: 1,
+  },
+  criticalText: {
+    color: '#FF6B6B',
   },
 });
 

@@ -22,6 +22,7 @@ import PauseModal from './PauseModal';
 import { CollisionDetection } from '../utils/collisionDetection';
 import GameBottomBar from '../components/GameBottomBar';
 import MobileZoomPrevention from '../components/MobileZoomPrevention';
+import BlockageVisual from '../components/BlockageVisual';
 import { dailyStreakSystem } from '../utils/dailyStreakSystem';
 import { seasonPassSystem } from '../utils/seasonPassSystem';
 
@@ -572,6 +573,24 @@ const GameScreenClean: React.FC<GameScreenCleanProps> = memo(({
               activeSkin={null}
             />
           </Animated.View>
+          
+          {/* Blockage Visual */}
+          <BlockageVisual
+            blockageCount={blockages}
+            maxBlockages={MAX_BLOCKAGES}
+            onClearPress={() => {
+              if (coins >= 50) {
+                setCoins(prev => prev - 50);
+                setBlockages(0);
+                // Clear some falling items to show the path is cleared
+                setFallingItems(prev => 
+                  prev.filter(item => item.y < height - 200)
+                );
+              }
+            }}
+            canAffordClear={coins >= 50}
+            clearCost={50}
+          />
         </View>
         
         {/* Start prompt - clean and centered */}
@@ -654,6 +673,8 @@ const GameScreenClean: React.FC<GameScreenCleanProps> = memo(({
             coins={coins}
             streakDays={7} // TODO: Get from DailyStreakSystem
             seasonTier={1} // TODO: Get from SeasonPassSystem
+            blockages={blockages}
+            maxBlockages={MAX_BLOCKAGES}
             onStreakPress={() => {
               pauseGame();
               // Navigate to streak modal
@@ -689,7 +710,10 @@ const GameScreenClean: React.FC<GameScreenCleanProps> = memo(({
                 setCoins(prev => prev - 50);
                 // Clear all blockages
                 setBlockages(0);
-                setFallingItems([]);
+                // Clear falling items to show cleared path
+                setFallingItems(prev => 
+                  prev.filter(item => item.y < height - 200)
+                );
               }
             }}
             vacuumCost={25}
