@@ -161,7 +161,12 @@ const HomeScreenGuest: React.FC<HomeScreenGuestProps> = ({ navigation }) => {
     >
       <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
       
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        contentContainerStyle={styles.scrollContent} 
+        showsVerticalScrollIndicator={Platform.OS === 'web'} 
+        bounces={false}
+        overScrollMode="never"
+      >
         <Animated.View style={[styles.content, { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }]}>
           {/* Header */}
           <View style={styles.header}>
@@ -177,7 +182,7 @@ const HomeScreenGuest: React.FC<HomeScreenGuestProps> = ({ navigation }) => {
             <View style={styles.userStatus}>
               <Ionicons 
                 name={isGuest ? "person-outline" : "person"} 
-                size={Platform.OS === 'web' ? 24 : scale(20)} 
+                size={Platform.OS === 'web' ? 18 : scale(20)} 
                 color="#FFD700" 
               />
               <Text style={styles.userName}>{userName}</Text>
@@ -192,14 +197,14 @@ const HomeScreenGuest: React.FC<HomeScreenGuestProps> = ({ navigation }) => {
           {/* Stats Cards */}
           <View style={styles.statsContainer}>
             <View style={styles.statCard}>
-              <Ionicons name="star" size={Platform.OS === 'web' ? 28 : scale(24)} color="#FFD700" />
+              <Ionicons name="star" size={Platform.OS === 'web' ? 20 : scale(24)} color="#FFD700" />
               <Text style={styles.statValue}>
                 {isGuest ? guestHighScore.toLocaleString() : gameState.highScore.toLocaleString()}
               </Text>
               <Text style={styles.statLabel}>High Score</Text>
             </View>
             <View style={styles.statCard}>
-              <Ionicons name="cash" size={Platform.OS === 'web' ? 28 : scale(24)} color="#FFD700" />
+              <Ionicons name="cash" size={Platform.OS === 'web' ? 20 : scale(24)} color="#FFD700" />
               <Text style={styles.statValue}>
                 {isGuest ? guestCoins.toLocaleString() : gameState.coins.toLocaleString()}
               </Text>
@@ -207,7 +212,7 @@ const HomeScreenGuest: React.FC<HomeScreenGuestProps> = ({ navigation }) => {
               {isGuest && <Text style={styles.guestWarning}>Not Saved</Text>}
             </View>
             <View style={styles.statCard}>
-              <Ionicons name="trophy" size={Platform.OS === 'web' ? 28 : scale(24)} color="#FFD700" />
+              <Ionicons name="trophy" size={Platform.OS === 'web' ? 20 : scale(24)} color="#FFD700" />
               <Text style={styles.statValue}>{gameState.gamesPlayed}</Text>
               <Text style={styles.statLabel}>Games</Text>
             </View>
@@ -219,7 +224,7 @@ const HomeScreenGuest: React.FC<HomeScreenGuestProps> = ({ navigation }) => {
               colors={['#FFD700', '#FFA500', '#FF8C00']}
               style={styles.playButtonGradient}
             >
-              <Ionicons name="play" size={Platform.OS === 'web' ? 36 : scale(32)} color="#FFF" />
+              <Ionicons name="play" size={Platform.OS === 'web' ? 28 : scale(32)} color="#FFF" />
               <Text style={styles.playButtonText}>PLAY</Text>
             </LinearGradient>
           </TouchableOpacity>
@@ -227,22 +232,22 @@ const HomeScreenGuest: React.FC<HomeScreenGuestProps> = ({ navigation }) => {
           {/* Menu Buttons */}
           <View style={styles.menuGrid}>
             <TouchableOpacity style={styles.menuButton} onPress={handleShopPress}>
-              <Ionicons name="cart" size={Platform.OS === 'web' ? 32 : scale(24)} color="#FFD700" />
+              <Ionicons name="cart" size={Platform.OS === 'web' ? 24 : scale(24)} color="#FFD700" />
               <Text style={styles.menuButtonText}>Shop</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.menuButton} onPress={handleLeaderboardPress}>
-              <Ionicons name="podium" size={Platform.OS === 'web' ? 32 : scale(24)} color="#FFD700" />
+              <Ionicons name="podium" size={Platform.OS === 'web' ? 24 : scale(24)} color="#FFD700" />
               <Text style={styles.menuButtonText}>Leaderboard</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.menuButton} onPress={handleStatsPress}>
-              <Ionicons name="stats-chart" size={Platform.OS === 'web' ? 32 : scale(24)} color="#FFD700" />
+              <Ionicons name="stats-chart" size={Platform.OS === 'web' ? 24 : scale(24)} color="#FFD700" />
               <Text style={styles.menuButtonText}>Stats</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.menuButton} onPress={handleHowToPlayPress}>
-              <Ionicons name="help-circle" size={Platform.OS === 'web' ? 32 : scale(24)} color="#FFD700" />
+              <Ionicons name="help-circle" size={Platform.OS === 'web' ? 24 : scale(24)} color="#FFD700" />
               <Text style={styles.menuButtonText}>How to Play</Text>
             </TouchableOpacity>
           </View>
@@ -275,6 +280,13 @@ const HomeScreenGuest: React.FC<HomeScreenGuestProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    ...Platform.select({
+      web: {
+        height: '100vh',
+        overflow: 'auto',
+      },
+      default: {},
+    }),
   },
   scrollContent: {
     flexGrow: 1,
@@ -290,22 +302,22 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: scale(20),
-    paddingTop: Platform.OS === 'ios' ? scale(60) : scale(40),
+    padding: Platform.OS === 'web' ? 15 : scale(20),
+    paddingTop: Platform.OS === 'web' ? 20 : (Platform.OS === 'ios' ? scale(60) : scale(40)),
     // Ensure content is visible on all screen sizes
-    minHeight: '100%',
+    minHeight: Platform.OS === 'web' ? 'auto' : '100%',
   },
   header: {
     alignItems: 'center',
-    marginBottom: verticalScale(30),
+    marginBottom: Platform.OS === 'web' ? 20 : verticalScale(30),
   },
   logo: {
-    width: scale(100),
-    height: scale(100),
-    marginBottom: verticalScale(10),
+    width: Platform.OS === 'web' ? 80 : scale(100),
+    height: Platform.OS === 'web' ? 80 : scale(100),
+    marginBottom: Platform.OS === 'web' ? 8 : verticalScale(10),
   },
   title: {
-    fontSize: fontScale(36),
+    fontSize: Platform.OS === 'web' ? 28 : fontScale(36),
     fontWeight: 'bold',
     color: '#FFD700',
     textShadowColor: 'rgba(0, 0, 0, 0.5)',
@@ -313,9 +325,9 @@ const styles = StyleSheet.create({
     textShadowRadius: 5,
   },
   subtitle: {
-    fontSize: fontScale(16),
+    fontSize: Platform.OS === 'web' ? 14 : fontScale(16),
     color: '#FFA500',
-    marginTop: verticalScale(5),
+    marginTop: Platform.OS === 'web' ? 4 : verticalScale(5),
   },
   userStatus: {
     flexDirection: 'row',
@@ -346,25 +358,25 @@ const styles = StyleSheet.create({
   statsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    marginBottom: verticalScale(30),
+    marginBottom: Platform.OS === 'web' ? 20 : verticalScale(30),
   },
   statCard: {
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: scale(15),
-    padding: scale(15),
+    borderRadius: Platform.OS === 'web' ? 12 : scale(15),
+    padding: Platform.OS === 'web' ? 12 : scale(15),
     alignItems: 'center',
-    minWidth: scale(90),
+    minWidth: Platform.OS === 'web' ? 80 : scale(90),
   },
   statValue: {
-    fontSize: Platform.OS === 'web' ? 22 : fontScale(20),
+    fontSize: Platform.OS === 'web' ? 18 : fontScale(20),
     fontWeight: 'bold',
     color: '#FFF',
-    marginTop: Platform.OS === 'web' ? 6 : verticalScale(5),
+    marginTop: Platform.OS === 'web' ? 4 : verticalScale(5),
   },
   statLabel: {
-    fontSize: Platform.OS === 'web' ? 14 : fontScale(12),
+    fontSize: Platform.OS === 'web' ? 12 : fontScale(12),
     color: '#AAA',
-    marginTop: Platform.OS === 'web' ? 3 : verticalScale(2),
+    marginTop: Platform.OS === 'web' ? 2 : verticalScale(2),
   },
   guestWarning: {
     fontSize: fontScale(10),
@@ -372,11 +384,11 @@ const styles = StyleSheet.create({
     marginTop: verticalScale(2),
   },
   playButton: {
-    marginBottom: verticalScale(30),
+    marginBottom: Platform.OS === 'web' ? 20 : verticalScale(30),
     // Center and limit width on desktop
     ...Platform.select({
       web: {
-        maxWidth: 300,
+        maxWidth: 250,
         alignSelf: 'center',
         width: '100%',
       },
@@ -387,8 +399,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: scale(20),
-    borderRadius: scale(30),
+    padding: Platform.OS === 'web' ? 15 : scale(20),
+    borderRadius: Platform.OS === 'web' ? 25 : scale(30),
     // Add hover effect for desktop
     ...Platform.select({
       web: {
@@ -404,10 +416,10 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
   },
   playButtonText: {
-    fontSize: fontScale(24),
+    fontSize: Platform.OS === 'web' ? 20 : fontScale(24),
     fontWeight: 'bold',
     color: '#FFF',
-    marginLeft: scale(10),
+    marginLeft: Platform.OS === 'web' ? 8 : scale(10),
   },
   menuGrid: {
     flexDirection: 'row',
@@ -426,11 +438,11 @@ const styles = StyleSheet.create({
   },
   menuButton: {
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: scale(15),
-    padding: Platform.OS === 'web' ? 20 : scale(15),
+    borderRadius: Platform.OS === 'web' ? 12 : scale(15),
+    padding: Platform.OS === 'web' ? 15 : scale(15),
     alignItems: 'center',
     width: Platform.OS === 'web' && width >= 768 ? '23%' : '48%',
-    marginBottom: Platform.OS === 'web' ? 15 : verticalScale(10),
+    marginBottom: Platform.OS === 'web' ? 12 : verticalScale(10),
     // Better hover effect for desktop
     ...Platform.select({
       web: {
@@ -445,9 +457,9 @@ const styles = StyleSheet.create({
     }),
   },
   menuButtonText: {
-    fontSize: Platform.OS === 'web' ? 16 : fontScale(14),
+    fontSize: Platform.OS === 'web' ? 14 : fontScale(14),
     color: '#FFF',
-    marginTop: Platform.OS === 'web' ? 8 : verticalScale(5),
+    marginTop: Platform.OS === 'web' ? 6 : verticalScale(5),
   },
   guestBenefits: {
     backgroundColor: 'rgba(255, 255, 255, 0.05)',

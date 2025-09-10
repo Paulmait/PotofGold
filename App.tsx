@@ -94,31 +94,37 @@ export default function App() {
 
       // Set up auth listener
       const unsubscribe = onAuthStateChanged(auth, async (user) => {
-        if (user) {
-          setIsAuthenticated(true);
-          
-          // Load user profile
-          await authService.loadUserProfile(user.uid);
-          
-          // Check admin status
-          const adminStatus = await authService.checkAdminStatus();
-          setIsAdmin(adminStatus);
-          
-          // Set user context for crash reporting
-          crashReporting.setUser({
-            id: user.uid,
-            email: user.email || undefined,
-            username: user.displayName || undefined,
-          });
+        try {
+          if (user) {
+            setIsAuthenticated(true);
+            
+            // Load user profile
+            await authService.loadUserProfile(user.uid);
+            
+            // Check admin status
+            const adminStatus = await authService.checkAdminStatus();
+            setIsAdmin(adminStatus);
+            
+            // Set user context for crash reporting
+            crashReporting.setUser({
+              id: user.uid,
+              email: user.email || undefined,
+              username: user.displayName || undefined,
+            });
 
-          // Sync offline updates if any
-          await authService.syncOfflineUpdates();
-        } else {
-          setIsAuthenticated(false);
-          setIsAdmin(false);
-          crashReporting.setUser(null);
+            // Sync offline updates if any
+            await authService.syncOfflineUpdates();
+          } else {
+            setIsAuthenticated(false);
+            setIsAdmin(false);
+            crashReporting.setUser(null);
+          }
+        } catch (error) {
+          console.error('Auth state change error:', error);
+          // Don't crash the app on auth errors
+        } finally {
+          setIsLoading(false);
         }
-        setIsLoading(false);
       });
 
       return () => unsubscribe();
