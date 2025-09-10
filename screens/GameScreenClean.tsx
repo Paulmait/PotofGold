@@ -202,11 +202,15 @@ const GameScreenClean: React.FC<GameScreenCleanProps> = memo(({
       const filtered = updated.filter(item => {
         if (!item.collected && item.y > height) {
           // Create blockages for missed treasure items (unless shield is active)
-          if (!item.isPowerUp && !activePowerUps.has('shield')) {
+          // Don't create blockages for power-ups or dangerous items (bombs)
+          if (!item.isPowerUp && !item.isDangerous && !activePowerUps.has('shield')) {
+            console.log(`Missed item: ${item.type} - Creating blockage`);
             setBlockages(prev => {
               const newBlockages = Math.min(prev + 1, MAX_BLOCKAGES);
+              console.log(`Blockages: ${newBlockages}/${MAX_BLOCKAGES}`);
               // Game over if too many blockages
               if (newBlockages >= MAX_BLOCKAGES) {
+                console.log('Max blockages reached - Game Over!');
                 setLives(0);
               }
               return newBlockages;
