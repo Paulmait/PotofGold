@@ -7,6 +7,7 @@ import {
   Animated,
   TouchableOpacity,
   Alert,
+  Platform,
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { useGameLoop } from '../utils/gameLoop';
@@ -14,6 +15,7 @@ import { useResponsive, scale, scaleFont, scaleSpacing } from '../utils/responsi
 import FallingItemsVisual from '../components/FallingItemsVisual';
 import EnhancedTouchHandler from '../components/EnhancedTouchHandler';
 import EnhancedGameHUD from '../components/EnhancedGameHUD';
+import HTML5CanvasRenderer from '../components/HTML5CanvasRenderer';
 import MineCart from '../components/MineCart';
 import RailTrack from '../components/RailTrack';
 import PauseModal from './PauseModal';
@@ -110,6 +112,7 @@ const GameScreenClean: React.FC<GameScreenCleanProps> = memo(({
   
   // Power-ups
   const [activePowerUps, setActivePowerUps] = useState<Map<string, number>>(new Map());
+  const [useCanvasRenderer] = useState(Platform.OS === 'web' && dimensions.width >= 1024);
   const powerUpTimers = useRef<Map<string, NodeJS.Timeout>>(new Map());
   
   // Blockages

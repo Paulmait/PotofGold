@@ -98,9 +98,41 @@ const WebGameContainer: React.FC<WebGameContainerProps> = ({
   }
 
   const isDesktop = dimensions.width >= 1024;
-  const gameScale = Math.min(dimensions.width / 375, dimensions.height / 812, 2);
-  const gameWidth = Math.min(375 * gameScale, dimensions.width * 0.9);
-  const gameHeight = Math.min(812 * gameScale, dimensions.height * 0.9);
+  
+  // Optimal game dimensions based on device type
+  const MAX_GAME_WIDTH = 900;  // Maximum width constraint
+  const MAX_GAME_HEIGHT = 900; // Maximum height for better visibility
+  const MOBILE_BASE_WIDTH = 375;
+  const MOBILE_BASE_HEIGHT = 667;
+  const TABLET_BASE_WIDTH = 768;
+  const TABLET_BASE_HEIGHT = 1024;
+  
+  // Determine base dimensions based on device type
+  let baseWidth: number;
+  let baseHeight: number;
+  
+  if (dimensions.width < 768) {
+    // Mobile devices
+    baseWidth = MOBILE_BASE_WIDTH;
+    baseHeight = MOBILE_BASE_HEIGHT;
+  } else if (dimensions.width < 1024) {
+    // Tablets
+    baseWidth = TABLET_BASE_WIDTH;
+    baseHeight = TABLET_BASE_HEIGHT;
+  } else {
+    // Desktop - use optimal fixed size
+    baseWidth = 600;
+    baseHeight = 900;
+  }
+  
+  // Calculate scale to fit screen while respecting max dimensions
+  const scaleX = Math.min(dimensions.width * 0.95 / baseWidth, MAX_GAME_WIDTH / baseWidth);
+  const scaleY = Math.min(dimensions.height * 0.9 / baseHeight, MAX_GAME_HEIGHT / baseHeight);
+  const gameScale = Math.min(scaleX, scaleY, 2.5);
+  
+  // Final game dimensions
+  const gameWidth = Math.min(baseWidth * gameScale, MAX_GAME_WIDTH);
+  const gameHeight = Math.min(baseHeight * gameScale, MAX_GAME_HEIGHT);
 
   return (
     <View style={styles.container}>
@@ -133,17 +165,27 @@ const WebGameContainer: React.FC<WebGameContainerProps> = ({
             </View>
           </View>
 
-          {/* Game viewport */}
+          {/* Game viewport with HTML5 optimization */}
           <View
             style={[
               styles.gameViewport,
               {
                 width: gameWidth,
                 height: gameHeight,
+                // Enable hardware acceleration on web
+                ...Platform.select({
+                  web: {
+                    transform: [{ translateZ: 0 }],
+                    willChange: 'transform',
+                  } as any,
+                  default: {},
+                }),
               },
             ]}
           >
-            {children}
+            <View style={styles.gameContent}>
+              {children}
+            </View>
           </View>
 
           {/* Instructions for desktop */}
@@ -161,9 +203,16 @@ const WebGameContainer: React.FC<WebGameContainerProps> = ({
         </View>
       )}
 
-      {/* Mobile/tablet view */}
+      {/* Mobile/tablet view with responsive scaling */}
       {!isDesktop && (
-        <View style={styles.mobileContainer}>
+        <View style={[
+          styles.mobileContainer,
+          {
+            // Apply max dimensions for tablets
+            maxWidth: dimensions.width >= 768 ? MAX_GAME_WIDTH : '100%',
+            alignSelf: 'center',
+          },
+        ]}>
           {children}
           
           {/* PWA install banner for mobile */}
@@ -260,6 +309,24 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 20,
     elevation: 10,
+    // Optimize rendering on web
+    ...Platform.select({
+      web: {
+        backfaceVisibility: 'hidden' as any,
+        perspective: 1000,
+      },
+      default: {},
+    }),
+  },
+  gameContent: {
+    flex: 1,
+    // Enable GPU acceleration
+    ...Platform.select({
+      web: {
+        transform: [{ translateZ: 0 }],
+      },
+      default: {},
+    }),
   },
   instructions: {
     marginTop: 20,

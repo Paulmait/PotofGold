@@ -1747,3 +1747,4 @@ const styles = StyleSheet.create({
 });
 
 
+} // Closing brace for GameScreen function
