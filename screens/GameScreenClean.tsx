@@ -13,6 +13,7 @@ import { useGameLoop } from '../utils/gameLoop';
 import { useResponsive, scale, scaleFont, scaleSpacing } from '../utils/responsiveScaling';
 import FallingItemsVisual from '../components/FallingItemsVisual';
 import EnhancedTouchHandler from '../components/EnhancedTouchHandler';
+import EnhancedGameHUD from '../components/EnhancedGameHUD';
 import MineCart from '../components/MineCart';
 import RailTrack from '../components/RailTrack';
 import PauseModal from './PauseModal';
@@ -88,6 +89,7 @@ const GameScreenClean: React.FC<GameScreenCleanProps> = memo(({
   const [isPaused, setIsPaused] = useState(false);
   const [score, setScore] = useState(0);
   const [coins, setCoins] = useState(0);
+  const [gems, setGems] = useState(0);
   const [level, setLevel] = useState(1);
   const [lives, setLives] = useState(3);
   const [showGameOver, setShowGameOver] = useState(false);
@@ -216,6 +218,7 @@ const GameScreenClean: React.FC<GameScreenCleanProps> = memo(({
     setIsPaused(false);
     setScore(0);
     setCoins(0);
+    setGems(0);
     setLives(3);
     setLevel(1);
     setFallingItems([]);
@@ -294,9 +297,11 @@ const GameScreenClean: React.FC<GameScreenCleanProps> = memo(({
         break;
       case 'gem':
         points = 25;
+        setGems(prev => prev + 1);
         break;
       case 'diamond':
         points = 50;
+        setGems(prev => prev + 2); // Diamonds give 2 gems
         break;
       case 'magnet':
         activatePowerUp('magnet', 5000); // 5 seconds
@@ -461,15 +466,27 @@ const GameScreenClean: React.FC<GameScreenCleanProps> = memo(({
       <View style={styles.container}>
         {/* Clean game area */}
         <View style={styles.gameArea}>
-          {/* Compact HUD at top */}
+          {/* Enhanced HUD with inventory and progress */}
           {isGameActive && (
-            <GameHUD 
+            <EnhancedGameHUD 
               score={score} 
-              coins={coins} 
-              lives={lives} 
+              coins={coins}
+              gems={gems}
+              lives={lives}
+              level={level}
               blockages={blockages}
               activePowerUps={activePowerUps}
-              fps={fps} 
+              fps={fps}
+              userId="guest" // Pass actual userId when available
+              isPro={false} // Pass pro status
+              onStreakClick={() => {
+                // Navigate to daily streak screen
+                console.log('Open daily streak');
+              }}
+              onSeasonPassClick={() => {
+                // Navigate to season pass screen
+                console.log('Open season pass');
+              }}
             />
           )}
           
