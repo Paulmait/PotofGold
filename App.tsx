@@ -21,6 +21,7 @@ import ResponsiveGameLayout from './components/ResponsiveGameLayout';
 import GameScreen from './screens/GameScreen';
 import GameScreenEnhanced from './screens/GameScreenEnhanced';
 import GameScreenResponsive from './screens/GameScreenResponsive';
+import GameScreenClean from './screens/GameScreenClean';
 import HomeScreenGuest from './screens/HomeScreenGuest';
 import AuthScreenFixed from './screens/AuthScreenFixed';
 import AdminPanel from './screens/AdminPanel';
@@ -68,7 +69,7 @@ const ResponsiveGameScreen = (props: any) => {
         console.log('Orientation changed to:', orientation);
       }}
     >
-      <GameScreen {...props} />
+      <GameScreenClean {...props} />
     </ResponsiveGameWrapper>
   );
 };
@@ -213,7 +214,7 @@ export default function App() {
                 {/* Add all screens as fallback during transition */}
                 <Stack.Screen name="Onboarding" component={OnboardingScreen} />
                 <Stack.Screen name="Home" component={HomeScreenGuest} />
-                <Stack.Screen name="Game" component={GameScreenResponsive} />
+                <Stack.Screen name="Game" component={GameScreenClean} />
               </>
             ) : !hasSeenOnboarding ? (
               <>
@@ -233,7 +234,7 @@ export default function App() {
             ) : !isAuthenticated ? (
               <>
                 <Stack.Screen name="Home" component={HomeScreenGuest} />
-                <Stack.Screen name="Game" component={GameScreenResponsive} />
+                <Stack.Screen name="Game" component={GameScreenClean} />
                 <Stack.Screen name="GameOver" component={GameOverScreen} />
                 <Stack.Screen name="Auth" component={AuthScreenFixed} />
                 <Stack.Screen name="Shop" component={ShopScreenPro} />
@@ -242,7 +243,7 @@ export default function App() {
             ) : (
               <>
                 <Stack.Screen name="Home" component={HomeScreenGuest} />
-                <Stack.Screen name="Game" component={GameScreenResponsive} />
+                <Stack.Screen name="Game" component={GameScreenClean} />
                 <Stack.Screen name="Settings" component={SettingsScreen} />
                 <Stack.Screen name="Shop" component={ShopScreenPro} />
                 <Stack.Screen name="SkinShop" component={SkinShopScreen} />

@@ -80,7 +80,7 @@ const HomeScreenGuest: React.FC<HomeScreenGuestProps> = ({ navigation }) => {
     if (Platform.OS !== 'web') {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
-    navigation.navigate('Game');
+    navigation.navigate('Game', { autoStart: true });
   };
 
   const handleShopPress = () => {
