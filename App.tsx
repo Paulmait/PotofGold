@@ -4,7 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { GameProvider } from './context/GameContext';
 import { UserUnlockProvider } from './context/UserUnlockContext';
 import { UnlocksProvider } from './context/UnlocksContext';
-import { View, ActivityIndicator, Alert, StyleSheet } from 'react-native';
+import { View, ActivityIndicator, Alert, StyleSheet, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './firebase/auth';
@@ -172,15 +172,14 @@ export default function App() {
     );
   }
 
-  return (
-    <ErrorBoundary>
-      <WebGameContainer>
-        <ResponsiveGameLayout>
-          <NavigationContainer>
-            <UnlocksProvider>
-              <UserUnlockProvider>
-                <GameProvider>
-            <Stack.Navigator
+  // Conditionally wrap with WebGameContainer only for web
+  const AppContent = (
+    <ResponsiveGameLayout>
+      <NavigationContainer>
+        <UnlocksProvider>
+          <UserUnlockProvider>
+            <GameProvider>
+              <Stack.Navigator
             screenOptions={{
               headerShown: false,
               animationEnabled: true,
@@ -256,13 +255,29 @@ export default function App() {
                 )}
               </>
             )}
-            </Stack.Navigator>
-          </GameProvider>
-        </UserUnlockProvider>
-      </UnlocksProvider>
-    </NavigationContainer>
+              </Stack.Navigator>
+            </GameProvider>
+          </UserUnlockProvider>
+        </UnlocksProvider>
+      </NavigationContainer>
     </ResponsiveGameLayout>
-    </WebGameContainer>
+  );
+
+  // Only wrap with WebGameContainer on web platform
+  if (Platform.OS === 'web') {
+    return (
+      <ErrorBoundary>
+        <WebGameContainer>
+          {AppContent}
+        </WebGameContainer>
+      </ErrorBoundary>
+    );
+  }
+
+  // For mobile platforms, render without WebGameContainer
+  return (
+    <ErrorBoundary>
+      {AppContent}
     </ErrorBoundary>
   );
 }
