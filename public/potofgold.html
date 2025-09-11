@@ -2,9 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
     <title>Pot of Gold - Treasure Collection Game</title>
     <style>
         * {
@@ -16,7 +18,7 @@
             user-select: none;
         }
         
-        body {
+        html, body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             overflow: hidden;
             position: fixed;
@@ -25,6 +27,12 @@
             background: #87CEEB;
             touch-action: none;
             overscroll-behavior: none;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        /* iOS Safe Area */
+        body {
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
         }
         
         #gameCanvas {
@@ -219,12 +227,26 @@
         let lastTime = 0;
         let deltaTime = 0;
         
+        // Calculate responsive sizes based on screen
+        function getResponsiveSizes() {
+            const baseWidth = Math.min(canvas.width, canvas.height);
+            const scaleFactor = baseWidth / 400; // Base scale on 400px reference
+            
+            return {
+                cartWidth: Math.max(60, Math.min(100, 80 * scaleFactor)),
+                cartHeight: Math.max(45, Math.min(75, 60 * scaleFactor)),
+                itemSize: Math.max(30, Math.min(50, 40 * scaleFactor)),
+                uiFontSize: Math.max(14, Math.min(24, 18 * scaleFactor))
+            };
+        }
+        
         // Game objects
+        let sizes = getResponsiveSizes();
         let cart = {
             x: 0,
             y: 0,
-            width: 80,
-            height: 60,
+            width: sizes.cartWidth,
+            height: sizes.cartHeight,
             targetX: 0,
             velocity: 0
         };
@@ -241,9 +263,19 @@
         function resizeCanvas() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
+            
+            // Update sizes on resize
+            sizes = getResponsiveSizes();
+            cart.width = sizes.cartWidth;
+            cart.height = sizes.cartHeight;
             cart.x = canvas.width / 2 - cart.width / 2;
-            cart.y = canvas.height - 150;
+            cart.y = canvas.height - Math.max(120, canvas.height * 0.15);
             cart.targetX = cart.x;
+            
+            // Update UI font size
+            document.querySelectorAll('.ui-element').forEach(el => {
+                el.style.fontSize = sizes.uiFontSize + 'px';
+            });
         }
         
         resizeCanvas();
@@ -672,7 +704,7 @@
                 const weights = [30, 30, 30, 10, 15, 12, 8, 5];
                 const type = weightedRandom(types, weights);
                 
-                const size = 40;
+                const size = sizes.itemSize;
                 const x = Math.random() * (canvas.width - size);
                 const speed = 3 + Math.random() * 2 + Math.min(score / 200, 3);
                 

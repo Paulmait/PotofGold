@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Pot of Gold</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { overflow: hidden; touch-action: none; }
+        canvas { display: block; cursor: pointer; }
+        #ui { position: absolute; top: 10px; left: 10px; color: white; font: bold 18px Arial; }
+        #menu { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+        button { padding: 15px 40px; font-size: 20px; margin: 10px; cursor: pointer; background: #FFD700; border: none; border-radius: 25px; }
+    </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<div id="ui" style="display:none">Score: <span id="score">0</span> | Lives: <span id="lives">3</span></div>
+<div id="menu">
+    <h1 style="color:#FFD700; font-size:48px">Pot of Gold</h1>
+    <button onclick="startGame()">Start Game</button>
+</div>
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+let w, h, game = {}, running = false;
+
+function resize() {
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+function init() {
+    game = {
+        score: 0, lives: 3, cart: {x: w/2-40, y: h-150, w: 80, h: 60},
+        items: [], frame: 0
+    };
+}
+
+function startGame() {
+    init();
+    running = true;
+    document.getElementById('menu').style.display = 'none';
+    document.getElementById('ui').style.display = 'block';
+    loop();
+}
+
+// Input
+let mouseX = w/2;
+canvas.addEventListener('mousemove', e => mouseX = e.clientX);
+canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    mouseX = e.touches[0].clientX;
+});
+
+function loop() {
+    if (!running) return;
+    
+    // Clear
+    ctx.fillStyle = '#87CEEB';
+    ctx.fillRect(0, 0, w, h);
+    
+    // Background
+    ctx.fillStyle = '#7FD82B';
+    ctx.fillRect(0, h-100, w, 100);
+    ctx.fillStyle = '#8B6332';
+    ctx.fillRect(0, h-80, w, 80);
+    
+    // Track
+    ctx.strokeStyle = '#696969';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(0, h-60);
+    ctx.lineTo(w, h-60);
+    ctx.moveTo(0, h-40);
+    ctx.lineTo(w, h-40);
+    ctx.stroke();
+    
+    // Move cart
+    game.cart.x += (mouseX - 40 - game.cart.x) * 0.2;
+    
+    // Draw cart
+    ctx.fillStyle = '#8B4513';
+    ctx.fillRect(game.cart.x+5, game.cart.y+10, 70, 40);
+    ctx.fillStyle = '#333';
+    ctx.beginPath();
+    ctx.arc(game.cart.x+20, game.cart.y+55, 10, 0, Math.PI*2);
+    ctx.arc(game.cart.x+60, game.cart.y+55, 10, 0, Math.PI*2);
+    ctx.fill();
+    
+    // Spawn items
+    if (game.frame++ % 60 === 0) {
+        const types = ['coin', 'diamond', 'star', 'clover', 'bomb', 'heart'];
+        game.items.push({
+            type: types[Math.floor(Math.random() * types.length)],
+            x: Math.random() * (w-40),
+            y: -40,
+            size: 40,
+            speed: 3 + Math.random() * 2
+        });
+    }
+    
+    // Update items
+    for (let i = game.items.length - 1; i >= 0; i--) {
+        const item = game.items[i];
+        item.y += item.speed;
+        
+        // Draw item
+        ctx.save();
+        ctx.translate(item.x + 20, item.y + 20);
+        
+        switch(item.type) {
+            case 'coin':
+                ctx.fillStyle = '#FFD700';
+                ctx.beginPath();
+                ctx.arc(0, 0, 18, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#FFA500';
+                ctx.font = 'bold 20px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('$', 0, 0);
+                break;
+                
+            case 'diamond':
+                ctx.rotate(Math.PI / 4);
+                ctx.fillStyle = '#00CED1';
+                ctx.fillRect(-15, -15, 30, 30);
+                break;
+                
+            case 'star':
+                ctx.fillStyle = '#FFD700';
+                ctx.beginPath();
+                for (let j = 0; j < 5; j++) {
+                    const angle = (j * 4 * Math.PI) / 5 - Math.PI / 2;
+                    const x = Math.cos(angle) * 18;
+                    const y = Math.sin(angle) * 18;
+                    if (j === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.closePath();
+                ctx.fill();
+                break;
+                
+            case 'clover':
+                ctx.fillStyle = '#228B22';
+                for (let j = 0; j < 4; j++) {
+                    ctx.beginPath();
+                    ctx.arc(Math.cos(j * Math.PI/2) * 10, Math.sin(j * Math.PI/2) * 10, 8, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                break;
+                
+            case 'bomb':
+                ctx.fillStyle = '#333';
+                ctx.beginPath();
+                ctx.arc(0, 0, 16, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#FF0000';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(0, -16);
+                ctx.lineTo(0, -22);
+                ctx.stroke();
+                break;
+                
+            case 'heart':
+                ctx.fillStyle = '#FF69B4';
+                ctx.beginPath();
+                ctx.arc(-7, -7, 8, Math.PI, 0);
+                ctx.arc(7, -7, 8, Math.PI, 0);
+                ctx.lineTo(0, 15);
+                ctx.closePath();
+                ctx.fill();
+                break;
+        }
+        ctx.restore();
+        
+        // Collision
+        if (item.x < game.cart.x + game.cart.w &&
+            item.x + item.size > game.cart.x &&
+            item.y < game.cart.y + game.cart.h &&
+            item.y + item.size > game.cart.y) {
+            
+            switch(item.type) {
+                case 'coin': game.score += 10; break;
+                case 'diamond': game.score += 50; break;
+                case 'star': game.score += 25; break;
+                case 'clover': game.score += 30; break;
+                case 'bomb': 
+                    game.lives--;
+                    if (game.lives <= 0) {
+                        running = false;
+                        alert('Game Over! Score: ' + game.score);
+                        document.getElementById('menu').style.display = 'block';
+                        document.getElementById('ui').style.display = 'none';
+                    }
+                    break;
+                case 'heart': game.lives = Math.min(5, game.lives + 1); break;
+            }
+            game.items.splice(i, 1);
+            continue;
+        }
+        
+        // Remove if off screen
+        if (item.y > h) {
+            game.items.splice(i, 1);
+        }
+    }
+    
+    // Update UI
+    document.getElementById('score').textContent = game.score;
+    document.getElementById('lives').textContent = game.lives;
+    
+    requestAnimationFrame(loop);
+}
+</script>
+</body>
+</html>
