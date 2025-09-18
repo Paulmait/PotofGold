@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <title>Pot of Gold - Treasure Collection Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        
+        html, body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: #87CEEB;
+            touch-action: none;
+            overscroll-behavior: none;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        /* iOS Safe Area */
+        body {
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+        }
+        
+        #gameCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+            cursor: pointer;
+        }
+        
+        #gameUI {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 15px;
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            pointer-events: none;
+        }
+        
+        .ui-element {
+            background: linear-gradient(135deg, rgba(0,0,0,0.7), rgba(0,0,0,0.5));
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            border: 2px solid rgba(255,215,0,0.3);
+        }
+        
+        .score-display {
+            color: #FFD700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .lives-display {
+            color: #FF69B4;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        #menuScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+        }
+        
+        .game-title {
+            color: #FFD700;
+            font-size: clamp(48px, 10vw, 72px);
+            margin-bottom: 20px;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.5);
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+        
+        .game-subtitle {
+            color: white;
+            font-size: clamp(16px, 4vw, 24px);
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+        
+        .menu-button {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #333;
+            border: none;
+            padding: 20px 60px;
+            font-size: clamp(20px, 5vw, 28px);
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(255,215,0,0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .menu-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255,215,0,0.5);
+        }
+        
+        .menu-button:active {
+            transform: translateY(0);
+        }
+        
+        #gameOverScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+        }
+        
+        .game-over-title {
+            color: #FF4444;
+            font-size: clamp(36px, 8vw, 56px);
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .final-score {
+            color: #FFD700;
+            font-size: clamp(28px, 6vw, 40px);
+            margin-bottom: 10px;
+        }
+        
+        .high-score {
+            color: white;
+            font-size: clamp(20px, 4vw, 28px);
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        /* Debug info */
+        #debug {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            color: white;
+            font-size: 12px;
+            background: rgba(0,0,0,0.5);
+            padding: 5px;
+            border-radius: 5px;
+            display: none;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    
+    <div id="gameUI">
+        <div class="ui-element">
+            <span class="score-display">Score: <span id="score">0</span></span>
+        </div>
+        <div class="ui-element">
+            <span class="lives-display">Lives: <span id="lives">3</span></span>
+        </div>
+    </div>
+    
+    <div id="menuScreen">
+        <h1 class="game-title">Pot of Gold</h1>
+        <p class="game-subtitle">Collect treasures, avoid bombs!</p>
+        <button class="menu-button" onclick="startGame()">START GAME</button>
+    </div>
+    
+    <div id="gameOverScreen">
+        <h2 class="game-over-title">Game Over!</h2>
+        <p class="final-score">Score: <span id="finalScore">0</span></p>
+        <p class="high-score">High Score: <span id="highScore">0</span></p>
+        <button class="menu-button" onclick="restartGame()">Play Again</button>
+    </div>
+    
+    <div id="debug"></div>
+
+    <script>
+        // Game configuration
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const debug = document.getElementById('debug');
+        
+        // Game state
+        let gameRunning = false;
+        let score = 0;
+        let lives = 3;
+        let highScore = localStorage.getItem('potOfGoldHighScore') || 0;
+        let frameCount = 0;
+        let lastTime = 0;
+        let deltaTime = 0;
+        
+        // Calculate responsive sizes based on screen
+        function getResponsiveSizes() {
+            const baseWidth = Math.min(canvas.width, canvas.height);
+            const scaleFactor = baseWidth / 400; // Base scale on 400px reference
+            
+            return {
+                cartWidth: Math.max(60, Math.min(100, 80 * scaleFactor)),
+                cartHeight: Math.max(45, Math.min(75, 60 * scaleFactor)),
+                itemSize: Math.max(30, Math.min(50, 40 * scaleFactor)),
+                uiFontSize: Math.max(14, Math.min(24, 18 * scaleFactor))
+            };
+        }
+        
+        // Game objects
+        let sizes = getResponsiveSizes();
+        let cart = {
+            x: 0,
+            y: 0,
+            width: sizes.cartWidth,
+            height: sizes.cartHeight,
+            targetX: 0,
+            velocity: 0
+        };
+        
+        let items = [];
+        let particles = [];
+        let blockages = [];
+        
+        // Input handling
+        let inputX = null;
+        let isTouch = false;
+        
+        // Setup canvas
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            // Update sizes on resize
+            sizes = getResponsiveSizes();
+            cart.width = sizes.cartWidth;
+            cart.height = sizes.cartHeight;
+            cart.x = canvas.width / 2 - cart.width / 2;
+            cart.y = canvas.height - Math.max(120, canvas.height * 0.15);
+            cart.targetX = cart.x;
+            
+            // Update UI font size
+            document.querySelectorAll('.ui-element').forEach(el => {
+                el.style.fontSize = sizes.uiFontSize + 'px';
+            });
+        }
+        
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        
+        // Prevent scrolling
+        document.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
+        document.addEventListener('gesturestart', (e) => e.preventDefault());
+        
+        // Input handlers
+        canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+        canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+        canvas.addEventListener('touchend', handleTouchEnd, { passive: false });
+        canvas.addEventListener('mousedown', handleMouseDown);
+        canvas.addEventListener('mousemove', handleMouseMove);
+        canvas.addEventListener('mouseup', handleMouseUp);
+        
+        function handleTouchStart(e) {
+            e.preventDefault();
+            if (!gameRunning) return;
+            isTouch = true;
+            const touch = e.touches[0];
+            inputX = touch.clientX;
+            cart.targetX = Math.max(0, Math.min(inputX - cart.width/2, canvas.width - cart.width));
+        }
+        
+        function handleTouchMove(e) {
+            e.preventDefault();
+            if (!gameRunning || !isTouch) return;
+            const touch = e.touches[0];
+            inputX = touch.clientX;
+            cart.targetX = Math.max(0, Math.min(inputX - cart.width/2, canvas.width - cart.width));
+        }
+        
+        function handleTouchEnd(e) {
+            e.preventDefault();
+            isTouch = false;
+        }
+        
+        function handleMouseDown(e) {
+            if (!gameRunning) return;
+            if (!isTouch) {
+                inputX = e.clientX;
+                cart.targetX = Math.max(0, Math.min(inputX - cart.width/2, canvas.width - cart.width));
+            }
+        }
+        
+        function handleMouseMove(e) {
+            if (!gameRunning || isTouch) return;
+            if (e.buttons === 1) {
+                inputX = e.clientX;
+                cart.targetX = Math.max(0, Math.min(inputX - cart.width/2, canvas.width - cart.width));
+            }
+        }
+        
+        function handleMouseUp(e) {
+            // Nothing needed here
+        }
+        
+        // Drawing functions
+        function drawBackground() {
+            // Sky gradient
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#87CEEB');
+            gradient.addColorStop(0.7, '#98D8E8');
+            gradient.addColorStop(1, '#B8860B');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Clouds
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+            for (let i = 0; i < 5; i++) {
+                const cloudX = (frameCount * 0.1 + i * 200) % (canvas.width + 200) - 100;
+                const cloudY = 50 + i * 30;
+                drawCloud(cloudX, cloudY);
+            }
+            
+            // Hills
+            ctx.fillStyle = '#7FD82B';
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height - 120);
+            for (let x = 0; x <= canvas.width; x += 100) {
+                ctx.quadraticCurveTo(
+                    x + 25, canvas.height - 180,
+                    x + 50, canvas.height - 120
+                );
+                ctx.quadraticCurveTo(
+                    x + 75, canvas.height - 160,
+                    x + 100, canvas.height - 120
+                );
+            }
+            ctx.lineTo(canvas.width, canvas.height);
+            ctx.lineTo(0, canvas.height);
+            ctx.fill();
+            
+            // Ground
+            ctx.fillStyle = '#8B6332';
+            ctx.fillRect(0, canvas.height - 80, canvas.width, 80);
+            
+            // Gravel under tracks
+            ctx.fillStyle = '#696969';
+            ctx.fillRect(0, canvas.height - 75, canvas.width, 35);
+            
+            // Railroad tracks
+            ctx.strokeStyle = '#4A4A4A';
+            ctx.lineWidth = 6;
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height - 60);
+            ctx.lineTo(canvas.width, canvas.height - 60);
+            ctx.moveTo(0, canvas.height - 45);
+            ctx.lineTo(canvas.width, canvas.height - 45);
+            ctx.stroke();
+            
+            // Railroad ties
+            ctx.fillStyle = '#654321';
+            for (let x = 0; x < canvas.width; x += 40) {
+                ctx.fillRect(x, canvas.height - 70, 8, 35);
+            }
+        }
+        
+        function drawCloud(x, y) {
+            ctx.beginPath();
+            ctx.arc(x, y, 25, 0, Math.PI * 2);
+            ctx.arc(x + 25, y, 35, 0, Math.PI * 2);
+            ctx.arc(x + 50, y, 25, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        function drawCart() {
+            // Smooth movement
+            const smoothing = 0.15;
+            cart.x += (cart.targetX - cart.x) * smoothing;
+            
+            // Cart shadow
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.ellipse(cart.x + cart.width/2, cart.y + cart.height + 5, cart.width/2, 8, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Cart body (wooden)
+            const bodyGradient = ctx.createLinearGradient(cart.x, cart.y, cart.x, cart.y + cart.height);
+            bodyGradient.addColorStop(0, '#A0522D');
+            bodyGradient.addColorStop(0.5, '#8B4513');
+            bodyGradient.addColorStop(1, '#654321');
+            ctx.fillStyle = bodyGradient;
+            ctx.fillRect(cart.x + 5, cart.y + 10, cart.width - 10, cart.height - 20);
+            
+            // Cart rim
+            ctx.strokeStyle = '#654321';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(cart.x + 5, cart.y + 10, cart.width - 10, cart.height - 20);
+            
+            // Wood planks
+            ctx.strokeStyle = '#5D4E37';
+            ctx.lineWidth = 1;
+            for (let i = 1; i < 4; i++) {
+                ctx.beginPath();
+                ctx.moveTo(cart.x + 5, cart.y + 10 + i * 10);
+                ctx.lineTo(cart.x + cart.width - 5, cart.y + 10 + i * 10);
+                ctx.stroke();
+            }
+            
+            // Wheels
+            drawWheel(cart.x + 20, cart.y + cart.height - 5);
+            drawWheel(cart.x + cart.width - 20, cart.y + cart.height - 5);
+        }
+        
+        function drawWheel(x, y) {
+            // Wheel outer
+            ctx.fillStyle = '#333';
+            ctx.beginPath();
+            ctx.arc(x, y, 12, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Wheel inner
+            ctx.fillStyle = '#666';
+            ctx.beginPath();
+            ctx.arc(x, y, 8, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Wheel spokes
+            ctx.strokeStyle = '#999';
+            ctx.lineWidth = 2;
+            for (let angle = 0; angle < Math.PI * 2; angle += Math.PI / 2) {
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x + Math.cos(angle) * 8, y + Math.sin(angle) * 8);
+                ctx.stroke();
+            }
+        }
+        
+        function drawItem(item) {
+            ctx.save();
+            ctx.translate(item.x + item.width/2, item.y + item.height/2);
+            
+            // Add rotation for visual interest
+            if (item.type !== 'bomb') {
+                ctx.rotate(frameCount * 0.02);
+            }
+            
+            switch(item.type) {
+                case 'coin':
+                    // Gold coin with shine
+                    const coinGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 18);
+                    coinGradient.addColorStop(0, '#FFEA00');
+                    coinGradient.addColorStop(0.5, '#FFD700');
+                    coinGradient.addColorStop(1, '#FFA500');
+                    ctx.fillStyle = coinGradient;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, 18, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Coin rim
+                    ctx.strokeStyle = '#CD7F32';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                    
+                    // Dollar sign
+                    ctx.fillStyle = '#8B4513';
+                    ctx.font = 'bold 20px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText('$', 0, 0);
+                    break;
+                    
+                case 'diamond':
+                    // Shiny diamond
+                    ctx.rotate(Math.PI / 4);
+                    const diamondGradient = ctx.createLinearGradient(-15, -15, 15, 15);
+                    diamondGradient.addColorStop(0, '#E0FFFF');
+                    diamondGradient.addColorStop(0.5, '#00CED1');
+                    diamondGradient.addColorStop(1, '#4682B4');
+                    ctx.fillStyle = diamondGradient;
+                    ctx.fillRect(-15, -15, 30, 30);
+                    
+                    // Diamond shine
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+                    ctx.fillRect(-15, -15, 10, 10);
+                    
+                    // Diamond outline
+                    ctx.strokeStyle = '#1E90FF';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(-15, -15, 30, 30);
+                    break;
+                    
+                case 'star':
+                    // Golden star
+                    const starGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 18);
+                    starGradient.addColorStop(0, '#FFFF00');
+                    starGradient.addColorStop(0.5, '#FFD700');
+                    starGradient.addColorStop(1, '#FFA500');
+                    ctx.fillStyle = starGradient;
+                    drawStar(0, 0, 5, 18, 8);
+                    
+                    // Star outline
+                    ctx.strokeStyle = '#FF8C00';
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                    break;
+                    
+                case 'clover':
+                    // Four-leaf clover
+                    ctx.fillStyle = '#228B22';
+                    for (let i = 0; i < 4; i++) {
+                        ctx.save();
+                        ctx.rotate((Math.PI / 2) * i);
+                        ctx.beginPath();
+                        ctx.arc(0, -10, 8, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.restore();
+                    }
+                    // Center
+                    ctx.fillStyle = '#006400';
+                    ctx.beginPath();
+                    ctx.arc(0, 0, 5, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Stem
+                    ctx.strokeStyle = '#228B22';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.moveTo(0, 5);
+                    ctx.lineTo(0, 15);
+                    ctx.stroke();
+                    break;
+                    
+                case 'bomb':
+                    // Black bomb
+                    const bombGradient = ctx.createRadialGradient(-5, -5, 0, 0, 0, 16);
+                    bombGradient.addColorStop(0, '#555');
+                    bombGradient.addColorStop(0.5, '#333');
+                    bombGradient.addColorStop(1, '#111');
+                    ctx.fillStyle = bombGradient;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, 16, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Fuse
+                    ctx.strokeStyle = '#8B4513';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.moveTo(0, -16);
+                    ctx.quadraticCurveTo(5, -20, 8, -22);
+                    ctx.stroke();
+                    
+                    // Spark
+                    const sparkSize = 3 + Math.sin(frameCount * 0.2) * 2;
+                    const sparkGradient = ctx.createRadialGradient(8, -22, 0, 8, -22, sparkSize);
+                    sparkGradient.addColorStop(0, '#FFFF00');
+                    sparkGradient.addColorStop(0.5, '#FF4500');
+                    sparkGradient.addColorStop(1, 'rgba(255, 69, 0, 0)');
+                    ctx.fillStyle = sparkGradient;
+                    ctx.beginPath();
+                    ctx.arc(8, -22, sparkSize, 0, Math.PI * 2);
+                    ctx.fill();
+                    break;
+                    
+                case 'heart':
+                    // Pink heart
+                    const heartGradient = ctx.createRadialGradient(0, -5, 0, 0, 0, 20);
+                    heartGradient.addColorStop(0, '#FFB6C1');
+                    heartGradient.addColorStop(0.5, '#FF69B4');
+                    heartGradient.addColorStop(1, '#FF1493');
+                    ctx.fillStyle = heartGradient;
+                    ctx.beginPath();
+                    ctx.arc(-8, -8, 8, Math.PI, 0);
+                    ctx.arc(8, -8, 8, Math.PI, 0);
+                    ctx.lineTo(0, 15);
+                    ctx.closePath();
+                    ctx.fill();
+                    
+                    // Heart shine
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+                    ctx.beginPath();
+                    ctx.arc(-8, -8, 4, Math.PI, 0);
+                    ctx.fill();
+                    break;
+            }
+            
+            ctx.restore();
+        }
+        
+        function drawStar(cx, cy, spikes, outerRadius, innerRadius) {
+            let rot = Math.PI / 2 * 3;
+            let x = cx;
+            let y = cy;
+            const step = Math.PI / spikes;
+            
+            ctx.beginPath();
+            ctx.moveTo(cx, cy - outerRadius);
+            
+            for (let i = 0; i < spikes; i++) {
+                x = cx + Math.cos(rot) * outerRadius;
+                y = cy + Math.sin(rot) * outerRadius;
+                ctx.lineTo(x, y);
+                rot += step;
+                
+                x = cx + Math.cos(rot) * innerRadius;
+                y = cy + Math.sin(rot) * innerRadius;
+                ctx.lineTo(x, y);
+                rot += step;
+            }
+            
+            ctx.lineTo(cx, cy - outerRadius);
+            ctx.closePath();
+            ctx.fill();
+        }
+        
+        function drawParticles() {
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.3;
+                p.life -= 0.02;
+                
+                if (p.life <= 0) {
+                    particles.splice(i, 1);
+                    continue;
+                }
+                
+                ctx.save();
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                ctx.fillRect(p.x, p.y, p.size, p.size);
+                ctx.restore();
+            }
+        }
+        
+        function drawBlockages() {
+            ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
+            for (let i = blockages.length - 1; i >= 0; i--) {
+                const b = blockages[i];
+                b.life -= 0.01;
+                
+                if (b.life <= 0) {
+                    blockages.splice(i, 1);
+                    continue;
+                }
+                
+                ctx.save();
+                ctx.globalAlpha = b.life * 0.5;
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, 30, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // X mark
+                ctx.strokeStyle = '#FF0000';
+                ctx.lineWidth = 4;
+                ctx.globalAlpha = b.life;
+                ctx.beginPath();
+                ctx.moveTo(b.x - 15, b.y - 15);
+                ctx.lineTo(b.x + 15, b.y + 15);
+                ctx.moveTo(b.x + 15, b.y - 15);
+                ctx.lineTo(b.x - 15, b.y + 15);
+                ctx.stroke();
+                ctx.restore();
+            }
+        }
+        
+        // Game logic
+        function spawnItem() {
+            const spawnRate = Math.max(30, 60 - Math.floor(score / 100) * 5);
+            
+            if (frameCount % spawnRate === 0) {
+                const types = ['coin', 'coin', 'coin', 'diamond', 'star', 'clover', 'bomb', 'heart'];
+                const weights = [30, 30, 30, 10, 15, 12, 8, 5];
+                const type = weightedRandom(types, weights);
+                
+                const size = sizes.itemSize;
+                const x = Math.random() * (canvas.width - size);
+                const speed = 3 + Math.random() * 2 + Math.min(score / 200, 3);
+                
+                items.push({
+                    type: type,
+                    x: x,
+                    y: -size,
+                    width: size,
+                    height: size,
+                    speed: speed,
+                    rotation: 0
+                });
+            }
+        }
+        
+        function weightedRandom(items, weights) {
+            const total = weights.reduce((a, b) => a + b, 0);
+            let random = Math.random() * total;
+            
+            for (let i = 0; i < items.length; i++) {
+                random -= weights[i];
+                if (random <= 0) {
+                    return items[i];
+                }
+            }
+            return items[0];
+        }
+        
+        function updateItems() {
+            for (let i = items.length - 1; i >= 0; i--) {
+                const item = items[i];
+                item.y += item.speed;
+                
+                // Check collision with cart
+                if (item.x < cart.x + cart.width &&
+                    item.x + item.width > cart.x &&
+                    item.y < cart.y + cart.height &&
+                    item.y + item.height > cart.y) {
+                    
+                    handleCollection(item);
+                    items.splice(i, 1);
+                    continue;
+                }
+                
+                // Check if missed (hit ground)
+                if (item.y > canvas.height - 80) {
+                    if (item.type !== 'bomb') {
+                        createBlockage(item.x + item.width/2, canvas.height - 60);
+                    }
+                    items.splice(i, 1);
+                }
+            }
+        }
+        
+        function handleCollection(item) {
+            const centerX = item.x + item.width/2;
+            const centerY = item.y + item.height/2;
+            
+            switch(item.type) {
+                case 'coin':
+                    score += 10;
+                    createParticles(centerX, centerY, '#FFD700', 10);
+                    break;
+                case 'diamond':
+                    score += 50;
+                    createParticles(centerX, centerY, '#00CED1', 15);
+                    break;
+                case 'star':
+                    score += 25;
+                    createParticles(centerX, centerY, '#FFD700', 12);
+                    break;
+                case 'clover':
+                    score += 30;
+                    createParticles(centerX, centerY, '#228B22', 12);
+                    break;
+                case 'bomb':
+                    lives--;
+                    createParticles(centerX, centerY, '#FF0000', 20);
+                    if (lives <= 0) {
+                        gameOver();
+                    }
+                    break;
+                case 'heart':
+                    lives = Math.min(5, lives + 1);
+                    createParticles(centerX, centerY, '#FF69B4', 15);
+                    break;
+            }
+            
+            updateUI();
+        }
+        
+        function createParticles(x, y, color, count) {
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: (Math.random() - 0.5) * 8 - 2,
+                    color: color,
+                    size: Math.random() * 4 + 2,
+                    life: 1
+                });
+            }
+        }
+        
+        function createBlockage(x, y) {
+            blockages.push({
+                x: x,
+                y: y,
+                life: 1
+            });
+        }
+        
+        function updateUI() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('lives').textContent = lives;
+        }
+        
+        // Main game loop
+        function gameLoop(currentTime) {
+            if (!gameRunning) return;
+            
+            deltaTime = currentTime - lastTime;
+            lastTime = currentTime;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw everything
+            drawBackground();
+            drawCart();
+            
+            // Update and draw game objects
+            spawnItem();
+            updateItems();
+            items.forEach(item => drawItem(item));
+            
+            drawParticles();
+            drawBlockages();
+            
+            frameCount++;
+            
+            // Debug info
+            if (debug.style.display === 'block') {
+                debug.textContent = `FPS: ${Math.round(1000/deltaTime)} | Items: ${items.length} | Particles: ${particles.length}`;
+            }
+            
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // Game control functions
+        function startGame() {
+            gameRunning = true;
+            score = 0;
+            lives = 3;
+            items = [];
+            particles = [];
+            blockages = [];
+            frameCount = 0;
+            lastTime = performance.now();
+            
+            document.getElementById('menuScreen').style.display = 'none';
+            document.getElementById('gameUI').style.display = 'flex';
+            document.getElementById('gameOverScreen').style.display = 'none';
+            
+            updateUI();
+            requestAnimationFrame(gameLoop);
+        }
+        
+        function gameOver() {
+            gameRunning = false;
+            
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('potOfGoldHighScore', highScore);
+            }
+            
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('highScore').textContent = highScore;
+            document.getElementById('gameOverScreen').style.display = 'flex';
+        }
+        
+        function restartGame() {
+            startGame();
+        }
+        
+        // Initialize
+        window.startGame = startGame;
+        window.restartGame = restartGame;
+        
+        // Draw initial menu background
+        drawBackground();
+    </script>
+</body>
+</html>
