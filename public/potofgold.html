@@ -29,10 +29,33 @@
             overscroll-behavior: none;
             -webkit-overflow-scrolling: touch;
         }
-        
+
         /* iOS Safe Area */
         body {
             padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+        }
+
+        /* Container for web version - limit width on desktop */
+        #gameContainer {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        @media (min-width: 801px) {
+            body {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            #gameContainer {
+                box-shadow: 0 0 50px rgba(0,0,0,0.3);
+                border-radius: 10px;
+                overflow: hidden;
+            }
         }
         
         #gameCanvas {
@@ -98,16 +121,43 @@
         }
 
         #collectedItems {
-            position: absolute;
+            position: fixed;
             bottom: 10px;
             left: 50%;
             transform: translateX(-50%);
-            display: flex;
-            gap: 10px;
-            padding: 10px;
-            background: rgba(0,0,0,0.5);
-            border-radius: 15px;
-            z-index: 50;
+            display: none;
+            gap: 5px;
+            padding: 8px 12px;
+            background: rgba(0,0,0,0.7);
+            border-radius: 20px;
+            z-index: 90;
+            pointer-events: none;
+            max-width: 90%;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        @media (max-width: 480px) {
+            #collectedItems {
+                bottom: 5px;
+                gap: 3px;
+                padding: 6px 10px;
+            }
+
+            .collected-item {
+                font-size: 14px !important;
+            }
+
+            .collected-icon {
+                width: 24px !important;
+                height: 24px !important;
+            }
+        }
+
+        @media (min-width: 801px) {
+            #collectedItems {
+                position: absolute;
+            }
         }
 
         .collected-item {
@@ -332,9 +382,10 @@
     </style>
 </head>
 <body>
-    <canvas id="gameCanvas"></canvas>
-    
-    <div id="gameUI">
+    <div id="gameContainer">
+        <canvas id="gameCanvas"></canvas>
+
+        <div id="gameUI">
         <div class="ui-element">
             <span class="score-display">Score: <span id="score">0</span></span>
         </div>
@@ -342,13 +393,13 @@
         <div class="ui-element">
             <span class="lives-display">Lives: <span id="lives">3</span></span>
         </div>
-    </div>
+        </div>
 
-    <div id="missedCounter" class="ui-element">
+        <div id="missedCounter" class="ui-element">
         <span>Missed: <span id="missed">0</span>/<span id="maxMissed">25</span></span>
-    </div>
+        </div>
 
-    <div id="collectedItems">
+        <div id="collectedItems">
         <div class="collected-item">
             <canvas class="collected-icon" id="coinIcon"></canvas>
             <span id="coinCount">0</span>
@@ -364,30 +415,31 @@
         <div class="collected-item">
             <canvas class="collected-icon" id="cloverIcon"></canvas>
             <span id="cloverCount">0</span>
+            </div>
         </div>
-    </div>
-    
-    <div id="menuScreen">
+
+        <div id="menuScreen">
         <h1 class="game-title">Pot of Gold</h1>
         <p class="game-subtitle">Collect treasures, avoid bombs!</p>
         <p id="lastScore" style="display: none;">Last Score: <span id="lastScoreValue">0</span></p>
         <button class="menu-button" onclick="startGame()">START GAME</button>
-    </div>
-    
-    <div id="gameOverScreen">
+        </div>
+
+        <div id="gameOverScreen">
         <h2 class="game-over-title">Game Over!</h2>
         <p class="final-score">Score: <span id="finalScore">0</span></p>
         <p class="high-score">High Score: <span id="highScore">0</span></p>
         <button class="menu-button" onclick="restartGame()">Play Again</button>
-    </div>
+        </div>
 
-    <div id="pauseScreen">
+        <div id="pauseScreen">
         <h2 class="pause-title">PAUSED</h2>
         <button class="menu-button" onclick="togglePause()">Resume Game</button>
         <button class="menu-button" onclick="quitToMenu()" style="margin-top: 20px;">Quit to Menu</button>
+        </div>
+
+        <div id="debug"></div>
     </div>
-    
-    <div id="debug"></div>
 
     <script>
         // Game configuration
@@ -472,8 +524,9 @@
         
         // Setup canvas
         function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+            const container = document.getElementById('gameContainer');
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
             
             // Update sizes on resize
             sizes = getResponsiveSizes();
@@ -1097,59 +1150,66 @@
         }
 
         function drawIconsOnCanvases() {
+            const iconSize = window.innerWidth <= 480 ? 24 : 30;
+            const center = iconSize / 2;
+
             // Draw coin icon
             const coinCanvas = document.getElementById('coinIcon');
             const coinCtx = coinCanvas.getContext('2d');
-            coinCanvas.width = 30;
-            coinCanvas.height = 30;
+            coinCanvas.width = iconSize;
+            coinCanvas.height = iconSize;
+            const radius = iconSize * 0.4;
             coinCtx.fillStyle = '#FFD700';
             coinCtx.beginPath();
-            coinCtx.arc(15, 15, 12, 0, Math.PI * 2);
+            coinCtx.arc(center, center, radius, 0, Math.PI * 2);
             coinCtx.fill();
             coinCtx.strokeStyle = '#CD7F32';
             coinCtx.lineWidth = 2;
             coinCtx.stroke();
             coinCtx.fillStyle = '#8B4513';
-            coinCtx.font = 'bold 14px Arial';
+            coinCtx.font = `bold ${iconSize * 0.45}px Arial`;
             coinCtx.textAlign = 'center';
             coinCtx.textBaseline = 'middle';
-            coinCtx.fillText('$', 15, 15);
+            coinCtx.fillText('$', center, center);
 
             // Draw diamond icon
             const diamondCanvas = document.getElementById('diamondIcon');
             const diamondCtx = diamondCanvas.getContext('2d');
-            diamondCanvas.width = 30;
-            diamondCanvas.height = 30;
+            diamondCanvas.width = iconSize;
+            diamondCanvas.height = iconSize;
             diamondCtx.save();
-            diamondCtx.translate(15, 15);
+            diamondCtx.translate(center, center);
             diamondCtx.rotate(Math.PI / 4);
+            const diamondSize = iconSize * 0.33;
             diamondCtx.fillStyle = '#00CED1';
-            diamondCtx.fillRect(-10, -10, 20, 20);
+            diamondCtx.fillRect(-diamondSize, -diamondSize, diamondSize * 2, diamondSize * 2);
             diamondCtx.strokeStyle = '#1E90FF';
             diamondCtx.lineWidth = 2;
-            diamondCtx.strokeRect(-10, -10, 20, 20);
+            diamondCtx.strokeRect(-diamondSize, -diamondSize, diamondSize * 2, diamondSize * 2);
             diamondCtx.restore();
 
             // Draw star icon
             const starCanvas = document.getElementById('starIcon');
             const starCtx = starCanvas.getContext('2d');
-            starCanvas.width = 30;
-            starCanvas.height = 30;
+            starCanvas.width = iconSize;
+            starCanvas.height = iconSize;
             starCtx.fillStyle = '#FFD700';
-            drawStarIcon(starCtx, 15, 15, 5, 12, 5);
+            drawStarIcon(starCtx, center, center, 5, iconSize * 0.4, iconSize * 0.17);
 
             // Draw clover icon
             const cloverCanvas = document.getElementById('cloverIcon');
             const cloverCtx = cloverCanvas.getContext('2d');
-            cloverCanvas.width = 30;
-            cloverCanvas.height = 30;
+            cloverCanvas.width = iconSize;
+            cloverCanvas.height = iconSize;
             cloverCtx.fillStyle = '#228B22';
+            const cloverRadius = iconSize * 0.17;
+            const cloverOffset = iconSize * 0.23;
             for (let i = 0; i < 4; i++) {
                 cloverCtx.save();
-                cloverCtx.translate(15, 15);
+                cloverCtx.translate(center, center);
                 cloverCtx.rotate((Math.PI / 2) * i);
                 cloverCtx.beginPath();
-                cloverCtx.arc(0, -7, 5, 0, Math.PI * 2);
+                cloverCtx.arc(0, -cloverOffset, cloverRadius, 0, Math.PI * 2);
                 cloverCtx.fill();
                 cloverCtx.restore();
             }
