@@ -128,16 +128,73 @@
             position: absolute;
             top: 60px;
             right: 15px;
-            background: linear-gradient(135deg, rgba(255,0,0,0.7), rgba(139,0,0,0.5));
+            background: linear-gradient(135deg, rgba(40,40,40,0.8), rgba(60,60,60,0.7));
             color: white;
             padding: 12px 24px;
             border-radius: 25px;
             font-size: 18px;
             font-weight: bold;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            border: 2px solid rgba(255,0,0,0.3);
+            border: 2px solid rgba(255,215,0,0.3);
             z-index: 100;
             display: none;
+            animation: pulseGlow 2s ease-in-out infinite;
+        }
+
+        #missedCounter.warning {
+            background: linear-gradient(135deg, rgba(255,140,0,0.7), rgba(255,69,0,0.6));
+            border: 2px solid rgba(255,140,0,0.5);
+            animation: warningPulse 1.5s ease-in-out infinite;
+        }
+
+        #missedCounter.danger {
+            background: linear-gradient(135deg, rgba(255,0,0,0.7), rgba(139,0,0,0.6));
+            border: 2px solid rgba(255,0,0,0.5);
+            animation: dangerPulse 0.8s ease-in-out infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% {
+                box-shadow: 0 4px 15px rgba(255,215,0,0.2);
+                transform: scale(1);
+            }
+            50% {
+                box-shadow: 0 4px 25px rgba(255,215,0,0.4);
+                transform: scale(1.02);
+            }
+        }
+
+        @keyframes warningPulse {
+            0%, 100% {
+                box-shadow: 0 4px 15px rgba(255,140,0,0.3);
+                transform: scale(1);
+            }
+            50% {
+                box-shadow: 0 4px 30px rgba(255,140,0,0.5);
+                transform: scale(1.03);
+            }
+        }
+
+        @keyframes dangerPulse {
+            0%, 100% {
+                box-shadow: 0 4px 15px rgba(255,0,0,0.4);
+                transform: scale(1);
+            }
+            50% {
+                box-shadow: 0 4px 35px rgba(255,0,0,0.6);
+                transform: scale(1.05);
+            }
+        }
+
+        .upgrade-indicator {
+            display: inline-block;
+            margin-left: 10px;
+            padding: 2px 8px;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #333;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
         }
 
         #lastScore {
@@ -288,7 +345,7 @@
     </div>
 
     <div id="missedCounter" class="ui-element">
-        <span>Missed: <span id="missed">0</span>/10</span>
+        <span>Missed: <span id="missed">0</span>/<span id="maxMissed">25</span></span>
     </div>
 
     <div id="collectedItems">
@@ -349,7 +406,29 @@
         let lastTime = 0;
         let deltaTime = 0;
         let missedItems = 0;
-        const maxMissedItems = 10;
+        let maxMissedItems = 25; // Default limit, can be upgraded
+
+        // Upgrade system for missed items limit
+        const missedItemUpgrades = {
+            level1: { limit: 25, cost: 0, owned: true },
+            level2: { limit: 50, cost: 500, owned: false },
+            level3: { limit: 75, cost: 1500, owned: false },
+            level4: { limit: 100, cost: 3000, owned: false },
+            level5: { limit: 150, cost: 5000, owned: false }
+        };
+
+        // Load saved upgrades
+        const savedUpgrades = localStorage.getItem('potOfGoldUpgrades');
+        if (savedUpgrades) {
+            const upgrades = JSON.parse(savedUpgrades);
+            Object.assign(missedItemUpgrades, upgrades);
+            // Set max missed items based on highest owned upgrade
+            for (const level in missedItemUpgrades) {
+                if (missedItemUpgrades[level].owned) {
+                    maxMissedItems = missedItemUpgrades[level].limit;
+                }
+            }
+        }
 
         // Collected items tracking
         let collectedCounts = {
@@ -893,9 +972,16 @@
                         missedItems++;
                         updateMissedCounter();
 
+                        // Visual feedback when approaching limit
+                        if (missedItems >= maxMissedItems * 0.8) {
+                            // Flash the screen briefly
+                            ctx.fillStyle = 'rgba(255, 0, 0, 0.1)';
+                            ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        }
+
                         // Check if too many items missed
                         if (missedItems >= maxMissedItems) {
-                            gameOver();
+                            gameOver('Too many treasures missed!');
                         }
                     }
                     items.splice(i, 1);
@@ -934,7 +1020,7 @@
                     lives--;
                     createParticles(centerX, centerY, '#FF0000', 20);
                     if (lives <= 0) {
-                        gameOver();
+                        gameOver('Out of lives!');
                     }
                     break;
                 case 'heart':
@@ -982,8 +1068,25 @@
         }
 
         function updateMissedCounter() {
+            const counter = document.getElementById('missedCounter');
             document.getElementById('missed').textContent = missedItems;
-            document.getElementById('missedCounter').style.display = 'block';
+            document.getElementById('maxMissed').textContent = maxMissedItems;
+            counter.style.display = 'block';
+
+            // Update visual indicator based on percentage
+            const percentage = (missedItems / maxMissedItems) * 100;
+
+            // Remove all classes first
+            counter.classList.remove('warning', 'danger');
+
+            if (percentage >= 80) {
+                // Critical - red pulsing
+                counter.classList.add('danger');
+            } else if (percentage >= 50) {
+                // Warning - orange pulsing
+                counter.classList.add('warning');
+            }
+            // Otherwise use default golden glow
         }
 
         function updateCollectedDisplay() {
@@ -1151,6 +1254,9 @@
                 document.getElementById('lastScoreValue').textContent = lastScore;
             }
 
+            // Update max missed display
+            document.getElementById('maxMissed').textContent = maxMissedItems;
+
             document.getElementById('menuScreen').style.display = 'none';
             document.getElementById('gameUI').style.display = 'flex';
             document.getElementById('gameOverScreen').style.display = 'none';
@@ -1165,7 +1271,7 @@
             requestAnimationFrame(gameLoop);
         }
         
-        function gameOver() {
+        function gameOver(reason = 'Game Over!') {
             gameRunning = false;
             gamePaused = false;
 
@@ -1176,6 +1282,19 @@
             if (score > highScore) {
                 highScore = score;
                 localStorage.setItem('potOfGoldHighScore', highScore);
+            }
+
+            // Update game over title with reason
+            const gameOverTitle = document.querySelector('.game-over-title');
+            if (reason === 'Too many treasures missed!') {
+                gameOverTitle.textContent = 'Too Many Missed!';
+                gameOverTitle.style.color = '#FFA500';
+            } else if (reason === 'Out of lives!') {
+                gameOverTitle.textContent = 'Out of Lives!';
+                gameOverTitle.style.color = '#FF4444';
+            } else {
+                gameOverTitle.textContent = reason;
+                gameOverTitle.style.color = '#FF4444';
             }
 
             document.getElementById('finalScore').textContent = score;
