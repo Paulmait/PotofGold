@@ -57,6 +57,13 @@
                 overflow: hidden;
             }
         }
+
+        /* Optimize for tablets */
+        @media (min-width: 481px) and (max-width: 1024px) {
+            #gameContainer {
+                max-width: 700px;
+            }
+        }
         
         #gameCanvas {
             position: absolute;
@@ -494,10 +501,11 @@
         function getResponsiveSizes() {
             const baseWidth = Math.min(canvas.width, canvas.height);
             const scaleFactor = baseWidth / 400; // Base scale on 400px reference
-            
+            const isMobile = window.innerWidth <= 768;
+
             return {
-                cartWidth: Math.max(60, Math.min(100, 80 * scaleFactor)),
-                cartHeight: Math.max(45, Math.min(75, 60 * scaleFactor)),
+                cartWidth: isMobile ? Math.max(70, Math.min(90, 80 * scaleFactor)) : Math.max(80, Math.min(100, 90 * scaleFactor)),
+                cartHeight: isMobile ? Math.max(50, Math.min(70, 60 * scaleFactor)) : Math.max(60, Math.min(75, 65 * scaleFactor)),
                 itemSize: Math.max(30, Math.min(50, 40 * scaleFactor)),
                 uiFontSize: Math.max(14, Math.min(24, 18 * scaleFactor))
             };
@@ -521,6 +529,7 @@
         // Input handling
         let inputX = null;
         let isTouch = false;
+        let isMouseDown = false;
         
         // Setup canvas
         function resizeCanvas() {
@@ -532,7 +541,8 @@
             sizes = getResponsiveSizes();
             cart.width = sizes.cartWidth;
             cart.height = sizes.cartHeight;
-            cart.x = canvas.width / 2 - cart.width / 2;
+            // Position cart properly
+            cart.x = (canvas.width - cart.width) / 2;
             cart.y = canvas.height - Math.max(120, canvas.height * 0.15);
             cart.targetX = cart.x;
             
@@ -546,23 +556,43 @@
         window.addEventListener('resize', resizeCanvas);
         
         // Prevent scrolling
-        document.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
+        // Prevent scrolling and zooming on mobile
+        document.addEventListener('touchmove', (e) => {
+            if (e.target === canvas) {
+                e.preventDefault();
+            }
+        }, { passive: false });
         document.addEventListener('gesturestart', (e) => e.preventDefault());
+        document.addEventListener('gesturechange', (e) => e.preventDefault());
+
+        // Prevent double-tap zoom on mobile
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', (e) => {
+            const now = Date.now();
+            if (now - lastTouchEnd <= 300) {
+                e.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, { passive: false });
         
         // Input handlers
         canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
         canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
         canvas.addEventListener('touchend', handleTouchEnd, { passive: false });
+        canvas.addEventListener('touchcancel', handleTouchEnd, { passive: false });
         canvas.addEventListener('mousedown', handleMouseDown);
         canvas.addEventListener('mousemove', handleMouseMove);
         canvas.addEventListener('mouseup', handleMouseUp);
+        canvas.addEventListener('mouseleave', handleMouseUp);
         
         function handleTouchStart(e) {
             e.preventDefault();
             if (!gameRunning || gamePaused) return;
             isTouch = true;
             const touch = e.touches[0];
-            inputX = touch.clientX;
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            inputX = (touch.clientX - rect.left) * scaleX;
             cart.targetX = Math.max(0, Math.min(inputX - cart.width/2, canvas.width - cart.width));
         }
         
@@ -570,7 +600,9 @@
             e.preventDefault();
             if (!gameRunning || gamePaused || !isTouch) return;
             const touch = e.touches[0];
-            inputX = touch.clientX;
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            inputX = (touch.clientX - rect.left) * scaleX;
             cart.targetX = Math.max(0, Math.min(inputX - cart.width/2, canvas.width - cart.width));
         }
         
@@ -582,21 +614,29 @@
         function handleMouseDown(e) {
             if (!gameRunning || gamePaused) return;
             if (!isTouch) {
-                inputX = e.clientX;
+                isMouseDown = true;
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = canvas.width / rect.width;
+                inputX = (e.clientX - rect.left) * scaleX;
                 cart.targetX = Math.max(0, Math.min(inputX - cart.width/2, canvas.width - cart.width));
             }
         }
         
         function handleMouseMove(e) {
             if (!gameRunning || gamePaused || isTouch) return;
-            if (e.buttons === 1) {
-                inputX = e.clientX;
+            // Allow movement on hover for better desktop experience
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            inputX = (e.clientX - rect.left) * scaleX;
+
+            // Follow mouse directly for smoother control
+            if (!isTouch) {
                 cart.targetX = Math.max(0, Math.min(inputX - cart.width/2, canvas.width - cart.width));
             }
         }
         
         function handleMouseUp(e) {
-            // Nothing needed here
+            isMouseDown = false;
         }
         
         // Drawing functions
@@ -669,9 +709,19 @@
         }
         
         function drawCart() {
-            // Smooth movement
-            const smoothing = 0.15;
-            cart.x += (cart.targetX - cart.x) * smoothing;
+            // Smooth movement with different speeds for touch vs mouse
+            const smoothing = isTouch ? 0.25 : 0.35; // Faster response
+            const diff = cart.targetX - cart.x;
+
+            // Apply movement with threshold to prevent jittering
+            if (Math.abs(diff) > 0.5) {
+                cart.x += diff * smoothing;
+            } else {
+                cart.x = cart.targetX;
+            }
+
+            // Ensure cart stays within bounds
+            cart.x = Math.max(0, Math.min(cart.x, canvas.width - cart.width));
             
             // Cart shadow
             ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
@@ -966,7 +1016,10 @@
         
         // Game logic
         function spawnItem() {
-            const spawnRate = Math.max(30, 60 - Math.floor(score / 100) * 5);
+            // Adjust spawn rate for mobile performance
+            const isMobile = window.innerWidth <= 768;
+            const baseRate = isMobile ? 40 : 30;
+            const spawnRate = Math.max(baseRate, 60 - Math.floor(score / 100) * 5);
             
             if (frameCount % spawnRate === 0) {
                 const types = ['coin', 'coin', 'coin', 'diamond', 'star', 'clover', 'bomb', 'heart'];
@@ -975,7 +1028,9 @@
                 
                 const size = sizes.itemSize;
                 const x = Math.random() * (canvas.width - size);
-                const speed = 3 + Math.random() * 2 + Math.min(score / 200, 3);
+                // Slightly slower on mobile for better playability
+                const baseSpeed = isMobile ? 2.5 : 3;
+                const speed = baseSpeed + Math.random() * 2 + Math.min(score / 200, 3);
                 
                 items.push({
                     type: type,
