@@ -41,17 +41,24 @@
             width: 100%;
             height: 100%;
             max-width: 800px;
+            max-height: 100vh;
             margin: 0 auto;
+            overflow: hidden;
         }
 
+        /* Desktop styling - enforce max width */
         @media (min-width: 801px) {
             body {
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                 display: flex;
                 justify-content: center;
                 align-items: center;
+                padding: 20px;
             }
             #gameContainer {
+                width: 800px !important;
+                height: calc(100vh - 40px);
+                max-height: 900px;
                 box-shadow: 0 0 50px rgba(0,0,0,0.3);
                 border-radius: 10px;
                 overflow: hidden;
@@ -59,9 +66,10 @@
         }
 
         /* Optimize for tablets */
-        @media (min-width: 481px) and (max-width: 1024px) {
+        @media (min-width: 481px) and (max-width: 800px) {
             #gameContainer {
-                max-width: 700px;
+                max-width: 100%;
+                height: 100vh;
             }
         }
         
@@ -72,7 +80,6 @@
             width: 100%;
             height: 100%;
             display: block;
-            cursor: pointer;
         }
         
         #gameUI {
@@ -100,6 +107,7 @@
             pointer-events: all;
             cursor: pointer;
             transition: transform 0.2s;
+            z-index: 101;
         }
 
         .pause-button:hover {
@@ -128,27 +136,28 @@
         }
 
         #collectedItems {
-            position: fixed;
+            position: absolute;
             bottom: 10px;
             left: 50%;
             transform: translateX(-50%);
             display: none;
-            gap: 5px;
-            padding: 8px 12px;
-            background: rgba(0,0,0,0.7);
+            gap: 8px;
+            padding: 10px 15px;
+            background: rgba(0,0,0,0.8);
             border-radius: 20px;
-            z-index: 90;
+            border: 2px solid rgba(255,215,0,0.3);
+            z-index: 150;
             pointer-events: none;
-            max-width: 90%;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
             justify-content: center;
         }
 
         @media (max-width: 480px) {
             #collectedItems {
                 bottom: 5px;
-                gap: 3px;
-                padding: 6px 10px;
+                gap: 5px;
+                padding: 8px 12px;
+                font-size: 14px;
             }
 
             .collected-item {
@@ -159,21 +168,22 @@
                 width: 24px !important;
                 height: 24px !important;
             }
-        }
 
-        @media (min-width: 801px) {
-            #collectedItems {
-                position: absolute;
+            .pause-button {
+                padding: 10px 20px;
+                font-size: 16px;
             }
         }
+
 
         .collected-item {
             display: flex;
             align-items: center;
-            color: white;
+            color: #FFD700;
             font-size: 16px;
             font-weight: bold;
             gap: 5px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
         }
 
         .collected-icon {
