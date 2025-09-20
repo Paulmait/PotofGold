@@ -83,16 +83,25 @@
         }
         
         #gameUI {
-            position: absolute;
+            position: fixed;
             top: 0;
             left: 0;
             right: 0;
-            padding: 15px;
+            padding: 10px;
             display: none;
             justify-content: space-between;
             align-items: center;
-            z-index: 100;
+            z-index: 500;
             pointer-events: none;
+        }
+
+        @media (min-width: 801px) {
+            #gameUI {
+                position: absolute;
+                max-width: 800px;
+                left: 50%;
+                transform: translateX(-50%);
+            }
         }
 
         .pause-button {
@@ -107,7 +116,7 @@
             pointer-events: all;
             cursor: pointer;
             transition: transform 0.2s;
-            z-index: 101;
+            z-index: 501;
         }
 
         .pause-button:hover {
@@ -115,28 +124,74 @@
         }
 
         #pauseScreen {
-            position: absolute;
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.9);
             display: none;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start;
             align-items: center;
-            z-index: 250;
+            z-index: 600;
+            overflow-y: auto;
+            padding: 20px;
         }
 
         .pause-title {
             color: #FFD700;
             font-size: clamp(36px, 8vw, 56px);
-            margin-bottom: 20px;
+            margin: 20px 0;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
 
+        .inventory-section {
+            background: rgba(0,0,0,0.7);
+            border: 2px solid rgba(255,215,0,0.3);
+            border-radius: 20px;
+            padding: 15px;
+            margin: 15px 0;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .inventory-title {
+            color: #FFD700;
+            font-size: 20px;
+            margin-bottom: 15px;
+            text-align: center;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+        }
+
+        .inventory-item {
+            background: rgba(255,255,255,0.1);
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .inventory-name {
+            color: #FFD700;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .inventory-count {
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
         #collectedItems {
-            position: absolute;
+            position: fixed;
             bottom: 10px;
             left: 50%;
             transform: translateX(-50%);
@@ -146,10 +201,16 @@
             background: rgba(0,0,0,0.8);
             border-radius: 20px;
             border: 2px solid rgba(255,215,0,0.3);
-            z-index: 150;
+            z-index: 500;
             pointer-events: none;
             flex-wrap: nowrap;
             justify-content: center;
+        }
+
+        @media (min-width: 801px) {
+            #collectedItems {
+                position: absolute;
+            }
         }
 
         @media (max-width: 480px) {
@@ -192,7 +253,7 @@
         }
 
         #missedCounter {
-            position: absolute;
+            position: fixed;
             top: 60px;
             right: 15px;
             background: linear-gradient(135deg, rgba(40,40,40,0.8), rgba(60,60,60,0.7));
@@ -203,9 +264,15 @@
             font-weight: bold;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             border: 2px solid rgba(255,215,0,0.3);
-            z-index: 100;
+            z-index: 500;
             display: none;
             animation: pulseGlow 2s ease-in-out infinite;
+        }
+
+        @media (min-width: 801px) {
+            #missedCounter {
+                position: absolute;
+            }
         }
 
         #missedCounter.warning {
@@ -450,9 +517,20 @@
         </div>
 
         <div id="pauseScreen">
-        <h2 class="pause-title">PAUSED</h2>
-        <button class="menu-button" onclick="togglePause()">Resume Game</button>
-        <button class="menu-button" onclick="quitToMenu()" style="margin-top: 20px;">Quit to Menu</button>
+            <h2 class="pause-title">PAUSED</h2>
+
+            <div class="inventory-section">
+                <h3 class="inventory-title">Current Session</h3>
+                <div class="inventory-grid" id="currentInventory"></div>
+            </div>
+
+            <div class="inventory-section">
+                <h3 class="inventory-title">Total Collected (All Time)</h3>
+                <div class="inventory-grid" id="totalInventory"></div>
+            </div>
+
+            <button class="menu-button" onclick="togglePause()">Resume Game</button>
+            <button class="menu-button" onclick="quitToMenu()" style="margin-top: 20px;">Quit to Menu</button>
         </div>
 
         <div id="debug"></div>
@@ -505,6 +583,14 @@
             diamond: 0,
             star: 0,
             clover: 0
+        };
+
+        // Total lifetime stats
+        let totalStats = {
+            coins: parseInt(localStorage.getItem('potOfGoldTotalCoins') || 0),
+            diamonds: parseInt(localStorage.getItem('potOfGoldTotalDiamonds') || 0),
+            stars: parseInt(localStorage.getItem('potOfGoldTotalStars') || 0),
+            clovers: parseInt(localStorage.getItem('potOfGoldTotalClovers') || 0)
         };
         
         // Calculate responsive sizes based on screen
@@ -1026,10 +1112,9 @@
         
         // Game logic
         function spawnItem() {
-            // Adjust spawn rate for mobile performance
-            const isMobile = window.innerWidth <= 768;
-            const baseRate = isMobile ? 40 : 30;
-            const spawnRate = Math.max(baseRate, 60 - Math.floor(score / 100) * 5);
+            // Progressive difficulty - same for all devices
+            const difficultyLevel = Math.floor(score / 100);
+            const spawnRate = Math.max(25, 50 - difficultyLevel * 3);
             
             if (frameCount % spawnRate === 0) {
                 const types = ['coin', 'coin', 'coin', 'diamond', 'star', 'clover', 'bomb', 'heart'];
@@ -1038,9 +1123,10 @@
                 
                 const size = sizes.itemSize;
                 const x = Math.random() * (canvas.width - size);
-                // Slightly slower on mobile for better playability
-                const baseSpeed = isMobile ? 2.5 : 3;
-                const speed = baseSpeed + Math.random() * 2 + Math.min(score / 200, 3);
+                // Progressive speed - starts manageable, gets challenging
+                const baseSpeed = 2.5; // Start manageable for everyone
+                const speedIncrease = Math.min(difficultyLevel * 0.4, 3.5);
+                const speed = baseSpeed + Math.random() * 1.5 + speedIncrease;
                 
                 items.push({
                     type: type,
@@ -1120,18 +1206,22 @@
             switch(item.type) {
                 case 'coin':
                     score += 10;
+                    totalStats.coins++;
                     createParticles(centerX, centerY, '#FFD700', 10);
                     break;
                 case 'diamond':
                     score += 50;
+                    totalStats.diamonds++;
                     createParticles(centerX, centerY, '#00CED1', 15);
                     break;
                 case 'star':
                     score += 25;
+                    totalStats.stars++;
                     createParticles(centerX, centerY, '#FFD700', 12);
                     break;
                 case 'clover':
                     score += 30;
+                    totalStats.clovers++;
                     createParticles(centerX, centerY, '#228B22', 12);
                     break;
                 case 'bomb':
@@ -1400,6 +1490,12 @@
             gameRunning = false;
             gamePaused = false;
 
+            // Save total stats
+            localStorage.setItem('potOfGoldTotalCoins', totalStats.coins);
+            localStorage.setItem('potOfGoldTotalDiamonds', totalStats.diamonds);
+            localStorage.setItem('potOfGoldTotalStars', totalStats.stars);
+            localStorage.setItem('potOfGoldTotalClovers', totalStats.clovers);
+
             // Save last score
             lastScore = score;
             localStorage.setItem('potOfGoldLastScore', lastScore);
@@ -1439,11 +1535,56 @@
             gamePaused = !gamePaused;
 
             if (gamePaused) {
+                updatePauseInventory();
                 document.getElementById('pauseScreen').style.display = 'flex';
             } else {
                 document.getElementById('pauseScreen').style.display = 'none';
                 lastTime = performance.now();
             }
+        }
+
+        function updatePauseInventory() {
+            // Current session
+            const currentInv = document.getElementById('currentInventory');
+            currentInv.innerHTML = `
+                <div class="inventory-item">
+                    <div class="inventory-name">Coins</div>
+                    <div class="inventory-count">${collectedCounts.coin}</div>
+                </div>
+                <div class="inventory-item">
+                    <div class="inventory-name">Diamonds</div>
+                    <div class="inventory-count">${collectedCounts.diamond}</div>
+                </div>
+                <div class="inventory-item">
+                    <div class="inventory-name">Stars</div>
+                    <div class="inventory-count">${collectedCounts.star}</div>
+                </div>
+                <div class="inventory-item">
+                    <div class="inventory-name">Clovers</div>
+                    <div class="inventory-count">${collectedCounts.clover}</div>
+                </div>
+            `;
+
+            // Total lifetime
+            const totalInv = document.getElementById('totalInventory');
+            totalInv.innerHTML = `
+                <div class="inventory-item">
+                    <div class="inventory-name">Total Coins</div>
+                    <div class="inventory-count">${totalStats.coins}</div>
+                </div>
+                <div class="inventory-item">
+                    <div class="inventory-name">Total Diamonds</div>
+                    <div class="inventory-count">${totalStats.diamonds}</div>
+                </div>
+                <div class="inventory-item">
+                    <div class="inventory-name">Total Stars</div>
+                    <div class="inventory-count">${totalStats.stars}</div>
+                </div>
+                <div class="inventory-item">
+                    <div class="inventory-name">Total Clovers</div>
+                    <div class="inventory-count">${totalStats.clovers}</div>
+                </div>
+            `;
         }
 
         function quitToMenu() {
