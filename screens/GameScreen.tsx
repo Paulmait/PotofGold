@@ -64,6 +64,7 @@ import { useEntitlements } from '../src/features/subscriptions/useEntitlements';
 import ResponsiveGameWrapper from '../components/ResponsiveGameWrapper';
 import { useOrientation } from '../hooks/useOrientation';
 import TouchHandler from '../components/TouchHandler';
+import { responsive, gameResponsive, layouts, dimensions } from '../utils/responsiveSystem';
 
 const { width, height } = Dimensions.get('window');
 
@@ -1270,10 +1271,14 @@ export default function GameScreen({
   };
 
   return (
-    <TouchHandler
-      onMove={handleTouchMove}
-      onTap={handleTap}
-      enabled={isGameActive && !isPaused}
+    <ResponsiveGameWrapper forcePortrait={true}>
+      <TouchHandler
+        onMove={handleTouchMove}
+        onTap={handleTap}
+        currentPosition={potPosition}
+        minPosition={0}
+        maxPosition={dimensions.window.width - responsiveCartSize}
+        enabled={isGameActive && !isPaused}
     >
       <View style={styles.container}>
         {/* Game Area */}
@@ -1479,13 +1484,14 @@ export default function GameScreen({
       )}
       </View>
     </TouchHandler>
+    </ResponsiveGameWrapper>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a1a',
+    backgroundColor: '#87CEEB',
   },
   gameArea: {
     flex: 1,
