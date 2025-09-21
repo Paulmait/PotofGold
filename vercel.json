@@ -48,15 +48,5 @@
         }
       ]
     }
-  ],
-  "rewrites": [
-    {
-      "source": "/potofgold.html",
-      "destination": "/potofgold.html"
-    },
-    {
-      "source": "/",
-      "destination": "/index.html"
-    }
   ]
 }
