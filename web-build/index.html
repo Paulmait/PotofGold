@@ -599,18 +599,22 @@
 
                 if (e.touches && e.touches.length > 0) {
                     const touch = e.touches[0];
-                    const rect = this.canvas.getBoundingClientRect();
-                    const x = touch.clientX - rect.left;
-                    const scaleX = this.canvas.width / rect.width;
-                    this.moveCart(x * scaleX);
+                    // Direct clientX usage for mobile
+                    const x = touch.clientX;
+                    // Account for any offset
+                    const gameContainer = document.getElementById('gameContainer');
+                    const containerRect = gameContainer.getBoundingClientRect();
+                    const relativeX = (x - containerRect.left) * (this.canvas.width / containerRect.width);
+                    this.moveCart(relativeX);
                 }
             }
             
             handleMouse(e) {
                 if (!this.gameActive || this.isPaused) return;
-                const rect = this.canvas.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const scaleX = this.canvas.width / rect.width;
+                const gameContainer = document.getElementById('gameContainer');
+                const containerRect = gameContainer.getBoundingClientRect();
+                const x = e.clientX - containerRect.left;
+                const scaleX = this.canvas.width / containerRect.width;
                 this.moveCart(x * scaleX);
             }
             
@@ -1010,26 +1014,31 @@
             
             gameLoop() {
                 requestAnimationFrame(() => this.gameLoop());
-                
-                if (!this.gameActive || this.isPaused) return;
+
+                // Always update and draw the background
+                // Clear canvas
+                this.ctx.fillStyle = '#87CEEB';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                this.drawBackground();
+
+                // Only update game elements when active
+                if (!this.gameActive || this.isPaused) {
+                    this.updateAndDrawCart(); // Still show cart
+                    return;
+                }
                 
                 const currentTime = performance.now();
                 const deltaTime = (currentTime - this.lastTime) / 1000;
                 this.lastTime = currentTime;
-                
-                // Clear canvas
-                this.ctx.fillStyle = '#87CEEB';
-                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-                
-                // Draw game elements
-                this.drawBackground();
+
+                // Update and draw game elements
                 this.updateAndDrawCart();
                 this.updateAndDrawItems();
                 this.updateParticles();
                 this.checkCollisions();
                 this.spawnItems();
                 this.updateHUD();
-                
+
                 this.frameCount++;
             }
             
@@ -1237,6 +1246,8 @@
             }
             
             spawnItems() {
+                if (!this.gameActive) return;
+
                 this.spawnTimer++;
                 if (this.spawnTimer >= this.spawnInterval) {
                     this.spawnTimer = 0;
@@ -1284,6 +1295,11 @@
             }
             
             updateAndDrawItems() {
+                // Debug: Log items count periodically
+                if (this.frameCount % 60 === 0 && this.gameActive) {
+                    console.log('Active items:', this.items.length, 'Spawn timer:', this.spawnTimer);
+                }
+
                 for (let i = this.items.length - 1; i >= 0; i--) {
                     const item = this.items[i];
                     
@@ -1567,10 +1583,14 @@
                 this.particles = [];
                 this.cart.collectedCoins = 0;
                 this.powerUps = { magnet: 0, multiplier: 0, shield: 0 };
-                
+                this.spawnTimer = 0; // Reset spawn timer
+                this.frameCount = 0; // Reset frame count
+
                 document.getElementById('menuOverlay').classList.add('hidden');
                 document.getElementById('gameHUD').style.display = 'block';
                 document.getElementById('actionButtons').style.display = 'flex';
+
+                console.log('Game started - gameActive:', this.gameActive);
             }
             
             togglePause() {
@@ -1605,11 +1625,13 @@
         
         // Game functions
         function startGame() {
+            console.log('Starting game...');
             // Add haptic feedback for mobile
             if (window.navigator.vibrate) {
                 window.navigator.vibrate(50);
             }
             game.start();
+            console.log('Game started - checking status:', game.gameActive);
         }
         
         function restartGame() {
