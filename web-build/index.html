@@ -506,6 +506,7 @@
                 this.maxCombo = 0;
                 this.gameActive = false;
                 this.isPaused = false;
+                this.cartSkin = localStorage.getItem('cartSkin') || 'default';
                 
                 // Power-ups
                 this.powerUps = {
@@ -893,6 +894,54 @@
                 return canvas;
             }
             
+            playSound(type) {
+                // Simple sound effects using Web Audio API
+                try {
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+
+                    // Different sounds for different events
+                    switch(type) {
+                        case 'coin':
+                            oscillator.frequency.value = 800;
+                            gainNode.gain.value = 0.1;
+                            oscillator.type = 'sine';
+                            break;
+                        case 'explosion':
+                            oscillator.frequency.value = 100;
+                            gainNode.gain.value = 0.2;
+                            oscillator.type = 'sawtooth';
+                            break;
+                        case 'shield':
+                            oscillator.frequency.value = 400;
+                            gainNode.gain.value = 0.1;
+                            oscillator.type = 'square';
+                            break;
+                        case 'powerup':
+                            oscillator.frequency.value = 600;
+                            gainNode.gain.value = 0.15;
+                            oscillator.type = 'triangle';
+                            break;
+                    }
+
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.1);
+
+                    // Cleanup
+                    setTimeout(() => {
+                        oscillator.disconnect();
+                        gainNode.disconnect();
+                    }, 200);
+                } catch (e) {
+                    // Silently fail if audio not available
+                    console.log('Audio not available');
+                }
+            }
+
             createMultiplierSprite() {
                 const canvas = document.createElement('canvas');
                 canvas.width = 40;
@@ -954,6 +1003,8 @@
                     document.getElementById('menuOverlay').classList.remove('hidden');
                 }, 1000);
 
+                // Start the game loop
+                this.lastTime = performance.now();
                 this.gameLoop();
             }
             
@@ -1274,13 +1325,25 @@
             checkCollisions() {
                 for (let i = this.items.length - 1; i >= 0; i--) {
                     const item = this.items[i];
-                    
+
+                    // More precise collision detection
+                    const cartLeft = this.cart.x + 5;  // Account for cart visual padding
+                    const cartRight = this.cart.x + this.cart.width - 5;
+                    const cartTop = this.cart.y + 10;  // Top of cart collection area
+                    const cartBottom = this.cart.y + this.cart.height;
+
+                    const itemLeft = item.x;
+                    const itemRight = item.x + item.width;
+                    const itemTop = item.y;
+                    const itemBottom = item.y + item.height;
+
+                    // Check if item overlaps with cart
                     if (!item.collected &&
-                        item.x < this.cart.x + this.cart.width &&
-                        item.x + item.width > this.cart.x &&
-                        item.y < this.cart.y + this.cart.height &&
-                        item.y + item.height > this.cart.y) {
-                        
+                        itemRight > cartLeft &&
+                        itemLeft < cartRight &&
+                        itemBottom > cartTop &&
+                        itemTop < cartBottom) {
+
                         this.collectItem(item);
                         item.collected = true;
                         this.items.splice(i, 1);
@@ -1300,6 +1363,8 @@
                         showCombo = true;
                         this.cart.collectedCoins++;
                         this.createParticles(item.x + 20, item.y + 20, '#FFD700');
+                        // Play coin sound
+                        this.playSound('coin');
                         break;
                         
                     case 'diamond':
@@ -1327,12 +1392,16 @@
                         if (this.powerUps.shield > 0) {
                             this.powerUps.shield--;
                             this.createParticles(item.x + 20, item.y + 20, '#4169E1');
+                            // Play shield sound
+                            this.playSound('shield');
                         } else {
                             this.hearts--;
                             this.combo = 0;
                             this.shakeScreen();
                             this.createExplosion(item.x + 20, item.y + 20);
-                            
+                            // Play explosion sound
+                            this.playSound('explosion');
+
                             if (this.hearts <= 0) {
                                 this.gameOver();
                             }
@@ -1530,6 +1599,9 @@
         
         // Initialize game
         let game = new PotOfGoldGame();
+
+        // Make game globally accessible for debugging
+        window.gameInstance = game;
         
         // Game functions
         function startGame() {
