@@ -70,12 +70,16 @@ const ResponsiveGameWrapper: React.FC<ResponsiveGameWrapperProps> = ({ children,
     const aspectRatio = 9 / 19.5; // Standard mobile aspect ratio
 
     if (isWeb) {
-      // Web: Simulate mobile viewport
-      const webWidth = Math.min(width * 0.4, MAX_GAME_WIDTH);
-      const webHeight = webWidth / aspectRatio;
+      // Web: Create proportional mobile viewport
+      // Use height to determine width for proper portrait aspect
+      const maxWebHeight = Math.min(height * 0.9, MAX_GAME_HEIGHT);
+      const webWidth = maxWebHeight * aspectRatio;
+      const finalWidth = Math.min(webWidth, MAX_GAME_WIDTH);
+      const finalHeight = finalWidth / aspectRatio;
+
       return {
-        gameWidth: webWidth,
-        gameHeight: Math.min(webHeight, MAX_GAME_HEIGHT),
+        gameWidth: finalWidth,
+        gameHeight: finalHeight,
         scale: 1,
         containerStyle: styles.webContainer,
       };

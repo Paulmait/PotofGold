@@ -22,6 +22,7 @@ import {
   TouchableOpacity,
   Alert,
   PanResponder,
+  ScrollView,
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { PanGestureHandler, State } from 'react-native-gesture-handler';
@@ -60,6 +61,16 @@ import { MysterySkinSystem } from '../utils/mysterySkinSystem';
 import MysteryCrate from '../components/MysteryCrate';
 import { useSeasonalSkins } from '../hooks/useSeasonalSkins';
 import { useEntitlements } from '../src/features/subscriptions/useEntitlements';
+import audioManager from '../utils/audioManager';
+import particleSystem, { ParticleType } from '../utils/particleSystem';
+import ParticleRenderer from '../components/ParticleRenderer';
+import ComboVisualizer from '../components/ComboVisualizer';
+import AnimatedScoreCounter from '../components/AnimatedScoreCounter';
+import PowerUpEffects, { PowerUpType } from '../components/PowerUpEffects';
+import SoundToggle from '../components/SoundToggle';
+import funDifficultySystem from '../utils/funDifficultySystem';
+import EncouragementDisplay from '../components/EncouragementDisplay';
+import FunGameOverModal from '../components/FunGameOverModal';
 // import { useUnlockMultiplier } from '../src/features/subscriptions/useUnlockMultiplier';
 import ResponsiveGameWrapper from '../components/ResponsiveGameWrapper';
 import { useOrientation } from '../hooks/useOrientation';
@@ -123,6 +134,15 @@ export default function GameScreen({
   const [showPauseMenu, setShowPauseMenu] = useState(false);
   const [showMysteryCrate, setShowMysteryCrate] = useState(false);
   const [mysteryCrate, setMysteryCrate] = useState<any>(null);
+  const [particlesActive, setParticlesActive] = useState(true);
+  const [encouragementMessage, setEncouragementMessage] = useState<any>(null);
+  const [difficultySettings, setDifficultySettings] = useState<any>(null);
+
+  // Track collected and missed items
+  const [collectedItems, setCollectedItems] = useState<string[]>([]);
+  const [missedItems, setMissedItems] = useState<number>(0);
+  const [blockedItems, setBlockedItems] = useState<any[]>([]);
+  const MAX_MISSED_ITEMS = 25;
 
   // Get selected cart skin from context
   const selectedSkinId = selectedCartSkin;
@@ -371,7 +391,19 @@ export default function GameScreen({
   useEffect(() => {
     collisionHandler.current = new CollisionHandler({
       onScoreChange: (scoreChange) => {
-        setScore(prev => prev + scoreChange);
+        setScore(prev => {
+          const newScore = prev + scoreChange;
+          // Check for encouragement on score changes
+          const encouragement = funDifficultySystem.getEncouragement(
+            newScore,
+            combo,
+            missedItems
+          );
+          if (encouragement) {
+            setEncouragementMessage(encouragement);
+          }
+          return newScore;
+        });
       },
       onCoinChange: (coinChange) => {
         setCoins(prev => prev + coinChange);
@@ -385,21 +417,59 @@ export default function GameScreen({
         setPowerUpsUsed(prev => prev + 1);
       },
       onItemCollect: (itemId) => {
-        setFallingItems(prev => prev.map(item => 
-          item.id === itemId ? { ...item, collected: true } : item
-        ));
+        setFallingItems(prev => {
+          const items = prev.map(item =>
+            item.id === itemId ? { ...item, collected: true } : item
+          );
+
+          // Create particle effect on collection
+          const collectedItem = prev.find(item => item.id === itemId);
+          if (collectedItem) {
+            particleSystem.createCoinCollectEffect(
+              { x: collectedItem.x, y: collectedItem.y },
+              collectedItem.value || 10
+            );
+            audioManager.playSound('coinCollect');
+          }
+
+          return items;
+        });
       },
       onComboUpdate: (combo, multiplier) => {
         setCombo(combo);
         setComboMultiplier(multiplier);
+        // Check for combo encouragement
+        if (combo > 0 && combo % 5 === 0) {
+          const encouragement = funDifficultySystem.getEncouragement(
+            score,
+            combo,
+            missedItems
+          );
+          if (encouragement) {
+            setEncouragementMessage(encouragement);
+          }
+        }
       },
       onAchievement: (achievement) => {
         console.log(`Achievement: ${achievement}`);
-        // Could show achievement notification here
+        audioManager.playSound('achievement');
+        particleSystem.createParticles(
+          ParticleType.ACHIEVEMENT_STARS,
+          { x: width / 2, y: height / 3 }
+        );
       },
       onSoundPlay: (soundEffect) => {
         console.log(`Playing sound: ${soundEffect}`);
-        // Could play sound effect here
+        // Map sound effects to audio manager
+        const soundMap: { [key: string]: any } = {
+          'coinCollect': 'coinCollect',
+          'bonusCollect': 'bonusCollect',
+          'explosion': 'explosion',
+          'powerUp': 'powerUpActivate',
+        };
+        if (soundMap[soundEffect]) {
+          audioManager.playSound(soundMap[soundEffect]);
+        }
       },
     });
   }, []);
@@ -487,9 +557,29 @@ export default function GameScreen({
     setPowerUpsUsed(0);
     setBoostBar(100);
     setLevel(1); // Reset level
+    setMissedItems(0); // Reset missed items
+    setLives(5); // Reset lives
+    setParticlesActive(true);
+
+    // Apply fun difficulty settings
+    const settings = funDifficultySystem.getDifficultySettings();
+    setDifficultySettings(settings);
+
+    // Play uplifting game music
+    audioManager.playMusic('gameplayLoop');
+
+    // Gentle haptic feedback
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
+    // Show welcome encouragement
+    setEncouragementMessage({
+      text: 'Let\'s have fun!',
+      emoji: '🎮',
+      color: '#FFD700',
+    });
 
     // Start game timers
-  // startGameTimers(); // Removed: not defined
+    // startGameTimers(); // Removed: not defined
   };
 
   // Coin spawning system
@@ -925,10 +1015,10 @@ export default function GameScreen({
 
   // Check for game over conditions
   useEffect(() => {
-    if (lives <= 0 && isGameActive) {
+    if ((lives <= 0 || missedItems >= MAX_MISSED_ITEMS) && isGameActive) {
       endGame();
     }
-  }, [lives, isGameActive]);
+  }, [lives, missedItems, isGameActive]);
 
   // End game
   const endGame = async () => {
@@ -1279,20 +1369,46 @@ export default function GameScreen({
       <View style={styles.container}>
         {/* Game Area */}
         <View style={styles.gameArea}>
-        {/* Pause Button */}
-        <TouchableOpacity 
-          style={styles.pauseButton} 
-          onPress={pauseGame}
-        >
-          <Text style={styles.pauseButtonText}>⏸️</Text>
-        </TouchableOpacity>
+        {/* Top Controls */}
+        <View style={styles.topControls}>
+          {/* Pause Button */}
+          <TouchableOpacity
+            style={styles.pauseButton}
+            onPress={pauseGame}
+          >
+            <Text style={styles.pauseButtonText}>⏸️</Text>
+          </TouchableOpacity>
 
-        {/* Score Display */}
+          {/* Sound Toggle */}
+          <SoundToggle
+            style={styles.soundToggle}
+            size="medium"
+          />
+        </View>
+
+        {/* Score Display with Animation */}
         <View style={styles.scoreContainer}>
-          <Text style={styles.scoreText}>Score: {score}</Text>
-          <Text style={styles.coinText}>Coins: {coins}</Text>
-          <Text style={styles.timeText}>Time: {timeSurvived}s</Text>
-          <Text style={styles.livesText}>Lives: {'❤️'.repeat(lives)}</Text>
+          <AnimatedScoreCounter
+            score={score}
+            showCurrency={false}
+            size="medium"
+            onMilestone={(milestone) => {
+              console.log(`Milestone reached: ${milestone}`);
+              audioManager.playSound('levelUp');
+            }}
+          />
+          <View style={styles.statsRow}>
+            <AnimatedScoreCounter
+              score={coins}
+              showCurrency={true}
+              size="small"
+            />
+            <Text style={styles.timeText}>⏱️ {timeSurvived}s</Text>
+            <Text style={styles.livesText}>{'❤️'.repeat(lives)}</Text>
+          </View>
+          <Text style={[styles.missedText, missedItems > 20 && styles.missedTextWarning]}>
+            Missed: {missedItems}/{MAX_MISSED_ITEMS}
+          </Text>
           {isSubscriber && (
             <View style={styles.vipIndicator}>
               <Text style={styles.vipText}>⭐ VIP</Text>
@@ -1319,15 +1435,16 @@ export default function GameScreen({
           </View>
         )}
 
-        {/* Combo Display */}
-        {comboDisplay && (
-          <Animated.View style={[styles.comboContainer, { opacity: comboAnimation }]}>
-            <Text style={styles.comboText}>{comboDisplay}</Text>
-            {comboMultiplier > 1 && (
-              <Text style={styles.comboMultiplierText}>x{comboMultiplier.toFixed(1)}</Text>
-            )}
-          </Animated.View>
-        )}
+        {/* Enhanced Combo Visualizer */}
+        <ComboVisualizer
+          comboCount={combo}
+          multiplier={comboMultiplier}
+          position={{ x: potPosition, y: height - 200 }}
+          onComboEnd={() => {
+            setCombo(0);
+            setComboMultiplier(1);
+          }}
+        />
 
         {/* Boost Bar */}
         <View style={styles.boostContainer}>
@@ -1345,19 +1462,65 @@ export default function GameScreen({
         />
 
 
-        {/* Mine Cart */}
+        {/* Mine Cart with Power-Up Effects */}
         <View>
           <MineCart
             position={potPosition}
             size={potSize}
             isTurboActive={turboBoost}
             onWheelSpin={(direction) => {
-              // Optional: Add sound effects for wheel spinning
-              console.log(`Cart wheels spinning ${direction}`);
+              // Play cart move sound on movement
+              if (direction !== 'idle') {
+                audioManager.playSound('cartMove', { volume: 0.3 });
+              }
             }}
             activeSkin={activeSkin}
           />
         </View>
+
+        {/* Power-Up Visual Effects */}
+        <PowerUpEffects
+          activePowerUps={Array.from(activePowerUps.entries()).map(([type, endTime]) => ({
+            id: type,
+            type: type as PowerUpType,
+            duration: 5000,
+            remainingTime: Math.max(0, endTime - Date.now()),
+            level: 1,
+          }))}
+          cartPosition={{ x: potPosition, y: height - 150 }}
+        />
+
+        {/* Particle Effects Renderer */}
+        <ParticleRenderer active={particlesActive} />
+
+        {/* Collected Items Display */}
+        <View style={styles.collectedItemsContainer}>
+          <Text style={styles.collectedItemsTitle}>Collected:</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.collectedItemsScroll}>
+            {collectedItems.slice(-10).map((item, index) => (
+              <View key={index} style={styles.collectedItemBox}>
+                <Text style={styles.collectedItem}>{item}</Text>
+              </View>
+            ))}
+          </ScrollView>
+        </View>
+
+        {/* Blocked Items on Track */}
+        {blockedItems.map(item => (
+          <Animated.View
+            key={item.id}
+            style={[
+              styles.blockedItem,
+              {
+                left: item.x - 15,
+                bottom: 80,
+                opacity: item.fadeAnim,
+              },
+            ]}
+          >
+            <Text style={styles.blockedItemText}>❌</Text>
+          </Animated.View>
+        ))}
 
         {/* State Unlock Notification */}
   {showUnlockNotification && currentUnlock && (
@@ -1456,19 +1619,7 @@ export default function GameScreen({
         pauseMonetization={pauseMonetization}
       />
 
-      {/* Game Over Screen */}
-      {showGameOver && (
-        <View style={styles.gameOverMenu}>
-          <Text style={styles.gameOverTitle} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.5}>Game Over!</Text>
-          <Text style={styles.gameOverText} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.5}>Score: {score}</Text>
-          <Text style={styles.gameOverText} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.5}>Coins: {coins}</Text>
-          <Text style={styles.gameOverText} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.5}>Time: {timeSurvived}s</Text>
-          <Text style={styles.gameOverText} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.5}>Combo: {combo}</Text>
-          <TouchableOpacity style={styles.gameOverButton} onPress={() => setShowGameOver(false)}>
-            <Text style={styles.gameOverButtonText} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.5}>Continue</Text>
-          </TouchableOpacity>
-        </View>
-      )}
+      {/* Game Over Screen is now handled by FunGameOverModal */}
 
       {/* State Unlock Notification */}
   {showUnlockNotification && currentUnlock && (
@@ -1478,6 +1629,29 @@ export default function GameScreen({
           onHide={() => setShowUnlockNotification(false)}
         />
       )}
+
+      {/* Encouragement Messages */}
+      <EncouragementDisplay
+        message={encouragementMessage}
+        onComplete={() => setEncouragementMessage(null)}
+      />
+
+      {/* Fun Game Over Modal */}
+      <FunGameOverModal
+        visible={showGameOver}
+        score={score}
+        coins={coins}
+        timeSurvived={timeSurvived}
+        bestCombo={combo}
+        onPlayAgain={() => {
+          setShowGameOver(false);
+          startGame();
+        }}
+        onGoHome={() => {
+          setShowGameOver(false);
+          navigation?.navigate?.('Home');
+        }}
+      />
       </View>
     </TouchHandler>
   );
@@ -1492,11 +1666,29 @@ const styles = StyleSheet.create({
     flex: 1,
     position: 'relative',
   },
+  topControls: {
+    position: 'absolute',
+    top: 50,
+    right: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    zIndex: 502,
+  },
+  soundToggle: {
+    marginLeft: 10,
+  },
   scoreContainer: {
     position: 'absolute',
     top: 50,
     left: 20,
     zIndex: 10,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+    gap: 15,
   },
   scoreText: {
     color: '#FFD700',
