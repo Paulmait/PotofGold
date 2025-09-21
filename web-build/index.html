@@ -68,6 +68,18 @@
             body {
                 background: linear-gradient(180deg, #87CEEB 0%, #98D8E8 100%);
             }
+
+            #pauseBtn {
+                width: 50px !important;
+                height: 50px !important;
+                font-size: 24px !important;
+            }
+
+            #soundToggle button {
+                width: 50px !important;
+                height: 50px !important;
+                font-size: 24px !important;
+            }
         }
         
         #gameCanvas {
@@ -431,6 +443,13 @@
         </div>
     </div>
     
+    <!-- Sound Toggle -->
+    <div id="soundToggle" style="position: absolute; top: 10px; right: 60px; z-index: 101; display: none;">
+        <button onclick="toggleSound()" style="background: rgba(0,0,0,0.7); border: 2px solid #FFD700; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer;">
+            <span id="soundIcon">🔊</span>
+        </button>
+    </div>
+
     <!-- Bottom Action Buttons -->
     <div id="actionButtons" style="display: none;">
         <button class="action-btn" onclick="useStreak()">
@@ -507,6 +526,8 @@
                 this.gameActive = false;
                 this.isPaused = false;
                 this.cartSkin = localStorage.getItem('cartSkin') || 'default';
+                this.soundEnabled = localStorage.getItem('soundEnabled') !== 'false'; // Default to true
+                this.musicEnabled = localStorage.getItem('musicEnabled') !== 'false';
                 
                 // Power-ups
                 this.powerUps = {
@@ -586,10 +607,12 @@
                 const pauseBtn = document.getElementById('pauseBtn');
                 pauseBtn.addEventListener('click', (e) => {
                     e.preventDefault();
+                    e.stopPropagation();
                     this.togglePause();
                 });
                 pauseBtn.addEventListener('touchstart', (e) => {
                     e.preventDefault();
+                    e.stopPropagation();
                     this.togglePause();
                 }, { passive: false });
             }
@@ -899,6 +922,9 @@
             }
             
             playSound(type) {
+                // Check if sound is enabled
+                if (!this.soundEnabled) return;
+
                 // Simple sound effects using Web Audio API
                 try {
                     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -973,6 +999,53 @@
                 return canvas;
             }
             
+            drawPauseOverlay() {
+                const ctx = this.ctx;
+                // Semi-transparent overlay
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+                ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+                // Pause text
+                ctx.fillStyle = '#FFD700';
+                ctx.font = 'bold 48px Fredoka';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('PAUSED', this.canvas.width / 2, this.canvas.height / 2 - 50);
+
+                // Instructions
+                ctx.font = '24px Fredoka';
+                ctx.fillStyle = 'white';
+                ctx.fillText('Press ▶️ to Resume', this.canvas.width / 2, this.canvas.height / 2 + 10);
+            }
+
+            drawItems() {
+                // Draw items without updating their positions
+                for (let i = this.items.length - 1; i >= 0; i--) {
+                    const item = this.items[i];
+                    if (!item.collected) {
+                        this.ctx.save();
+                        this.ctx.translate(item.x + 20, item.y + 20);
+                        this.ctx.rotate(item.rotation);
+                        this.ctx.drawImage(this.sprites[item.type], -20, -20);
+                        this.ctx.restore();
+                    }
+                }
+            }
+
+            drawParticles() {
+                // Draw particles without updating
+                for (let i = this.particles.length - 1; i >= 0; i--) {
+                    const p = this.particles[i];
+                    this.ctx.save();
+                    this.ctx.globalAlpha = p.life;
+                    this.ctx.fillStyle = p.color;
+                    this.ctx.beginPath();
+                    this.ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+                    this.ctx.fill();
+                    this.ctx.restore();
+                }
+            }
+
             drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius) {
                 let rot = Math.PI / 2 * 3;
                 let x = cx;
@@ -1022,8 +1095,20 @@
                 this.drawBackground();
 
                 // Only update game elements when active
-                if (!this.gameActive || this.isPaused) {
+                if (!this.gameActive) {
                     this.updateAndDrawCart(); // Still show cart
+                    return;
+                }
+
+                // When paused, still draw everything but don't update positions
+                if (this.isPaused) {
+                    this.updateAndDrawCart();
+                    this.drawItems(); // Draw items without updating
+                    this.drawParticles(); // Draw particles without updating
+                    this.updateHUD();
+
+                    // Draw pause overlay
+                    this.drawPauseOverlay();
                     return;
                 }
                 
@@ -1382,12 +1467,13 @@
                         // Play coin sound
                         this.playSound('coin');
                         break;
-                        
+
                     case 'diamond':
                         points = 50;
                         this.combo++;
                         showCombo = true;
                         this.createParticles(item.x + 20, item.y + 20, '#00CED1');
+                        this.playSound('powerup');
                         break;
                         
                     case 'star':
@@ -1395,6 +1481,7 @@
                         this.combo++;
                         showCombo = true;
                         this.createParticles(item.x + 20, item.y + 20, '#FFD700');
+                        this.playSound('coin');
                         break;
                         
                     case 'clover':
@@ -1402,6 +1489,7 @@
                         this.combo += 2;
                         showCombo = true;
                         this.createParticles(item.x + 20, item.y + 20, '#32CD32');
+                        this.playSound('powerup');
                         break;
                         
                     case 'bomb':
@@ -1427,16 +1515,19 @@
                     case 'heart':
                         this.hearts = Math.min(5, this.hearts + 1);
                         this.createParticles(item.x + 20, item.y + 20, '#FF69B4');
+                        this.playSound('powerup');
                         break;
                         
                     case 'magnet':
                         this.powerUps.magnet = 300; // 5 seconds
                         this.updatePowerUpDisplay();
+                        this.playSound('powerup');
                         break;
-                        
+
                     case 'multiplier':
                         this.powerUps.multiplier = 300; // 5 seconds
                         this.updatePowerUpDisplay();
+                        this.playSound('powerup');
                         break;
                 }
                 
@@ -1589,13 +1680,44 @@
                 document.getElementById('menuOverlay').classList.add('hidden');
                 document.getElementById('gameHUD').style.display = 'block';
                 document.getElementById('actionButtons').style.display = 'flex';
+                document.getElementById('soundToggle').style.display = 'block';
+
+                // Update sound icon
+                this.updateSoundIcon();
 
                 console.log('Game started - gameActive:', this.gameActive);
+            }
+
+            updateSoundIcon() {
+                const icon = document.getElementById('soundIcon');
+                if (icon) {
+                    icon.textContent = this.soundEnabled ? '🔊' : '🔇';
+                }
+            }
+
+            toggleSound() {
+                this.soundEnabled = !this.soundEnabled;
+                localStorage.setItem('soundEnabled', this.soundEnabled);
+                this.updateSoundIcon();
+                // Play a test sound when enabling
+                if (this.soundEnabled) {
+                    this.playSound('coin');
+                }
             }
             
             togglePause() {
                 this.isPaused = !this.isPaused;
                 document.getElementById('pauseBtn').textContent = this.isPaused ? '▶️' : '⏸️';
+
+                // Resume seamlessly - reset timing to prevent jumps
+                if (!this.isPaused) {
+                    this.lastTime = performance.now();
+                    console.log('Game resumed');
+                    // Play resume sound
+                    this.playSound('coin');
+                } else {
+                    console.log('Game paused');
+                }
             }
             
             gameOver() {
@@ -1614,6 +1736,7 @@
                 document.getElementById('menuOverlay').classList.remove('hidden');
                 document.getElementById('gameHUD').style.display = 'none';
                 document.getElementById('actionButtons').style.display = 'none';
+                document.getElementById('soundToggle').style.display = 'none';
             }
         }
         
@@ -1631,7 +1754,13 @@
                 window.navigator.vibrate(50);
             }
             game.start();
+            // Play start sound
+            game.playSound('coin');
             console.log('Game started - checking status:', game.gameActive);
+        }
+
+        function toggleSound() {
+            game.toggleSound();
         }
         
         function restartGame() {
