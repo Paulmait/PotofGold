@@ -19,6 +19,8 @@ interface FunGameOverModalProps {
   coins: number;
   timeSurvived: number;
   bestCombo: number;
+  lastScore?: number;
+  highScore?: number;
   onPlayAgain: () => void;
   onGoHome: () => void;
 }
@@ -31,6 +33,8 @@ const FunGameOverModal: React.FC<FunGameOverModalProps> = ({
   coins,
   timeSurvived,
   bestCombo,
+  lastScore = 0,
+  highScore = 0,
   onPlayAgain,
   onGoHome,
 }) => {
@@ -203,11 +207,19 @@ const FunGameOverModal: React.FC<FunGameOverModalProps> = ({
               <Text style={styles.compliment}>{getRandomCompliment()}</Text>
             </View>
 
-            {/* Score Display */}
+            {/* Score Display with Comparison */}
             <View style={styles.scoreSection}>
               <View style={styles.scoreRow}>
                 <Text style={styles.scoreIcon}>🏆</Text>
-                <Text style={styles.scoreValue}>{score}</Text>
+                <View>
+                  <Text style={styles.scoreValue}>{score}</Text>
+                  {lastScore > 0 && score > lastScore && (
+                    <Text style={styles.improvement}>+{score - lastScore} 🆙</Text>
+                  )}
+                  {score > highScore && highScore > 0 && (
+                    <Text style={styles.newRecord}>🆕 NEW BEST!</Text>
+                  )}
+                </View>
                 <Text style={styles.scoreLabel}>Points</Text>
               </View>
 
@@ -369,6 +381,19 @@ const styles = StyleSheet.create({
   },
   scoreRow: {
     alignItems: 'center',
+  },
+  improvement: {
+    color: '#00FF00',
+    fontSize: 14,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  newRecord: {
+    color: '#FFD700',
+    fontSize: 12,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginTop: 2,
   },
   scoreIcon: {
     fontSize: 30,

@@ -71,6 +71,7 @@ import SoundToggle from '../components/SoundToggle';
 import funDifficultySystem from '../utils/funDifficultySystem';
 import EncouragementDisplay from '../components/EncouragementDisplay';
 import FunGameOverModal from '../components/FunGameOverModal';
+import UpgradePurchaseModal from '../components/UpgradePurchaseModal';
 // import { useUnlockMultiplier } from '../src/features/subscriptions/useUnlockMultiplier';
 import ResponsiveGameWrapper from '../components/ResponsiveGameWrapper';
 import { useOrientation } from '../hooks/useOrientation';
@@ -137,12 +138,17 @@ export default function GameScreen({
   const [particlesActive, setParticlesActive] = useState(true);
   const [encouragementMessage, setEncouragementMessage] = useState<any>(null);
   const [difficultySettings, setDifficultySettings] = useState<any>(null);
+  const [lastScore, setLastScore] = useState(0);
+  const [highScore, setHighScore] = useState(0);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   // Track collected and missed items
   const [collectedItems, setCollectedItems] = useState<string[]>([]);
   const [missedItems, setMissedItems] = useState<number>(0);
   const [blockedItems, setBlockedItems] = useState<any[]>([]);
-  const MAX_MISSED_ITEMS = 25;
+  // Base missed items limit - can be upgraded via shop
+  const BASE_MAX_MISSED_ITEMS = 25;
+  const [maxMissedItems, setMaxMissedItems] = useState(BASE_MAX_MISSED_ITEMS);
 
   // Get selected cart skin from context
   const selectedSkinId = selectedCartSkin;
@@ -280,6 +286,35 @@ export default function GameScreen({
       setActiveSkin(null);
     }
   }, [selectedSkinId]);
+
+  // Load last score and high score
+  useEffect(() => {
+    loadScoreHistory();
+    loadUpgrades();
+  }, []);
+
+  const loadScoreHistory = async () => {
+    try {
+      const last = await AsyncStorage.getItem('lastScore');
+      const high = await AsyncStorage.getItem('highScore');
+      if (last) setLastScore(parseInt(last));
+      if (high) setHighScore(parseInt(high));
+    } catch (error) {
+      console.error('Failed to load score history:', error);
+    }
+  };
+
+  const loadUpgrades = async () => {
+    try {
+      const missedItemUpgrade = await AsyncStorage.getItem('missedItemUpgrade');
+      if (missedItemUpgrade) {
+        const upgradeLevel = parseInt(missedItemUpgrade);
+        setMaxMissedItems(BASE_MAX_MISSED_ITEMS + (upgradeLevel * 5));
+      }
+    } catch (error) {
+      console.error('Failed to load upgrades:', error);
+    }
+  };
 
   // Pot mechanics
   const [potSpeed, setPotSpeed] = useState(0.5); // Slow by default
@@ -1015,7 +1050,7 @@ export default function GameScreen({
 
   // Check for game over conditions
   useEffect(() => {
-    if ((lives <= 0 || missedItems >= MAX_MISSED_ITEMS) && isGameActive) {
+    if ((lives <= 0 || missedItems >= maxMissedItems) && isGameActive) {
       endGame();
     }
   }, [lives, missedItems, isGameActive]);
@@ -1026,6 +1061,18 @@ export default function GameScreen({
 
     setIsGameActive(false);
     setShowGameOver(true);
+
+    // Save last score and update high score
+    try {
+      await AsyncStorage.setItem('lastScore', score.toString());
+      if (score > highScore) {
+        setHighScore(score);
+        await AsyncStorage.setItem('highScore', score.toString());
+      }
+      setLastScore(score);
+    } catch (error) {
+      console.error('Failed to save score:', error);
+    }
 
     // Stop all timers
     if (gameTimer.current) clearInterval(gameTimer.current);
@@ -1390,6 +1437,7 @@ export default function GameScreen({
         <View style={styles.scoreContainer}>
           <AnimatedScoreCounter
             score={score}
+            targetScore={lastScore > 0 ? lastScore : undefined}
             showCurrency={false}
             size="medium"
             onMilestone={(milestone) => {
@@ -1397,6 +1445,15 @@ export default function GameScreen({
               audioManager.playSound('levelUp');
             }}
           />
+          {/* Score History */}
+          <View style={styles.scoreHistory}>
+            {lastScore > 0 && (
+              <Text style={styles.lastScoreText}>Last: {lastScore}</Text>
+            )}
+            {highScore > 0 && (
+              <Text style={styles.highScoreText}>Best: {highScore}</Text>
+            )}
+          </View>
           <View style={styles.statsRow}>
             <AnimatedScoreCounter
               score={coins}
@@ -1406,9 +1463,37 @@ export default function GameScreen({
             <Text style={styles.timeText}>⏱️ {timeSurvived}s</Text>
             <Text style={styles.livesText}>{'❤️'.repeat(lives)}</Text>
           </View>
-          <Text style={[styles.missedText, missedItems > 20 && styles.missedTextWarning]}>
-            Missed: {missedItems}/{MAX_MISSED_ITEMS}
-          </Text>
+          {/* Enhanced Missed Items Display with Visual Progress Bar */}
+          <View style={styles.missedContainer}>
+            <Text style={[styles.missedText, missedItems > maxMissedItems * 0.8 && styles.missedTextWarning]}>
+              Missed: {missedItems}/{maxMissedItems}
+            </Text>
+            <View style={styles.missedProgressBar}>
+              <View
+                style={[
+                  styles.missedProgressFill,
+                  {
+                    width: `${(missedItems / maxMissedItems) * 100}%`,
+                    backgroundColor:
+                      missedItems > maxMissedItems * 0.8 ? '#FF0000' :
+                      missedItems > maxMissedItems * 0.5 ? '#FFA500' : '#90EE90'
+                  }
+                ]}
+              />
+            </View>
+            {maxMissedItems > BASE_MAX_MISSED_ITEMS && (
+              <Text style={styles.upgradeIndicator}>+{maxMissedItems - BASE_MAX_MISSED_ITEMS} 🆙</Text>
+            )}
+            {/* Upgrade Button when getting close to limit */}
+            {missedItems > maxMissedItems * 0.7 && maxMissedItems < 75 && (
+              <TouchableOpacity
+                style={styles.upgradeButton}
+                onPress={() => setShowUpgradeModal(true)}
+              >
+                <Text style={styles.upgradeButtonText}>🆙 Get More Chances!</Text>
+              </TouchableOpacity>
+            )}
+          </View>
           {isSubscriber && (
             <View style={styles.vipIndicator}>
               <Text style={styles.vipText}>⭐ VIP</Text>
@@ -1470,7 +1555,7 @@ export default function GameScreen({
             isTurboActive={turboBoost}
             onWheelSpin={(direction) => {
               // Play cart move sound on movement
-              if (direction !== 'idle') {
+              if (direction && direction !== 'idle') {
                 audioManager.playSound('cartMove', { volume: 0.3 });
               }
             }}
@@ -1643,6 +1728,8 @@ export default function GameScreen({
         coins={coins}
         timeSurvived={timeSurvived}
         bestCombo={combo}
+        lastScore={lastScore}
+        highScore={highScore}
         onPlayAgain={() => {
           setShowGameOver(false);
           startGame();
@@ -1650,6 +1737,18 @@ export default function GameScreen({
         onGoHome={() => {
           setShowGameOver(false);
           navigation?.navigate?.('Home');
+        }}
+      />
+
+      {/* Upgrade Purchase Modal */}
+      <UpgradePurchaseModal
+        visible={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        coins={coins}
+        currentMaxMissed={maxMissedItems}
+        onPurchase={(newMax) => {
+          setMaxMissedItems(newMax);
+          // Deduct coins here if needed
         }}
       />
       </View>
@@ -1667,28 +1766,138 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   topControls: {
-    position: 'absolute',
+    position: 'fixed' as any,
     top: 50,
     right: 20,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    zIndex: 502,
+    zIndex: 999,
+    elevation: 10,
   },
   soundToggle: {
     marginLeft: 10,
   },
   scoreContainer: {
-    position: 'absolute',
+    position: 'fixed' as any,
     top: 50,
     left: 20,
-    zIndex: 10,
+    zIndex: 998,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    padding: 10,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: '#FFD700',
   },
   statsRow: {
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 10,
     gap: 15,
+  },
+  scoreHistory: {
+    marginTop: 5,
+    flexDirection: 'row',
+    gap: 15,
+  },
+  lastScoreText: {
+    color: '#FFD700',
+    fontSize: 14,
+    opacity: 0.8,
+  },
+  highScoreText: {
+    color: '#00FF00',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  missedContainer: {
+    marginTop: 10,
+  },
+  missedProgressBar: {
+    height: 8,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    borderRadius: 4,
+    marginTop: 5,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#FFD700',
+  },
+  missedProgressFill: {
+    height: '100%',
+    borderRadius: 4,
+  },
+  upgradeIndicator: {
+    color: '#00FF00',
+    fontSize: 12,
+    fontWeight: 'bold',
+    marginTop: 3,
+  },
+  upgradeButton: {
+    backgroundColor: '#FFD700',
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    borderRadius: 15,
+    marginTop: 5,
+    alignSelf: 'flex-start',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  upgradeButtonText: {
+    color: '#000',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  missedText: {
+    color: '#FFD700',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  missedTextWarning: {
+    color: '#FF0000',
+    fontWeight: 'bold',
+  },
+  collectedItemsContainer: {
+    position: 'absolute',
+    bottom: 100,
+    left: 20,
+    right: 20,
+    zIndex: 15,
+  },
+  collectedItemsTitle: {
+    color: '#FFD700',
+    fontSize: 14,
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
+  collectedItemsScroll: {
+    flexDirection: 'row',
+  },
+  collectedItemBox: {
+    backgroundColor: 'rgba(255, 215, 0, 0.2)',
+    padding: 5,
+    marginRight: 5,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: '#FFD700',
+  },
+  collectedItem: {
+    fontSize: 20,
+  },
+  blockedItem: {
+    position: 'absolute',
+    backgroundColor: 'rgba(255, 0, 0, 0.3)',
+    padding: 10,
+    borderRadius: 5,
+    borderWidth: 2,
+    borderColor: '#FF0000',
+  },
+  blockedItemText: {
+    color: '#FFF',
+    fontSize: 14,
+    fontWeight: 'bold',
   },
   scoreText: {
     color: '#FFD700',
@@ -1883,16 +2092,19 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   pauseButton: {
-    position: 'absolute',
+    position: 'fixed' as any,
     top: 50,
     right: 20,
     width: 50,
     height: 50,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
     borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 100,
+    zIndex: 999,
+    elevation: 10,
+    borderWidth: 2,
+    borderColor: '#FFD700',
   },
   pauseButtonText: {
     fontSize: 24,
