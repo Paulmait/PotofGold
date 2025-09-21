@@ -5,6 +5,7 @@
   "name": "Pot of Gold",
   "short_name": "Pot of Gold",
   "start_url": "/?utm_source=web_app_manifest",
+  "orientation": "portrait",
   "related_applications": [
     {
       "platform": "itunes",

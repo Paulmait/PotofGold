@@ -35,6 +35,9 @@ module.exports = async function (env, argv) {
       ...config.resolve.alias,
       'react-native$': 'react-native-web',
       'react-native-linear-gradient': 'react-native-web-linear-gradient',
+      // Use web version of audioManager
+      '../utils/audioManager': path.resolve(__dirname, 'utils/audioManagerWeb.ts'),
+      './utils/audioManager': path.resolve(__dirname, 'utils/audioManagerWeb.ts'),
       // Disable problematic modules for web
       '@sentry/react-native': false,
       'react-native-sound': false,
@@ -47,6 +50,13 @@ module.exports = async function (env, argv) {
       'expo-in-app-purchases': false,
       'react-native-purchases': false,
     },
+    extensions: [
+      '.web.ts',
+      '.web.tsx',
+      '.web.js',
+      '.web.jsx',
+      ...config.resolve.extensions,
+    ],
   };
 
   // Add fallbacks for Node.js modules
