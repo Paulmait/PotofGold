@@ -2,7 +2,7 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import HomeScreen from '../screens/HomeScreen';
-import GameScreen from '../screens/GameScreen';
+import GameScreenPortrait from '../screens/GameScreenPortrait';
 import StoreScreen from '../screens/StoreScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import StatsScreen from '../screens/StatsScreen';
@@ -23,7 +23,7 @@ export default function MainStack() {
       }}
     >
       <Stack.Screen name="Home" component={HomeScreen} />
-      <Stack.Screen name="Game" component={GameScreen} />
+      <Stack.Screen name="Game" component={GameScreenPortrait} />
       <Stack.Screen name="Store" component={StoreScreen} />
       <Stack.Screen name="Settings" component={SettingsScreen} />
       <Stack.Screen name="Stats" component={StatsScreen} />

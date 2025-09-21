@@ -63,8 +63,10 @@ export default function App() {
   const orientation = useOrientation();
 
   useEffect(() => {
-    // Allow all orientations
-    ScreenOrientation.unlockAsync();
+    // Lock to portrait mode on mobile devices
+    if (Platform.OS !== 'web') {
+      ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+    }
     initializeApp();
   }, []);
 

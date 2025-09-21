@@ -13,7 +13,7 @@ import { gameResponsive } from '../utils/responsiveSystem';
 interface TouchHandlerProps {
   onMove: (x: number) => void;
   onTap?: (x: number) => void;
-  currentPosition: number;
+  currentPosition?: number;
   minPosition?: number;
   maxPosition?: number;
   enabled: boolean;
@@ -38,8 +38,8 @@ const TouchHandler: React.FC<TouchHandlerProps> = ({
   const handleTouchStart = useCallback((e: GestureResponderEvent) => {
     if (!enabled) return;
 
-    touchStartX.current = e.nativeEvent.pageX;
-    touchStartPosition.current = currentPosition;
+    touchStartX.current = e.nativeEvent.locationX;
+    touchStartPosition.current = currentPosition || touchStartX.current;
     isTouchMove.current = false;
     lastTouchTime.current = Date.now();
 
@@ -49,40 +49,37 @@ const TouchHandler: React.FC<TouchHandlerProps> = ({
     }
   }, [enabled, currentPosition]);
   
-  const handleTouchMove = useCallback((e: GestureResponderEvent, gestureState: PanResponderGestureState) => {
+  const handleTouchMove = useCallback((e: GestureResponderEvent, gestureState?: PanResponderGestureState) => {
     if (!enabled) return;
 
-    const deltaX = gestureState.dx * sensitivity;
-    const absMove = Math.abs(deltaX);
+    // Get current touch position
+    const currentX = e.nativeEvent.locationX;
 
-    // Consider it a move if finger moved more than 5 pixels
-    if (absMove > 5) {
+    // If we have gesture state (pan), use delta movement
+    if (gestureState) {
+      const deltaX = Math.abs(gestureState.dx);
+
+      // Consider it a move if finger moved more than 5 pixels
+      if (deltaX > 5) {
+        isTouchMove.current = true;
+        onMove(currentX);
+      }
+    } else {
+      // Direct position update
       isTouchMove.current = true;
-
-      // Calculate new position based on delta
-      let newPosition = touchStartPosition.current + deltaX;
-
-      // Apply boundaries
-      if (minPosition !== undefined) {
-        newPosition = Math.max(minPosition, newPosition);
-      }
-      if (maxPosition !== undefined) {
-        newPosition = Math.min(maxPosition, newPosition);
-      }
-
-      onMove(newPosition);
+      onMove(currentX);
     }
 
     // Prevent default browser behavior
     if (Platform.OS === 'web') {
       e.preventDefault?.();
     }
-  }, [enabled, onMove, sensitivity, minPosition, maxPosition]);
+  }, [enabled, onMove]);
   
   const handleTouchEnd = useCallback((e: GestureResponderEvent) => {
     if (!enabled) return;
 
-    const touchEndX = e.nativeEvent.pageX;
+    const touchEndX = e.nativeEvent.locationX;
 
     // If it wasn't a move, treat it as a tap
     if (!isTouchMove.current && onTap) {
@@ -92,6 +89,7 @@ const TouchHandler: React.FC<TouchHandlerProps> = ({
     // Reset refs
     touchStartX.current = 0;
     touchStartPosition.current = 0;
+    isTouchMove.current = false;
 
     // Prevent default browser behavior
     if (Platform.OS === 'web') {
@@ -114,7 +112,7 @@ const TouchHandler: React.FC<TouchHandlerProps> = ({
   
   // Keyboard controls for accessibility
   useEffect(() => {
-    if (Platform.OS === 'web' && enabled) {
+    if (Platform.OS === 'web' && enabled && currentPosition !== undefined) {
       const handleKeyDown = (e: KeyboardEvent) => {
         const moveAmount = gameResponsive.cartSize() / 2;
         let newPosition = currentPosition;

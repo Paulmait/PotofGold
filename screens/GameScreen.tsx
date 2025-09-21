@@ -1271,14 +1271,10 @@ export default function GameScreen({
   };
 
   return (
-    <ResponsiveGameWrapper forcePortrait={true}>
-      <TouchHandler
-        onMove={handleTouchMove}
-        onTap={handleTap}
-        currentPosition={potPosition}
-        minPosition={0}
-        maxPosition={dimensions.window.width - responsiveCartSize}
-        enabled={isGameActive && !isPaused}
+    <TouchHandler
+      onMove={handleTouchMove}
+      onTap={handleTap}
+      enabled={isGameActive && !isPaused}
     >
       <View style={styles.container}>
         {/* Game Area */}
@@ -1484,7 +1480,6 @@ export default function GameScreen({
       )}
       </View>
     </TouchHandler>
-    </ResponsiveGameWrapper>
   );
 }
 
