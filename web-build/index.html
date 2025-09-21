@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Pot of Gold - Treasure Collection Game</title>
     
     <!-- SEO & Social -->
@@ -32,12 +32,42 @@
         body {
             font-family: 'Fredoka', -apple-system, sans-serif;
             overflow: hidden;
-            position: fixed;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             width: 100%;
-            height: 100%;
-            background: linear-gradient(180deg, #87CEEB 0%, #98D8E8 100%);
+            height: 100vh;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             touch-action: none;
             overscroll-behavior: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        #gameContainer {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            height: 100%;
+            max-height: 600px;
+            background: linear-gradient(180deg, #87CEEB 0%, #98D8E8 100%);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Mobile specific styles */
+        @media (max-width: 768px) and (orientation: portrait) {
+            #gameContainer {
+                max-width: 100%;
+                max-height: 100%;
+                border-radius: 0;
+                box-shadow: none;
+            }
+
+            body {
+                background: linear-gradient(180deg, #87CEEB 0%, #98D8E8 100%);
+            }
         }
         
         #gameCanvas {
@@ -48,6 +78,7 @@
             height: 100%;
             cursor: pointer;
             image-rendering: optimizeSpeed;
+            border-radius: 20px;
         }
         
         /* Game HUD */
@@ -354,6 +385,7 @@
     </style>
 </head>
 <body>
+    <div id="gameContainer">
     <!-- Loading Screen -->
     <div id="loadingScreen">
         <div class="menu-logo">🍀</div>
@@ -519,42 +551,71 @@
             }
             
             resizeCanvas() {
-                this.canvas.width = window.innerWidth;
-                this.canvas.height = window.innerHeight;
+                const container = document.getElementById('gameContainer');
+                this.canvas.width = container.clientWidth;
+                this.canvas.height = container.clientHeight;
                 this.cart.x = this.canvas.width / 2 - 40;
                 this.cart.y = this.canvas.height - 150;
                 this.cart.targetX = this.cart.x;
             }
             
             setupInput() {
-                // Touch controls
-                this.canvas.addEventListener('touchstart', (e) => this.handleTouch(e), { passive: false });
-                this.canvas.addEventListener('touchmove', (e) => this.handleTouch(e), { passive: false });
-                
+                // Touch controls with better iOS support
+                this.canvas.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    this.handleTouch(e);
+                }, { passive: false });
+
+                this.canvas.addEventListener('touchmove', (e) => {
+                    e.preventDefault();
+                    this.handleTouch(e);
+                }, { passive: false });
+
+                this.canvas.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                }, { passive: false });
+
                 // Mouse controls
                 this.canvas.addEventListener('mousedown', (e) => this.handleMouse(e));
                 this.canvas.addEventListener('mousemove', (e) => {
                     if (e.buttons === 1) this.handleMouse(e);
                 });
-                
-                // Pause button
-                document.getElementById('pauseBtn').addEventListener('click', () => this.togglePause());
+
+                // Pause button with touch support
+                const pauseBtn = document.getElementById('pauseBtn');
+                pauseBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.togglePause();
+                });
+                pauseBtn.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    this.togglePause();
+                }, { passive: false });
             }
             
             handleTouch(e) {
-                e.preventDefault();
                 if (!this.gameActive || this.isPaused) return;
-                const touch = e.touches[0];
-                this.moveCart(touch.clientX);
+
+                if (e.touches && e.touches.length > 0) {
+                    const touch = e.touches[0];
+                    const rect = this.canvas.getBoundingClientRect();
+                    const x = touch.clientX - rect.left;
+                    const scaleX = this.canvas.width / rect.width;
+                    this.moveCart(x * scaleX);
+                }
             }
             
             handleMouse(e) {
                 if (!this.gameActive || this.isPaused) return;
-                this.moveCart(e.clientX);
+                const rect = this.canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const scaleX = this.canvas.width / rect.width;
+                this.moveCart(x * scaleX);
             }
             
             moveCart(x) {
-                this.cart.targetX = Math.max(0, Math.min(x - this.cart.width/2, 
+                // x is already scaled to canvas coordinates
+                this.cart.targetX = Math.max(0, Math.min(x - this.cart.width/2,
                     this.canvas.width - this.cart.width));
             }
             
@@ -886,11 +947,13 @@
             }
             
             init() {
-                // Hide loading screen
+                // Hide loading screen and auto-start game
                 setTimeout(() => {
                     document.getElementById('loadingScreen').style.display = 'none';
+                    // Auto-show main menu
+                    document.getElementById('menuOverlay').classList.remove('hidden');
                 }, 1000);
-                
+
                 this.gameLoop();
             }
             
@@ -1470,6 +1533,10 @@
         
         // Game functions
         function startGame() {
+            // Add haptic feedback for mobile
+            if (window.navigator.vibrate) {
+                window.navigator.vibrate(50);
+            }
             game.start();
         }
         
@@ -1522,15 +1589,139 @@
         }
         
         function usePass() {
-            alert('🏆 Season Pass coming soon!');
+            // Season Pass - Track daily logins and give rewards
+            const lastLogin = localStorage.getItem('lastLogin');
+            const today = new Date().toDateString();
+            const streak = parseInt(localStorage.getItem('loginStreak') || '0');
+
+            if (lastLogin !== today) {
+                const newStreak = lastLogin === new Date(Date.now() - 86400000).toDateString() ? streak + 1 : 1;
+                localStorage.setItem('loginStreak', newStreak);
+                localStorage.setItem('lastLogin', today);
+
+                // Give daily reward
+                const reward = newStreak * 10;
+                game.coins += reward;
+                alert(`🏆 Daily Login Bonus!\n\nStreak: ${newStreak} days\nReward: ${reward} coins!\n\nCome back tomorrow for more!`);
+            } else {
+                alert(`🏆 Season Pass\n\nCurrent Streak: ${streak} days\nNext reward in: ${23 - new Date().getHours()} hours\n\nKeep your streak alive!`);
+            }
         }
-        
+
         function openShop() {
-            alert('🛒 Shop coming soon!');
+            // Shop implementation
+            const shopHTML = `
+                <div style="text-align: center; padding: 20px;">
+                    <h2 style="color: #FFD700; margin-bottom: 20px;">🛒 Power-Up Shop</h2>
+                    <div style="display: grid; gap: 10px;">
+                        <button onclick="buyPowerUp('shield')" style="padding: 10px; background: linear-gradient(135deg, #4169E1, #1E90FF); color: white; border: none; border-radius: 10px; cursor: pointer;">
+                            🛡️ Shield (3 uses) - 100 coins
+                        </button>
+                        <button onclick="buyPowerUp('magnet')" style="padding: 10px; background: linear-gradient(135deg, #DC143C, #4169E1); color: white; border: none; border-radius: 10px; cursor: pointer;">
+                            🧲 Super Magnet (10s) - 75 coins
+                        </button>
+                        <button onclick="buyPowerUp('multiplier')" style="padding: 10px; background: linear-gradient(135deg, #00FF00, #00CC00); color: white; border: none; border-radius: 10px; cursor: pointer;">
+                            ✖️ 2x Multiplier (10s) - 150 coins
+                        </button>
+                        <button onclick="buyPowerUp('extraLife')" style="padding: 10px; background: linear-gradient(135deg, #FF69B4, #FF1493); color: white; border: none; border-radius: 10px; cursor: pointer;">
+                            ❤️ Extra Life - 200 coins
+                        </button>
+                    </div>
+                    <p style="color: white; margin-top: 20px;">Your Coins: ${game.coins}</p>
+                    <button onclick="closeShopModal()" style="margin-top: 20px; padding: 10px 30px; background: #FFD700; border: none; border-radius: 20px; cursor: pointer;">Close</button>
+                </div>
+            `;
+            showModal(shopHTML);
         }
-        
+
         function openSkins() {
-            alert('🎨 Cart skins coming soon!');
+            // Skins implementation
+            const currentSkin = localStorage.getItem('cartSkin') || 'default';
+            const skinsHTML = `
+                <div style="text-align: center; padding: 20px;">
+                    <h2 style="color: #FFD700; margin-bottom: 20px;">🎨 Cart Skins</h2>
+                    <div style="display: grid; gap: 10px;">
+                        <button onclick="selectSkin('default')" style="padding: 10px; background: ${currentSkin === 'default' ? '#FFD700' : '#8B4513'}; color: white; border: none; border-radius: 10px; cursor: pointer;">
+                            🛒 Classic Cart ${currentSkin === 'default' ? '✓' : ''}
+                        </button>
+                        <button onclick="selectSkin('golden')" style="padding: 10px; background: ${currentSkin === 'golden' ? '#FFD700' : '#FFA500'}; color: white; border: none; border-radius: 10px; cursor: pointer;">
+                            ✨ Golden Cart - 500 coins ${currentSkin === 'golden' ? '✓' : ''}
+                        </button>
+                        <button onclick="selectSkin('diamond')" style="padding: 10px; background: ${currentSkin === 'diamond' ? '#FFD700' : '#00CED1'}; color: white; border: none; border-radius: 10px; cursor: pointer;">
+                            💎 Diamond Cart - 1000 coins ${currentSkin === 'diamond' ? '✓' : ''}
+                        </button>
+                        <button onclick="selectSkin('rainbow')" style="padding: 10px; background: ${currentSkin === 'rainbow' ? '#FFD700' : 'linear-gradient(90deg, red, orange, yellow, green, blue, purple)'}; color: white; border: none; border-radius: 10px; cursor: pointer;">
+                            🌈 Rainbow Cart - 2000 coins ${currentSkin === 'rainbow' ? '✓' : ''}
+                        </button>
+                    </div>
+                    <button onclick="closeShopModal()" style="margin-top: 20px; padding: 10px 30px; background: #FFD700; border: none; border-radius: 20px; cursor: pointer;">Close</button>
+                </div>
+            `;
+            showModal(skinsHTML);
+        }
+
+        // Helper functions for shop
+        function showModal(html) {
+            const modal = document.createElement('div');
+            modal.id = 'shopModal';
+            modal.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, rgba(102, 126, 234, 0.95), rgba(118, 75, 162, 0.95)); border-radius: 20px; z-index: 1000; min-width: 300px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);';
+            modal.innerHTML = html;
+            document.body.appendChild(modal);
+        }
+
+        function closeShopModal() {
+            const modal = document.getElementById('shopModal');
+            if (modal) modal.remove();
+        }
+
+        function buyPowerUp(type) {
+            const prices = { shield: 100, magnet: 75, multiplier: 150, extraLife: 200 };
+            if (game.coins >= prices[type]) {
+                game.coins -= prices[type];
+
+                switch(type) {
+                    case 'shield':
+                        game.powerUps.shield += 3;
+                        break;
+                    case 'magnet':
+                        game.powerUps.magnet = 600;
+                        break;
+                    case 'multiplier':
+                        game.powerUps.multiplier = 600;
+                        break;
+                    case 'extraLife':
+                        game.hearts = Math.min(5, game.hearts + 1);
+                        break;
+                }
+
+                game.updateHUD();
+                closeShopModal();
+                openShop(); // Refresh shop
+            } else {
+                alert('Not enough coins!');
+            }
+        }
+
+        function selectSkin(skin) {
+            const prices = { default: 0, golden: 500, diamond: 1000, rainbow: 2000 };
+            const owned = localStorage.getItem(`skin_${skin}_owned`) === 'true';
+
+            if (skin === 'default' || owned) {
+                localStorage.setItem('cartSkin', skin);
+                game.cartSkin = skin;
+                closeShopModal();
+                openSkins(); // Refresh
+            } else if (game.coins >= prices[skin]) {
+                game.coins -= prices[skin];
+                localStorage.setItem(`skin_${skin}_owned`, 'true');
+                localStorage.setItem('cartSkin', skin);
+                game.cartSkin = skin;
+                game.updateHUD();
+                closeShopModal();
+                openSkins(); // Refresh
+            } else {
+                alert(`Need ${prices[skin]} coins to buy this skin!`);
+            }
         }
         
         function useVacuum() {
@@ -1550,9 +1741,31 @@
             }
         }
         
-        // Prevent scrolling
-        document.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
-        document.body.addEventListener('touchstart', (e) => e.preventDefault(), { passive: false });
+        // Prevent scrolling and ensure iOS compatibility
+        document.addEventListener('touchmove', (e) => {
+            if (e.target.closest('#gameContainer')) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        // Prevent bounce on iOS
+        document.body.addEventListener('touchstart', (e) => {
+            if (e.target.closest('#gameContainer')) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        // Handle iOS safe areas
+        if (window.navigator.standalone) {
+            document.documentElement.style.setProperty('--safe-area-inset-top', 'env(safe-area-inset-top)');
+            document.documentElement.style.setProperty('--safe-area-inset-bottom', 'env(safe-area-inset-bottom)');
+        }
+
+        // Ensure game starts properly on mobile
+        window.addEventListener('load', () => {
+            // Force a resize to ensure proper dimensions
+            game.resizeCanvas();
+        });
     </script>
     
     <!-- Google Analytics -->
@@ -1563,5 +1776,6 @@
         gtag('js', new Date());
         gtag('config', 'G-XXXXXXXXXX');
     </script>
+    </div> <!-- Close gameContainer -->
 </body>
 </html>
