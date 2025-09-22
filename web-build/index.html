@@ -1761,11 +1761,36 @@
             }
         }
         
-        // Initialize game
-        let game = new PotOfGoldGame();
+        // Initialize game variable
+        let game = null;
 
-        // Make game globally accessible for debugging
-        window.gameInstance = game;
+        // Initialize game when DOM is ready
+        function initGame() {
+            if (!game) {
+                try {
+                    console.log('Creating game instance...');
+                    game = new PotOfGoldGame();
+                    game.init();
+
+                    // Make game globally accessible
+                    window.game = game;
+                    window.gameInstance = game;
+
+                    console.log('Game ready!');
+                } catch(error) {
+                    console.error('Error creating game:', error);
+                    // Retry after a short delay
+                    setTimeout(initGame, 100);
+                }
+            }
+        }
+
+        // Initialize when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initGame);
+        } else {
+            initGame();
+        }
         
         // Game functions
         function startGame() {
