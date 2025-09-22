@@ -1684,6 +1684,8 @@
                 this.score = 0;
                 this.coins = 0;
                 this.hearts = 3;
+                this.missedItems = 0; // Reset missed items!
+                this.movementPenalty = 0; // Reset movement penalty!
                 this.level = 1;
                 this.combo = 0;
                 this.items = [];
@@ -1811,7 +1813,20 @@
         }
         
         function restartGame() {
-            game.start();
+            // Reset missed items and other game state
+            if (window.game) {
+                game.missedItems = 0;
+                game.movementPenalty = 0;
+                game.gameActive = false; // Reset game state first
+
+                // Hide game over menu
+                document.getElementById('gameOverMenu').style.display = 'none';
+                document.getElementById('menuOverlay').classList.add('hidden');
+
+                // Start new game
+                game.start();
+                console.log('Game restarted - missed items reset to 0');
+            }
         }
         
         function showMainMenu() {
