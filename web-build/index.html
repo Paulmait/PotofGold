@@ -503,6 +503,7 @@
     </div>
 
     <script src="game-patch.js"></script>
+    <script src="mobile-debug.js"></script>
     <script>
         // Complete Pot of Gold HTML5 Game with Proper Graphics
         class PotOfGoldGame {
@@ -1200,10 +1201,14 @@
             }
             
             updateAndDrawCart() {
-                // Smooth movement
+                // Smooth movement with mobile optimization
                 const dx = this.cart.targetX - this.cart.x;
                 if (Math.abs(dx) > 1) {
-                    this.cart.x += dx * 0.2;
+                    // Use faster movement on mobile for better responsiveness
+                    const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+                    const baseSpeed = isMobile ? 0.4 : 0.2;
+                    const speed = baseSpeed * (1 - (this.movementPenalty || 0));
+                    this.cart.x += dx * speed;
                     this.cart.wheelRotation += Math.abs(dx) * 0.02;
                 }
                 
