@@ -622,27 +622,22 @@
 
                 if (e.touches && e.touches.length > 0) {
                     const touch = e.touches[0];
-                    // Direct clientX usage for mobile
-                    const x = touch.clientX;
-                    // Account for any offset
-                    const gameContainer = document.getElementById('gameContainer');
-                    const containerRect = gameContainer.getBoundingClientRect();
-                    const relativeX = (x - containerRect.left) * (this.canvas.width / containerRect.width);
-                    this.moveCart(relativeX);
+                    const rect = this.canvas.getBoundingClientRect();
+                    // Simple calculation that works
+                    const x = (touch.clientX - rect.left) * (this.canvas.width / rect.width);
+                    this.cart.targetX = Math.max(0, Math.min(x - this.cart.width/2, this.canvas.width - this.cart.width));
                 }
             }
             
             handleMouse(e) {
                 if (!this.gameActive || this.isPaused) return;
-                const gameContainer = document.getElementById('gameContainer');
-                const containerRect = gameContainer.getBoundingClientRect();
-                const x = e.clientX - containerRect.left;
-                const scaleX = this.canvas.width / containerRect.width;
-                this.moveCart(x * scaleX);
+                const rect = this.canvas.getBoundingClientRect();
+                const x = (e.clientX - rect.left) * (this.canvas.width / rect.width);
+                this.cart.targetX = Math.max(0, Math.min(x - this.cart.width/2, this.canvas.width - this.cart.width));
             }
             
             moveCart(x) {
-                // x is already scaled to canvas coordinates
+                // x is in canvas coordinates
                 this.cart.targetX = Math.max(0, Math.min(x - this.cart.width/2,
                     this.canvas.width - this.cart.width));
             }
@@ -1116,13 +1111,13 @@
                 const deltaTime = (currentTime - this.lastTime) / 1000;
                 this.lastTime = currentTime;
 
-                // Update and draw game elements
-                this.updateAndDrawCart();
-                this.updateAndDrawItems();
-                this.updateParticles();
-                this.checkCollisions();
-                this.spawnItems();
-                this.updateHUD();
+                // Update and draw game elements IN CORRECT ORDER
+                this.spawnItems(); // FIRST: Spawn new items
+                this.updateAndDrawItems(); // THEN: Update and draw them
+                this.updateAndDrawCart(); // Draw cart
+                this.checkCollisions(); // Check collisions
+                this.updateParticles(); // Update particles
+                this.updateHUD(); // Update UI
 
                 this.frameCount++;
             }
@@ -1331,8 +1326,7 @@
             }
             
             spawnItems() {
-                if (!this.gameActive) return;
-
+                // Items should spawn when game is running
                 this.spawnTimer++;
                 if (this.spawnTimer >= this.spawnInterval) {
                     this.spawnTimer = 0;
@@ -1381,15 +1375,16 @@
             
             updateAndDrawItems() {
                 // Debug: Log items count periodically
-                if (this.frameCount % 60 === 0 && this.gameActive) {
-                    console.log('Active items:', this.items.length, 'Spawn timer:', this.spawnTimer);
+                if (this.frameCount % 60 === 0) {
+                    console.log('Items:', this.items.length, 'Timer:', this.spawnTimer, 'Active:', this.gameActive);
                 }
 
                 for (let i = this.items.length - 1; i >= 0; i--) {
                     const item = this.items[i];
-                    
-                    // Update position
-                    item.y += item.speed;
+
+                    // Update position - ensure items always fall
+                    const speed = item.speed || 3;
+                    item.y += speed;
                     item.rotation += 0.02;
                     
                     // Apply magnet effect
@@ -1676,6 +1671,8 @@
                 this.powerUps = { magnet: 0, multiplier: 0, shield: 0 };
                 this.spawnTimer = 0; // Reset spawn timer
                 this.frameCount = 0; // Reset frame count
+                this.spawnInterval = 60; // Ensure spawn interval is set
+                this.lastTime = performance.now(); // Initialize timing
 
                 document.getElementById('menuOverlay').classList.add('hidden');
                 document.getElementById('gameHUD').style.display = 'block';
@@ -1685,7 +1682,11 @@
                 // Update sound icon
                 this.updateSoundIcon();
 
-                console.log('Game started - gameActive:', this.gameActive);
+                console.log('Game started!', {
+                    gameActive: this.gameActive,
+                    spawnInterval: this.spawnInterval,
+                    items: this.items.length
+                });
             }
 
             updateSoundIcon() {

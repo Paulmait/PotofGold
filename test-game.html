@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Game Test</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+</head>
+<body>
+    <h1>Testing Pot of Gold Game</h1>
+    <iframe src="http://localhost:3001" style="width: 100%; height: 600px; border: 2px solid blue;"></iframe>
+
+    <div id="testResults" style="margin-top: 20px; padding: 20px; background: #f0f0f0;">
+        <h2>Test Results:</h2>
+        <ul id="tests"></ul>
+    </div>
+
+    <script>
+        // Test the game functionality
+        window.addEventListener('load', () => {
+            const iframe = document.querySelector('iframe');
+            const tests = document.getElementById('tests');
+
+            setTimeout(() => {
+                try {
+                    const gameWindow = iframe.contentWindow;
+                    const gameDoc = iframe.contentDocument;
+
+                    // Test 1: Check if game loaded
+                    const gameCanvas = gameDoc.getElementById('gameCanvas');
+                    addTest('Game Canvas Exists', !!gameCanvas);
+
+                    // Test 2: Check if menu is visible
+                    const menuOverlay = gameDoc.getElementById('menuOverlay');
+                    addTest('Menu Overlay Exists', !!menuOverlay);
+
+                    // Test 3: Check if game instance exists
+                    const gameInstance = gameWindow.gameInstance;
+                    addTest('Game Instance Created', !!gameInstance);
+
+                    // Test 4: Try to start the game
+                    if (gameWindow.startGame) {
+                        gameWindow.startGame();
+                        addTest('Game Start Function Works', true);
+
+                        setTimeout(() => {
+                            // Test 5: Check if game is active
+                            addTest('Game Is Active', gameInstance.gameActive === true);
+
+                            // Test 6: Check if items array exists
+                            addTest('Items Array Exists', Array.isArray(gameInstance.items));
+
+                            // Test 7: Check cart position
+                            addTest('Cart Initialized', gameInstance.cart.x !== undefined);
+                        }, 1000);
+                    } else {
+                        addTest('Game Start Function Works', false);
+                    }
+
+                } catch (e) {
+                    console.error('Test error:', e);
+                    addTest('Cross-origin Error (expected on deployed version)', false);
+                }
+            }, 2000);
+
+            function addTest(name, passed) {
+                const li = document.createElement('li');
+                li.innerHTML = `${name}: <strong style="color: ${passed ? 'green' : 'red'}">${passed ? 'PASSED' : 'FAILED'}</strong>`;
+                tests.appendChild(li);
+            }
+        });
+    </script>
+</body>
+</html>
