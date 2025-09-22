@@ -1332,14 +1332,14 @@
                 if (this.spawnTimer >= this.spawnInterval) {
                     this.spawnTimer = 0;
                     
-                    // Item spawn probabilities
+                    // Item spawn probabilities - hearts spawn very rarely
                     const items = [
                         { type: 'coin', weight: 40 },
                         { type: 'diamond', weight: 8 },
                         { type: 'star', weight: 12 },
                         { type: 'clover', weight: 10 },
                         { type: 'bomb', weight: 20 },
-                        { type: 'heart', weight: 5 },
+                        { type: 'heart', weight: 0.5 }, // Very rare heart spawn
                         { type: 'magnet', weight: 3 },
                         { type: 'multiplier', weight: 2 }
                     ];
