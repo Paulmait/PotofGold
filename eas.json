@@ -44,7 +44,13 @@
       },
       "env": {
         "EXPO_PUBLIC_ENV": "production",
-        "ENVFILE": ".env.production"
+        "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyBJSp7vX2-SOWCpjbgTEAPj_T9QQL72JX4",
+        "EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN": "potofgold-production.firebaseapp.com",
+        "EXPO_PUBLIC_FIREBASE_PROJECT_ID": "potofgold-production",
+        "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET": "potofgold-production.firebasestorage.app",
+        "EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "511446280789",
+        "EXPO_PUBLIC_FIREBASE_APP_ID": "1:511446280789:web:f52cfd9a863631ad0b82dc",
+        "EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID": "G-GFP64LBLZ3"
       }
     }
   },
