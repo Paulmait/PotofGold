@@ -101,25 +101,31 @@ export class AnalyticsSystem {
 
   private async setupDeviceContext() {
     try {
-      // Get location permission
-      const { status } = await Location.requestForegroundPermissionsAsync();
+      // Only request location if user has consented via privacy settings
+      const { privacyManager } = await import('./privacy');
+      await privacyManager.initialize();
+
       let location = undefined;
-      
-      if (status === 'granted') {
-        const loc = await Location.getCurrentPositionAsync({});
-        const reverseGeo = await Location.reverseGeocodeAsync({
-          latitude: loc.coords.latitude,
-          longitude: loc.coords.longitude,
-        });
-        
-        if (reverseGeo[0]) {
-          location = {
-            country: reverseGeo[0].country,
-            region: reverseGeo[0].region,
-            city: reverseGeo[0].city,
+
+      if (privacyManager.isLocationTrackingEnabled()) {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+
+        if (status === 'granted') {
+          const loc = await Location.getCurrentPositionAsync({});
+          const reverseGeo = await Location.reverseGeocodeAsync({
             latitude: loc.coords.latitude,
             longitude: loc.coords.longitude,
-          };
+          });
+
+          if (reverseGeo[0]) {
+            location = {
+              country: reverseGeo[0].country,
+              region: reverseGeo[0].region,
+              city: reverseGeo[0].city,
+              latitude: loc.coords.latitude,
+              longitude: loc.coords.longitude,
+            };
+          }
         }
       }
 

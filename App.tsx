@@ -14,6 +14,8 @@ import { useOrientation } from './hooks/useOrientation';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import ErrorBoundary from './components/ErrorBoundary';
 import sessionPersistence from './services/sessionPersistence';
+import PrivacyConsentDialog, { ConsentChoices } from './components/PrivacyConsentDialog';
+import { privacyManager } from './utils/privacy';
 
 // Screens
 import GameScreen from './screens/GameScreen';
@@ -49,6 +51,14 @@ declare global {
 }
 globalThis.appStartTime = Date.now();
 
+// Disable console logs in production builds for security and performance
+if (!__DEV__) {
+  console.log = () => {};
+  console.debug = () => {};
+  console.info = () => {};
+  // Keep console.warn and console.error for important issues
+}
+
 // GameScreenClean is already responsive and doesn't need additional wrapping
 
 export default function App() {
@@ -59,7 +69,8 @@ export default function App() {
   const [hasAcceptedLegal, setHasAcceptedLegal] = useState(false);
   const [legalVersion, setLegalVersion] = useState('');
   const [isAdmin, setIsAdmin] = useState(false);
-  
+  const [showPrivacyConsent, setShowPrivacyConsent] = useState(false);
+
   const orientation = useOrientation();
 
   useEffect(() => {
@@ -76,10 +87,19 @@ export default function App() {
       crashReporting.initialize();
       crashReporting.trackAppPerformance();
 
+      // Initialize privacy manager
+      await privacyManager.initialize();
+
+      // Check if user has given privacy consent
+      const privacyConsentGiven = await AsyncStorage.getItem('privacy_consent_given');
+      if (!privacyConsentGiven) {
+        setShowPrivacyConsent(true);
+      }
+
       // Check session and user preferences
       const session = await sessionPersistence.getSession();
       const currentLegalVersion = '2.0';
-      
+
       // Check legal acceptance with session persistence
       const legalAccepted = await sessionPersistence.hasAcceptedLegal(currentLegalVersion);
       setHasAcceptedLegal(legalAccepted);
@@ -88,13 +108,15 @@ export default function App() {
       // Check onboarding status with session persistence
       const hasCompletedOnb = await sessionPersistence.hasCompletedOnboarding();
       setHasSeenOnboarding(hasCompletedOnb);
-      
+
       // Update last active time
       await sessionPersistence.updateLastActive();
-      
-      // Track device analytics
-      const analytics = await getDeviceAnalytics();
-      console.log('Device analytics:', analytics);
+
+      // Track device analytics (only if analytics enabled)
+      if (privacyManager.isAnalyticsEnabled()) {
+        const analytics = await getDeviceAnalytics();
+        console.log('Device analytics:', analytics);
+      }
 
       // Set up auth listener
       const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -144,6 +166,25 @@ export default function App() {
       console.error('App initialization error:', error);
       crashReporting.logException(error as Error, { context: 'app_initialization' });
       setIsLoading(false);
+    }
+  };
+
+  const handlePrivacyConsent = async (consents: ConsentChoices) => {
+    try {
+      // Update privacy settings
+      await privacyManager.updateSettings({
+        analyticsEnabled: consents.analyticsEnabled,
+        personalizedAds: consents.personalizedAds,
+        locationTracking: consents.locationTracking,
+      });
+
+      // Mark that user has given consent (even if they declined all)
+      await AsyncStorage.setItem('privacy_consent_given', 'true');
+
+      // Hide the consent dialog
+      setShowPrivacyConsent(false);
+    } catch (error) {
+      console.error('Error saving privacy consent:', error);
     }
   };
 
@@ -257,6 +298,10 @@ export default function App() {
   return (
     <ErrorBoundary>
       {AppContent}
+      <PrivacyConsentDialog
+        visible={showPrivacyConsent}
+        onAccept={handlePrivacyConsent}
+      />
     </ErrorBoundary>
   );
 }

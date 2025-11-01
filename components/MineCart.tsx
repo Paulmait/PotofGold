@@ -37,10 +37,18 @@ export default function MineCart({
         })
       );
       spinAnimation.start();
-      return () => spinAnimation.stop();
-    }
-  }, [isTurboActive]);
 
+      if (onWheelSpin) {
+        onWheelSpin('right');
+      }
+
+      return () => {
+        spinAnimation.stop();
+      };
+    }
+  }, [isTurboActive, onWheelSpin]);
+
+  // Calculate wheel rotation based on animation value
   const wheelRotation = wheelSpinAnimation.interpolate({
     inputRange: [0, 1],
     outputRange: ['0deg', '360deg'],
@@ -50,37 +58,61 @@ export default function MineCart({
     if (!activeSkin || activeSkin.type !== 'flag') return null;
 
     return (
-      <View style={[styles.flagOverlay, { backgroundColor: activeSkin.theme.primaryColor }]}>
-        {/* Flag pattern based on state */}
+      <View style={styles.flagOverlay}>
         {activeSkin.id === 'california' && (
           <View style={styles.californiaFlag}>
-            <View style={[styles.flagSection, { backgroundColor: '#FFFFFF' }]}>
+            <View style={[styles.flagSection, { backgroundColor: '#DC2626' }]}>
               <View style={styles.bearEmblem}>
                 <Text style={styles.bearText}>🐻</Text>
               </View>
-              <View style={styles.starEmblem}>
-                <Text style={styles.starText}>⭐</Text>
-              </View>
             </View>
-            <View style={[styles.flagSection, { backgroundColor: '#FF0000' }]} />
           </View>
         )}
         {activeSkin.id === 'texas' && (
           <View style={styles.texasFlag}>
-            <View style={[styles.flagSection, { backgroundColor: '#FFFFFF' }]}>
-              <Text style={styles.loneStar}>⭐</Text>
+            <View style={[styles.flagSection, { backgroundColor: '#1E3A8A', flex: 0.4 }]}>
+              <View style={styles.starEmblem}>
+                <Text style={styles.loneStar}>⭐</Text>
+              </View>
             </View>
-            <View style={[styles.flagSection, { backgroundColor: '#FF0000' }]} />
+            <View style={{ flex: 0.6 }}>
+              <View style={[styles.flagSection, { backgroundColor: '#F8FAFC' }]} />
+              <View style={[styles.flagSection, { backgroundColor: '#DC2626' }]} />
+            </View>
+          </View>
+        )}
+        {activeSkin.id === 'newyork' && (
+          <View style={styles.newYorkFlag}>
+            <View style={[styles.flagSection, { backgroundColor: '#1E3A8A' }]} />
+            <View style={[styles.flagSection, { backgroundColor: '#F8FAFC' }]} />
+            <View style={[styles.flagSection, { backgroundColor: '#DC2626' }]} />
+          </View>
+        )}
+        {activeSkin.id === 'washington' && (
+          <View style={styles.washingtonFlag}>
+            <View style={[styles.flagSection, { backgroundColor: '#059669' }]}>
+              <View style={styles.evergreenEmblem}>
+                <Text style={styles.treeText}>🌲</Text>
+              </View>
+            </View>
+          </View>
+        )}
+        {activeSkin.id === 'maine' && (
+          <View style={styles.maineFlag}>
+            <View style={[styles.flagSection, { backgroundColor: '#1E3A8A' }]}>
+              <View style={styles.lobsterEmblem}>
+                <Text style={styles.lobsterText}>🦞</Text>
+              </View>
+            </View>
           </View>
         )}
         {activeSkin.id === 'florida' && (
           <View style={styles.floridaFlag}>
-            <View style={[styles.flagSection, { backgroundColor: '#FFFFFF' }]}>
+            <View style={[styles.flagSection, { backgroundColor: '#F59E0B' }]}>
               <View style={styles.sunEmblem}>
                 <Text style={styles.sunText}>☀️</Text>
               </View>
             </View>
-            <View style={[styles.flagSection, { backgroundColor: '#FF0000' }]} />
           </View>
         )}
         {activeSkin.id === 'alaska' && (
