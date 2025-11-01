@@ -2,6 +2,7 @@
   "expo": {
     "name": "Pot of Gold",
     "slug": "pot-of-gold",
+    "owner": "guampaul",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/pot_of_gold_icon.png",
@@ -11,20 +12,28 @@
       "resizeMode": "contain",
       "backgroundColor": "#FFA500"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.pofgold.potofgold",
-      "buildNumber": "1.0.0",
+      "buildNumber": "1.0.1",
       "requireFullScreen": false,
       "infoPlist": {
-        "UIBackgroundModes": ["audio"],
+        "UIBackgroundModes": [
+          "audio",
+          "audio"
+        ],
         "UISupportedInterfaceOrientations": [
+          "UIInterfaceOrientationPortrait",
           "UIInterfaceOrientationPortrait"
         ],
         "UISupportedInterfaceOrientations~ipad": [
+          "UIInterfaceOrientationPortrait",
           "UIInterfaceOrientationPortrait"
-        ]
+        ],
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
@@ -34,7 +43,9 @@
       },
       "package": "com.pofgold.potofgold",
       "versionCode": 1,
-      "permissions": ["VIBRATE"]
+      "permissions": [
+        "VIBRATE"
+      ]
     },
     "web": {
       "favicon": "./assets/images/favicon.png",
@@ -62,6 +73,9 @@
         "privacyUrl": "https://pofgold.com/privacy",
         "minAge": 13,
         "governingLaw": "State of Florida, United States"
+      },
+      "eas": {
+        "projectId": "f4c5b1f2-8541-4de2-b8d4-a57c60d96767"
       }
     }
   }
