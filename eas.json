@@ -40,7 +40,8 @@
       },
       "ios": {
         "buildConfiguration": "Release",
-        "autoIncrement": true
+        "autoIncrement": true,
+        "bundler": "metro"
       },
       "env": {
         "EXPO_PUBLIC_ENV": "production",
