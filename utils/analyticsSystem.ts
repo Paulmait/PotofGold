@@ -107,7 +107,8 @@ export class AnalyticsSystem {
 
       let location = undefined;
 
-      if (privacyManager.isLocationTrackingEnabled()) {
+      // Only track location on mobile platforms (iOS/Android), not web
+      if (Platform.OS !== 'web' && privacyManager.isLocationTrackingEnabled()) {
         const { status } = await Location.requestForegroundPermissionsAsync();
 
         if (status === 'granted') {
