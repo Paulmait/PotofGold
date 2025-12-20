@@ -88,11 +88,12 @@ describe('App Store Compliance Tests', () => {
   });
 
   describe('Privacy Manager', () => {
-    test('should initialize with default settings', async () => {
+    test('should initialize with privacy-first default settings', async () => {
       await privacyManager.initialize();
       const settings = privacyManager.getSettings();
-      expect(settings.analyticsEnabled).toBe(true);
-      expect(settings.personalizedAds).toBe(true);
+      // Privacy-first: analytics and ads are opt-in (default false) for GDPR/CCPA compliance
+      expect(settings.analyticsEnabled).toBe(false);
+      expect(settings.personalizedAds).toBe(false);
       expect(settings.marketingEmails).toBe(false);
     });
 

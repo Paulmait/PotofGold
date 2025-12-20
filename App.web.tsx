@@ -230,7 +230,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#1a1a2e',
     ...Platform.select({
       web: {
-        height: '100vh',
+        height: '100%' as any, // Use 100% for RN, CSS handles viewport
         overflow: 'hidden',
       },
     }),

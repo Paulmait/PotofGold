@@ -183,6 +183,7 @@ function generateAppIcon() {
   const ctx = canvas.getContext('2d');
   drawPotOfGold(ctx, 1024, 1024, false);
   return canvas;
+}
 
 // Generate splash screen (2048x2048)
 function generateSplashScreen() {

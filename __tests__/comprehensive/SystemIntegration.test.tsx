@@ -27,8 +27,13 @@ jest.mock('expo-av');
 
 describe('Comprehensive System Integration Tests', () => {
   beforeEach(() => {
+    jest.useFakeTimers();
     jest.clearAllMocks();
     AsyncStorage.clear();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
   });
 
   describe('Cross-Platform Compatibility', () => {

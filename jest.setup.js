@@ -168,6 +168,29 @@ jest.mock('./utils/pauseTriggerSystem', () => ({
   },
   __esModule: true,
 }));
+// Mock firebase/app first to prevent ESM issues
+jest.mock('firebase/app', () => ({
+  initializeApp: jest.fn(() => ({})),
+  getApps: jest.fn(() => []),
+  getApp: jest.fn(() => ({})),
+  __esModule: true,
+}));
+
+// Mock firebase/auth
+jest.mock('firebase/auth', () => ({
+  getAuth: jest.fn(() => ({
+    currentUser: null,
+  })),
+  signInWithEmailAndPassword: jest.fn(),
+  createUserWithEmailAndPassword: jest.fn(),
+  signOut: jest.fn(),
+  onAuthStateChanged: jest.fn((auth, callback) => {
+    callback(null);
+    return jest.fn();
+  }),
+  __esModule: true,
+}));
+
 // Mock firebase/storage
 jest.mock('firebase/storage', () => ({
   getStorage: jest.fn(() => ({})),
@@ -238,8 +261,21 @@ jest.mock('expo-modules-core', () => ({
   NativeModule: {},
   NativeModulesProxy: {},
   requireNativeModule: jest.fn(),
+  requireNativeViewManager: jest.fn(() => ({})),
   __esModule: true,
 }));
+
+// Mock expo-linear-gradient
+jest.mock('expo-linear-gradient', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+  return {
+    LinearGradient: React.forwardRef((props, ref) =>
+      React.createElement(View, { ...props, ref }, props.children)
+    ),
+    __esModule: true,
+  };
+});
 
 // Mock UnlocksContext globally
 const mockCartSkin = { id: 'default', name: 'Default' };
