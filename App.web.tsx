@@ -9,9 +9,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './firebase/auth';
 import { hasCompletedOnboarding, getDeviceAnalytics } from './utils/deviceTracking';
+import { privacyManager } from './utils/privacy';
+import { offlineManager } from './utils/offlineManager';
 
 // Components
 import GameLoadingSplash from './components/GameLoadingSplash';
+import ErrorBoundary from './components/ErrorBoundary';
+import PrivacyConsentDialog, { ConsentChoices } from './components/PrivacyConsentDialog';
 
 // Screens - Use web-optimized versions
 import GameScreenWeb from './screens/GameScreenWeb';
@@ -48,10 +52,21 @@ export default function AppWeb() {
   const [hasAcceptedLegal, setHasAcceptedLegal] = useState(false);
   const [legalVersion, setLegalVersion] = useState('');
   const [isAdmin, setIsAdmin] = useState(false);
+  const [showPrivacyConsent, setShowPrivacyConsent] = useState(false);
 
   useEffect(() => {
     initializeApp();
   }, []);
+
+  const handlePrivacyConsent = async (choices: ConsentChoices) => {
+    await privacyManager.updateSettings({
+      analyticsEnabled: choices.analytics,
+      personalizedAds: choices.personalizedAds,
+      crashReporting: choices.crashReporting,
+    });
+    await AsyncStorage.setItem('privacy_consent_given', 'true');
+    setShowPrivacyConsent(false);
+  };
 
   const initializeApp = async () => {
     try {
@@ -59,11 +74,23 @@ export default function AppWeb() {
       crashReporting.initialize();
       crashReporting.trackAppPerformance();
 
+      // Initialize privacy manager
+      await privacyManager.initialize();
+
+      // Initialize offline manager
+      offlineManager.initialize();
+
+      // Check if user has given privacy consent
+      const privacyConsentGiven = await AsyncStorage.getItem('privacy_consent_given');
+      if (!privacyConsentGiven) {
+        setShowPrivacyConsent(true);
+      }
+
       // Check legal acceptance status
       const legalAcceptance = await AsyncStorage.getItem('legal_accepted');
       const acceptedVersion = await AsyncStorage.getItem('legal_version_accepted');
       const currentLegalVersion = '2.0';
-      
+
       if (legalAcceptance && acceptedVersion === currentLegalVersion) {
         setHasAcceptedLegal(true);
       } else {
@@ -135,8 +162,21 @@ export default function AppWeb() {
   }
 
   return (
-    <View style={styles.appContainer}>
-      <NavigationContainer>
+    <ErrorBoundary>
+      <View style={styles.appContainer}>
+        {showPrivacyConsent && (
+          <PrivacyConsentDialog
+            onAccept={handlePrivacyConsent}
+            onDecline={() => {
+              handlePrivacyConsent({
+                analytics: false,
+                personalizedAds: false,
+                crashReporting: true,
+              });
+            }}
+          />
+        )}
+        <NavigationContainer>
           <UnlocksProvider>
             <UserUnlockProvider>
               <GameProvider>
@@ -219,6 +259,7 @@ export default function AppWeb() {
           </UnlocksProvider>
         </NavigationContainer>
       </View>
+    </ErrorBoundary>
   );
 }
 

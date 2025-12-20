@@ -5,6 +5,7 @@
     "owner": "guampaul",
     "version": "1.0.0",
     "orientation": "portrait",
+    "entryPoint": "./App.tsx",
     "icon": "./assets/images/pot_of_gold_icon.png",
     "userInterfaceStyle": "automatic",
     "splash": {
@@ -18,7 +19,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.pofgold.potofgold",
-      "buildNumber": "1.0.3",
+      "buildNumber": "1.0.5",
       "requireFullScreen": false,
       "infoPlist": {
         "UIBackgroundModes": [
