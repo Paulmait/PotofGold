@@ -18,7 +18,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.pofgold.potofgold",
-      "buildNumber": "1.0.6",
+      "buildNumber": "1.0.8",
       "requireFullScreen": false,
       "infoPlist": {
         "UIBackgroundModes": [
