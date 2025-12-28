@@ -2,25 +2,59 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "MonthlyDrop",
   "type": "object",
-  "required": ["id", "monthLabel", "cartSkinId", "trailId", "badgeId", "frameId", "bonusCoins", "previewArt"],
-  "properties": {
-    "id": {"type": "string"},
-    "monthLabel": {"type": "string"},
-    "cartSkinId": {"type": "string"},
-    "trailId": {"type": "string"},
-    "badgeId": {"type": "string"},
-    "frameId": {"type": "string"},
-    "bonusCoins": {"type": "number", "minimum": 0},
-    "claimWindowDays": {"type": "number", "minimum": 1, "default": 45},
-    "previewArt": {
-      "type": "object",
+  "oneOf": [
+    {
+      "title": "Format V1 (2024 style)",
+      "required": ["month", "displayName", "theme", "drops", "availability"],
       "properties": {
-        "cartSkinPng": {"type": "string"},
-        "trailPng": {"type": "string"},
-        "badgePng": {"type": "string"},
-        "framePng": {"type": "string"}
-      },
-      "required": ["cartSkinPng", "trailPng", "badgePng", "framePng"]
+        "month": {"type": "string", "pattern": "^\\d{4}_\\d{2}$"},
+        "displayName": {"type": "string"},
+        "theme": {"type": "string"},
+        "drops": {
+          "type": "object",
+          "required": ["cartSkin", "trail", "badge", "bonusCoins"],
+          "properties": {
+            "cartSkin": {"type": "object"},
+            "trail": {"type": "object"},
+            "badge": {"type": "object"},
+            "bonusCoins": {"type": "number"},
+            "bonusXpMultiplier": {"type": "number"}
+          }
+        },
+        "availability": {
+          "type": "object",
+          "properties": {
+            "startDate": {"type": "string"},
+            "endDate": {"type": "string"},
+            "requiresSubscription": {"type": "boolean"},
+            "autoGrant": {"type": "boolean"}
+          }
+        }
+      }
+    },
+    {
+      "title": "Format V2 (2025+ style)",
+      "required": ["id", "monthLabel", "cartSkinId", "trailId", "badgeId", "frameId", "bonusCoins", "previewArt"],
+      "properties": {
+        "id": {"type": "string"},
+        "monthLabel": {"type": "string"},
+        "cartSkinId": {"type": "string"},
+        "trailId": {"type": "string"},
+        "badgeId": {"type": "string"},
+        "frameId": {"type": "string"},
+        "bonusCoins": {"type": "number", "minimum": 0},
+        "claimWindowDays": {"type": "number", "minimum": 1},
+        "previewArt": {
+          "type": "object",
+          "required": ["cartSkinPng", "trailPng", "badgePng", "framePng"],
+          "properties": {
+            "cartSkinPng": {"type": "string"},
+            "trailPng": {"type": "string"},
+            "badgePng": {"type": "string"},
+            "framePng": {"type": "string"}
+          }
+        }
+      }
     }
-  }
+  ]
 }
