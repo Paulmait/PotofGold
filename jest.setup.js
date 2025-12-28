@@ -352,9 +352,7 @@ jest.mock('expo-haptics', () => ({
   ImpactFeedbackStyle: {},
   NotificationFeedbackType: {},
 }));
-// Global cleanup for timers and mocks after each test
-global.afterEach = global.afterEach || (() => {});
-global.beforeEach = global.beforeEach || (() => {});
+// Global setup complete - timer cleanup handled by jest.config.js
 // jest.setup.js
 // Mock AsyncStorage
 jest.mock('@react-native-async-storage/async-storage', () => require('@react-native-async-storage/async-storage/jest/async-storage-mock'));
