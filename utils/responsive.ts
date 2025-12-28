@@ -59,11 +59,11 @@ export const responsiveDimensions = {
   isMediumDevice: screenWidth >= 375 && screenWidth < 414,
   isLargeDevice: screenWidth >= 414,
   isTablet: screenWidth >= 768,
-  
+
   // Safe area considerations
   safeAreaTop: Platform.OS === 'ios' ? (screenHeight >= 812 ? 44 : 20) : 0,
   safeAreaBottom: Platform.OS === 'ios' ? (screenHeight >= 812 ? 34 : 0) : 0,
-  
+
   // Game specific dimensions
   gameAreaHeight: screenHeight - (Platform.OS === 'ios' ? (screenHeight >= 812 ? 78 : 20) : 0),
   cartSize: {
@@ -151,11 +151,11 @@ export const getGameSettings = () => {
 // Layout helpers
 export const getResponsiveLayout = () => {
   const isLandscape = screenWidth > screenHeight;
-  
+
   return {
     isLandscape,
     isPortrait: !isLandscape,
-    
+
     // Padding and margins
     padding: {
       small: scale(8),
@@ -163,7 +163,7 @@ export const getResponsiveLayout = () => {
       large: scale(24),
       xlarge: scale(32),
     },
-    
+
     // Border radius
     borderRadius: {
       small: scale(4),
@@ -172,7 +172,7 @@ export const getResponsiveLayout = () => {
       xlarge: scale(16),
       round: scale(999),
     },
-    
+
     // Icon sizes
     iconSize: {
       small: scale(16),
@@ -180,7 +180,7 @@ export const getResponsiveLayout = () => {
       large: scale(32),
       xlarge: scale(40),
     },
-    
+
     // Game UI specific
     headerHeight: verticalScale(60),
     bottomBarHeight: verticalScale(80),
@@ -198,7 +198,7 @@ export const handleOrientationChange = (callback: (dimensions: any) => void) => 
       isLandscape: window.width > window.height,
     });
   });
-  
+
   return () => subscription?.remove();
 };
 
@@ -220,7 +220,7 @@ export const getPlatformSpecific = () => {
       },
       default: {},
     }),
-    
+
     hitSlop: Platform.select({
       web: undefined,
       default: {

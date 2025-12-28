@@ -1,17 +1,20 @@
 # Deploy to Vercel - Quick Guide
 
 ## Step 1: Run the fix script
+
 ```bash
 node scripts/fix-web-build.js
 ```
 
 ## Step 2: Test locally
+
 ```bash
 npx serve web-build
 # Open http://localhost:3000/test.html
 ```
 
 ## Step 3: Deploy to Vercel
+
 ```bash
 vercel --prod
 ```

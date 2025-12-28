@@ -4,25 +4,25 @@
  */
 
 const { initializeApp } = require('firebase/app');
-const { 
-  getFirestore, 
-  collection, 
-  addDoc, 
-  setDoc, 
+const {
+  getFirestore,
+  collection,
+  addDoc,
+  setDoc,
   doc,
-  serverTimestamp 
+  serverTimestamp,
 } = require('firebase/firestore');
 const { getAuth, signInWithEmailAndPassword } = require('firebase/auth');
 
 // Your Firebase configuration (same as in your app)
 const firebaseConfig = {
-  apiKey: "AIzaSyBJSp7vX2-SOWCpjbgTEAPj_T9QQL72JX4",
-  authDomain: "potofgold-production.firebaseapp.com",
-  projectId: "potofgold-production",
-  storageBucket: "potofgold-production.firebasestorage.app",
-  messagingSenderId: "511446280789",
-  appId: "1:511446280789:web:f52cfd9a863631ad0b82dc",
-  measurementId: "G-GFP64LBLZ3"
+  apiKey: 'AIzaSyBJSp7vX2-SOWCpjbgTEAPj_T9QQL72JX4',
+  authDomain: 'potofgold-production.firebaseapp.com',
+  projectId: 'potofgold-production',
+  storageBucket: 'potofgold-production.firebasestorage.app',
+  messagingSenderId: '511446280789',
+  appId: '1:511446280789:web:f52cfd9a863631ad0b82dc',
+  measurementId: 'G-GFP64LBLZ3',
 };
 
 // Initialize Firebase
@@ -37,7 +37,11 @@ async function initializeFirestore() {
     // First, try to authenticate as the admin user
     console.log('🔐 Authenticating as admin...');
     try {
-      await signInWithEmailAndPassword(auth, 'guampaul@gmail.com', process.env.ADMIN_PASSWORD || 'your-password-here');
+      await signInWithEmailAndPassword(
+        auth,
+        'guampaul@gmail.com',
+        process.env.ADMIN_PASSWORD || 'your-password-here'
+      );
       console.log('✅ Authenticated successfully');
     } catch (authError) {
       console.log('⚠️  Could not authenticate. Creating anonymous data...');
@@ -111,19 +115,23 @@ async function initializeFirestore() {
     if (auth.currentUser) {
       console.log('\n📝 Updating user document...');
       const usersRef = doc(db, 'users', auth.currentUser.uid);
-      await setDoc(usersRef, {
-        email: auth.currentUser.email,
-        displayName: auth.currentUser.displayName || 'Pot of Gold Player',
-        legalAcceptance: {
-          accepted: true,
-          version: '2.0',
-          timestamp: new Date().toISOString(),
+      await setDoc(
+        usersRef,
+        {
+          email: auth.currentUser.email,
+          displayName: auth.currentUser.displayName || 'Pot of Gold Player',
+          legalAcceptance: {
+            accepted: true,
+            version: '2.0',
+            timestamp: new Date().toISOString(),
+          },
+          role: 'user',
+          coins: 1000,
+          gems: 50,
+          createdAt: serverTimestamp(),
         },
-        role: 'user',
-        coins: 1000,
-        gems: 50,
-        createdAt: serverTimestamp(),
-      }, { merge: true });
+        { merge: true }
+      );
       console.log('✅ Updated user document');
     }
 
@@ -154,7 +162,9 @@ async function initializeFirestore() {
     console.log('🎉 FIRESTORE INITIALIZATION COMPLETE!');
     console.log('='.repeat(60));
     console.log('\n📍 View your data at:');
-    console.log('   https://console.firebase.google.com/project/potofgold-production/firestore/data\n');
+    console.log(
+      '   https://console.firebase.google.com/project/potofgold-production/firestore/data\n'
+    );
     console.log('📊 Collections created:');
     console.log('   • legal_audit');
     console.log('   • legal_audit_anonymous');
@@ -162,11 +172,10 @@ async function initializeFirestore() {
     console.log('   • users');
     console.log('   • config');
     console.log('   • game_data\n');
-
   } catch (error) {
     console.error('\n❌ Error initializing Firestore:', error.message);
     console.error('\nFull error:', error);
-    
+
     if (error.code === 'permission-denied') {
       console.log('\n⚠️  Permission denied. This might be because:');
       console.log('   1. Firestore security rules are blocking writes');

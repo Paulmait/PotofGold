@@ -12,21 +12,15 @@
       "resizeMode": "contain",
       "backgroundColor": "#FFA500"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.pofgold.potofgold",
       "buildNumber": "1.0.10",
       "requireFullScreen": false,
       "infoPlist": {
-        "UIBackgroundModes": [
-          "audio"
-        ],
-        "UISupportedInterfaceOrientations": [
-          "UIInterfaceOrientationPortrait"
-        ],
+        "UIBackgroundModes": ["audio"],
+        "UISupportedInterfaceOrientations": ["UIInterfaceOrientationPortrait"],
         "UISupportedInterfaceOrientations~ipad": [
           "UIInterfaceOrientationPortrait",
           "UIInterfaceOrientationLandscapeLeft",
@@ -45,24 +39,18 @@
       },
       "package": "com.pofgold.potofgold",
       "versionCode": 2,
-      "permissions": [
-        "VIBRATE"
-      ]
+      "permissions": ["VIBRATE"]
     },
     "web": {
       "favicon": "./assets/images/favicon.png",
       "bundler": "webpack",
       "build": {
         "babel": {
-          "include": [
-            "react-native-reanimated"
-          ]
+          "include": ["react-native-reanimated"]
         }
       }
     },
-    "plugins": [
-      "@sentry/react-native"
-    ],
+    "plugins": ["@sentry/react-native"],
     "extra": {
       "company": {
         "name": "Cien Rios LLC",

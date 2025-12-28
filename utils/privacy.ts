@@ -7,18 +7,18 @@ export interface PrivacySettings {
   dataCollection: boolean;
   crashReporting: boolean;
   marketingEmails: boolean;
-  locationTracking: boolean;  // Required for App Store compliance
+  locationTracking: boolean; // Required for App Store compliance
 }
 
 export class PrivacyManager {
   private static instance: PrivacyManager;
   private settings: PrivacySettings = {
-    analyticsEnabled: false,  // Opt-in required for GDPR/CCPA compliance
-    personalizedAds: false,    // Opt-in required for GDPR/CCPA compliance
+    analyticsEnabled: false, // Opt-in required for GDPR/CCPA compliance
+    personalizedAds: false, // Opt-in required for GDPR/CCPA compliance
     dataCollection: false,
-    crashReporting: true,      // Can default to true for essential functionality
+    crashReporting: true, // Can default to true for essential functionality
     marketingEmails: false,
-    locationTracking: false,   // Opt-in required for App Store compliance
+    locationTracking: false, // Opt-in required for App Store compliance
   };
 
   static getInstance(): PrivacyManager {
@@ -79,4 +79,4 @@ export class PrivacyManager {
   }
 }
 
-export const privacyManager = PrivacyManager.getInstance(); 
+export const privacyManager = PrivacyManager.getInstance();

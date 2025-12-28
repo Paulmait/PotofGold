@@ -88,7 +88,7 @@ class ProfileSyncSystem {
     isSyncing: false,
     syncErrors: [],
     pendingChanges: 0,
-    networkStatus: 'online'
+    networkStatus: 'online',
   };
   private syncInterval: NodeJS.Timeout | null = null;
   private offlineQueue: any[] = [];
@@ -98,21 +98,20 @@ class ProfileSyncSystem {
     try {
       // Get or create device info
       this.currentDevice = await this.getDeviceInfo();
-      
+
       // Setup network monitoring
       this.setupNetworkMonitoring();
-      
+
       // Load or create user profile
       if (userId || auth.currentUser?.uid) {
         await this.loadUserProfile(userId || auth.currentUser!.uid);
       }
-      
+
       // Start auto-sync
       this.startAutoSync();
-      
+
       // Register device
       await this.registerDevice();
-      
     } catch (error) {
       console.error('Failed to initialize profile sync:', error);
     }
@@ -121,10 +120,10 @@ class ProfileSyncSystem {
   private async getDeviceInfo(): Promise<DeviceInfo> {
     const { width, height } = Dimensions.get('window');
     const deviceId = await this.getDeviceId();
-    
+
     // Determine graphics quality based on device
     const graphicsQuality = this.determineGraphicsQuality();
-    
+
     const deviceInfo: DeviceInfo = {
       deviceId,
       deviceName: Device.deviceName || 'Unknown Device',
@@ -140,7 +139,7 @@ class ProfileSyncSystem {
       lastActiveAt: new Date().toISOString(),
       installationId: Application.applicationId || 'unknown',
       graphicsQuality,
-      gameSettings: this.getOptimalGameSettings(graphicsQuality)
+      gameSettings: this.getOptimalGameSettings(graphicsQuality),
     };
 
     return deviceInfo;
@@ -149,20 +148,20 @@ class ProfileSyncSystem {
   private async getDeviceId(): Promise<string> {
     // Try to get existing device ID
     let deviceId = await AsyncStorage.getItem('device_id');
-    
+
     if (!deviceId) {
       // Generate unique device ID
       if (Platform.OS === 'ios') {
-        deviceId = await Application.getIosIdForVendorAsync() || this.generateDeviceId();
+        deviceId = (await Application.getIosIdForVendorAsync()) || this.generateDeviceId();
       } else if (Platform.OS === 'android') {
         deviceId = Application.androidId || this.generateDeviceId();
       } else {
         deviceId = this.generateDeviceId();
       }
-      
+
       await AsyncStorage.setItem('device_id', deviceId);
     }
-    
+
     return deviceId;
   }
 
@@ -182,10 +181,10 @@ class ProfileSyncSystem {
     // Determine based on device capabilities
     const { width, height } = Dimensions.get('window');
     const pixelCount = width * height * PixelRatio.get();
-    
+
     // Check device year and RAM if available
     const deviceYear = Device.deviceYearClass;
-    
+
     if (Platform.OS === 'ios') {
       // iOS devices generally have good performance
       if (pixelCount > 3000000) return 'ultra';
@@ -197,7 +196,7 @@ class ProfileSyncSystem {
       if (deviceYear && deviceYear >= 2018) return 'medium';
       return 'low';
     }
-    
+
     return 'medium';
   }
 
@@ -208,29 +207,29 @@ class ProfileSyncSystem {
         shadowQuality: 'off',
         targetFPS: 30,
         reducedMotion: true,
-        textureQuality: 'low'
+        textureQuality: 'low',
       },
       medium: {
         particleEffects: true,
         shadowQuality: 'low',
         targetFPS: 30,
         reducedMotion: false,
-        textureQuality: 'medium'
+        textureQuality: 'medium',
       },
       high: {
         particleEffects: true,
         shadowQuality: 'medium',
         targetFPS: 60,
         reducedMotion: false,
-        textureQuality: 'high'
+        textureQuality: 'high',
       },
       ultra: {
         particleEffects: true,
         shadowQuality: 'high',
         targetFPS: 120,
         reducedMotion: false,
-        textureQuality: 'high'
-      }
+        textureQuality: 'high',
+      },
     };
 
     return settings[quality];
@@ -241,10 +240,10 @@ class ProfileSyncSystem {
     try {
       // Try to load from local first
       const localProfile = await this.loadLocalProfile(userId);
-      
+
       // Then sync with cloud
       const cloudProfile = await this.loadCloudProfile(userId);
-      
+
       if (cloudProfile) {
         // Merge profiles (cloud takes precedence)
         this.currentProfile = this.mergeProfiles(localProfile, cloudProfile);
@@ -257,7 +256,7 @@ class ProfileSyncSystem {
         // Create new profile
         this.currentProfile = await this.createNewProfile(userId);
       }
-      
+
       return this.currentProfile;
     } catch (error) {
       console.error('Failed to load user profile:', error);
@@ -277,12 +276,9 @@ class ProfileSyncSystem {
 
   private async loadCloudProfile(userId: string): Promise<UserProfile | null> {
     try {
-      const doc = await firestore
-        .collection('users')
-        .doc(userId)
-        .get();
-      
-      return doc.exists ? doc.data() as UserProfile : null;
+      const doc = await firestore.collection('users').doc(userId).get();
+
+      return doc.exists ? (doc.data() as UserProfile) : null;
     } catch (error) {
       console.error('Failed to load cloud profile:', error);
       return null;
@@ -309,27 +305,27 @@ class ProfileSyncSystem {
         notificationsEnabled: true,
         language: 'en',
         theme: 'auto',
-        graphicsQuality: 'auto'
+        graphicsQuality: 'auto',
       },
       lastSyncedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
-      devices: []
+      devices: [],
     };
 
     await this.saveCloudProfile(profile);
     await this.saveLocalProfile(profile);
-    
+
     return profile;
   }
 
   private mergeProfiles(local: UserProfile | null, cloud: UserProfile | null): UserProfile {
     if (!local) return cloud!;
     if (!cloud) return local;
-    
+
     // Use the most recent data
     const localTime = new Date(local.lastSyncedAt).getTime();
     const cloudTime = new Date(cloud.lastSyncedAt).getTime();
-    
+
     if (cloudTime > localTime) {
       return cloud;
     } else {
@@ -340,36 +336,36 @@ class ProfileSyncSystem {
   // Sync Operations
   async syncProfile(): Promise<boolean> {
     if (this.syncStatus.isSyncing) return false;
-    
+
     this.syncStatus.isSyncing = true;
-    
+
     try {
       if (!this.currentProfile) return false;
-      
+
       // Update last synced time
       this.currentProfile.lastSyncedAt = new Date().toISOString();
-      
+
       // Save to cloud
       await this.saveCloudProfile(this.currentProfile);
-      
+
       // Save locally
       await this.saveLocalProfile(this.currentProfile);
-      
+
       // Process offline queue
       await this.processOfflineQueue();
-      
+
       this.syncStatus.lastSyncTime = new Date().toISOString();
       this.syncStatus.syncErrors = [];
-      
+
       return true;
     } catch (error: any) {
       this.syncStatus.syncErrors.push(error.message);
-      
+
       // Queue for later if offline
       if (this.syncStatus.networkStatus === 'offline') {
         this.queueForSync(this.currentProfile);
       }
-      
+
       return false;
     } finally {
       this.syncStatus.isSyncing = false;
@@ -381,25 +377,19 @@ class ProfileSyncSystem {
       this.queueForSync(profile);
       return;
     }
-    
-    await firestore
-      .collection('users')
-      .doc(profile.uid)
-      .set(profile, { merge: true });
+
+    await firestore.collection('users').doc(profile.uid).set(profile, { merge: true });
   }
 
   private async saveLocalProfile(profile: UserProfile) {
-    await AsyncStorage.setItem(
-      `profile_${profile.uid}`,
-      JSON.stringify(profile)
-    );
+    await AsyncStorage.setItem(`profile_${profile.uid}`, JSON.stringify(profile));
   }
 
   private startAutoSync() {
     if (this.syncInterval) {
       clearInterval(this.syncInterval);
     }
-    
+
     this.syncInterval = setInterval(() => {
       if (this.syncStatus.networkStatus === 'online') {
         this.syncProfile();
@@ -408,10 +398,10 @@ class ProfileSyncSystem {
   }
 
   private setupNetworkMonitoring() {
-    NetInfo.addEventListener(state => {
+    NetInfo.addEventListener((state) => {
       const wasOffline = this.syncStatus.networkStatus === 'offline';
       this.syncStatus.networkStatus = state.isConnected ? 'online' : 'offline';
-      
+
       // Sync when coming back online
       if (wasOffline && state.isConnected) {
         this.processOfflineQueue();
@@ -423,17 +413,17 @@ class ProfileSyncSystem {
   private queueForSync(data: any) {
     this.offlineQueue.push({
       timestamp: Date.now(),
-      data
+      data,
     });
     this.syncStatus.pendingChanges = this.offlineQueue.length;
   }
 
   private async processOfflineQueue() {
     if (this.offlineQueue.length === 0) return;
-    
+
     const queue = [...this.offlineQueue];
     this.offlineQueue = [];
-    
+
     for (const item of queue) {
       try {
         await this.saveCloudProfile(item.data);
@@ -442,19 +432,19 @@ class ProfileSyncSystem {
         this.offlineQueue.push(item);
       }
     }
-    
+
     this.syncStatus.pendingChanges = this.offlineQueue.length;
   }
 
   // Device Registration
   private async registerDevice() {
     if (!this.currentProfile || !this.currentDevice) return;
-    
+
     // Check if device already registered
     const deviceIndex = this.currentProfile.devices.findIndex(
-      d => d.deviceId === this.currentDevice!.deviceId
+      (d) => d.deviceId === this.currentDevice!.deviceId
     );
-    
+
     if (deviceIndex >= 0) {
       // Update existing device info
       this.currentProfile.devices[deviceIndex] = this.currentDevice;
@@ -462,27 +452,27 @@ class ProfileSyncSystem {
       // Add new device
       this.currentProfile.devices.push(this.currentDevice);
     }
-    
+
     // Limit to last 10 devices
     if (this.currentProfile.devices.length > 10) {
       this.currentProfile.devices = this.currentProfile.devices
         .sort((a, b) => new Date(b.lastActiveAt).getTime() - new Date(a.lastActiveAt).getTime())
         .slice(0, 10);
     }
-    
+
     await this.syncProfile();
   }
 
   // Update Methods
   async updateProfile(updates: Partial<UserProfile>) {
     if (!this.currentProfile) return;
-    
+
     this.currentProfile = {
       ...this.currentProfile,
       ...updates,
-      lastSyncedAt: new Date().toISOString()
+      lastSyncedAt: new Date().toISOString(),
     };
-    
+
     await this.syncProfile();
   }
 
@@ -494,11 +484,11 @@ class ProfileSyncSystem {
     unlockedItems?: string[];
   }) {
     if (!this.currentProfile) return;
-    
+
     if (data.coins !== undefined) {
       this.currentProfile.coins += data.coins;
     }
-    
+
     if (data.experience !== undefined) {
       this.currentProfile.experience += data.experience;
       // Check for level up
@@ -508,36 +498,36 @@ class ProfileSyncSystem {
         this.currentProfile.experience -= requiredXP;
       }
     }
-    
+
     if (data.highScore !== undefined && data.highScore > this.currentProfile.highScore) {
       this.currentProfile.highScore = data.highScore;
     }
-    
+
     if (data.achievements) {
       this.currentProfile.achievements = [
-        ...new Set([...this.currentProfile.achievements, ...data.achievements])
+        ...new Set([...this.currentProfile.achievements, ...data.achievements]),
       ];
     }
-    
+
     if (data.unlockedItems) {
       this.currentProfile.unlockedItems = [
-        ...new Set([...this.currentProfile.unlockedItems, ...data.unlockedItems])
+        ...new Set([...this.currentProfile.unlockedItems, ...data.unlockedItems]),
       ];
     }
-    
+
     this.currentProfile.totalGamesPlayed++;
-    
+
     await this.syncProfile();
   }
 
   async updateSettings(settings: Partial<UserSettings>) {
     if (!this.currentProfile) return;
-    
+
     this.currentProfile.settings = {
       ...this.currentProfile.settings,
-      ...settings
+      ...settings,
     };
-    
+
     await this.syncProfile();
   }
 
@@ -559,8 +549,10 @@ class ProfileSyncSystem {
   }
 
   isHighEndDevice(): boolean {
-    return this.currentDevice?.graphicsQuality === 'high' || 
-           this.currentDevice?.graphicsQuality === 'ultra';
+    return (
+      this.currentDevice?.graphicsQuality === 'high' ||
+      this.currentDevice?.graphicsQuality === 'ultra'
+    );
   }
 
   // Cleanup
@@ -582,14 +574,14 @@ class ProfileSyncSystem {
   } {
     const settings = this.currentDevice?.gameSettings;
     const isHighEnd = this.isHighEndDevice();
-    
+
     return {
       useParticles: settings?.particleEffects ?? true,
       useShadows: settings?.shadowQuality !== 'off',
       targetFPS: settings?.targetFPS ?? 60,
       textureQuality: settings?.textureQuality ?? 'medium',
       enableBloom: isHighEnd,
-      enableReflections: isHighEnd
+      enableReflections: isHighEnd,
     };
   }
 }

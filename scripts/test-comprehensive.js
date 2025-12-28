@@ -13,7 +13,7 @@ const testCategories = {
   security: 'npm run test:security',
   performance: 'npm run test:performance',
   accessibility: 'npm run test:accessibility',
-  compliance: 'npm run test:compliance'
+  compliance: 'npm run test:compliance',
 };
 
 // Compliance checklist
@@ -29,7 +29,7 @@ const complianceChecklist = {
   'Comprehensive Tests': fs.existsSync('__tests__/comprehensive/'),
   'Security Tests': fs.existsSync('__tests__/comprehensive/Security.test.tsx'),
   'Performance Tests': fs.existsSync('__tests__/comprehensive/Performance.test.tsx'),
-  'Compliance Tests': fs.existsSync('__tests__/comprehensive/AppStoreCompliance.test.tsx')
+  'Compliance Tests': fs.existsSync('__tests__/comprehensive/AppStoreCompliance.test.tsx'),
 };
 
 // Run tests and collect results
@@ -66,11 +66,11 @@ const report = {
   testResults,
   summary: {
     totalTests: Object.keys(testResults).length,
-    passedTests: Object.values(testResults).filter(r => r.passed).length,
-    failedTests: Object.values(testResults).filter(r => !r.passed).length,
-    allPassed: allTestsPassed
+    passedTests: Object.values(testResults).filter((r) => r.passed).length,
+    failedTests: Object.values(testResults).filter((r) => !r.passed).length,
+    allPassed: allTestsPassed,
   },
-  recommendations: []
+  recommendations: [],
 };
 
 // Add recommendations based on results
@@ -98,10 +98,10 @@ console.log(`Overall Status: ${allTestsPassed ? '✅ PASSED' : '❌ FAILED'}`);
 
 if (report.recommendations.length > 0) {
   console.log('\n💡 Recommendations:');
-  report.recommendations.forEach(rec => console.log(`- ${rec}`));
+  report.recommendations.forEach((rec) => console.log(`- ${rec}`));
 }
 
 console.log(`\n📄 Detailed report saved to: ${reportPath}`);
 
 // Exit with appropriate code
-process.exit(allTestsPassed ? 0 : 1); 
+process.exit(allTestsPassed ? 0 : 1);

@@ -1,11 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import {
-  View,
-  Text,
-  Animated,
-  StyleSheet,
-  Dimensions,
-} from 'react-native';
+import { View, Text, Animated, StyleSheet, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 interface EncouragementDisplayProps {
@@ -19,10 +13,7 @@ interface EncouragementDisplayProps {
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-const EncouragementDisplay: React.FC<EncouragementDisplayProps> = ({
-  message,
-  onComplete,
-}) => {
+const EncouragementDisplay: React.FC<EncouragementDisplayProps> = ({ message, onComplete }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0)).current;
   const rotateAnim = useRef(new Animated.Value(0)).current;

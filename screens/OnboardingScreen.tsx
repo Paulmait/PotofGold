@@ -182,7 +182,7 @@ export default function OnboardingScreen({ route }: any) {
       } catch (e) {
         console.log('Haptics error:', e);
       }
-      
+
       Animated.timing(slideAnim, {
         toValue: width,
         duration: 300,
@@ -214,18 +214,18 @@ export default function OnboardingScreen({ route }: any) {
     } catch (e) {
       console.log('Haptics error:', e);
     }
-    
+
     // Call completeOnboarding and wait for it
     await completeOnboarding();
   };
 
   const completeOnboarding = async () => {
     console.log('Completing onboarding...');
-    
+
     try {
       // Save onboarding completion status with session persistence
       await sessionPersistence.completeOnboarding();
-      
+
       // Save onboarding completion status with device tracking
       await markOnboardingCompleted();
       // Also save legacy flags for backward compatibility
@@ -272,10 +272,7 @@ export default function OnboardingScreen({ route }: any) {
         style={[
           styles.stepContainer,
           {
-            transform: [
-              { translateX: slideAnim },
-              { scale: scaleAnim },
-            ],
+            transform: [{ translateX: slideAnim }, { scale: scaleAnim }],
             opacity: fadeAnim,
           },
         ]}
@@ -288,11 +285,7 @@ export default function OnboardingScreen({ route }: any) {
             },
           ]}
         >
-          <Ionicons
-            name={step.icon as any}
-            size={80}
-            color="#FFD700"
-          />
+          <Ionicons name={step.icon as any} size={80} color="#FFD700" />
         </Animated.View>
 
         <Text style={styles.title}>{step.title}</Text>
@@ -301,12 +294,7 @@ export default function OnboardingScreen({ route }: any) {
         {/* Demos for specific steps */}
         {step.id === 1 && (
           <View style={styles.demoContainer}>
-            <Animated.View
-              style={[
-                styles.demoCart,
-                { transform: [{ scale: pulseAnim }] },
-              ]}
-            />
+            <Animated.View style={[styles.demoCart, { transform: [{ scale: pulseAnim }] }]} />
             <Text style={styles.demoText}>👆 Tap to move here</Text>
           </View>
         )}
@@ -356,10 +344,7 @@ export default function OnboardingScreen({ route }: any) {
   };
 
   return (
-    <LinearGradient
-      colors={['#1a1a2e', '#16213e', '#0f3460']}
-      style={styles.container}
-    >
+    <LinearGradient colors={['#1a1a2e', '#16213e', '#0f3460']} style={styles.container}>
       {/* Progress dots */}
       <View style={styles.progressContainer}>
         {onboardingSteps.map((_, index) => (
@@ -382,10 +367,7 @@ export default function OnboardingScreen({ route }: any) {
       )}
 
       {/* Content */}
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {renderStep(onboardingSteps[currentStep])}
       </ScrollView>
 

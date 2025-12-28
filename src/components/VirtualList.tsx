@@ -96,7 +96,7 @@ export const VirtualList = memo(<T extends any>(props: VirtualListProps<T>) => {
   const onViewableItemsChanged = useCallback(
     ({ viewableItems }: { viewableItems: ViewToken[] }) => {
       const newVisibleItems = new Set(
-        viewableItems.map(item => keyExtractor(item.item, item.index!))
+        viewableItems.map((item) => keyExtractor(item.item, item.index!))
       );
       setVisibleItems(newVisibleItems);
 
@@ -124,7 +124,10 @@ export const VirtualList = memo(<T extends any>(props: VirtualListProps<T>) => {
       const isVisible = visibleItems.has(key);
 
       // Render placeholder for non-visible items to maintain scroll position
-      if (!isVisible && Math.abs(info.index * (itemHeight || estimatedItemSize) - scrollOffset) > SCREEN_HEIGHT * 2) {
+      if (
+        !isVisible &&
+        Math.abs(info.index * (itemHeight || estimatedItemSize) - scrollOffset) > SCREEN_HEIGHT * 2
+      ) {
         return (
           <View style={{ height: itemHeight || estimatedItemSize }}>
             {debug && <Text style={styles.placeholder}>Placeholder {info.index}</Text>}
@@ -186,9 +189,7 @@ export const VirtualList = memo(<T extends any>(props: VirtualListProps<T>) => {
       onScroll={handleScroll}
       scrollEventThrottle={16}
       refreshControl={
-        onRefresh ? (
-          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
-        ) : undefined
+        onRefresh ? <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} /> : undefined
       }
       maintainVisibleContentPosition={
         maintainVisibleContentPosition
@@ -267,64 +268,62 @@ interface CollectionGridItemProps {
   onPress: (item: any) => void;
 }
 
-export const CollectionGridItem = memo<CollectionGridItemProps>(
-  ({ item, index, onPress }) => {
-    const handlePress = useCallback(() => {
-      onPress(item);
-    }, [item, onPress]);
+export const CollectionGridItem = memo<CollectionGridItemProps>(({ item, index, onPress }) => {
+  const handlePress = useCallback(() => {
+    onPress(item);
+  }, [item, onPress]);
 
-    const opacity = useMemo(() => (item.unlocked ? 1 : 0.5), [item.unlocked]);
+  const opacity = useMemo(() => (item.unlocked ? 1 : 0.5), [item.unlocked]);
 
-    return (
-      <View style={[styles.gridItem, { opacity }]}>
-        <Text style={styles.gridItemText}>{item.name}</Text>
-        {item.count && <Text style={styles.gridItemCount}>x{item.count}</Text>}
-      </View>
-    );
-  }
-);
+  return (
+    <View style={[styles.gridItem, { opacity }]}>
+      <Text style={styles.gridItemText}>{item.name}</Text>
+      {item.count && <Text style={styles.gridItemCount}>x{item.count}</Text>}
+    </View>
+  );
+});
 
 CollectionGridItem.displayName = 'CollectionGridItem';
 
 // Windowed List for extremely large datasets
-export const WindowedList = memo(<T extends any>(props: {
-  data: T[];
-  renderItem: (item: T, index: number) => React.ReactElement;
-  itemHeight: number;
-  windowHeight?: number;
-}) => {
-  const { data, renderItem, itemHeight, windowHeight = SCREEN_HEIGHT } = props;
-  const [scrollY, setScrollY] = useState(0);
+export const WindowedList = memo(
+  <T extends any>(props: {
+    data: T[];
+    renderItem: (item: T, index: number) => React.ReactElement;
+    itemHeight: number;
+    windowHeight?: number;
+  }) => {
+    const { data, renderItem, itemHeight, windowHeight = SCREEN_HEIGHT } = props;
+    const [scrollY, setScrollY] = useState(0);
 
-  const visibleRange = useMemo(() => {
-    const startIndex = Math.floor(scrollY / itemHeight);
-    const endIndex = Math.ceil((scrollY + windowHeight) / itemHeight);
-    return {
-      start: Math.max(0, startIndex - 5), // Buffer
-      end: Math.min(data.length, endIndex + 5),
-    };
-  }, [scrollY, itemHeight, windowHeight, data.length]);
+    const visibleRange = useMemo(() => {
+      const startIndex = Math.floor(scrollY / itemHeight);
+      const endIndex = Math.ceil((scrollY + windowHeight) / itemHeight);
+      return {
+        start: Math.max(0, startIndex - 5), // Buffer
+        end: Math.min(data.length, endIndex + 5),
+      };
+    }, [scrollY, itemHeight, windowHeight, data.length]);
 
-  const visibleItems = useMemo(
-    () => data.slice(visibleRange.start, visibleRange.end),
-    [data, visibleRange]
-  );
+    const visibleItems = useMemo(
+      () => data.slice(visibleRange.start, visibleRange.end),
+      [data, visibleRange]
+    );
 
-  const spacerHeight = useMemo(
-    () => visibleRange.start * itemHeight,
-    [visibleRange.start, itemHeight]
-  );
+    const spacerHeight = useMemo(
+      () => visibleRange.start * itemHeight,
+      [visibleRange.start, itemHeight]
+    );
 
-  return (
-    <View style={{ height: windowHeight }}>
-      <View style={{ height: spacerHeight }} />
-      {visibleItems.map((item, index) =>
-        renderItem(item, visibleRange.start + index)
-      )}
-      <View style={{ height: (data.length - visibleRange.end) * itemHeight }} />
-    </View>
-  );
-});
+    return (
+      <View style={{ height: windowHeight }}>
+        <View style={{ height: spacerHeight }} />
+        {visibleItems.map((item, index) => renderItem(item, visibleRange.start + index))}
+        <View style={{ height: (data.length - visibleRange.end) * itemHeight }} />
+      </View>
+    );
+  }
+);
 
 WindowedList.displayName = 'WindowedList';
 

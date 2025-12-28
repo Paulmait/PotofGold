@@ -1,9 +1,9 @@
-import Purchases, { 
+import Purchases, {
   PurchasesOffering,
   PurchasesPackage,
   CustomerInfo,
   PurchasesStoreProduct,
-  LOG_LEVEL
+  LOG_LEVEL,
 } from 'react-native-purchases';
 import { Platform } from 'react-native';
 
@@ -19,7 +19,7 @@ class RevenueCatService {
       this.apiKey = Platform.select({
         ios: process.env.REVENUECAT_API_KEY_IOS || '',
         android: process.env.REVENUECAT_API_KEY_ANDROID || '',
-        default: ''
+        default: '',
       });
 
       if (!this.apiKey) {
@@ -34,7 +34,7 @@ class RevenueCatService {
 
       await Purchases.configure({ apiKey: this.apiKey });
       this.initialized = true;
-      
+
       console.log('RevenueCat initialized successfully');
       return true;
     } catch (error) {

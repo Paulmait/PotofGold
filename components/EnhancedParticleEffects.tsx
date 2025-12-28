@@ -1,19 +1,6 @@
 import React, { useEffect, useRef } from 'react';
-import {
-  View,
-  StyleSheet,
-  Animated,
-  Dimensions,
-} from 'react-native';
-import Svg, {
-  Circle,
-  Path,
-  G,
-  Defs,
-  RadialGradient,
-  Stop,
-  Polygon,
-} from 'react-native-svg';
+import { View, StyleSheet, Animated, Dimensions } from 'react-native';
+import Svg, { Circle, Path, G, Defs, RadialGradient, Stop, Polygon } from 'react-native-svg';
 
 const { width, height } = Dimensions.get('window');
 
@@ -33,11 +20,13 @@ export function CoinCollectEffect({ x, y, onComplete }: ParticleEffectProps) {
   const scaleAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const rotateAnim = useRef(new Animated.Value(0)).current;
-  const particles = useRef([...Array(8)].map(() => ({
-    translateX: new Animated.Value(0),
-    translateY: new Animated.Value(0),
-    opacity: new Animated.Value(1),
-  }))).current;
+  const particles = useRef(
+    [...Array(8)].map(() => ({
+      translateX: new Animated.Value(0),
+      translateY: new Animated.Value(0),
+      opacity: new Animated.Value(1),
+    }))
+  ).current;
 
   useEffect(() => {
     // Main coin effect
@@ -63,7 +52,7 @@ export function CoinCollectEffect({ x, y, onComplete }: ParticleEffectProps) {
     particles.forEach((particle, i) => {
       const angle = (i / 8) * Math.PI * 2;
       const distance = 50 + Math.random() * 30;
-      
+
       Animated.parallel([
         Animated.timing(particle.translateX, {
           toValue: Math.cos(angle) * distance,
@@ -100,10 +89,7 @@ export function CoinCollectEffect({ x, y, onComplete }: ParticleEffectProps) {
         style={[
           styles.centerEffect,
           {
-            transform: [
-              { scale: scaleAnim },
-              { rotate: rotation },
-            ],
+            transform: [{ scale: scaleAnim }, { rotate: rotation }],
             opacity: fadeAnim,
           },
         ]}
@@ -132,10 +118,7 @@ export function CoinCollectEffect({ x, y, onComplete }: ParticleEffectProps) {
           style={[
             styles.particle,
             {
-              transform: [
-                { translateX: particle.translateX },
-                { translateY: particle.translateY },
-              ],
+              transform: [{ translateX: particle.translateX }, { translateY: particle.translateY }],
               opacity: particle.opacity,
             },
           ]}
@@ -152,12 +135,14 @@ export function ExplosionEffect({ x, y, onComplete }: ParticleEffectProps) {
   const explosionOpacity = useRef(new Animated.Value(1)).current;
   const shockwaveScale = useRef(new Animated.Value(0)).current;
   const shockwaveOpacity = useRef(new Animated.Value(0.8)).current;
-  const debris = useRef([...Array(12)].map(() => ({
-    x: new Animated.Value(0),
-    y: new Animated.Value(0),
-    rotate: new Animated.Value(0),
-    opacity: new Animated.Value(1),
-  }))).current;
+  const debris = useRef(
+    [...Array(12)].map(() => ({
+      x: new Animated.Value(0),
+      y: new Animated.Value(0),
+      rotate: new Animated.Value(0),
+      opacity: new Animated.Value(1),
+    }))
+  ).current;
 
   useEffect(() => {
     // Shockwave
@@ -200,7 +185,7 @@ export function ExplosionEffect({ x, y, onComplete }: ParticleEffectProps) {
       const angle = (i / 12) * Math.PI * 2;
       const distance = 60 + Math.random() * 40;
       const rotationEnd = Math.random() * 720 - 360;
-      
+
       Animated.parallel([
         Animated.timing(piece.x, {
           toValue: Math.cos(angle) * distance,
@@ -278,10 +263,12 @@ export function ExplosionEffect({ x, y, onComplete }: ParticleEffectProps) {
               transform: [
                 { translateX: piece.x },
                 { translateY: piece.y },
-                { rotate: piece.rotate.interpolate({
-                  inputRange: [-360, 360],
-                  outputRange: ['-360deg', '360deg'],
-                }) },
+                {
+                  rotate: piece.rotate.interpolate({
+                    inputRange: [-360, 360],
+                    outputRange: ['-360deg', '360deg'],
+                  }),
+                },
               ],
               opacity: piece.opacity,
               backgroundColor: i % 3 === 0 ? '#FF6347' : i % 3 === 1 ? '#FFD700' : '#FF4500',
@@ -293,14 +280,21 @@ export function ExplosionEffect({ x, y, onComplete }: ParticleEffectProps) {
   );
 }
 
-export function ComboEffect({ x, y, onComplete, combo = 1 }: ParticleEffectProps & { combo?: number }) {
+export function ComboEffect({
+  x,
+  y,
+  onComplete,
+  combo = 1,
+}: ParticleEffectProps & { combo?: number }) {
   const scaleAnim = useRef(new Animated.Value(0.5)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(20)).current;
-  const stars = useRef([...Array(Math.min(combo, 5))].map(() => ({
-    scale: new Animated.Value(0),
-    rotate: new Animated.Value(0),
-  }))).current;
+  const stars = useRef(
+    [...Array(Math.min(combo, 5))].map(() => ({
+      scale: new Animated.Value(0),
+      rotate: new Animated.Value(0),
+    }))
+  ).current;
 
   useEffect(() => {
     // Main combo text animation
@@ -365,18 +359,13 @@ export function ComboEffect({ x, y, onComplete, combo = 1 }: ParticleEffectProps
         {
           left: x - 75,
           top: y - 50,
-          transform: [
-            { scale: scaleAnim },
-            { translateY },
-          ],
+          transform: [{ scale: scaleAnim }, { translateY }],
           opacity: fadeAnim,
         },
       ]}
     >
       {/* Combo text */}
-      <Text style={[styles.comboText, { color: getComboColor() }]}>
-        COMBO x{combo}!
-      </Text>
+      <Text style={[styles.comboText, { color: getComboColor() }]}>COMBO x{combo}!</Text>
 
       {/* Stars */}
       <View style={styles.starsContainer}>
@@ -388,10 +377,12 @@ export function ComboEffect({ x, y, onComplete, combo = 1 }: ParticleEffectProps
               {
                 transform: [
                   { scale: star.scale },
-                  { rotate: star.rotate.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: ['0deg', '360deg'],
-                  }) },
+                  {
+                    rotate: star.rotate.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: ['0deg', '360deg'],
+                    }),
+                  },
                 ],
               },
             ]}
@@ -532,9 +523,7 @@ export default function EnhancedParticleEffect(props: ParticleEffectProps) {
   }
 }
 
-const Text = ({ children, style }: any) => (
-  <Animated.Text style={style}>{children}</Animated.Text>
-);
+const Text = ({ children, style }: any) => <Animated.Text style={style}>{children}</Animated.Text>;
 
 const styles = StyleSheet.create({
   container: {

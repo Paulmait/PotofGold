@@ -22,9 +22,9 @@ interface LegalConsent {
   acceptedVersion: string;
 }
 
-export const LegalScreen: React.FC<{ navigation: any; onAccept?: () => void }> = ({ 
-  navigation, 
-  onAccept 
+export const LegalScreen: React.FC<{ navigation: any; onAccept?: () => void }> = ({
+  navigation,
+  onAccept,
 }) => {
   const [consent, setConsent] = useState<LegalConsent>({
     termsAccepted: false,
@@ -65,7 +65,7 @@ export const LegalScreen: React.FC<{ navigation: any; onAccept?: () => void }> =
     };
 
     await AsyncStorage.setItem('legal_consent', JSON.stringify(finalConsent));
-    
+
     if (onAccept) {
       onAccept();
     } else {
@@ -158,7 +158,7 @@ Address: [Your Business Address]`}
         <View style={styles.consentRow}>
           <Switch
             value={consent.termsAccepted}
-            onValueChange={(value) => setConsent({...consent, termsAccepted: value})}
+            onValueChange={(value) => setConsent({ ...consent, termsAccepted: value })}
           />
           <Text style={styles.consentText}>I accept the Terms of Service</Text>
         </View>
@@ -267,7 +267,7 @@ California: privacy.ca.gov`}
         <View style={styles.consentRow}>
           <Switch
             value={consent.privacyAccepted}
-            onValueChange={(value) => setConsent({...consent, privacyAccepted: value})}
+            onValueChange={(value) => setConsent({ ...consent, privacyAccepted: value })}
           />
           <Text style={styles.consentText}>I accept the Privacy Policy</Text>
         </View>
@@ -282,7 +282,7 @@ California: privacy.ca.gov`}
         <View style={styles.consentRow}>
           <Switch
             value={consent.ageVerified}
-            onValueChange={(value) => setConsent({...consent, ageVerified: value})}
+            onValueChange={(value) => setConsent({ ...consent, ageVerified: value })}
           />
           <Text style={styles.consentText}>I am 13 years or older</Text>
         </View>
@@ -294,11 +294,11 @@ California: privacy.ca.gov`}
       {/* OPTIONAL CONSENTS */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Optional Permissions</Text>
-        
+
         <View style={styles.consentRow}>
           <Switch
             value={consent.marketingOptIn}
-            onValueChange={(value) => setConsent({...consent, marketingOptIn: value})}
+            onValueChange={(value) => setConsent({ ...consent, marketingOptIn: value })}
           />
           <Text style={styles.consentText}>
             Send me news and special offers (you can unsubscribe anytime)
@@ -308,7 +308,7 @@ California: privacy.ca.gov`}
         <View style={styles.consentRow}>
           <Switch
             value={consent.dataProcessingConsent}
-            onValueChange={(value) => setConsent({...consent, dataProcessingConsent: value})}
+            onValueChange={(value) => setConsent({ ...consent, dataProcessingConsent: value })}
           />
           <Text style={styles.consentText}>
             Use my gameplay data to improve the game experience
@@ -319,45 +319,40 @@ California: privacy.ca.gov`}
       {/* IMPORTANT DISCLAIMERS */}
       <View style={styles.disclaimerSection}>
         <Text style={styles.disclaimerTitle}>⚠️ Important Disclaimers</Text>
-        
-        <Text style={styles.disclaimerText}>
-          • This game contains optional in-app purchases
-        </Text>
-        <Text style={styles.disclaimerText}>
-          • Virtual items have no real money value
-        </Text>
-        <Text style={styles.disclaimerText}>
-          • Game requires internet connection
-        </Text>
+
+        <Text style={styles.disclaimerText}>• This game contains optional in-app purchases</Text>
+        <Text style={styles.disclaimerText}>• Virtual items have no real money value</Text>
+        <Text style={styles.disclaimerText}>• Game requires internet connection</Text>
         <Text style={styles.disclaimerText}>
           • Contains advertisements (can be removed via purchase)
         </Text>
-        <Text style={styles.disclaimerText}>
-          • Not intended as gambling - no real money prizes
-        </Text>
-        <Text style={styles.disclaimerText}>
-          • Gameplay data may be used for analytics
-        </Text>
-        <Text style={styles.disclaimerText}>
-          • Subject to platform terms (Apple/Google)
-        </Text>
+        <Text style={styles.disclaimerText}>• Not intended as gambling - no real money prizes</Text>
+        <Text style={styles.disclaimerText}>• Gameplay data may be used for analytics</Text>
+        <Text style={styles.disclaimerText}>• Subject to platform terms (Apple/Google)</Text>
       </View>
 
       {/* MEDICAL DISCLAIMER */}
       <View style={styles.disclaimerSection}>
         <Text style={styles.disclaimerTitle}>Medical & Safety Warning</Text>
         <Text style={styles.warningText}>
-          A small percentage of people may experience seizures when exposed to certain visual images, including flashing lights or patterns. If you or anyone in your family has an epileptic condition, consult your physician before playing.
+          A small percentage of people may experience seizures when exposed to certain visual
+          images, including flashing lights or patterns. If you or anyone in your family has an
+          epileptic condition, consult your physician before playing.
         </Text>
         <Text style={styles.warningText}>
-          Take regular breaks. Stop playing if you experience: dizziness, altered vision, eye or muscle twitches, loss of awareness, disorientation, or any involuntary movement.
+          Take regular breaks. Stop playing if you experience: dizziness, altered vision, eye or
+          muscle twitches, loss of awareness, disorientation, or any involuntary movement.
         </Text>
       </View>
 
       {/* PLATFORM POLICIES */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Platform Policies</Text>
-        <TouchableOpacity onPress={() => openLink('https://www.apple.com/legal/internet-services/itunes/dev/stdeula/')}>
+        <TouchableOpacity
+          onPress={() =>
+            openLink('https://www.apple.com/legal/internet-services/itunes/dev/stdeula/')
+          }
+        >
           <Text style={styles.link}>Apple App Store EULA →</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => openLink('https://play.google.com/about/play-terms/')}>
@@ -368,33 +363,46 @@ California: privacy.ca.gov`}
       {/* YOUR RIGHTS */}
       <View style={styles.rightsSection}>
         <Text style={styles.sectionTitle}>Your Rights & Controls</Text>
-        
-        <TouchableOpacity style={styles.rightButton} onPress={() => navigation.navigate('DataRequest')}>
+
+        <TouchableOpacity
+          style={styles.rightButton}
+          onPress={() => navigation.navigate('DataRequest')}
+        >
           <Ionicons name="download-outline" size={20} />
           <Text style={styles.rightButtonText}>Request My Data</Text>
         </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.rightButton} onPress={() => navigation.navigate('DeleteAccount')}>
+
+        <TouchableOpacity
+          style={styles.rightButton}
+          onPress={() => navigation.navigate('DeleteAccount')}
+        >
           <Ionicons name="trash-outline" size={20} />
           <Text style={styles.rightButtonText}>Delete My Account</Text>
         </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.rightButton} onPress={() => navigation.navigate('ManageConsent')}>
+
+        <TouchableOpacity
+          style={styles.rightButton}
+          onPress={() => navigation.navigate('ManageConsent')}
+        >
           <Ionicons name="settings-outline" size={20} />
           <Text style={styles.rightButtonText}>Manage Privacy Settings</Text>
         </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.rightButton} onPress={() => openLink('mailto:privacy@cienrios.com')}>
+
+        <TouchableOpacity
+          style={styles.rightButton}
+          onPress={() => openLink('mailto:privacy@cienrios.com')}
+        >
           <Ionicons name="mail-outline" size={20} />
           <Text style={styles.rightButtonText}>Contact Privacy Team</Text>
         </TouchableOpacity>
       </View>
 
       {/* ACCEPT BUTTON */}
-      <TouchableOpacity 
+      <TouchableOpacity
         style={[
           styles.acceptButton,
-          (!consent.termsAccepted || !consent.privacyAccepted || !consent.ageVerified) && styles.acceptButtonDisabled
+          (!consent.termsAccepted || !consent.privacyAccepted || !consent.ageVerified) &&
+            styles.acceptButtonDisabled,
         ]}
         onPress={handleAccept}
         disabled={!consent.termsAccepted || !consent.privacyAccepted || !consent.ageVerified}
@@ -406,9 +414,7 @@ California: privacy.ca.gov`}
 
       {/* FOOTER */}
       <View style={styles.footer}>
-        <Text style={styles.footerText}>
-          © 2024 Cien Rios LLC. All rights reserved.
-        </Text>
+        <Text style={styles.footerText}>© 2024 Cien Rios LLC. All rights reserved.</Text>
         <Text style={styles.footerText}>
           Version 1.0.0 | Last Updated: {new Date().toLocaleDateString()}
         </Text>

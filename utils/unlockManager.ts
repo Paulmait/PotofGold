@@ -20,7 +20,16 @@ export interface SkinConfig {
   rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary' | 'seasonal';
   seasonalEvent?: string;
   condition: {
-    type: 'level' | 'score' | 'coins' | 'games' | 'survival' | 'items' | 'achievement' | 'seasonal' | 'invite';
+    type:
+      | 'level'
+      | 'score'
+      | 'coins'
+      | 'games'
+      | 'survival'
+      | 'items'
+      | 'achievement'
+      | 'seasonal'
+      | 'invite';
     value: number | string;
     itemType?: string;
   };
@@ -42,36 +51,36 @@ export class UnlockManager {
       startMonth: 2, // February
       endMonth: 2,
       states: ['georgia', 'alabama', 'mississippi', 'louisiana'],
-      description: 'Celebrate Black History Month'
+      description: 'Celebrate Black History Month',
     },
     'hispanic-heritage-month': {
       name: 'Hispanic Heritage Month',
       startMonth: 9, // September 15 - October 15
       endMonth: 10,
       states: ['california', 'texas', 'new_mexico', 'arizona', 'florida'],
-      description: 'Celebrate Hispanic Heritage'
+      description: 'Celebrate Hispanic Heritage',
     },
     'presidents-day': {
       name: 'Presidents Day',
       startMonth: 2,
       endMonth: 2,
       states: ['illinois', 'virginia', 'ohio', 'massachusetts'],
-      description: 'Honor U.S. Presidents'
+      description: 'Honor U.S. Presidents',
     },
     'independence-day': {
       name: 'Independence Day',
       startMonth: 7,
       endMonth: 7,
       states: ['pennsylvania', 'massachusetts', 'virginia', 'delaware'],
-      description: 'Celebrate Independence Day'
+      description: 'Celebrate Independence Day',
     },
-    'thanksgiving': {
+    thanksgiving: {
       name: 'Thanksgiving',
       startMonth: 11,
       endMonth: 11,
       states: ['massachusetts', 'pennsylvania', 'virginia'],
-      description: 'Give thanks with special unlocks'
-    }
+      description: 'Give thanks with special unlocks',
+    },
   };
 
   /**
@@ -83,33 +92,33 @@ export class UnlockManager {
     switch (condition.type) {
       case 'level':
         return userData.level >= (condition.value as number);
-      
+
       case 'score':
         return userData.score >= (condition.value as number);
-      
+
       case 'coins':
         return userData.coins >= (condition.value as number);
-      
+
       case 'games':
         return userData.gamesPlayed >= (condition.value as number);
-      
+
       case 'survival':
         return userData.survivalTime >= (condition.value as number);
-      
+
       case 'items':
         const itemType = condition.itemType || skinConfig.id;
         return (userData.itemsCollected[itemType] || 0) >= (condition.value as number);
-      
+
       case 'achievement':
         return userData.achievements.includes(condition.value as string);
-      
+
       case 'seasonal':
         return this.isSeasonalEventActive(condition.value as string);
-      
+
       case 'invite':
         // This would be handled separately in the invite system
         return false;
-      
+
       default:
         return false;
     }
@@ -137,7 +146,7 @@ export class UnlockManager {
    * Get currently active seasonal events
    */
   static getActiveSeasonalEvents(): string[] {
-    return Object.keys(this.seasonalEvents).filter(eventId => 
+    return Object.keys(this.seasonalEvents).filter((eventId) =>
       this.isSeasonalEventActive(eventId)
     );
   }
@@ -149,7 +158,7 @@ export class UnlockManager {
     const activeEvents = this.getActiveSeasonalEvents();
     const seasonalSkins: string[] = [];
 
-    activeEvents.forEach(eventId => {
+    activeEvents.forEach((eventId) => {
       const event = this.seasonalEvents[eventId as keyof typeof this.seasonalEvents];
       if (event) {
         seasonalSkins.push(...event.states);
@@ -184,7 +193,7 @@ export class UnlockManager {
           const success = await FirebaseUnlockSystem.unlockSkin(skinConfig.id, skinConfig);
           if (success) {
             newlyUnlocked.push(skinConfig.id);
-            
+
             // Haptic feedback for unlock
             HapticFeedback.achievementUnlock();
           }
@@ -207,37 +216,40 @@ export class UnlockManager {
   } | null> {
     try {
       const dropChance = Math.random();
-      
-      if (dropChance < 0.05) { // 5% chance for skin
+
+      if (dropChance < 0.05) {
+        // 5% chance for skin
         // Get all unlocked skins
         const unlockedSkins = await FirebaseUnlockSystem.getUnlocks();
         const availableSkins = Object.keys(unlockedSkins);
-        
+
         if (availableSkins.length > 0) {
           const randomSkin = availableSkins[Math.floor(Math.random() * availableSkins.length)];
           return {
             type: 'skin',
             value: randomSkin,
-            rarity: 'epic'
+            rarity: 'epic',
           };
         }
-      } else if (dropChance < 0.15) { // 10% chance for powerup
+      } else if (dropChance < 0.15) {
+        // 10% chance for powerup
         const powerups = ['speedBoost', 'magnetPull', 'explosion', 'frenzyMode'];
         const randomPowerup = powerups[Math.floor(Math.random() * powerups.length)];
         return {
           type: 'powerup',
           value: randomPowerup,
-          rarity: 'rare'
+          rarity: 'rare',
         };
-      } else if (dropChance < 0.35) { // 20% chance for coins
+      } else if (dropChance < 0.35) {
+        // 20% chance for coins
         const coinAmount = Math.floor(Math.random() * 100) + 50; // 50-150 coins
         return {
           type: 'coins',
           value: coinAmount,
-          rarity: 'common'
+          rarity: 'common',
         };
       }
-      
+
       return null;
     } catch (error) {
       console.error('Error generating mystery crate:', error);
@@ -249,7 +261,7 @@ export class UnlockManager {
    * Process mystery crate reward
    */
   static async processMysteryCrate(
-    userId: string, 
+    userId: string,
     crate: { type: string; value: string | number; rarity: string }
   ): Promise<boolean> {
     try {
@@ -257,17 +269,17 @@ export class UnlockManager {
         case 'skin':
           // The skin is already unlocked, just notify user
           return true;
-        
+
         case 'coins':
           // Add coins to user account
           // This would be handled by the game's coin system
           return true;
-        
+
         case 'powerup':
           // Add powerup to user inventory
           // This would be handled by the game's powerup system
           return true;
-        
+
         default:
           return false;
       }
@@ -280,7 +292,10 @@ export class UnlockManager {
   /**
    * Get unlock progress for a specific skin
    */
-  static getUnlockProgress(userData: UserData, skinConfig: SkinConfig): {
+  static getUnlockProgress(
+    userData: UserData,
+    skinConfig: SkinConfig
+  ): {
     current: number;
     required: number;
     percentage: number;
@@ -343,4 +358,4 @@ export class UnlockManager {
   static getAllSeasonalEvents() {
     return this.seasonalEvents;
   }
-} 
+}

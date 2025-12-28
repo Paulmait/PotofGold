@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Dimensions,
-} from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import GoldRushItem from '../components/GoldRushItems';
@@ -15,15 +8,9 @@ const { width } = Dimensions.get('window');
 
 export default function HowToPlayScreen({ navigation }: any) {
   return (
-    <LinearGradient
-      colors={['#1a1a2e', '#16213e', '#0f3460']}
-      style={styles.container}
-    >
+    <LinearGradient colors={['#1a1a2e', '#16213e', '#0f3460']} style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color="#FFD700" />
         </TouchableOpacity>
         <Text style={styles.title}>How to Play</Text>
@@ -34,9 +21,8 @@ export default function HowToPlayScreen({ navigation }: any) {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>🎯 Game Objective</Text>
           <Text style={styles.description}>
-            Control your mine cart to collect falling treasures while avoiding bombs!
-            Build combos, collect power-ups, and survive as long as possible to achieve
-            the highest score!
+            Control your mine cart to collect falling treasures while avoiding bombs! Build combos,
+            collect power-ups, and survive as long as possible to achieve the highest score!
           </Text>
         </View>
 
@@ -60,7 +46,7 @@ export default function HowToPlayScreen({ navigation }: any) {
         {/* Items */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>💎 Collectibles</Text>
-          
+
           <View style={styles.itemRow}>
             <View style={styles.itemDisplay}>
               <GoldRushItem type="coin" size={40} isAnimated={false} />
@@ -115,7 +101,7 @@ export default function HowToPlayScreen({ navigation }: any) {
         {/* Dangers */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>⚠️ Dangers</Text>
-          
+
           <View style={styles.itemRow}>
             <View style={styles.itemDisplay}>
               <GoldRushItem type="bomb" size={40} isAnimated={false} />
@@ -137,7 +123,7 @@ export default function HowToPlayScreen({ navigation }: any) {
         {/* Power-ups */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>⚡ Power-ups</Text>
-          
+
           <View style={styles.powerupItem}>
             <Ionicons name="magnet" size={30} color="#FFD700" />
             <View style={styles.powerupInfo}>
@@ -179,20 +165,14 @@ export default function HowToPlayScreen({ navigation }: any) {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>❤️ Lives System</Text>
           <Text style={styles.description}>
-            You start with 5 lives. Lives regenerate 1 every 20 minutes.
-            Watch ads or use coins to get extra lives instantly!
+            You start with 5 lives. Lives regenerate 1 every 20 minutes. Watch ads or use coins to
+            get extra lives instantly!
           </Text>
         </View>
 
         {/* Play Button */}
-        <TouchableOpacity
-          style={styles.playButton}
-          onPress={() => navigation.navigate('Game')}
-        >
-          <LinearGradient
-            colors={['#FFD700', '#FFA500']}
-            style={styles.playButtonGradient}
-          >
+        <TouchableOpacity style={styles.playButton} onPress={() => navigation.navigate('Game')}>
+          <LinearGradient colors={['#FFD700', '#FFA500']} style={styles.playButtonGradient}>
             <Text style={styles.playButtonText}>Start Playing!</Text>
           </LinearGradient>
         </TouchableOpacity>

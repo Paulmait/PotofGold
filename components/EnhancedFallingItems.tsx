@@ -1,12 +1,5 @@
 import React, { useEffect, useRef, useMemo } from 'react';
-import {
-  View,
-  StyleSheet,
-  Animated,
-  Dimensions,
-  Text,
-  Image,
-} from 'react-native';
+import { View, StyleSheet, Animated, Dimensions, Text, Image } from 'react-native';
 import { ITEM_CONFIGS } from '../utils/itemConfig';
 import * as Haptics from 'expo-haptics';
 
@@ -33,25 +26,27 @@ interface EnhancedFallingItemsProps {
   magnetPosition?: { x: number; y: number };
 }
 
-export default function EnhancedFallingItems({ 
-  items, 
-  onItemCollect, 
+export default function EnhancedFallingItems({
+  items,
+  onItemCollect,
   onItemMiss,
   isPaused,
   magnetActive,
-  magnetPosition 
+  magnetPosition,
 }: EnhancedFallingItemsProps) {
-  const itemAnimations = useRef<{ [key: string]: {
-    y: Animated.Value;
-    x: Animated.Value;
-    rotation: Animated.Value;
-    scale: Animated.Value;
-    opacity: Animated.Value;
-  } }>({}).current;
+  const itemAnimations = useRef<{
+    [key: string]: {
+      y: Animated.Value;
+      x: Animated.Value;
+      rotation: Animated.Value;
+      scale: Animated.Value;
+      opacity: Animated.Value;
+    };
+  }>({}).current;
 
   // Initialize animations for new items
   useEffect(() => {
-    items.forEach(item => {
+    items.forEach((item) => {
       if (!itemAnimations[item.id]) {
         const config = ITEM_CONFIGS[item.type];
         if (!config) return;
@@ -96,16 +91,16 @@ export default function EnhancedFallingItems({
         // Main falling animation
         if (!isPaused) {
           const fallDuration = (height - item.y) / (item.speed * 100);
-          
+
           // Check for magnet effect
           if (magnetActive && magnetPosition && isGoodItem(item.type)) {
             // Calculate magnetic pull
             const distance = Math.sqrt(
-              Math.pow(item.x - magnetPosition.x, 2) + 
-              Math.pow(item.y - magnetPosition.y, 2)
+              Math.pow(item.x - magnetPosition.x, 2) + Math.pow(item.y - magnetPosition.y, 2)
             );
-            
-            if (distance < 150) { // Magnet radius
+
+            if (distance < 150) {
+              // Magnet radius
               // Animate to magnet position
               Animated.parallel([
                 Animated.timing(anims.x, {
@@ -136,7 +131,7 @@ export default function EnhancedFallingItems({
 
   // Pause/resume animations
   useEffect(() => {
-    Object.values(itemAnimations).forEach(anims => {
+    Object.values(itemAnimations).forEach((anims) => {
       if (isPaused) {
         anims.y.stopAnimation();
         anims.x.stopAnimation();
@@ -189,10 +184,12 @@ export default function EnhancedFallingItems({
             transform: [
               { translateX: anims.x },
               { translateY: anims.y },
-              { rotate: anims.rotation.interpolate({
-                inputRange: [0, 360],
-                outputRange: ['0deg', '360deg'],
-              })},
+              {
+                rotate: anims.rotation.interpolate({
+                  inputRange: [0, 360],
+                  outputRange: ['0deg', '360deg'],
+                }),
+              },
               { scale: anims.scale },
             ],
             opacity: anims.opacity,
@@ -204,7 +201,7 @@ export default function EnhancedFallingItems({
           <View
             style={[
               styles.rarityGlow,
-              { 
+              {
                 backgroundColor: rarityColors[item.rarity],
                 shadowColor: rarityColors[item.rarity],
               },
@@ -218,7 +215,7 @@ export default function EnhancedFallingItems({
             source={{ uri: config.assetPath }}
             style={[
               styles.itemImage,
-              { 
+              {
                 width: 40 * (config.size || 1),
                 height: 40 * (config.size || 1),
               },
@@ -234,9 +231,7 @@ export default function EnhancedFallingItems({
         {/* Special effect indicators */}
         {config.specialEffect && (
           <View style={styles.effectIndicator}>
-            <Text style={styles.effectText}>
-              {getEffectSymbol(config.specialEffect)}
-            </Text>
+            <Text style={styles.effectText}>{getEffectSymbol(config.specialEffect)}</Text>
           </View>
         )}
       </Animated.View>

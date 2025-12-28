@@ -98,7 +98,7 @@ export class MetaGameSystem {
   async initializeMetaGame(userId: string): Promise<MetaGameProgress> {
     try {
       const offlineData = await offlineManager.getOfflineData(userId);
-      
+
       if (offlineData.metaGame) {
         this.progress = offlineData.metaGame;
         return this.progress;
@@ -308,13 +308,13 @@ export class MetaGameSystem {
   }> {
     if (!this.progress) return { success: false, newLevel: 0, cost: 0, effects: {} };
 
-    const building = this.progress.camp.buildings.find(b => b.id === buildingId);
+    const building = this.progress.camp.buildings.find((b) => b.id === buildingId);
     if (!building || building.level >= building.maxLevel) {
       return { success: false, newLevel: building?.level || 0, cost: 0, effects: {} };
     }
 
     const upgradeCost = building.cost * Math.pow(1.5, building.level - 1);
-    
+
     if (this.progress.currency.coins < upgradeCost) {
       return { success: false, newLevel: building.level, cost: upgradeCost, effects: {} };
     }
@@ -349,14 +349,14 @@ export class MetaGameSystem {
   }> {
     if (!this.progress) return { success: false, item: null, remainingCurrency: 0 };
 
-    const item = this.progress.shop.availableItems.find(i => i.id === itemId);
+    const item = this.progress.shop.availableItems.find((i) => i.id === itemId);
     if (!item || !item.available) {
       return { success: false, item: null, remainingCurrency: this.progress.currency.coins };
     }
 
-    const currencyKey = item.currency === 'coins' ? 'coins' : 
-                       item.currency === 'gems' ? 'gems' : 'premiumCurrency';
-    
+    const currencyKey =
+      item.currency === 'coins' ? 'coins' : item.currency === 'gems' ? 'gems' : 'premiumCurrency';
+
     if (this.progress.currency[currencyKey] < item.price) {
       return { success: false, item: null, remainingCurrency: this.progress.currency[currencyKey] };
     }
@@ -409,7 +409,7 @@ export class MetaGameSystem {
       rarity: item.rarity as any,
       price: item.price,
       effects: item.effects,
-      visualEffects: item.effects.filter(e => e.includes('visual') || e.includes('trail')),
+      visualEffects: item.effects.filter((e) => e.includes('visual') || e.includes('trail')),
       unlocked: true,
       image: item.image,
     };
@@ -446,7 +446,7 @@ export class MetaGameSystem {
   async equipSkin(skinId: string): Promise<boolean> {
     if (!this.progress) return false;
 
-    const skin = this.progress.pots.ownedSkins.find(s => s.id === skinId);
+    const skin = this.progress.pots.ownedSkins.find((s) => s.id === skinId);
     if (!skin) return false;
 
     this.progress.pots.currentSkin = skin;
@@ -458,7 +458,7 @@ export class MetaGameSystem {
   async equipPot(potId: string): Promise<boolean> {
     if (!this.progress) return false;
 
-    const pot = this.progress.pots.ownedPots.find(p => p.id === potId);
+    const pot = this.progress.pots.ownedPots.find((p) => p.id === potId);
     if (!pot) return false;
 
     this.progress.pots.currentPot = pot;
@@ -471,11 +471,13 @@ export class MetaGameSystem {
     if (!this.progress) return;
 
     this.progress.camp.totalCoinGeneration = this.progress.camp.buildings.reduce(
-      (total, building) => total + building.effects.coinGeneration, 0
+      (total, building) => total + building.effects.coinGeneration,
+      0
     );
 
     this.progress.camp.totalExperienceBonus = this.progress.camp.buildings.reduce(
-      (total, building) => total + building.effects.experienceBonus, 0
+      (total, building) => total + building.effects.experienceBonus,
+      0
     );
   }
 
@@ -532,7 +534,7 @@ export class MetaGameSystem {
   // Get available shop items
   getAvailableShopItems(): ShopItem[] {
     if (!this.progress) return [];
-    return this.progress.shop.availableItems.filter(item => item.available);
+    return this.progress.shop.availableItems.filter((item) => item.available);
   }
 
   // Get owned skins
@@ -560,4 +562,4 @@ export class MetaGameSystem {
   }
 }
 
-export const metaGameSystem = MetaGameSystem.getInstance(); 
+export const metaGameSystem = MetaGameSystem.getInstance();

@@ -22,10 +22,10 @@ const MagnetEffect: React.FC<MagnetEffectProps> = ({
   const animY = useRef(new Animated.Value(itemY)).current;
   const scale = useRef(new Animated.Value(1)).current;
   const opacity = useRef(new Animated.Value(1)).current;
-  
+
   useEffect(() => {
     if (!isActive) return;
-    
+
     // Animate item being pulled to cart
     Animated.parallel([
       Animated.timing(animX, {
@@ -60,20 +60,16 @@ const MagnetEffect: React.FC<MagnetEffectProps> = ({
       onComplete();
     });
   }, [isActive, cartX, cartY]);
-  
+
   if (!isActive) return null;
-  
+
   return (
     <Animated.View
       style={[
         styles.magnetLine,
         {
           opacity,
-          transform: [
-            { translateX: animX },
-            { translateY: animY },
-            { scale },
-          ],
+          transform: [{ translateX: animX }, { translateY: animY }, { scale }],
         },
       ]}
     >

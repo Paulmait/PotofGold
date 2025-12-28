@@ -17,12 +17,12 @@ interface MineCartProps {
   };
 }
 
-export default function MineCart({ 
-  position, 
-  size, 
-  isTurboActive = false, 
+export default function MineCart({
+  position,
+  size,
+  isTurboActive = false,
   onWheelSpin,
-  activeSkin 
+  activeSkin,
 }: MineCartProps) {
   const wheelSpinAnimation = new Animated.Value(0);
 
@@ -237,10 +237,10 @@ export default function MineCart({
       <View style={[styles.cartBody, { width: size, height: size * 0.67 }]}>
         {/* Flag Skin Overlay */}
         {renderFlagSkin()}
-        
+
         {/* Shape Skin Emblem */}
         {renderShapeSkin()}
-        
+
         {/* Cart Details */}
         <View style={styles.cartDetails}>
           <View style={styles.cartFront}>
@@ -258,23 +258,23 @@ export default function MineCart({
 
       {/* Wheels */}
       <View style={styles.wheelsContainer}>
-        <Animated.View 
+        <Animated.View
           style={[
-            styles.wheel, 
-            { 
+            styles.wheel,
+            {
               left: size * 0.2,
-              transform: [{ rotate: wheelRotation }]
-            }
-          ]} 
+              transform: [{ rotate: wheelRotation }],
+            },
+          ]}
         />
-        <Animated.View 
+        <Animated.View
           style={[
-            styles.wheel, 
-            { 
+            styles.wheel,
+            {
               right: size * 0.2,
-              transform: [{ rotate: wheelRotation }]
-            }
-          ]} 
+              transform: [{ rotate: wheelRotation }],
+            },
+          ]}
         />
       </View>
 
@@ -563,4 +563,4 @@ const styles = StyleSheet.create({
   turboText: {
     fontSize: 16,
   },
-}); 
+});

@@ -1,22 +1,16 @@
 import React, { useEffect, useRef } from 'react';
-import {
-  View,
-  StyleSheet,
-  Animated,
-  Dimensions,
-  Platform,
-} from 'react-native';
-import Svg, { 
-  Path, 
-  Rect, 
-  Circle, 
-  G, 
-  Defs, 
-  LinearGradient, 
+import { View, StyleSheet, Animated, Dimensions, Platform } from 'react-native';
+import Svg, {
+  Path,
+  Rect,
+  Circle,
+  G,
+  Defs,
+  LinearGradient,
   Stop,
   RadialGradient,
   Ellipse,
-  Polygon
+  Polygon,
 } from 'react-native-svg';
 
 const { width: screenWidth } = Dimensions.get('window');
@@ -181,9 +175,7 @@ export default function GoldRushCart({
       style={[
         styles.container,
         {
-          transform: [
-            { translateY: cartBounce },
-          ],
+          transform: [{ translateY: cartBounce }],
         },
       ]}
     >
@@ -194,10 +186,14 @@ export default function GoldRushCart({
             styles.glowEffect,
             {
               opacity: glowAnim,
-              transform: [{ scale: glowAnim.interpolate({
-                inputRange: [0.3, 1],
-                outputRange: [1, 1.3],
-              })}],
+              transform: [
+                {
+                  scale: glowAnim.interpolate({
+                    inputRange: [0.3, 1],
+                    outputRange: [1, 1.3],
+                  }),
+                },
+              ],
             },
           ]}
         />
@@ -210,7 +206,7 @@ export default function GoldRushCart({
             <Stop offset="0%" stopColor={colors.primary} stopOpacity="1" />
             <Stop offset="100%" stopColor={colors.secondary} stopOpacity="1" />
           </LinearGradient>
-          
+
           {/* Metal gradient for wheels and details */}
           <LinearGradient id="metal" x1="0%" y1="0%" x2="100%" y2="100%">
             <Stop offset="0%" stopColor={colors.metal} stopOpacity="1" />
@@ -238,7 +234,7 @@ export default function GoldRushCart({
             stroke={colors.accent}
             strokeWidth="2"
           />
-          
+
           {/* Cart front panel */}
           <Path
             d="M 25 50 L 20 25 L 15 30 L 22 52 Z"
@@ -246,7 +242,7 @@ export default function GoldRushCart({
             stroke={colors.accent}
             strokeWidth="1"
           />
-          
+
           {/* Cart back panel */}
           <Path
             d="M 75 50 L 80 25 L 85 30 L 78 52 Z"
@@ -275,9 +271,7 @@ export default function GoldRushCart({
 
           {/* Premium skin sparkles */}
           {skin !== 'default' && (
-            <AnimatedG
-              opacity={sparkleAnim}
-            >
+            <AnimatedG opacity={sparkleAnim}>
               <Circle cx="30" cy="28" r="1" fill="#FFFFFF" />
               <Circle cx="70" cy="32" r="1" fill="#FFFFFF" />
               <Circle cx="50" cy="45" r="1" fill="#FFFFFF" />
@@ -290,10 +284,7 @@ export default function GoldRushCart({
         {/* Wheels */}
         <G>
           {/* Left wheel */}
-          <AnimatedG
-            transform={`rotate(${wheelRotationDeg}, 25, 60)`}
-            origin="25, 60"
-          >
+          <AnimatedG transform={`rotate(${wheelRotationDeg}, 25, 60)`} origin="25, 60">
             <Circle cx="25" cy="60" r="8" fill="url(#metal)" stroke="#2C2C2C" strokeWidth="1" />
             <Circle cx="25" cy="60" r="6" fill="#3C3C3C" />
             {/* Wheel spokes */}
@@ -302,10 +293,7 @@ export default function GoldRushCart({
           </AnimatedG>
 
           {/* Right wheel */}
-          <AnimatedG
-            transform={`rotate(${wheelRotationDeg}, 75, 60)`}
-            origin="75, 60"
-          >
+          <AnimatedG transform={`rotate(${wheelRotationDeg}, 75, 60)`} origin="75, 60">
             <Circle cx="75" cy="60" r="8" fill="url(#metal)" stroke="#2C2C2C" strokeWidth="1" />
             <Circle cx="75" cy="60" r="6" fill="#3C3C3C" />
             {/* Wheel spokes */}

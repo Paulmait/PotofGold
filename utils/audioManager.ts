@@ -165,13 +165,10 @@ class AudioManager {
     // Load sound effects
     for (const [key, config] of Object.entries(soundConfigs)) {
       try {
-        const { sound } = await Audio.Sound.createAsync(
-          config.file,
-          {
-            shouldPlay: false,
-            volume: config.volume * this.soundVolume * this.masterVolume,
-          }
-        );
+        const { sound } = await Audio.Sound.createAsync(config.file, {
+          shouldPlay: false,
+          volume: config.volume * this.soundVolume * this.masterVolume,
+        });
         this.sounds[key as keyof SoundEffects] = sound;
       } catch (error) {
         console.warn(`Failed to load sound ${key}:`, error);
@@ -181,14 +178,11 @@ class AudioManager {
     // Load music tracks
     for (const [key, config] of Object.entries(musicConfigs)) {
       try {
-        const { sound } = await Audio.Sound.createAsync(
-          config.file,
-          {
-            shouldPlay: false,
-            isLooping: config.shouldLoop || false,
-            volume: config.volume * this.musicVolume * this.masterVolume,
-          }
-        );
+        const { sound } = await Audio.Sound.createAsync(config.file, {
+          shouldPlay: false,
+          isLooping: config.shouldLoop || false,
+          volume: config.volume * this.musicVolume * this.masterVolume,
+        });
         this.music[key as keyof MusicTracks] = sound;
       } catch (error) {
         console.warn(`Failed to load music ${key}:`, error);
@@ -360,7 +354,7 @@ class AudioManager {
 
   // Special effect methods
   async playComboSound(comboCount: number) {
-    const pitch = Math.min(1.5, 1 + (comboCount * 0.1));
+    const pitch = Math.min(1.5, 1 + comboCount * 0.1);
     await this.playSound('comboIncrease', { pitch, volume: Math.min(1, 0.5 + comboCount * 0.05) });
   }
 

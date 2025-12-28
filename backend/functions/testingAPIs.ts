@@ -9,11 +9,11 @@ import { db, sanitizeInput, performanceMonitor } from '../firebaseConfig';
 
 // Testing environments
 export enum TestEnvironment {
-  INTERNAL = 'internal',     // Dev team only
-  ALPHA = 'alpha',           // Internal + close partners
-  BETA = 'beta',             // External testers
-  STAGING = 'staging',       // Pre-production
-  PRODUCTION = 'production'  // Live
+  INTERNAL = 'internal', // Dev team only
+  ALPHA = 'alpha', // Internal + close partners
+  BETA = 'beta', // External testers
+  STAGING = 'staging', // Pre-production
+  PRODUCTION = 'production', // Live
 }
 
 // Tester roles
@@ -24,7 +24,7 @@ export enum TesterRole {
   ALPHA_TESTER = 'alpha_tester',
   BETA_TESTER = 'beta_tester',
   VIP_TESTER = 'vip_tester',
-  INFLUENCER = 'influencer'
+  INFLUENCER = 'influencer',
 }
 
 // ========== TEST ACCOUNT MANAGEMENT ==========
@@ -34,12 +34,12 @@ export enum TesterRole {
  */
 export const createTestAccount = functions.https.onCall(async (data, context) => {
   // Only admins can create test accounts
-  if (!context.auth || !await isAdmin(context.auth.uid)) {
+  if (!context.auth || !(await isAdmin(context.auth.uid))) {
     throw new functions.https.HttpsError('permission-denied', 'Admin only');
   }
-  
+
   const { email, role, environment, features } = sanitizeInput(data);
-  
+
   try {
     // Create Firebase auth account
     const userRecord = await admin.auth().createUser({
@@ -48,7 +48,7 @@ export const createTestAccount = functions.https.onCall(async (data, context) =>
       displayName: `Test_${role}_${Date.now()}`,
       emailVerified: true,
     });
-    
+
     // Set custom claims for testing
     await admin.auth().setCustomUserClaims(userRecord.uid, {
       testAccount: true,
@@ -56,34 +56,37 @@ export const createTestAccount = functions.https.onCall(async (data, context) =>
       environment,
       testFeatures: features || {},
     });
-    
+
     // Create user profile with test privileges
-    await db.collection('users').doc(userRecord.uid).set({
-      profile: {
-        email,
-        username: userRecord.displayName,
-        isTestAccount: true,
-        testRole: role,
-        environment,
-      },
-      testPrivileges: {
-        unlimitedCurrency: features?.unlimitedCurrency || false,
-        allItemsUnlocked: features?.allItemsUnlocked || false,
-        godMode: features?.godMode || false,
-        skipTutorial: true,
-        debugMenu: true,
-        freeIAP: features?.freeIAP || false,
-        customSpawnRates: features?.customSpawnRates || false,
-      },
-      stats: {
-        coins: features?.unlimitedCurrency ? 999999999 : 1000,
-        gems: features?.unlimitedCurrency ? 999999 : 100,
-        level: features?.maxLevel ? 999 : 1,
-      },
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      createdBy: context.auth.uid,
-    });
-    
+    await db
+      .collection('users')
+      .doc(userRecord.uid)
+      .set({
+        profile: {
+          email,
+          username: userRecord.displayName,
+          isTestAccount: true,
+          testRole: role,
+          environment,
+        },
+        testPrivileges: {
+          unlimitedCurrency: features?.unlimitedCurrency || false,
+          allItemsUnlocked: features?.allItemsUnlocked || false,
+          godMode: features?.godMode || false,
+          skipTutorial: true,
+          debugMenu: true,
+          freeIAP: features?.freeIAP || false,
+          customSpawnRates: features?.customSpawnRates || false,
+        },
+        stats: {
+          coins: features?.unlimitedCurrency ? 999999999 : 1000,
+          gems: features?.unlimitedCurrency ? 999999 : 100,
+          level: features?.maxLevel ? 999 : 1,
+        },
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        createdBy: context.auth.uid,
+      });
+
     // Log test account creation
     await logTestingActivity('test_account_created', {
       testerId: userRecord.uid,
@@ -91,7 +94,7 @@ export const createTestAccount = functions.https.onCall(async (data, context) =>
       environment,
       createdBy: context.auth.uid,
     });
-    
+
     return {
       success: true,
       userId: userRecord.uid,
@@ -99,7 +102,6 @@ export const createTestAccount = functions.https.onCall(async (data, context) =>
       password: generateTestPassword(),
       loginUrl: getTestLoginUrl(environment),
     };
-    
   } catch (error) {
     console.error('Error creating test account:', error);
     throw new functions.https.HttpsError('internal', 'Failed to create test account');
@@ -113,50 +115,53 @@ export const grantTesterAccess = functions.https.onCall(async (data, context) =>
   if (!context.auth) {
     throw new functions.https.HttpsError('unauthenticated', 'Must be authenticated');
   }
-  
+
   const { accessCode, platform } = sanitizeInput(data);
-  
+
   // Validate access code
   const accessDoc = await db.collection('tester_access_codes').doc(accessCode).get();
-  
+
   if (!accessDoc.exists) {
     throw new functions.https.HttpsError('not-found', 'Invalid access code');
   }
-  
+
   const access = accessDoc.data()!;
-  
+
   if (access.used) {
     throw new functions.https.HttpsError('already-exists', 'Code already used');
   }
-  
+
   if (access.expiresAt && access.expiresAt.toMillis() < Date.now()) {
     throw new functions.https.HttpsError('deadline-exceeded', 'Code expired');
   }
-  
+
   // Grant access
   await admin.auth().setCustomUserClaims(context.auth.uid, {
     testerRole: access.role,
     testEnvironment: access.environment,
     testFeatures: access.features || {},
   });
-  
+
   // Update user profile
-  await db.collection('users').doc(context.auth.uid).update({
-    'testAccess': {
-      role: access.role,
-      environment: access.environment,
-      grantedAt: admin.firestore.FieldValue.serverTimestamp(),
-      platform,
-    }
-  });
-  
+  await db
+    .collection('users')
+    .doc(context.auth.uid)
+    .update({
+      testAccess: {
+        role: access.role,
+        environment: access.environment,
+        grantedAt: admin.firestore.FieldValue.serverTimestamp(),
+        platform,
+      },
+    });
+
   // Mark code as used
   await db.collection('tester_access_codes').doc(accessCode).update({
     used: true,
     usedBy: context.auth.uid,
     usedAt: admin.firestore.FieldValue.serverTimestamp(),
   });
-  
+
   return {
     success: true,
     role: access.role,
@@ -173,71 +178,74 @@ export const grantTesterAccess = functions.https.onCall(async (data, context) =>
  */
 export const debugModifyGameState = functions.https.onCall(async (data, context) => {
   // Check if user has debug privileges
-  if (!context.auth || !await hasDebugAccess(context.auth.uid)) {
+  if (!context.auth || !(await hasDebugAccess(context.auth.uid))) {
     throw new functions.https.HttpsError('permission-denied', 'Debug access required');
   }
-  
+
   const { action, params } = sanitizeInput(data);
   const userId = context.auth.uid;
-  
+
   try {
     let result: any = {};
-    
+
     switch (action) {
       case 'add_currency':
-        await db.collection('users').doc(userId).update({
-          'stats.coins': admin.firestore.FieldValue.increment(params.coins || 0),
-          'stats.gems': admin.firestore.FieldValue.increment(params.gems || 0),
-        });
+        await db
+          .collection('users')
+          .doc(userId)
+          .update({
+            'stats.coins': admin.firestore.FieldValue.increment(params.coins || 0),
+            'stats.gems': admin.firestore.FieldValue.increment(params.gems || 0),
+          });
         result = { coins: params.coins, gems: params.gems };
         break;
-        
+
       case 'set_level':
         await db.collection('users').doc(userId).update({
           'stats.level': params.level,
         });
         result = { level: params.level };
         break;
-        
+
       case 'unlock_all_items':
         await unlockAllItems(userId);
         result = { unlocked: 'all_items' };
         break;
-        
+
       case 'reset_progress':
         await resetUserProgress(userId);
         result = { reset: true };
         break;
-        
+
       case 'trigger_event':
         await triggerTestEvent(params.eventId);
         result = { event: params.eventId };
         break;
-        
+
       case 'set_vip_level':
         await db.collection('users').doc(userId).update({
           vipLevel: params.level,
         });
         result = { vipLevel: params.level };
         break;
-        
+
       case 'spawn_item':
         result = await spawnSpecificItem(params.itemId, params.quantity);
         break;
-        
+
       case 'set_time':
         // For testing time-based features
         result = { serverTime: params.timestamp };
         break;
-        
+
       case 'crash_game':
         // Intentional crash for testing crash reporting
         throw new Error('Intentional test crash');
-        
+
       default:
         throw new functions.https.HttpsError('invalid-argument', 'Unknown action');
     }
-    
+
     // Log debug action
     await logTestingActivity('debug_action', {
       userId,
@@ -245,13 +253,12 @@ export const debugModifyGameState = functions.https.onCall(async (data, context)
       params,
       result,
     });
-    
+
     return {
       success: true,
       action,
       result,
     };
-    
   } catch (error) {
     console.error('Debug action error:', error);
     throw new functions.https.HttpsError('internal', 'Debug action failed');
@@ -262,22 +269,23 @@ export const debugModifyGameState = functions.https.onCall(async (data, context)
  * Get debug information about game state
  */
 export const getDebugInfo = functions.https.onCall(async (data, context) => {
-  if (!context.auth || !await hasDebugAccess(context.auth.uid)) {
+  if (!context.auth || !(await hasDebugAccess(context.auth.uid))) {
     throw new functions.https.HttpsError('permission-denied', 'Debug access required');
   }
-  
+
   const userId = context.auth.uid;
-  
+
   // Gather comprehensive debug information
   const userDoc = await db.collection('users').doc(userId).get();
   const userData = userDoc.data();
-  
-  const recentGames = await db.collection('games')
+
+  const recentGames = await db
+    .collection('games')
     .where('userId', '==', userId)
     .orderBy('startTime', 'desc')
     .limit(5)
     .get();
-  
+
   const debugInfo = {
     user: {
       id: userId,
@@ -286,7 +294,7 @@ export const getDebugInfo = functions.https.onCall(async (data, context) => {
       inventory: userData?.inventory,
       testPrivileges: userData?.testPrivileges,
     },
-    recentGames: recentGames.docs.map(doc => ({
+    recentGames: recentGames.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     })),
@@ -299,7 +307,7 @@ export const getDebugInfo = functions.https.onCall(async (data, context) => {
     activeEvents: await getActiveEvents(),
     performance: await getPerformanceMetrics(),
   };
-  
+
   return debugInfo;
 });
 
@@ -312,15 +320,16 @@ export const submitFeedback = functions.https.onCall(async (data, context) => {
   if (!context.auth) {
     throw new functions.https.HttpsError('unauthenticated', 'Must be authenticated');
   }
-  
+
   const timer = performanceMonitor.startTimer('submitFeedback');
-  
+
   try {
-    const { type, category, title, description, severity, deviceInfo, screenshot } = sanitizeInput(data);
-    
+    const { type, category, title, description, severity, deviceInfo, screenshot } =
+      sanitizeInput(data);
+
     // Create feedback document
     const feedbackRef = db.collection('feedback').doc();
-    
+
     await feedbackRef.set({
       id: feedbackRef.id,
       userId: context.auth.uid,
@@ -343,23 +352,22 @@ export const submitFeedback = functions.https.onCall(async (data, context) => {
         build: deviceInfo?.buildNumber,
       },
     });
-    
+
     // Auto-escalate critical bugs
     if (type === 'bug' && severity === 'critical') {
       await escalateToDevelopers(feedbackRef.id, title, description);
     }
-    
+
     // Send confirmation to user
     await sendFeedbackConfirmation(context.auth.uid, feedbackRef.id);
-    
+
     timer();
-    
+
     return {
       success: true,
       feedbackId: feedbackRef.id,
       message: 'Thank you for your feedback!',
     };
-    
   } catch (error) {
     timer();
     console.error('Feedback submission error:', error);
@@ -374,23 +382,23 @@ export const getFeedbackStatus = functions.https.onCall(async (data, context) =>
   if (!context.auth) {
     throw new functions.https.HttpsError('unauthenticated', 'Must be authenticated');
   }
-  
+
   const { feedbackId } = data;
-  
+
   if (feedbackId) {
     // Get specific feedback
     const feedbackDoc = await db.collection('feedback').doc(feedbackId).get();
-    
+
     if (!feedbackDoc.exists) {
       throw new functions.https.HttpsError('not-found', 'Feedback not found');
     }
-    
+
     const feedback = feedbackDoc.data()!;
-    
-    if (feedback.userId !== context.auth.uid && !await isAdmin(context.auth.uid)) {
+
+    if (feedback.userId !== context.auth.uid && !(await isAdmin(context.auth.uid))) {
       throw new functions.https.HttpsError('permission-denied', 'Not your feedback');
     }
-    
+
     return {
       id: feedbackId,
       status: feedback.status,
@@ -399,14 +407,15 @@ export const getFeedbackStatus = functions.https.onCall(async (data, context) =>
     };
   } else {
     // Get all user's feedback
-    const userFeedback = await db.collection('feedback')
+    const userFeedback = await db
+      .collection('feedback')
       .where('userId', '==', context.auth.uid)
       .orderBy('createdAt', 'desc')
       .limit(20)
       .get();
-    
+
     return {
-      feedback: userFeedback.docs.map(doc => ({
+      feedback: userFeedback.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       })),
@@ -423,39 +432,39 @@ export const getABTestConfig = functions.https.onCall(async (data, context) => {
   if (!context.auth) {
     throw new functions.https.HttpsError('unauthenticated', 'Must be authenticated');
   }
-  
+
   const userId = context.auth.uid;
-  
+
   // Get user's test groups
   const userDoc = await db.collection('users').doc(userId).get();
   const userData = userDoc.data();
-  
+
   let testGroups = userData?.abTestGroups || {};
-  
+
   // Assign to new tests if not already assigned
   const activeTests = await getActiveABTests();
-  
+
   for (const test of activeTests) {
     if (!testGroups[test.id]) {
       // Randomly assign to variant
       const variant = assignToVariant(test);
       testGroups[test.id] = variant;
-      
+
       // Log assignment
       await logABTestAssignment(userId, test.id, variant);
     }
   }
-  
+
   // Update user's test groups
   if (Object.keys(testGroups).length > 0) {
     await db.collection('users').doc(userId).update({
       abTestGroups: testGroups,
     });
   }
-  
+
   // Build configuration based on test groups
   const config = await buildABTestConfig(testGroups);
-  
+
   return {
     testGroups,
     config,
@@ -469,9 +478,9 @@ export const trackABTestEvent = functions.https.onCall(async (data, context) => 
   if (!context.auth) {
     throw new functions.https.HttpsError('unauthenticated', 'Must be authenticated');
   }
-  
+
   const { testId, event, value } = sanitizeInput(data);
-  
+
   await db.collection('ab_test_events').add({
     userId: context.auth.uid,
     testId,
@@ -479,7 +488,7 @@ export const trackABTestEvent = functions.https.onCall(async (data, context) => 
     value,
     timestamp: admin.firestore.FieldValue.serverTimestamp(),
   });
-  
+
   return { success: true };
 });
 
@@ -492,9 +501,9 @@ export const submitPerformanceMetrics = functions.https.onCall(async (data, cont
   if (!context.auth) {
     throw new functions.https.HttpsError('unauthenticated', 'Must be authenticated');
   }
-  
+
   const { metrics, deviceInfo } = sanitizeInput(data);
-  
+
   // Store performance data
   await db.collection('performance_metrics').add({
     userId: context.auth.uid,
@@ -509,12 +518,12 @@ export const submitPerformanceMetrics = functions.https.onCall(async (data, cont
     device: deviceInfo,
     timestamp: admin.firestore.FieldValue.serverTimestamp(),
   });
-  
+
   // Check for performance issues
   if (metrics.fps < 30 || metrics.frameTime > 33) {
     await flagPerformanceIssue(context.auth.uid, metrics, deviceInfo);
   }
-  
+
   return { success: true };
 });
 
@@ -527,16 +536,16 @@ export const registerTestDevice = functions.https.onCall(async (data, context) =
   if (!context.auth) {
     throw new functions.https.HttpsError('unauthenticated', 'Must be authenticated');
   }
-  
+
   const { platform, deviceId, email } = sanitizeInput(data);
-  
+
   // Check if user is approved tester
   const testerDoc = await db.collection('approved_testers').doc(context.auth.uid).get();
-  
+
   if (!testerDoc.exists) {
     throw new functions.https.HttpsError('permission-denied', 'Not an approved tester');
   }
-  
+
   if (platform === 'ios') {
     // Add to TestFlight
     return {
@@ -552,7 +561,7 @@ export const registerTestDevice = functions.https.onCall(async (data, context) =
       instructions: 'Join the beta program through Google Play',
     };
   }
-  
+
   throw new functions.https.HttpsError('invalid-argument', 'Invalid platform');
 });
 
@@ -563,7 +572,7 @@ export const registerTestDevice = functions.https.onCall(async (data, context) =
  */
 export const reportCrash = functions.https.onCall(async (data, context) => {
   const { error, stackTrace, deviceInfo, gameState } = sanitizeInput(data);
-  
+
   // Store crash report
   const crashRef = await db.collection('crash_reports').add({
     userId: context.auth?.uid || 'anonymous',
@@ -577,12 +586,12 @@ export const reportCrash = functions.https.onCall(async (data, context) => {
     timestamp: admin.firestore.FieldValue.serverTimestamp(),
     resolved: false,
   });
-  
+
   // Alert developers for critical crashes
   if (error.severity === 'critical') {
     await alertDevelopers('Critical crash detected', crashRef.id);
   }
-  
+
   return {
     success: true,
     crashId: crashRef.id,
@@ -629,17 +638,20 @@ async function unlockAllItems(userId: string): Promise<void> {
 }
 
 async function resetUserProgress(userId: string): Promise<void> {
-  await db.collection('users').doc(userId).update({
-    stats: {
-      coins: 0,
-      gems: 0,
-      level: 1,
-      highScore: 0,
-      gamesPlayed: 0,
-    },
-    inventory: {},
-    unlocks: {},
-  });
+  await db
+    .collection('users')
+    .doc(userId)
+    .update({
+      stats: {
+        coins: 0,
+        gems: 0,
+        level: 1,
+        highScore: 0,
+        gamesPlayed: 0,
+      },
+      inventory: {},
+      unlocks: {},
+    });
 }
 
 async function triggerTestEvent(eventId: string): Promise<void> {
@@ -663,7 +675,11 @@ async function getUserEnvironment(userId: string): Promise<string> {
   return userDoc.data()?.testAccess?.environment || 'production';
 }
 
-async function escalateToDevelopers(feedbackId: string, title: string, description: string): Promise<void> {
+async function escalateToDevelopers(
+  feedbackId: string,
+  title: string,
+  description: string
+): Promise<void> {
   // Send notification to dev team
   console.log(`Critical bug escalated: ${feedbackId} - ${title}`);
   // Implementation for Slack/Discord notification
@@ -681,10 +697,8 @@ async function getFeatureFlags(userId: string): Promise<any> {
 }
 
 async function getActiveEvents(): Promise<any[]> {
-  const events = await db.collection('events')
-    .where('active', '==', true)
-    .get();
-  return events.docs.map(doc => doc.data());
+  const events = await db.collection('events').where('active', '==', true).get();
+  return events.docs.map((doc) => doc.data());
 }
 
 async function getPerformanceMetrics(): Promise<any> {
@@ -697,23 +711,21 @@ async function getPerformanceMetrics(): Promise<any> {
 }
 
 async function getActiveABTests(): Promise<any[]> {
-  const tests = await db.collection('ab_tests')
-    .where('active', '==', true)
-    .get();
-  return tests.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  const tests = await db.collection('ab_tests').where('active', '==', true).get();
+  return tests.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 }
 
 function assignToVariant(test: any): string {
   const rand = Math.random();
   let cumulative = 0;
-  
+
   for (const variant of test.variants) {
     cumulative += variant.weight;
     if (rand < cumulative) {
       return variant.id;
     }
   }
-  
+
   return test.variants[0].id;
 }
 
@@ -728,7 +740,7 @@ async function logABTestAssignment(userId: string, testId: string, variant: stri
 
 async function buildABTestConfig(testGroups: any): Promise<any> {
   const config: any = {};
-  
+
   for (const [testId, variant] of Object.entries(testGroups)) {
     // Map test variants to config changes
     if (testId === 'spawn_rates' && variant === 'increased') {
@@ -736,7 +748,7 @@ async function buildABTestConfig(testGroups: any): Promise<any> {
     }
     // Add more test configurations
   }
-  
+
   return config;
 }
 

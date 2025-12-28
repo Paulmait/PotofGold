@@ -45,28 +45,26 @@ export default function TouchControls({
   const [selectedPowerUp, setSelectedPowerUp] = useState<string | null>(null);
   const [touchFeedback, setTouchFeedback] = useState({ x: 0, y: 0, visible: false });
   const [dragIndicator, setDragIndicator] = useState({ x: cartPosition, visible: false });
-  
+
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(1)).current;
-  const powerUpAnimations = useRef(
-    powerUps.map(() => new Animated.Value(1))
-  ).current;
+  const powerUpAnimations = useRef(powerUps.map(() => new Animated.Value(1))).current;
 
   // Pan responder for cart movement
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => isGameActive,
       onMoveShouldSetPanResponder: () => isGameActive,
-      
+
       onPanResponderGrant: (evt) => {
         // Show touch feedback
         const touch = evt.nativeEvent;
         setTouchFeedback({ x: touch.pageX, y: touch.pageY, visible: true });
         setDragIndicator({ x: touch.pageX, visible: true });
-        
+
         // Haptic feedback
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        
+
         // Animate touch indicator
         Animated.spring(scaleAnim, {
           toValue: 1.2,
@@ -74,37 +72,37 @@ export default function TouchControls({
           useNativeDriver: true,
         }).start();
       },
-      
+
       onPanResponderMove: (evt, gestureState) => {
         // Update cart position with smooth boundaries
         const newX = Math.max(
           cartWidth / 2,
           Math.min(width - cartWidth / 2, evt.nativeEvent.pageX)
         );
-        
+
         onMove(newX);
         setDragIndicator({ x: newX, visible: true });
-        
+
         // Update touch feedback position
-        setTouchFeedback({ 
-          x: evt.nativeEvent.pageX, 
-          y: evt.nativeEvent.pageY, 
-          visible: true 
+        setTouchFeedback({
+          x: evt.nativeEvent.pageX,
+          y: evt.nativeEvent.pageY,
+          visible: true,
         });
       },
-      
+
       onPanResponderRelease: () => {
         // Hide indicators
         setTouchFeedback({ ...touchFeedback, visible: false });
         setDragIndicator({ ...dragIndicator, visible: false });
-        
+
         // Reset animation
         Animated.spring(scaleAnim, {
           toValue: 1,
           friction: 5,
           useNativeDriver: true,
         }).start();
-        
+
         // Light haptic on release
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       },
@@ -114,7 +112,7 @@ export default function TouchControls({
   // Power-up tap handler
   const handlePowerUpTap = (powerUp: any, index: number) => {
     if (!powerUp.available || !isGameActive) return;
-    
+
     // Animate power-up button
     Animated.sequence([
       Animated.timing(powerUpAnimations[index], {
@@ -128,10 +126,10 @@ export default function TouchControls({
         useNativeDriver: true,
       }),
     ]).start();
-    
+
     // Strong haptic for power-up activation
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-    
+
     // Set as selected or use immediately based on type
     if (powerUp.type === 'shovel' || powerUp.type === 'pickaxe') {
       setSelectedPowerUp(powerUp.id);
@@ -146,10 +144,10 @@ export default function TouchControls({
     if (selectedPowerUp && isGameActive) {
       const touch = evt.nativeEvent;
       onPowerUpUse(selectedPowerUp, touch.pageX, touch.pageY);
-      
+
       // Clear selection
       setSelectedPowerUp(null);
-      
+
       // Haptic feedback
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
@@ -158,7 +156,7 @@ export default function TouchControls({
   // Render touch feedback indicator
   const renderTouchFeedback = () => {
     if (!touchFeedback.visible) return null;
-    
+
     return (
       <Animated.View
         style={[
@@ -183,7 +181,7 @@ export default function TouchControls({
   // Render drag indicator line
   const renderDragIndicator = () => {
     if (!dragIndicator.visible) return null;
-    
+
     return (
       <View
         style={[
@@ -249,17 +247,14 @@ export default function TouchControls({
   // Render selected power-up indicator
   const renderSelectedPowerUpIndicator = () => {
     if (!selectedPowerUp) return null;
-    
-    const powerUp = powerUps.find(p => p.id === selectedPowerUp);
+
+    const powerUp = powerUps.find((p) => p.id === selectedPowerUp);
     if (!powerUp) return null;
-    
+
     return (
       <View style={styles.selectedIndicator}>
         <Text style={styles.selectedText}>Tap anywhere to use {powerUp.type}</Text>
-        <TouchableOpacity
-          style={styles.cancelButton}
-          onPress={() => setSelectedPowerUp(null)}
-        >
+        <TouchableOpacity style={styles.cancelButton} onPress={() => setSelectedPowerUp(null)}>
           <Text style={styles.cancelText}>Cancel</Text>
         </TouchableOpacity>
       </View>
@@ -267,27 +262,27 @@ export default function TouchControls({
   };
 
   return (
-    <View 
-      style={styles.container} 
+    <View
+      style={styles.container}
       {...panResponder.panHandlers}
       onStartShouldSetResponder={() => !!selectedPowerUp}
       onResponderGrant={handleScreenTap}
     >
       {/* Touch feedback visual */}
       {renderTouchFeedback()}
-      
+
       {/* Drag indicator */}
       {renderDragIndicator()}
-      
+
       {/* Power-up buttons */}
       {renderPowerUpButtons()}
-      
+
       {/* Pause button */}
       {renderPauseButton()}
-      
+
       {/* Selected power-up indicator */}
       {renderSelectedPowerUpIndicator()}
-      
+
       {/* Touch zones for easier control */}
       <View style={styles.touchZones}>
         <TouchableOpacity

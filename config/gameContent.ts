@@ -142,34 +142,50 @@ export const levels: Level[] = [
     highScore: 0,
   },
   // Levels 3-10 with progressive difficulty
-  ...Array.from({ length: 8 }, (_, i) => ({
-    id: i + 3,
-    name: `Mine Level ${i + 3}`,
-    theme: levelThemes.goldMine,
-    difficulty: {
-      level: i + 3,
-      itemSpawnRate: Math.max(0.8, 1.5 - (i + 3) * 0.05),
-      itemFallSpeed: 2 + (i + 3) * 0.2,
-      bombChance: 0.05 + (i + 3) * 0.01,
-      powerUpChance: 0.1 + (i + 3) * 0.01,
-      rareItemChance: 0.05 + (i + 3) * 0.005,
-      comboMultiplier: 1 + (i + 3) * 0.1,
-      scoreMultiplier: 1 + (i + 3) * 0.1,
-      blockageBuildup: 0.5 + (i + 3) * 0.1,
-    },
-    objectives: [
-      { id: `score_${500 * (i + 3)}`, type: 'score' as const, target: 500 * (i + 3), current: 0, completed: false },
-      { id: `survive_${30 + i * 10}`, type: 'survive' as const, target: 30 + i * 10, current: 0, completed: false },
-    ],
-    rewards: [
-      { type: 'coins' as const, amount: 50 + (i + 3) * 25 },
-      { type: 'xp' as const, amount: 100 + (i + 3) * 50 },
-    ],
-    unlocked: false,
-    stars: 0,
-    highScore: 0,
-  } as Level)),
-  
+  ...Array.from(
+    { length: 8 },
+    (_, i) =>
+      ({
+        id: i + 3,
+        name: `Mine Level ${i + 3}`,
+        theme: levelThemes.goldMine,
+        difficulty: {
+          level: i + 3,
+          itemSpawnRate: Math.max(0.8, 1.5 - (i + 3) * 0.05),
+          itemFallSpeed: 2 + (i + 3) * 0.2,
+          bombChance: 0.05 + (i + 3) * 0.01,
+          powerUpChance: 0.1 + (i + 3) * 0.01,
+          rareItemChance: 0.05 + (i + 3) * 0.005,
+          comboMultiplier: 1 + (i + 3) * 0.1,
+          scoreMultiplier: 1 + (i + 3) * 0.1,
+          blockageBuildup: 0.5 + (i + 3) * 0.1,
+        },
+        objectives: [
+          {
+            id: `score_${500 * (i + 3)}`,
+            type: 'score' as const,
+            target: 500 * (i + 3),
+            current: 0,
+            completed: false,
+          },
+          {
+            id: `survive_${30 + i * 10}`,
+            type: 'survive' as const,
+            target: 30 + i * 10,
+            current: 0,
+            completed: false,
+          },
+        ],
+        rewards: [
+          { type: 'coins' as const, amount: 50 + (i + 3) * 25 },
+          { type: 'xp' as const, amount: 100 + (i + 3) * 50 },
+        ],
+        unlocked: false,
+        stars: 0,
+        highScore: 0,
+      }) as Level
+  ),
+
   // World 2: Crystal Cave (Levels 11-20)
   {
     id: 11,
@@ -199,7 +215,7 @@ export const levels: Level[] = [
     stars: 0,
     highScore: 0,
   },
-  
+
   // World 3: Lava Depths (Levels 21-30)
   {
     id: 21,
@@ -278,7 +294,7 @@ export const achievements: Achievement[] = [
     maxProgress: 10000,
     tier: 'gold',
   },
-  
+
   // Combo Achievements
   {
     id: 'combo_starter',
@@ -324,7 +340,7 @@ export const achievements: Achievement[] = [
     maxProgress: 100,
     tier: 'platinum',
   },
-  
+
   // Survival Achievements
   {
     id: 'survivor_1min',
@@ -359,7 +375,7 @@ export const achievements: Achievement[] = [
     maxProgress: 600,
     tier: 'gold',
   },
-  
+
   // Score Achievements
   {
     id: 'score_1k',
@@ -405,7 +421,7 @@ export const achievements: Achievement[] = [
     maxProgress: 1000000,
     tier: 'platinum',
   },
-  
+
   // Special Achievements
   {
     id: 'no_bombs',
@@ -451,7 +467,7 @@ export const achievements: Achievement[] = [
     maxProgress: 100,
     tier: 'silver',
   },
-  
+
   // World Completion
   {
     id: 'complete_goldmine',
@@ -503,7 +519,7 @@ export const cartSkins: CartSkin[] = [
     unlocked: true,
     rarity: 'common',
   },
-  
+
   // Flag Skins (US States)
   {
     id: 'flag_california',
@@ -544,7 +560,7 @@ export const cartSkins: CartSkin[] = [
     unlocked: false,
     rarity: 'uncommon',
   },
-  
+
   // Shape Skins
   {
     id: 'shape_diamond',
@@ -582,7 +598,7 @@ export const cartSkins: CartSkin[] = [
     unlocked: false,
     rarity: 'epic',
   },
-  
+
   // Trail Skins
   {
     id: 'trail_rainbow',
@@ -620,7 +636,7 @@ export const cartSkins: CartSkin[] = [
     unlocked: false,
     rarity: 'epic',
   },
-  
+
   // Special/Legendary Skins
   {
     id: 'special_golden',
@@ -723,39 +739,39 @@ export const powerUpDefinitions = {
 
 // Item Value Definitions
 export const itemValues = {
-  coin: { 
-    points: 10, 
+  coin: {
+    points: 10,
     coins: 1,
     rarity: 'common' as ItemRarity,
     spawnWeight: 40,
   },
-  gem: { 
-    points: 25, 
+  gem: {
+    points: 25,
     coins: 3,
     rarity: 'uncommon' as ItemRarity,
     spawnWeight: 25,
   },
-  diamond: { 
-    points: 50, 
+  diamond: {
+    points: 50,
     coins: 5,
     rarity: 'rare' as ItemRarity,
     spawnWeight: 15,
   },
-  star: { 
-    points: 100, 
+  star: {
+    points: 100,
     coins: 10,
     rarity: 'epic' as ItemRarity,
     spawnWeight: 8,
   },
-  heart: { 
-    points: 0, 
+  heart: {
+    points: 0,
     coins: 0,
     lives: 1,
     rarity: 'uncommon' as ItemRarity,
     spawnWeight: 5,
   },
-  bomb: { 
-    points: -50, 
+  bomb: {
+    points: -50,
     coins: 0,
     damage: 1,
     rarity: 'common' as ItemRarity,

@@ -34,8 +34,8 @@ export class AppStoreCompliance {
       ageRating: {
         age: 4,
         content: ['No Violence', 'No Adult Content', 'In-App Purchases'],
-        description: 'Suitable for all ages. Contains optional in-app purchases.'
-      }
+        description: 'Suitable for all ages. Contains optional in-app purchases.',
+      },
     };
   }
 
@@ -54,7 +54,7 @@ export class AppStoreCompliance {
       'data_collection',
       'social_features',
       'chat',
-      'user_generated_content'
+      'user_generated_content',
     ];
     return !coppaRestricted.includes(contentType);
   }
@@ -103,8 +103,18 @@ Catch falling coins, collect power-ups, and challenge friends in this addictive 
 Download now and start your coin-catching adventure! 🪙✨
       `,
       keywords: [
-        'game', 'casual', 'puzzle', 'arcade', 'coins', 'collecting',
-        'family', 'kids', 'fun', 'addictive', 'challenge', 'multiplayer'
+        'game',
+        'casual',
+        'puzzle',
+        'arcade',
+        'coins',
+        'collecting',
+        'family',
+        'kids',
+        'fun',
+        'addictive',
+        'challenge',
+        'multiplayer',
       ],
       category: 'Games',
       subcategory: 'Arcade',
@@ -115,8 +125,8 @@ Download now and start your coin-catching adventure! 🪙✨
       inAppPurchases: [
         'Remove Ads ($1.99)',
         'Premium Power-ups ($2.99)',
-        'Coin Packages ($0.99 - $14.99)'
-      ]
+        'Coin Packages ($0.99 - $14.99)',
+      ],
     };
   }
 
@@ -165,8 +175,17 @@ Download now and start your coin-catching adventure! 🪙✨
       `,
       category: 'Arcade',
       tags: [
-        'casual', 'puzzle', 'arcade', 'family', 'kids', 'fun',
-        'addictive', 'challenge', 'multiplayer', 'coins', 'collecting'
+        'casual',
+        'puzzle',
+        'arcade',
+        'family',
+        'kids',
+        'fun',
+        'addictive',
+        'challenge',
+        'multiplayer',
+        'coins',
+        'collecting',
       ],
       contentRating: 'Everyone',
       targetAudience: 'Everyone',
@@ -174,8 +193,8 @@ Download now and start your coin-catching adventure! 🪙✨
       inAppPurchases: [
         'Remove Ads ($1.99)',
         'Premium Power-ups ($2.99)',
-        'Coin Packages ($0.99 - $14.99)'
-      ]
+        'Coin Packages ($0.99 - $14.99)',
+      ],
     };
   }
 
@@ -189,33 +208,25 @@ Download now and start your coin-catching adventure! 🪙✨
           'Right to access',
           'Right to rectification',
           'Right to erasure',
-          'Right to data portability'
+          'Right to data portability',
         ],
         dataCategories: [
           'Game progress and scores',
           'Device information',
           'Analytics data (anonymized)',
-          'Purchase history'
-        ]
+          'Purchase history',
+        ],
       },
       ccpa: {
-        dataCategories: [
-          'Personal identifiers',
-          'Commercial information',
-          'Internet activity'
-        ],
-        optOutMethods: [
-          'In-app settings',
-          'Email request',
-          'Privacy policy link'
-        ]
+        dataCategories: ['Personal identifiers', 'Commercial information', 'Internet activity'],
+        optOutMethods: ['In-app settings', 'Email request', 'Privacy policy link'],
       },
       coppa: {
         parentalConsent: 'Required for users under 13',
         dataCollection: 'Minimal and necessary only',
         parentalControls: 'Available in settings',
-        noPersonalizedAds: 'For users under 13'
-      }
+        noPersonalizedAds: 'For users under 13',
+      },
     };
   }
 
@@ -230,7 +241,7 @@ Download now and start your coin-catching adventure! 🪙✨
       userGeneratedContent: 'None',
       socialFeatures: 'Friend challenges only',
       chat: 'None',
-      multiplayer: 'Score comparison only'
+      multiplayer: 'Score comparison only',
     };
   }
 
@@ -242,7 +253,7 @@ Download now and start your coin-catching adventure! 🪙✨
       noPayToWin: 'All purchases are cosmetic or convenience',
       adFrequency: 'Limited to 1 ad per 2 minutes',
       rewardAds: 'Optional and clearly labeled',
-      parentalControls: 'Available for in-app purchases'
+      parentalControls: 'Available for in-app purchases',
     };
   }
 
@@ -251,20 +262,17 @@ Download now and start your coin-catching adventure! 🪙✨
     return {
       minimumOS: Platform.OS === 'ios' ? 'iOS 12.0' : 'Android 6.0',
       targetOS: Platform.OS === 'ios' ? 'iOS 15.0+' : 'Android 10.0+',
-      permissions: [
-        'Internet access (for ads and multiplayer)',
-        'Storage (for game data)'
-      ],
+      permissions: ['Internet access (for ads and multiplayer)', 'Storage (for game data)'],
       optionalPermissions: [
         'Camera (for profile pictures)',
-        'Microphone (for voice chat - future feature)'
+        'Microphone (for voice chat - future feature)',
       ],
       accessibility: [
         'VoiceOver/TalkBack support',
         'High contrast mode',
         'Large text support',
-        'Reduced motion support'
-      ]
+        'Reduced motion support',
+      ],
     };
   }
 
@@ -275,7 +283,7 @@ Download now and start your coin-catching adventure! 🪙✨
       termsOfService: this.requirements.termsOfService,
       supportEmail: this.requirements.supportEmail,
       website: this.requirements.website,
-      ageRating: this.requirements.ageRating
+      ageRating: this.requirements.ageRating,
     };
 
     if (store === 'appstore') {
@@ -284,7 +292,7 @@ Download now and start your coin-catching adventure! 🪙✨
         appStoreReviewGuidelines: 'Compliant',
         familySharing: 'Enabled',
         inAppPurchaseReview: 'Required',
-        appPrivacy: 'Detailed privacy labels'
+        appPrivacy: 'Detailed privacy labels',
       };
     } else {
       return {
@@ -292,10 +300,10 @@ Download now and start your coin-catching adventure! 🪙✨
         playStorePolicies: 'Compliant',
         familyLibrary: 'Enabled',
         inAppPurchaseReview: 'Required',
-        dataSafety: 'Detailed data safety section'
+        dataSafety: 'Detailed data safety section',
       };
     }
   }
 }
 
-export const appStoreCompliance = AppStoreCompliance.getInstance(); 
+export const appStoreCompliance = AppStoreCompliance.getInstance();

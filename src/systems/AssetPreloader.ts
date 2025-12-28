@@ -39,11 +39,11 @@ export enum AssetType {
 }
 
 export enum AssetPriority {
-  CRITICAL = 0,    // Load immediately
-  HIGH = 1,        // Load after critical
-  MEDIUM = 2,      // Load when idle
-  LOW = 3,         // Load on demand
-  LAZY = 4,        // Load when needed
+  CRITICAL = 0, // Load immediately
+  HIGH = 1, // Load after critical
+  MEDIUM = 2, // Load when idle
+  LOW = 3, // Load on demand
+  LAZY = 4, // Load when needed
 }
 
 export interface LoadCondition {
@@ -108,7 +108,7 @@ export class AssetPreloader {
   }
 
   private initializePriorityQueues() {
-    Object.values(AssetPriority).forEach(priority => {
+    Object.values(AssetPriority).forEach((priority) => {
       if (typeof priority === 'number') {
         this.priorityQueues.set(priority, []);
       }
@@ -118,7 +118,7 @@ export class AssetPreloader {
   private async setupCacheDirectory() {
     const cacheDir = `${FileSystem.cacheDirectory}assets/`;
     const dirInfo = await FileSystem.getInfoAsync(cacheDir);
-    
+
     if (!dirInfo.exists) {
       await FileSystem.makeDirectoryAsync(cacheDir, { intermediates: true });
     }
@@ -128,13 +128,13 @@ export class AssetPreloader {
     try {
       const response = await fetch(manifestUrl);
       this.manifest = await response.json();
-      
+
       // Calculate total size
       this.totalBytes = this.manifest!.assets.reduce((sum, asset) => sum + asset.size, 0);
-      
+
       // Organize assets by priority
       this.organizeAssetsByPriority();
-      
+
       eventBus.emit('assets:manifest:loaded', {
         version: this.manifest!.version,
         assetCount: this.manifest!.assets.length,
@@ -150,7 +150,7 @@ export class AssetPreloader {
   private organizeAssetsByPriority() {
     if (!this.manifest) return;
 
-    this.manifest.assets.forEach(asset => {
+    this.manifest.assets.forEach((asset) => {
       const queue = this.priorityQueues.get(asset.priority);
       if (queue) {
         queue.push(asset);
@@ -160,14 +160,14 @@ export class AssetPreloader {
 
   async preloadCriticalAssets(): Promise<void> {
     const criticalAssets = this.priorityQueues.get(AssetPriority.CRITICAL) || [];
-    
+
     if (criticalAssets.length === 0) {
       console.log('No critical assets to preload');
       return;
     }
 
     this.loadStartTime = Date.now();
-    
+
     // Load critical assets sequentially to ensure they're available
     for (const asset of criticalAssets) {
       await this.loadAsset(asset, true);
@@ -182,16 +182,16 @@ export class AssetPreloader {
   async preloadBundle(bundleId: string): Promise<void> {
     if (!this.manifest) return;
 
-    const bundle = this.manifest.bundles.find(b => b.id === bundleId);
+    const bundle = this.manifest.bundles.find((b) => b.id === bundleId);
     if (!bundle) {
       console.error(`Bundle ${bundleId} not found`);
       return;
     }
 
-    const assets = this.manifest.assets.filter(a => bundle.assets.includes(a.id));
-    
+    const assets = this.manifest.assets.filter((a) => bundle.assets.includes(a.id));
+
     // Load bundle assets in parallel
-    await Promise.all(assets.map(asset => this.loadAsset(asset)));
+    await Promise.all(assets.map((asset) => this.loadAsset(asset)));
 
     eventBus.emit('assets:bundle:loaded', {
       bundleId,
@@ -208,7 +208,7 @@ export class AssetPreloader {
     }
 
     // Check if already in queue
-    if (!immediate && this.loadQueue.find(a => a.id === asset.id)) {
+    if (!immediate && this.loadQueue.find((a) => a.id === asset.id)) {
       return this.getPlaceholder(asset.type);
     }
 
@@ -226,7 +226,7 @@ export class AssetPreloader {
       const data = await this.downloadAsset(asset);
       this.cacheAsset(asset.id, data, asset.type, asset.size);
       this.loadedAssets.add(asset.id);
-      
+
       eventBus.emit('asset:loaded', {
         id: asset.id,
         type: asset.type,
@@ -242,7 +242,7 @@ export class AssetPreloader {
 
   private async downloadAsset(asset: AssetEntry): Promise<any> {
     const cacheUri = `${FileSystem.cacheDirectory}assets/${asset.id}`;
-    
+
     // Check if cached locally
     const fileInfo = await FileSystem.getInfoAsync(cacheUri);
     if (fileInfo.exists) {
@@ -264,7 +264,7 @@ export class AssetPreloader {
 
   private async downloadImage(asset: AssetEntry): Promise<any> {
     const cacheUri = `${FileSystem.cacheDirectory}assets/${asset.id}`;
-    
+
     // Use resumable download for large images
     const downloadResumable = FileSystem.createDownloadResumable(
       asset.url,
@@ -305,7 +305,7 @@ export class AssetPreloader {
 
   private async downloadGeneric(asset: AssetEntry): Promise<any> {
     const cacheUri = `${FileSystem.cacheDirectory}assets/${asset.id}`;
-    
+
     await FileSystem.downloadAsync(asset.url, cacheUri);
     return cacheUri;
   }
@@ -324,10 +324,11 @@ export class AssetPreloader {
   }
 
   private updateProgress(assetId: string, downloadProgress: FileSystem.DownloadProgressData) {
-    const progress = downloadProgress.totalBytesWritten / downloadProgress.totalBytesExpectedToWrite;
-    
+    const progress =
+      downloadProgress.totalBytesWritten / downloadProgress.totalBytesExpectedToWrite;
+
     this.bytesLoaded += downloadProgress.totalBytesWritten;
-    
+
     const overallProgress: LoadProgress = {
       loaded: this.bytesLoaded,
       total: this.totalBytes,
@@ -341,11 +342,11 @@ export class AssetPreloader {
 
   private estimateTimeRemaining(): number {
     if (this.bytesLoaded === 0) return 0;
-    
+
     const elapsed = Date.now() - this.loadStartTime;
     const bytesPerMs = this.bytesLoaded / elapsed;
     const remainingBytes = this.totalBytes - this.bytesLoaded;
-    
+
     return Math.round(remainingBytes / bytesPerMs / 1000); // seconds
   }
 
@@ -374,11 +375,11 @@ export class AssetPreloader {
     let freedSize = 0;
     for (const [id, asset] of entries) {
       if (freedSize >= requiredSize) break;
-      
+
       freedSize += asset.size;
       this.currentCacheSize -= asset.size;
       delete this.cache[id];
-      
+
       // Also remove from disk cache if needed
       this.removeFromDiskCache(id);
     }
@@ -394,7 +395,7 @@ export class AssetPreloader {
   }
 
   private addToQueue(asset: AssetEntry) {
-    if (!this.loadQueue.find(a => a.id === asset.id)) {
+    if (!this.loadQueue.find((a) => a.id === asset.id)) {
       this.loadQueue.push(asset);
       this.loadQueue.sort((a, b) => a.priority - b.priority);
     }
@@ -407,7 +408,7 @@ export class AssetPreloader {
 
     while (this.loadQueue.length > 0) {
       const asset = this.loadQueue.shift()!;
-      
+
       try {
         await this.loadAssetImmediately(asset);
       } catch (error) {
@@ -415,7 +416,7 @@ export class AssetPreloader {
       }
 
       // Small delay between loads to prevent blocking
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
     }
 
     this.isLoading = false;
@@ -423,14 +424,17 @@ export class AssetPreloader {
 
   private handleLoadError(asset: AssetEntry): any {
     const retries = this.failedAssets.get(asset.id) || 0;
-    
+
     if (retries < this.maxRetries) {
       this.failedAssets.set(asset.id, retries + 1);
-      
+
       // Retry after delay
-      setTimeout(() => {
-        this.loadAsset(asset);
-      }, 1000 * Math.pow(2, retries)); // Exponential backoff
+      setTimeout(
+        () => {
+          this.loadAsset(asset);
+        },
+        1000 * Math.pow(2, retries)
+      ); // Exponential backoff
     }
 
     return this.getPlaceholder(asset.type);
@@ -469,14 +473,14 @@ export class AssetPreloader {
     // Load assets by priority
     for (const [priority, assets] of this.priorityQueues.entries()) {
       if (priority === AssetPriority.CRITICAL) continue; // Already loaded
-      
+
       for (const asset of assets) {
         if (priority === AssetPriority.LAZY) break; // Don't preload lazy assets
-        
+
         await this.loadAsset(asset);
-        
+
         // Yield to prevent blocking
-        await new Promise(resolve => setTimeout(resolve, 50));
+        await new Promise((resolve) => setTimeout(resolve, 50));
       }
     }
 
@@ -495,7 +499,7 @@ export class AssetPreloader {
     }
 
     // Try to load if in manifest
-    const asset = this.manifest?.assets.find(a => a.id === id);
+    const asset = this.manifest?.assets.find((a) => a.id === id);
     if (asset) {
       this.loadAsset(asset);
       return this.getPlaceholder(asset.type);
@@ -512,13 +516,13 @@ export class AssetPreloader {
   }
 
   pauseDownloads() {
-    this.downloadTasks.forEach(task => {
+    this.downloadTasks.forEach((task) => {
       task.pauseAsync();
     });
   }
 
   resumeDownloads() {
-    this.downloadTasks.forEach(task => {
+    this.downloadTasks.forEach((task) => {
       task.resumeAsync();
     });
   }
@@ -541,9 +545,8 @@ export class AssetPreloader {
   preloadScreen(screenName: string) {
     if (!this.manifest) return;
 
-    const bundle = this.manifest.bundles.find(b => 
-      b.loadCondition?.type === 'screen' && 
-      b.loadCondition.value === screenName
+    const bundle = this.manifest.bundles.find(
+      (b) => b.loadCondition?.type === 'screen' && b.loadCondition.value === screenName
     );
 
     if (bundle) {

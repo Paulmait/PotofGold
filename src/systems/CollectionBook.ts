@@ -178,7 +178,12 @@ export class CollectionBookSystem {
       rewards: {
         immediate: { gold: 1000, gems: 100, items: [] },
         milestones: [],
-        completion: { gold: 50000, gems: 5000, items: ['mythic_collector_crown'], title: 'Legendary Collector' },
+        completion: {
+          gold: 50000,
+          gems: 5000,
+          items: ['mythic_collector_crown'],
+          title: 'Legendary Collector',
+        },
       },
       bonuses: [
         {
@@ -268,13 +273,13 @@ export class CollectionBookSystem {
       item.count = 1;
       item.firstObtained = Date.now();
       item.lastObtained = Date.now();
-      
+
       this.playerItems.set(id, item);
       this.discoveryQueue.push(id);
 
       // Update stats
       this.stats.totalUniqueItems++;
-      
+
       eventBus.emit('collection:new_item', {
         itemId: id,
         item: item,
@@ -357,8 +362,8 @@ export class CollectionBookSystem {
   }
 
   private updateCollections(itemId: string) {
-    this.collections.forEach(collection => {
-      const collectionItem = collection.items.find(i => i.id === itemId);
+    this.collections.forEach((collection) => {
+      const collectionItem = collection.items.find((i) => i.id === itemId);
       if (collectionItem && !collectionItem.obtained) {
         collectionItem.obtained = true;
         collection.progress++;
@@ -378,7 +383,7 @@ export class CollectionBookSystem {
   private completeCollection(collection: Collection) {
     collection.completed = true;
     collection.completedAt = Date.now();
-    
+
     this.stats.totalCollectionsCompleted++;
 
     // Grant completion rewards
@@ -404,7 +409,7 @@ export class CollectionBookSystem {
     collection.rewards.milestones.forEach((milestone, index) => {
       if (!milestone.reached && percentage >= milestone.percentage) {
         milestone.reached = true;
-        
+
         eventBus.emit('collection:milestone', {
           collectionId: collection.id,
           milestone: milestone.percentage,
@@ -417,11 +422,11 @@ export class CollectionBookSystem {
   private checkCollectionBonuses(collection: Collection) {
     const percentage = (collection.progress / collection.totalItems) * 100;
 
-    collection.bonuses.forEach(bonus => {
+    collection.bonuses.forEach((bonus) => {
       if (!bonus.active && percentage >= bonus.requirement) {
         bonus.active = true;
         this.activeEffects.push(bonus.effect);
-        
+
         eventBus.emit('collection:bonus:activated', {
           collectionId: collection.id,
           effect: bonus.effect,
@@ -431,15 +436,15 @@ export class CollectionBookSystem {
   }
 
   private checkItemSets(itemId: string) {
-    this.itemSets.forEach(set => {
+    this.itemSets.forEach((set) => {
       if (set.items.includes(itemId)) {
-        set.collected = set.items.filter(id => this.playerItems.has(id)).length;
+        set.collected = set.items.filter((id) => this.playerItems.has(id)).length;
 
-        set.bonuses.forEach(bonus => {
+        set.bonuses.forEach((bonus) => {
           if (!bonus.active && set.collected >= bonus.itemsRequired) {
             bonus.active = true;
             this.activeEffects.push(bonus.bonus);
-            
+
             eventBus.emit('set:bonus:activated', {
               setId: set.id,
               bonus: bonus.bonus,
@@ -504,7 +509,7 @@ export class CollectionBookSystem {
   }
 
   private applyItemEffects(effects: ItemEffect[]) {
-    effects.forEach(effect => {
+    effects.forEach((effect) => {
       this.activeEffects.push(effect);
       eventBus.emit('effect:apply', { effect });
     });
@@ -516,8 +521,8 @@ export class CollectionBookSystem {
 
   searchItems(query: string): CollectionItem[] {
     const results: CollectionItem[] = [];
-    
-    this.playerItems.forEach(item => {
+
+    this.playerItems.forEach((item) => {
       if (
         item.name.toLowerCase().includes(query.toLowerCase()) ||
         item.description.toLowerCase().includes(query.toLowerCase())
@@ -530,31 +535,30 @@ export class CollectionBookSystem {
   }
 
   getItemsByRarity(rarity: ItemRarity): CollectionItem[] {
-    return Array.from(this.playerItems.values()).filter(item => item.rarity === rarity);
+    return Array.from(this.playerItems.values()).filter((item) => item.rarity === rarity);
   }
 
   getItemsByCategory(category: string): CollectionItem[] {
-    return Array.from(this.playerItems.values()).filter(item => item.category === category);
+    return Array.from(this.playerItems.values()).filter((item) => item.category === category);
   }
 
   private updateStats() {
     let totalItems = 0;
     let totalPossibleItems = 0;
 
-    this.collections.forEach(collection => {
+    this.collections.forEach((collection) => {
       totalItems += collection.progress;
       totalPossibleItems += collection.totalItems;
     });
 
-    this.stats.completionPercentage = totalPossibleItems > 0 
-      ? (totalItems / totalPossibleItems) * 100 
-      : 0;
+    this.stats.completionPercentage =
+      totalPossibleItems > 0 ? (totalItems / totalPossibleItems) * 100 : 0;
 
     // Find rarest item
     let rarestItem: CollectionItem | null = null;
     let rarestRarity = -1;
 
-    this.playerItems.forEach(item => {
+    this.playerItems.forEach((item) => {
       const rarityValue = Object.values(ItemRarity).indexOf(item.rarity);
       if (rarityValue > rarestRarity) {
         rarestRarity = rarityValue;
@@ -570,7 +574,7 @@ export class CollectionBookSystem {
     let favoriteItem: CollectionItem | null = null;
     let maxCount = 0;
 
-    this.playerItems.forEach(item => {
+    this.playerItems.forEach((item) => {
       if (item.count > maxCount) {
         maxCount = item.count;
         favoriteItem = item;
@@ -591,10 +595,10 @@ export class CollectionBookSystem {
       { items: 500, reward: { gold: 5000, gems: 500 } },
     ];
 
-    milestones.forEach(milestone => {
+    milestones.forEach((milestone) => {
       if (this.stats.totalUniqueItems === milestone.items) {
         this.grantRewards(milestone.reward);
-        
+
         eventBus.emit('collection:global:milestone', {
           items: milestone.items,
           reward: milestone.reward,
@@ -608,7 +612,7 @@ export class CollectionBookSystem {
 
     const itemId = this.discoveryQueue.shift()!;
     const item = this.playerItems.get(itemId);
-    
+
     if (item) {
       eventBus.emit('collection:discovery:animation', {
         itemId,
@@ -620,7 +624,7 @@ export class CollectionBookSystem {
 
   private generateCoinItems(): CollectionItem[] {
     const coins = ['bronze', 'silver', 'gold', 'platinum', 'diamond'];
-    return coins.map(type => ({
+    return coins.map((type) => ({
       id: `${type}_coin`,
       name: `${type.charAt(0).toUpperCase() + type.slice(1)} Coin`,
       description: `A ${type} coin`,

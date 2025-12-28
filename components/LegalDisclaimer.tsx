@@ -1,13 +1,5 @@
 import React, { useState } from 'react';
-import { 
-  View, 
-  Text, 
-  Modal, 
-  TouchableOpacity, 
-  ScrollView, 
-  StyleSheet,
-  Alert
-} from 'react-native';
+import { View, Text, Modal, TouchableOpacity, ScrollView, StyleSheet, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BrandTheme } from '../src/styles/BrandTheme';
 
@@ -24,16 +16,16 @@ const LegalDisclaimer: React.FC<LegalDisclaimerProps> = ({
   onAccept,
   onDecline,
   type,
-  purchaseAmount
+  purchaseAmount,
 }) => {
   const [hasScrolledToEnd, setHasScrolledToEnd] = useState(false);
 
   const handleScroll = (event: any) => {
     const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
     const paddingToBottom = 20;
-    const isCloseToBottom = layoutMeasurement.height + contentOffset.y >= 
-      contentSize.height - paddingToBottom;
-    
+    const isCloseToBottom =
+      layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom;
+
     if (isCloseToBottom && !hasScrolledToEnd) {
       setHasScrolledToEnd(true);
     }
@@ -46,54 +38,43 @@ const LegalDisclaimer: React.FC<LegalDisclaimerProps> = ({
       type,
       timestamp,
       accepted: true,
-      purchaseAmount
+      purchaseAmount,
     };
-    
+
     try {
       const existingLogs = await AsyncStorage.getItem('disclaimer_logs');
       const logs = existingLogs ? JSON.parse(existingLogs) : [];
       logs.push(disclaimerLog);
-      
+
       // Keep only last 100 logs
       if (logs.length > 100) {
         logs.splice(0, logs.length - 100);
       }
-      
+
       await AsyncStorage.setItem('disclaimer_logs', JSON.stringify(logs));
     } catch (error) {
       console.error('Failed to log disclaimer acceptance:', error);
     }
-    
+
     onAccept();
   };
 
   return (
-    <Modal
-      visible={visible}
-      transparent={true}
-      animationType="fade"
-      onRequestClose={onDecline}
-    >
+    <Modal visible={visible} transparent={true} animationType="fade" onRequestClose={onDecline}>
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
           <Text style={styles.title}>⚠️ IMPORTANT DISCLAIMER</Text>
-          
+
           {type === 'purchase' && (
             <>
               <Text style={styles.warningTitle}>BEFORE YOU PURCHASE</Text>
               {purchaseAmount && (
-                <Text style={styles.purchaseAmount}>
-                  You are about to spend: ${purchaseAmount}
-                </Text>
+                <Text style={styles.purchaseAmount}>You are about to spend: ${purchaseAmount}</Text>
               )}
             </>
           )}
 
-          <ScrollView 
-            style={styles.scrollView}
-            onScroll={handleScroll}
-            scrollEventThrottle={16}
-          >
+          <ScrollView style={styles.scrollView} onScroll={handleScroll} scrollEventThrottle={16}>
             <Text style={styles.disclaimerText}>
               {`PLEASE READ AND UNDERSTAND:
 
@@ -129,25 +110,16 @@ By clicking "I UNDERSTAND & ACCEPT", you confirm:
           </ScrollView>
 
           <View style={styles.buttonContainer}>
-            <TouchableOpacity 
-              style={styles.declineButton} 
-              onPress={onDecline}
-            >
+            <TouchableOpacity style={styles.declineButton} onPress={onDecline}>
               <Text style={styles.buttonText}>CANCEL</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity 
-              style={[
-                styles.acceptButton, 
-                !hasScrolledToEnd && styles.disabledButton
-              ]} 
+            <TouchableOpacity
+              style={[styles.acceptButton, !hasScrolledToEnd && styles.disabledButton]}
               onPress={handleAccept}
               disabled={!hasScrolledToEnd}
             >
-              <Text style={[
-                styles.buttonText,
-                !hasScrolledToEnd && styles.disabledButtonText
-              ]}>
+              <Text style={[styles.buttonText, !hasScrolledToEnd && styles.disabledButtonText]}>
                 {hasScrolledToEnd ? 'I UNDERSTAND & ACCEPT' : 'SCROLL TO READ'}
               </Text>
             </TouchableOpacity>

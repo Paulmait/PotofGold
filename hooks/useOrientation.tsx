@@ -43,10 +43,13 @@ export function useOrientation(gameState?: GameState) {
   // Save game state before orientation change
   const saveGameState = useCallback(async (state: GameState) => {
     try {
-      await AsyncStorage.setItem('orientationGameState', JSON.stringify({
-        ...state,
-        timestamp: Date.now(),
-      }));
+      await AsyncStorage.setItem(
+        'orientationGameState',
+        JSON.stringify({
+          ...state,
+          timestamp: Date.now(),
+        })
+      );
     } catch (error) {
       console.error('Error saving game state during orientation change:', error);
     }
@@ -74,9 +77,9 @@ export function useOrientation(gameState?: GameState) {
   const calculateScale = useCallback((width: number, height: number): number => {
     const baseWidth = 375; // iPhone X width as base
     const baseHeight = 812; // iPhone X height as base
-    
+
     const orientation = width < height ? 'portrait' : 'landscape';
-    
+
     if (orientation === 'portrait') {
       return Math.min(width / baseWidth, height / baseHeight);
     } else {
@@ -86,36 +89,39 @@ export function useOrientation(gameState?: GameState) {
   }, []);
 
   // Handle dimension changes
-  const handleDimensionChange = useCallback(({ window }: { window: ScaledSize }) => {
-    const { width, height } = window;
-    const newOrientation: OrientationType = width < height ? 'portrait' : 'landscape';
-    const scale = calculateScale(width, height);
-    
-    // Detect orientation change
-    if (newOrientation !== previousOrientation) {
-      setIsTransitioning(true);
-      
-      // Save current game state if provided
-      if (gameState && !gameState.isPaused) {
-        saveGameState(gameState);
+  const handleDimensionChange = useCallback(
+    ({ window }: { window: ScaledSize }) => {
+      const { width, height } = window;
+      const newOrientation: OrientationType = width < height ? 'portrait' : 'landscape';
+      const scale = calculateScale(width, height);
+
+      // Detect orientation change
+      if (newOrientation !== previousOrientation) {
+        setIsTransitioning(true);
+
+        // Save current game state if provided
+        if (gameState && !gameState.isPaused) {
+          saveGameState(gameState);
+        }
+
+        setPreviousOrientation(newOrientation);
+
+        // Complete transition after animation
+        setTimeout(() => {
+          setIsTransitioning(false);
+        }, 300);
       }
-      
-      setPreviousOrientation(newOrientation);
-      
-      // Complete transition after animation
-      setTimeout(() => {
-        setIsTransitioning(false);
-      }, 300);
-    }
-    
-    setOrientationData({
-      orientation: newOrientation,
-      width,
-      height,
-      isTablet: Math.min(width, height) >= 600,
-      scale,
-    });
-  }, [previousOrientation, gameState, saveGameState, calculateScale]);
+
+      setOrientationData({
+        orientation: newOrientation,
+        width,
+        height,
+        isTablet: Math.min(width, height) >= 600,
+        scale,
+      });
+    },
+    [previousOrientation, gameState, saveGameState, calculateScale]
+  );
 
   // Lock orientation for specific screens if needed
   const lockOrientation = useCallback(async (orientation: 'portrait' | 'landscape' | 'default') => {
@@ -139,7 +145,7 @@ export function useOrientation(gameState?: GameState) {
   // Get optimized layout for current orientation
   const getLayout = useCallback(() => {
     const { orientation, width, height, isTablet, scale } = orientationData;
-    
+
     if (orientation === 'portrait') {
       return {
         // Portrait layout
@@ -192,52 +198,55 @@ export function useOrientation(gameState?: GameState) {
   }, [orientationData]);
 
   // Adjust game coordinates for orientation change
-  const translateCoordinates = useCallback((
-    x: number,
-    y: number,
-    fromOrientation: OrientationType,
-    toOrientation: OrientationType
-  ): { x: number; y: number } => {
-    const { width, height } = orientationData;
-    
-    if (fromOrientation === toOrientation) {
-      return { x, y };
-    }
-    
-    if (fromOrientation === 'portrait' && toOrientation === 'landscape') {
-      // Portrait to landscape
-      const xRatio = x / width;
-      const yRatio = y / height;
-      return {
-        x: yRatio * height,
-        y: xRatio * width,
-      };
-    } else {
-      // Landscape to portrait
-      const xRatio = x / height;
-      const yRatio = y / width;
-      return {
-        x: yRatio * width,
-        y: xRatio * height,
-      };
-    }
-  }, [orientationData]);
+  const translateCoordinates = useCallback(
+    (
+      x: number,
+      y: number,
+      fromOrientation: OrientationType,
+      toOrientation: OrientationType
+    ): { x: number; y: number } => {
+      const { width, height } = orientationData;
+
+      if (fromOrientation === toOrientation) {
+        return { x, y };
+      }
+
+      if (fromOrientation === 'portrait' && toOrientation === 'landscape') {
+        // Portrait to landscape
+        const xRatio = x / width;
+        const yRatio = y / height;
+        return {
+          x: yRatio * height,
+          y: xRatio * width,
+        };
+      } else {
+        // Landscape to portrait
+        const xRatio = x / height;
+        const yRatio = y / width;
+        return {
+          x: yRatio * width,
+          y: xRatio * height,
+        };
+      }
+    },
+    [orientationData]
+  );
 
   // Setup orientation change listener
   useEffect(() => {
     // Initial setup
-    ScreenOrientation.getOrientationAsync().then(orientation => {
+    ScreenOrientation.getOrientationAsync().then((orientation) => {
       console.log('Initial orientation:', orientation);
     });
-    
+
     // Listen for dimension changes
     const subscription = Dimensions.addEventListener('change', handleDimensionChange);
-    
+
     // Listen for orientation changes
-    const orientationSubscription = ScreenOrientation.addOrientationChangeListener(event => {
+    const orientationSubscription = ScreenOrientation.addOrientationChangeListener((event) => {
       console.log('Orientation changed:', event.orientationInfo.orientation);
     });
-    
+
     return () => {
       subscription?.remove();
       orientationSubscription?.remove();
@@ -260,7 +269,7 @@ export function withOrientationSupport<P extends object>(
 ): React.ComponentType<P> {
   return (props: P) => {
     const orientation = useOrientation();
-    
+
     return <Component {...props} orientation={orientation} />;
   };
 }
@@ -271,17 +280,17 @@ export const responsive = {
   value: (portrait: number, landscape: number, orientation: OrientationType): number => {
     return orientation === 'portrait' ? portrait : landscape;
   },
-  
+
   // Get responsive font size
   fontSize: (baseSize: number, scale: number): number => {
     return Math.round(baseSize * scale);
   },
-  
+
   // Get responsive spacing
   spacing: (baseSpacing: number, scale: number): number => {
     return Math.round(baseSpacing * scale);
   },
-  
+
   // Check if device is tablet
   isTablet: (): boolean => {
     const { width, height } = Dimensions.get('window');

@@ -32,7 +32,7 @@ export class PerformanceMonitor {
 
   private constructor() {
     this.sessionStartTime = Date.now();
-    
+
     this.metrics = {
       fps: 60,
       memoryUsage: 0,
@@ -81,12 +81,12 @@ export class PerformanceMonitor {
 
   startMonitoring(): void {
     if (this.isMonitoring) return;
-    
+
     this.isMonitoring = true;
     this.monitorFPS();
     this.monitorMemory();
     this.monitorNetwork();
-    
+
     // Send metrics every 5 seconds
     setInterval(() => {
       this.reportMetrics();
@@ -96,27 +96,27 @@ export class PerformanceMonitor {
   private monitorFPS(): void {
     let lastTime = performance.now();
     let frames = 0;
-    
+
     const measureFPS = () => {
       if (!this.isMonitoring) return;
-      
+
       frames++;
       const currentTime = performance.now();
-      
+
       if (currentTime >= lastTime + 1000) {
         this.metrics.fps = Math.round((frames * 1000) / (currentTime - lastTime));
         frames = 0;
         lastTime = currentTime;
-        
+
         // Adjust quality if FPS is low
         if (this.metrics.fps < this.thresholds.minFPS) {
           this.optimizePerformance();
         }
       }
-      
+
       requestAnimationFrame(measureFPS);
     };
-    
+
     requestAnimationFrame(measureFPS);
   }
 
@@ -125,7 +125,7 @@ export class PerformanceMonitor {
       setInterval(() => {
         const memoryInfo = (performance as any).memory;
         this.metrics.memoryUsage = Math.round(memoryInfo.usedJSHeapSize / 1048576); // Convert to MB
-        
+
         if (this.metrics.memoryUsage > this.thresholds.maxMemoryMB) {
           this.handleMemoryPressure();
         }
@@ -137,10 +137,10 @@ export class PerformanceMonitor {
     // Monitor network requests
     if (Platform.OS === 'web') {
       const originalFetch = window.fetch;
-      
+
       window.fetch = async (...args) => {
         const startTime = performance.now();
-        
+
         try {
           const response = await originalFetch(...args);
           const endTime = performance.now();
@@ -187,7 +187,7 @@ export class PerformanceMonitor {
 
   private reportMetrics(): void {
     this.metrics.sessionDuration = Math.round((Date.now() - this.sessionStartTime) / 1000);
-    this.metrics.errorRate = this.errorCount / Math.max(1, this.frameCount) * 100;
+    this.metrics.errorRate = (this.errorCount / Math.max(1, this.frameCount)) * 100;
 
     // Emit metrics for analytics
     eventBus.emit('performance:metrics', this.metrics);
@@ -208,7 +208,7 @@ export class PerformanceMonitor {
   // Public API
   recordError(error: Error): void {
     this.errorCount++;
-    
+
     eventBus.emit('error:recorded', {
       error: error.message,
       stack: error.stack,
@@ -237,29 +237,35 @@ export class PerformanceMonitor {
   getPerformanceScore(): number {
     // Calculate performance score from 0 to 100
     let score = 100;
-    
+
     // FPS impact (40% weight)
     const fpsScore = Math.min(100, (this.metrics.fps / 60) * 100);
     score = score * 0.6 + fpsScore * 0.4;
-    
+
     // Memory impact (20% weight)
-    const memoryScore = Math.max(0, 100 - (this.metrics.memoryUsage / this.thresholds.maxMemoryMB) * 100);
+    const memoryScore = Math.max(
+      0,
+      100 - (this.metrics.memoryUsage / this.thresholds.maxMemoryMB) * 100
+    );
     score = score * 0.8 + memoryScore * 0.2;
-    
+
     // Network impact (20% weight)
-    const networkScore = Math.max(0, 100 - (this.metrics.networkLatency / this.thresholds.maxNetworkLatencyMs) * 100);
+    const networkScore = Math.max(
+      0,
+      100 - (this.metrics.networkLatency / this.thresholds.maxNetworkLatencyMs) * 100
+    );
     score = score * 0.8 + networkScore * 0.2;
-    
+
     // Error rate impact (20% weight)
     const errorScore = Math.max(0, 100 - this.metrics.errorRate * 20);
     score = score * 0.8 + errorScore * 0.2;
-    
+
     return Math.round(score);
   }
 
   destroy(): void {
     this.isMonitoring = false;
-    
+
     if (this.performanceObserver) {
       this.performanceObserver.disconnect();
       this.performanceObserver = null;

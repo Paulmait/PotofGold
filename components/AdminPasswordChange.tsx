@@ -9,7 +9,7 @@ import {
   Modal,
   ScrollView,
   KeyboardAvoidingView,
-  Platform
+  Platform,
 } from 'react-native';
 import { validatePassword } from '../src/config/adminCredentials';
 
@@ -24,7 +24,7 @@ export const AdminPasswordChange: React.FC<AdminPasswordChangeProps> = ({
   isVisible,
   onPasswordChanged,
   onCancel,
-  isFirstLogin = false
+  isFirstLogin = false,
 }) => {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -80,7 +80,7 @@ export const AdminPasswordChange: React.FC<AdminPasswordChangeProps> = ({
     try {
       // Here you would typically make an API call to change the password
       // For now, we'll simulate the process
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       // Success
       Alert.alert(
@@ -92,8 +92,8 @@ export const AdminPasswordChange: React.FC<AdminPasswordChangeProps> = ({
             onPress: () => {
               onPasswordChanged(newPassword);
               setIsSubmitting(false);
-            }
-          }
+            },
+          },
         ]
       );
     } catch (error) {

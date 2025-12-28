@@ -15,23 +15,8 @@
   "features": {},
   "forwardPorts": [19000, 19001, 19002],
   "portsAttributes": {
-    "19000": {"label": "Expo Metro Bundler", "onAutoForward": "openBrowser"},
-    "19001": {"label": "Expo Tunnel"},
-    "19002": {"label": "Expo Dev Tools", "onAutoForward": "openBrowser"}
-  }
-}
-
-{
-  "workspaceFolder": "/workspaces/PotofGold",
-  "name": "Expo React Native Dev",
-  "build": {
-    "dockerfile": "Dockerfile"
-  },
-  "postCreateCommand": "npm install",
-  "forwardPorts": [19000, 19001, 19002],
-  "portsAttributes": {
-    "19000": {"label": "Expo Metro Bundler", "onAutoForward": "openBrowser"},
-    "19001": {"label": "Expo Tunnel"},
-    "19002": {"label": "Expo Dev Tools", "onAutoForward": "openBrowser"}
+    "19000": { "label": "Expo Metro Bundler", "onAutoForward": "openBrowser" },
+    "19001": { "label": "Expo Tunnel" },
+    "19002": { "label": "Expo Dev Tools", "onAutoForward": "openBrowser" }
   }
 }

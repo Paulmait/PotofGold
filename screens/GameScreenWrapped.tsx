@@ -14,7 +14,7 @@ const GameScreenWrapped = (props: any) => {
       </ResponsiveGameWrapper>
     );
   }
-  
+
   // For mobile and tablets, render game without wrapper
   return <GameScreenClean {...props} />;
 };

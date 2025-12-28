@@ -1,9 +1,5 @@
 import React from 'react';
-import {
-  View,
-  StyleSheet,
-  Dimensions,
-} from 'react-native';
+import { View, StyleSheet, Dimensions } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
@@ -74,7 +70,11 @@ export const StateFlagPattern: React.FC<StateThemeProps> = ({ stateId, theme, vi
   return renderFlagPattern();
 };
 
-export const StateShapeSilhouette: React.FC<StateThemeProps> = ({ stateId, theme, visualElements }) => {
+export const StateShapeSilhouette: React.FC<StateThemeProps> = ({
+  stateId,
+  theme,
+  visualElements,
+}) => {
   const renderShape = () => {
     switch (visualElements.shapeOutline) {
       case 'mountain':
@@ -109,7 +109,11 @@ export const StateShapeSilhouette: React.FC<StateThemeProps> = ({ stateId, theme
   return renderShape();
 };
 
-export const StateParticleEffect: React.FC<StateThemeProps> = ({ stateId, theme, visualElements }) => {
+export const StateParticleEffect: React.FC<StateThemeProps> = ({
+  stateId,
+  theme,
+  visualElements,
+}) => {
   const renderParticles = () => {
     switch (visualElements.particleEffect) {
       case 'maple_leaves':
@@ -207,7 +211,7 @@ const styles = StyleSheet.create({
     height: 20,
     borderRadius: 10,
   },
-  
+
   // Shape silhouettes
   shapeContainer: {
     width: 60,
@@ -238,7 +242,7 @@ const styles = StyleSheet.create({
     height: 35,
     backgroundColor: '#228B22',
   },
-  
+
   // Particle effects
   particleContainer: {
     position: 'absolute',
@@ -268,4 +272,4 @@ const styles = StyleSheet.create({
     borderRadius: 1,
     opacity: 0.6,
   },
-}); 
+});

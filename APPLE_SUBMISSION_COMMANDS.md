@@ -35,6 +35,7 @@ eas build --platform ios --profile production
 ```
 
 This will:
+
 - Build your app with all the fixes we made
 - Use the Firebase credentials we just configured
 - Auto-increment the build number
@@ -50,6 +51,7 @@ eas submit --platform ios --latest
 ```
 
 EAS will interactively prompt you for:
+
 - App Store Connect App ID (if you don't have it, EAS can help you find it)
 - Apple Team ID (EAS will show your available teams)
 - Apple ID password (for authentication)
@@ -65,16 +67,19 @@ eas build --platform ios --profile production --auto-submit
 ## Important Notes
 
 ✅ **What's Already Configured:**
+
 - Apple ID: crazya1c@hotmail.com
 - All Firebase credentials
 - App compliance fixes (permissions, privacy, security)
 
 ⚠️ **What You'll Need During Submission:**
+
 - Your Apple Developer account password
 - App-specific password (if you use 2FA - generate at appleid.apple.com)
 - App Store Connect App ID (EAS will help you find this)
 
 🎯 **App Store Review Tips:**
+
 - Age Rating: Set to **13+** in App Store Connect
 - Privacy Labels: Mark Analytics, Device ID, Location (all with user consent)
 - Category: Games > Casual or Games > Action
@@ -83,6 +88,7 @@ eas build --platform ios --profile production --auto-submit
 ## Troubleshooting
 
 **If secrets fail to create:**
+
 ```bash
 # List existing secrets
 eas secret:list
@@ -92,11 +98,13 @@ eas secret:delete --name EXPO_PUBLIC_FIREBASE_API_KEY
 ```
 
 **If build fails:**
+
 - Check build logs in EAS dashboard
 - Verify all secrets are configured correctly
 - Run `eas build:list` to see build history
 
 **If submission fails:**
+
 - Verify your Apple Developer Program membership is active
 - Check that your app bundle ID matches: com.pofgold.potofgold
 - Ensure you have an app created in App Store Connect

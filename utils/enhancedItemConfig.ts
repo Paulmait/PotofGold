@@ -30,27 +30,27 @@ export interface EnhancedItemConfig {
   magnetAttracted?: boolean; // Affected by magnet power-up
 }
 
-export type ItemCategory = 
-  | 'currency'      // Coins, gems, tokens
-  | 'powerup'       // Temporary abilities
-  | 'multiplier'    // Score/coin multipliers
-  | 'special'       // Unique mechanics
-  | 'obstacle'      // Avoid these
-  | 'vip'          // VIP exclusive
-  | 'seasonal'     // Time-limited
-  | 'collection'   // Collectibles
-  | 'mystery'      // Random rewards
-  | 'legendary';   // Ultra-rare items
+export type ItemCategory =
+  | 'currency' // Coins, gems, tokens
+  | 'powerup' // Temporary abilities
+  | 'multiplier' // Score/coin multipliers
+  | 'special' // Unique mechanics
+  | 'obstacle' // Avoid these
+  | 'vip' // VIP exclusive
+  | 'seasonal' // Time-limited
+  | 'collection' // Collectibles
+  | 'mystery' // Random rewards
+  | 'legendary'; // Ultra-rare items
 
-export type ItemRarity = 
-  | 'common'       // 40% spawn rate
-  | 'uncommon'     // 25% spawn rate
-  | 'rare'         // 15% spawn rate
-  | 'epic'         // 10% spawn rate
-  | 'legendary'    // 5% spawn rate
-  | 'mythic'       // 3% spawn rate
-  | 'exclusive'    // 2% spawn rate (VIP/Event only)
-  | 'cosmic';      // 0.1% spawn rate (Ultra-rare)
+export type ItemRarity =
+  | 'common' // 40% spawn rate
+  | 'uncommon' // 25% spawn rate
+  | 'rare' // 15% spawn rate
+  | 'epic' // 10% spawn rate
+  | 'legendary' // 5% spawn rate
+  | 'mythic' // 3% spawn rate
+  | 'exclusive' // 2% spawn rate (VIP/Event only)
+  | 'cosmic'; // 0.1% spawn rate (Ultra-rare)
 
 export const ENHANCED_ITEMS: { [key: string]: EnhancedItemConfig } = {
   // ========== BASIC CURRENCY ==========
@@ -716,13 +716,13 @@ export const PROGRESSION_MODIFIERS = {
     7: { multiplier: 1.3, rareBonus: 0.2 },
     15: { multiplier: 1.5, rareBonus: 0.3 },
     30: { multiplier: 2.0, rareBonus: 0.5 },
-  }
+  },
 };
 
 // Special effect implementations
 export const SPECIAL_EFFECTS = {
-  addGem: (player: any) => player.gems += 1,
-  addGems: (player: any, value: number) => player.gems += value,
+  addGem: (player: any) => (player.gems += 1),
+  addGems: (player: any, value: number) => (player.gems += value),
   vipBonus: (player: any) => {
     player.score *= 2;
     player.coins += 100;
@@ -743,7 +743,7 @@ export const SPECIAL_EFFECTS = {
   },
   speedBoost: (player: any) => {
     player.speed *= 3;
-    setTimeout(() => player.speed /= 3, 8000);
+    setTimeout(() => (player.speed /= 3), 8000);
   },
   goldenTouch: (game: any) => {
     game.activateGoldenMode(10000);
@@ -764,13 +764,13 @@ export const SPECIAL_EFFECTS = {
       coins: 500,
       gems: 10,
       multiplier: 5,
-      duration: 30000
+      duration: 30000,
     };
   },
   phoenixRevive: (player: any) => {
     player.revive();
     player.invincible = true;
-    setTimeout(() => player.invincible = false, 5000);
+    setTimeout(() => (player.invincible = false), 5000);
   },
   dragonBreath: (game: any) => {
     game.clearAllObstacles();
@@ -778,7 +778,7 @@ export const SPECIAL_EFFECTS = {
   },
   infinityMode: (player: any) => {
     player.godMode = true;
-    setTimeout(() => player.godMode = false, 30000);
+    setTimeout(() => (player.godMode = false), 30000);
   },
 };
 
@@ -787,23 +787,23 @@ export const COLLECTION_SETS = {
   ancient_treasures: {
     name: 'Ancient Treasures',
     items: 10,
-    reward: { coins: 1000, gems: 50, title: 'Archaeologist' }
+    reward: { coins: 1000, gems: 50, title: 'Archaeologist' },
   },
   crystal_power: {
     name: 'Crystal Power',
     items: 7,
-    reward: { coins: 777, gems: 77, skin: 'crystal_cart' }
+    reward: { coins: 777, gems: 77, skin: 'crystal_cart' },
   },
   seasonal_grand_slam: {
     name: 'Seasonal Grand Slam',
     items: 12, // All seasonal items
-    reward: { coins: 5000, gems: 200, badge: 'seasons_master' }
+    reward: { coins: 5000, gems: 200, badge: 'seasons_master' },
   },
   legendary_collector: {
     name: 'Legendary Collector',
     items: 5,
-    reward: { coins: 10000, gems: 500, title: 'Legend', skin: 'legendary_cart' }
-  }
+    reward: { coins: 10000, gems: 500, title: 'Legend', skin: 'legendary_cart' },
+  },
 };
 
 // VIP-specific spawn pools
@@ -814,7 +814,7 @@ export const VIP_SPAWN_POOLS = {
   platinum: ['vipCrown', 'platinumChest'],
   diamond: ['vipCrown', 'platinumChest', 'diamondRain'],
   master: ['vipCrown', 'platinumChest', 'diamondRain'],
-  eternal: ['vipCrown', 'platinumChest', 'diamondRain', 'infinityGem']
+  eternal: ['vipCrown', 'platinumChest', 'diamondRain', 'infinityGem'],
 };
 
 // Event calendars
@@ -823,5 +823,5 @@ export const EVENT_CALENDAR = {
   halloween: { start: '10-01', end: '11-01', items: ['pumpkin'] },
   stpatricks: { start: '03-10', end: '03-20', items: ['fourLeafClover'] },
   summer: { start: '06-01', end: '08-31', items: ['sunburst'] },
-  anniversary: { start: '01-01', end: '01-07', items: ['birthdayCake'] }
+  anniversary: { start: '01-01', end: '01-07', items: ['birthdayCake'] },
 };

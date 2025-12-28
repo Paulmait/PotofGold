@@ -18,8 +18,12 @@ jest.mock('react-native-screens', () => {
   const React = require('react');
   const { View } = require('react-native');
   return {
-    Screen: React.forwardRef((props, ref) => React.createElement(View, { ...props, ref }, props.children)),
-    ScreenContainer: React.forwardRef((props, ref) => React.createElement(View, { ...props, ref }, props.children)),
+    Screen: React.forwardRef((props, ref) =>
+      React.createElement(View, { ...props, ref }, props.children)
+    ),
+    ScreenContainer: React.forwardRef((props, ref) =>
+      React.createElement(View, { ...props, ref }, props.children)
+    ),
     enableScreens: jest.fn(),
     __esModule: true,
     ...require('react-native-screens/mock'),
@@ -31,8 +35,12 @@ jest.mock('react-native-safe-area-context', () => {
   const React = require('react');
   const { View } = require('react-native');
   return {
-    SafeAreaProvider: React.forwardRef((props, ref) => React.createElement(View, { ...props, ref }, props.children)),
-    SafeAreaView: React.forwardRef((props, ref) => React.createElement(View, { ...props, ref }, props.children)),
+    SafeAreaProvider: React.forwardRef((props, ref) =>
+      React.createElement(View, { ...props, ref }, props.children)
+    ),
+    SafeAreaView: React.forwardRef((props, ref) =>
+      React.createElement(View, { ...props, ref }, props.children)
+    ),
     useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
     useSafeAreaFrame: () => ({ x: 0, y: 0, width: 375, height: 812 }),
     initialWindowMetrics: null,
@@ -58,35 +66,37 @@ jest.mock('./hooks/useSeasonalSkins', () => ({
 // Mock masterGameManager
 jest.mock('./utils/masterGameManager', () => ({
   masterGameManager: {
-    initializeGame: jest.fn(() => Promise.resolve({
-      userId: 'test-user',
-      isInitialized: true,
-      currentLevel: 1,
-      currentWorld: { id: 1 },
-      playerProgress: {},
-      metaGameProgress: { 
-        pots: { 
-          currentPot: { speed: 0.5, size: 1, level: 1 }, 
-          currentSkin: { image: 'default_pot' } 
-        } 
-      },
-      missionProgress: {},
-      powerUpCollection: {},
-      skillProgress: {},
-      seasonPass: {},
-      dailyStreak: {},
-      unlockTree: {},
-      adRewards: {},
-      lastUpdated: new Date(),
-    })),
+    initializeGame: jest.fn(() =>
+      Promise.resolve({
+        userId: 'test-user',
+        isInitialized: true,
+        currentLevel: 1,
+        currentWorld: { id: 1 },
+        playerProgress: {},
+        metaGameProgress: {
+          pots: {
+            currentPot: { speed: 0.5, size: 1, level: 1 },
+            currentSkin: { image: 'default_pot' },
+          },
+        },
+        missionProgress: {},
+        powerUpCollection: {},
+        skillProgress: {},
+        seasonPass: {},
+        dailyStreak: {},
+        unlockTree: {},
+        adRewards: {},
+        lastUpdated: new Date(),
+      })
+    ),
     initialize: jest.fn(() => Promise.resolve()),
     update: jest.fn(),
     getState: jest.fn(() => ({
-      metaGameProgress: { 
-        pots: { 
-          currentPot: { speed: 0.5, size: 1, level: 1 }, 
-          currentSkin: { image: 'default_pot' } 
-        } 
+      metaGameProgress: {
+        pots: {
+          currentPot: { speed: 0.5, size: 1, level: 1 },
+          currentSkin: { image: 'default_pot' },
+        },
       },
     })),
   },
@@ -96,11 +106,11 @@ jest.mock('./utils/masterGameManager', () => ({
 // Mock metaGameSystem
 jest.mock('./utils/metaGameSystem', () => ({
   metaGameSystem: {
-    getProgress: jest.fn(() => ({ 
-      pots: { 
-        currentPot: { speed: 0.5, size: 1, level: 1 }, 
-        currentSkin: { image: 'default_pot' } 
-      } 
+    getProgress: jest.fn(() => ({
+      pots: {
+        currentPot: { speed: 0.5, size: 1, level: 1 },
+        currentSkin: { image: 'default_pot' },
+      },
     })),
     initialize: jest.fn(),
     update: jest.fn(),
@@ -324,18 +334,20 @@ jest.mock('./context/UnlocksContext', () => ({
 jest.mock('expo-av', () => ({
   Audio: {
     Sound: {
-      createAsync: jest.fn(() => Promise.resolve({
-        sound: {
-          playAsync: jest.fn(),
-          unloadAsync: jest.fn(),
-          setPositionAsync: jest.fn(),
-          pauseAsync: jest.fn(),
-          stopAsync: jest.fn(),
-          setVolumeAsync: jest.fn(),
-          setIsLoopingAsync: jest.fn(),
-        },
-        status: { isLoaded: true }
-      })),
+      createAsync: jest.fn(() =>
+        Promise.resolve({
+          sound: {
+            playAsync: jest.fn(),
+            unloadAsync: jest.fn(),
+            setPositionAsync: jest.fn(),
+            pauseAsync: jest.fn(),
+            stopAsync: jest.fn(),
+            setVolumeAsync: jest.fn(),
+            setIsLoopingAsync: jest.fn(),
+          },
+          status: { isLoaded: true },
+        })
+      ),
     },
     setAudioModeAsync: jest.fn(() => Promise.resolve()),
   },
@@ -355,7 +367,9 @@ jest.mock('expo-haptics', () => ({
 // Global setup complete - timer cleanup handled by jest.config.js
 // jest.setup.js
 // Mock AsyncStorage
-jest.mock('@react-native-async-storage/async-storage', () => require('@react-native-async-storage/async-storage/jest/async-storage-mock'));
+jest.mock('@react-native-async-storage/async-storage', () =>
+  require('@react-native-async-storage/async-storage/jest/async-storage-mock')
+);
 
 // Mock NetInfo
 jest.mock('@react-native-community/netinfo', () => ({
@@ -369,7 +383,9 @@ jest.mock('react-native-gesture-handler', () => {
   const React = require('react');
   const { View, ScrollView } = require('react-native');
   const mockComponent = (name) => {
-    return React.forwardRef((props, ref) => React.createElement(View, { ...props, ref }, props.children));
+    return React.forwardRef((props, ref) =>
+      React.createElement(View, { ...props, ref }, props.children)
+    );
   };
   const Animated = {
     View,
@@ -441,17 +457,19 @@ jest.mock('./utils/adRewardsSystem', () => ({
     checkAdAvailability: jest.fn(() => Promise.resolve(true)),
     showAd: jest.fn(() => Promise.resolve()),
     grantReward: jest.fn(() => Promise.resolve()),
-    initializeAdRewards: jest.fn(() => Promise.resolve({
-      userId: 'test-user',
-      watchedAds: [],
-      totalAdsWatched: 0,
-      totalRewardsEarned: { coins: 0, gems: 0, powerups: 0, skins: 0 },
-      activeCampaigns: [],
-      dailyAdLimit: 10,
-      adsWatchedToday: 0,
-      lastAdDate: '',
-      lastUpdated: new Date(),
-    })),
+    initializeAdRewards: jest.fn(() =>
+      Promise.resolve({
+        userId: 'test-user',
+        watchedAds: [],
+        totalAdsWatched: 0,
+        totalRewardsEarned: { coins: 0, gems: 0, powerups: 0, skins: 0 },
+        activeCampaigns: [],
+        dailyAdLimit: 10,
+        adsWatchedToday: 0,
+        lastAdDate: '',
+        lastUpdated: new Date(),
+      })
+    ),
     showRewardedAd: jest.fn(() => Promise.resolve({ success: true, reward: 100 })),
   },
   // Also export directly for destructuring imports

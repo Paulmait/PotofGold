@@ -10,7 +10,9 @@ jest.mock('react-native-gesture-handler', () => {
   const React = require('react');
   const { View, ScrollView } = require('react-native');
   const mockComponent = (name: any) => {
-    return React.forwardRef((props: any, ref: any) => React.createElement(View, { ...props, ref }, props.children));
+    return React.forwardRef((props: any, ref: any) =>
+      React.createElement(View, { ...props, ref }, props.children)
+    );
   };
   const Animated = {
     View,
@@ -149,7 +151,7 @@ jest.mock('../../components/StateUnlockNotification', () => ({
         <Text>StateUnlockNotification Mock</Text>
       </View>
     );
-  }
+  },
 }));
 
 jest.mock('../../components/MysteryCrate', () => {
@@ -325,7 +327,6 @@ describe('Game Flow Integration Tests', () => {
     });
   });
 
-
   afterEach(async () => {
     // Flush all pending timers and microtasks
     await Promise.resolve();
@@ -339,7 +340,7 @@ describe('Game Flow Integration Tests', () => {
   });
 
   describe('Auth → Start Game → Earn Coins → Upgrade → Change Skin → Pause/Resume', () => {
-  it('should complete full game flow successfully', async () => {
+    it('should complete full game flow successfully', async () => {
       // Set up a mockGameEngine with state transitions
 
       // Ensure initial state is correct for Start Game button
@@ -375,7 +376,6 @@ describe('Game Flow Integration Tests', () => {
         isAuthenticated: true,
       });
 
-
       render(
         <TestWrapper>
           <GameScreen navigation={{}} />
@@ -388,15 +388,15 @@ describe('Game Flow Integration Tests', () => {
         mockGameEngine.startGame();
         mockGameEngine.gameState.isActive = true;
       });
-      
+
       expect(mockGameEngine.startGame).toHaveBeenCalled();
-      
+
       // 2. Collect Coins
       await act(async () => {
         mockGameEngine.collectCoin();
         mockGameEngine.gameState.coins += 10;
       });
-      
+
       expect(mockGameEngine.collectCoin).toHaveBeenCalled();
 
       // 3. Pause Game
@@ -404,15 +404,15 @@ describe('Game Flow Integration Tests', () => {
         mockGameEngine.pauseGame();
         mockGameEngine.gameState.isPaused = true;
       });
-      
+
       expect(mockGameEngine.pauseGame).toHaveBeenCalled();
-      
+
       // 4. Resume Game
       await act(async () => {
         mockGameEngine.resumeGame();
         mockGameEngine.gameState.isPaused = false;
       });
-      
+
       expect(mockGameEngine.resumeGame).toHaveBeenCalled();
     });
 
@@ -475,7 +475,7 @@ describe('Game Flow Integration Tests', () => {
         await skinSystem.equipSkin('golden_pot');
         await soundSystem.playSound('skin_change');
       });
-      
+
       await waitFor(() => {
         expect(skinSystem.equipSkin).toHaveBeenCalled();
         expect(soundSystem.playSound).toHaveBeenCalledWith('skin_change');
@@ -632,9 +632,7 @@ describe('Game Flow Integration Tests', () => {
 
   describe('Error Handling and Edge Cases', () => {
     it('should handle network errors gracefully', async () => {
-      (masterGameManager.initializeGame as jest.Mock).mockRejectedValue(
-        new Error('Network error')
-      );
+      (masterGameManager.initializeGame as jest.Mock).mockRejectedValue(new Error('Network error'));
       const { getByText, findByText } = render(
         <TestWrapper>
           <GameScreen navigation={{}} />
@@ -669,9 +667,7 @@ describe('Game Flow Integration Tests', () => {
     });
 
     it('should handle sound system failures gracefully', async () => {
-      (soundSystem.playSound as jest.Mock).mockRejectedValue(
-        new Error('Audio error')
-      );
+      (soundSystem.playSound as jest.Mock).mockRejectedValue(new Error('Audio error'));
       // Set up mockGameEngine for this test
       const mockGameEngine = {
         gameState: {
@@ -700,7 +696,7 @@ describe('Game Flow Integration Tests', () => {
       );
       // Game should continue even if sound fails
       mockGameEngine.startGame();
-      
+
       // Verify game continues despite sound error
       await waitFor(() => {
         expect(mockGameEngine.startGame).toHaveBeenCalled();
@@ -734,7 +730,7 @@ describe('Game Flow Integration Tests', () => {
           <GameScreen navigation={{}} />
         </TestWrapper>
       );
-      
+
       // Rapid coin collection
       for (let i = 0; i < 100; i++) {
         mockGameEngine.collectCoin();
@@ -771,4 +767,4 @@ describe('Game Flow Integration Tests', () => {
       });
     });
   });
-}); 
+});

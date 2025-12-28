@@ -123,7 +123,7 @@ export default function App() {
         try {
           if (user) {
             setIsAuthenticated(true);
-            
+
             // Save user data to session
             await sessionPersistence.saveUserData(
               user.uid,
@@ -131,14 +131,14 @@ export default function App() {
               user.displayName || undefined,
               false
             );
-            
+
             // Load user profile
             await authService.loadUserProfile(user.uid);
-            
+
             // Check admin status
             const adminStatus = await authService.checkAdminStatus();
             setIsAdmin(adminStatus);
-            
+
             // Set user context for crash reporting
             crashReporting.setUser({
               id: user.uid,
@@ -190,12 +190,7 @@ export default function App() {
 
   // Show splash screen first
   if (showSplash) {
-    return (
-      <SplashScreenEnhanced 
-        onComplete={() => setShowSplash(false)}
-        duration={3500}
-      />
-    );
+    return <SplashScreenEnhanced onComplete={() => setShowSplash(false)} duration={3500} />;
   }
 
   if (isLoading) {
@@ -209,99 +204,94 @@ export default function App() {
   // Main app content
   const AppContent = (
     <NavigationContainer>
-        <UnlocksProvider>
-          <UserUnlockProvider>
-            <GameProvider>
-              <Stack.Navigator
-            screenOptions={{
-              headerShown: false,
-              animationEnabled: true,
-              cardStyleInterpolator: ({ current }) => ({
-                cardStyle: {
-                  opacity: current.progress,
-                },
-              }),
-            }}
-          >
-            {!hasAcceptedLegal ? (
-              <>
-                <Stack.Screen 
-                  name="LegalAgreement" 
-                  component={LegalAgreementScreen}
-                  initialParams={{
-                    onAccept: async () => {
-                      await sessionPersistence.acceptLegal(legalVersion);
-                      setHasAcceptedLegal(true);
-                    },
-                    onDecline: () => {
-                      Alert.alert(
-                        'Agreement Required',
-                        'You must accept the legal agreements to use Pot of Gold.',
-                        [{ text: 'Exit', onPress: () => {} }]
-                      );
-                    }
-                  }}
-                />
-                {/* Add all screens as fallback during transition */}
-                <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-                <Stack.Screen name="Home" component={HomeScreenGuest} />
-                <Stack.Screen name="Game" component={GameScreenPerfect} />
-              </>
-            ) : !hasSeenOnboarding ? (
-              <>
-                <Stack.Screen 
-                  name="Onboarding" 
-                  component={OnboardingScreen}
-                  initialParams={{
-                    onComplete: async () => {
-                      await AsyncStorage.setItem('hasSeenOnboarding', 'true');
-                      setHasSeenOnboarding(true);
-                    }
-                  }}
-                />
-                {/* Add Home screen as fallback during transition */}
-                <Stack.Screen name="Home" component={HomeScreenGuest} />
-              </>
-            ) : !isAuthenticated ? (
-              <>
-                <Stack.Screen name="Home" component={HomeScreenGuest} />
-                <Stack.Screen name="Game" component={GameScreenPerfect} />
-                <Stack.Screen name="GameOver" component={GameOverScreen} />
-                <Stack.Screen name="Auth" component={AuthScreenFixed} />
-                <Stack.Screen name="Shop" component={ShopScreenPro} />
-                <Stack.Screen name="HowToPlay" component={HowToPlayScreen} />
-              </>
-            ) : (
-              <>
-                <Stack.Screen name="Home" component={HomeScreenGuest} />
-                <Stack.Screen name="Game" component={GameScreenPerfect} />
-                <Stack.Screen name="Settings" component={SettingsScreen} />
-                <Stack.Screen name="Shop" component={ShopScreenPro} />
-                <Stack.Screen name="SkinShop" component={SkinShopScreen} />
-                <Stack.Screen name="Locker" component={LockerScreen} />
-                <Stack.Screen name="Leaderboard" component={LeaderboardScreen} />
-                <Stack.Screen name="Stats" component={StatsScreen} />
-                <Stack.Screen name="HowToPlay" component={HowToPlayScreen} />
-                {isAdmin && (
-                  <Stack.Screen name="AdminPanel" component={AdminPanel} />
-                )}
-              </>
-            )}
-              </Stack.Navigator>
-            </GameProvider>
-          </UserUnlockProvider>
-        </UnlocksProvider>
-      </NavigationContainer>
+      <UnlocksProvider>
+        <UserUnlockProvider>
+          <GameProvider>
+            <Stack.Navigator
+              screenOptions={{
+                headerShown: false,
+                animationEnabled: true,
+                cardStyleInterpolator: ({ current }) => ({
+                  cardStyle: {
+                    opacity: current.progress,
+                  },
+                }),
+              }}
+            >
+              {!hasAcceptedLegal ? (
+                <>
+                  <Stack.Screen
+                    name="LegalAgreement"
+                    component={LegalAgreementScreen}
+                    initialParams={{
+                      onAccept: async () => {
+                        await sessionPersistence.acceptLegal(legalVersion);
+                        setHasAcceptedLegal(true);
+                      },
+                      onDecline: () => {
+                        Alert.alert(
+                          'Agreement Required',
+                          'You must accept the legal agreements to use Pot of Gold.',
+                          [{ text: 'Exit', onPress: () => {} }]
+                        );
+                      },
+                    }}
+                  />
+                  {/* Add all screens as fallback during transition */}
+                  <Stack.Screen name="Onboarding" component={OnboardingScreen} />
+                  <Stack.Screen name="Home" component={HomeScreenGuest} />
+                  <Stack.Screen name="Game" component={GameScreenPerfect} />
+                </>
+              ) : !hasSeenOnboarding ? (
+                <>
+                  <Stack.Screen
+                    name="Onboarding"
+                    component={OnboardingScreen}
+                    initialParams={{
+                      onComplete: async () => {
+                        await AsyncStorage.setItem('hasSeenOnboarding', 'true');
+                        setHasSeenOnboarding(true);
+                      },
+                    }}
+                  />
+                  {/* Add Home screen as fallback during transition */}
+                  <Stack.Screen name="Home" component={HomeScreenGuest} />
+                </>
+              ) : !isAuthenticated ? (
+                <>
+                  <Stack.Screen name="Home" component={HomeScreenGuest} />
+                  <Stack.Screen name="Game" component={GameScreenPerfect} />
+                  <Stack.Screen name="GameOver" component={GameOverScreen} />
+                  <Stack.Screen name="Auth" component={AuthScreenFixed} />
+                  <Stack.Screen name="Shop" component={ShopScreenPro} />
+                  <Stack.Screen name="HowToPlay" component={HowToPlayScreen} />
+                </>
+              ) : (
+                <>
+                  <Stack.Screen name="Home" component={HomeScreenGuest} />
+                  <Stack.Screen name="Game" component={GameScreenPerfect} />
+                  <Stack.Screen name="Settings" component={SettingsScreen} />
+                  <Stack.Screen name="Shop" component={ShopScreenPro} />
+                  <Stack.Screen name="SkinShop" component={SkinShopScreen} />
+                  <Stack.Screen name="Locker" component={LockerScreen} />
+                  <Stack.Screen name="Leaderboard" component={LeaderboardScreen} />
+                  <Stack.Screen name="Stats" component={StatsScreen} />
+                  <Stack.Screen name="HowToPlay" component={HowToPlayScreen} />
+                  {isAdmin && <Stack.Screen name="AdminPanel" component={AdminPanel} />}
+                </>
+              )}
+            </Stack.Navigator>
+          </GameProvider>
+        </UserUnlockProvider>
+      </UnlocksProvider>
+    </NavigationContainer>
   );
 
   // Don't wrap navigation with ResponsiveGameWrapper - only game screens need it
   return (
     <ErrorBoundary>
       {AppContent}
-      <PrivacyConsentDialog
-        visible={showPrivacyConsent}
-        onAccept={handlePrivacyConsent}
-      />
+      <PrivacyConsentDialog visible={showPrivacyConsent} onAccept={handlePrivacyConsent} />
     </ErrorBoundary>
   );
 }

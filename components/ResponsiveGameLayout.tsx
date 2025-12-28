@@ -1,12 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Dimensions,
-  Platform,
-  SafeAreaView,
-} from 'react-native';
+import { View, Text, StyleSheet, Dimensions, Platform, SafeAreaView } from 'react-native';
 import { BrandTheme, ResponsiveUtils } from '../src/styles/BrandTheme';
 
 interface ResponsiveGameLayoutProps {
@@ -25,7 +18,7 @@ const ResponsiveGameLayout: React.FC<ResponsiveGameLayoutProps> = ({
     return { width, height };
   });
 
-  const [orientation, setOrientation] = useState(() => 
+  const [orientation, setOrientation] = useState(() =>
     ResponsiveUtils.isPortrait() ? 'portrait' : 'landscape'
   );
 
@@ -72,7 +65,7 @@ const ResponsiveGameLayout: React.FC<ResponsiveGameLayoutProps> = ({
         paddingHorizontal: BrandTheme.spacing.md,
       };
     }
-    
+
     if (BrandTheme.device.isTablet) {
       // Tablet padding
       return {
@@ -91,7 +84,7 @@ const ResponsiveGameLayout: React.FC<ResponsiveGameLayoutProps> = ({
   const Container = Platform.OS === 'web' ? View : SafeAreaView;
 
   return (
-    <Container 
+    <Container
       style={[
         styles.container,
         {
@@ -103,11 +96,9 @@ const ResponsiveGameLayout: React.FC<ResponsiveGameLayoutProps> = ({
       <View style={[styles.gameArea, getGameAreaStyle()]}>
         {/* Background gradient overlay */}
         <View style={styles.backgroundOverlay} />
-        
+
         {/* Main game content */}
-        <View style={styles.contentWrapper}>
-          {children}
-        </View>
+        <View style={styles.contentWrapper}>{children}</View>
 
         {/* Platform-specific decorations */}
         {Platform.OS === 'web' && BrandTheme.device.isExtraLarge && (

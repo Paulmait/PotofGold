@@ -152,7 +152,8 @@ class ParticleSystem {
 
     for (let i = 0; i < config.count; i++) {
       const angle = (Math.PI * 2 * i) / config.count + Math.random() * 0.5;
-      const velocity = config.velocity.min + Math.random() * (config.velocity.max - config.velocity.min);
+      const velocity =
+        config.velocity.min + Math.random() * (config.velocity.max - config.velocity.min);
       const scale = config.scale.min + Math.random() * (config.scale.max - config.scale.min);
       const color = config.colors[Math.floor(Math.random() * config.colors.length)];
 
@@ -169,7 +170,8 @@ class ParticleSystem {
 
       // Calculate end position
       const endX = position.x + Math.cos(angle) * config.spread * velocity;
-      const endY = position.y + Math.sin(angle) * config.spread * velocity + (config.gravity * config.duration);
+      const endY =
+        position.y + Math.sin(angle) * config.spread * velocity + config.gravity * config.duration;
 
       // Animate particle
       Animated.parallel([
@@ -288,7 +290,7 @@ class ParticleSystem {
       { x: screenWidth * 0.8, y: screenHeight * 0.8 },
     ];
 
-    positions.forEach(pos => {
+    positions.forEach((pos) => {
       particles.push(...this.createParticles(ParticleType.LEVEL_UP_CONFETTI, pos));
     });
 
@@ -311,7 +313,7 @@ class ParticleSystem {
 
   getActiveParticles(): Particle[] {
     const allParticles: Particle[] = [];
-    this.particles.forEach(group => {
+    this.particles.forEach((group) => {
       allParticles.push(...group);
     });
     return allParticles;

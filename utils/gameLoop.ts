@@ -38,10 +38,7 @@ export class GameLoop {
   /**
    * Start the game loop
    */
-  start(
-    update: (deltaTime: number) => void,
-    render: (interpolation: number) => void
-  ): void {
+  start(update: (deltaTime: number) => void, render: (interpolation: number) => void): void {
     if (this.isRunning) return;
 
     this.updateCallback = update;
@@ -49,7 +46,7 @@ export class GameLoop {
     this.isRunning = true;
     this.lastTime = performance.now();
     this.lastFPSUpdate = this.lastTime;
-    
+
     this.detectPerformanceMode();
     this.loop(this.lastTime);
   }
@@ -82,19 +79,21 @@ export class GameLoop {
 
     // Frame skipping logic
     let framesSkipped = 0;
-    
+
     // Update at fixed timestep with frame skipping
     while (this.accumulator >= this.frameTime) {
       if (this.updateCallback) {
         this.updateCallback(this.frameTime / 1000); // Convert to seconds
       }
-      
+
       this.accumulator -= this.frameTime;
-      
+
       // Frame skipping for low-end devices
-      if (this.enableFrameSkipping && 
-          framesSkipped < this.maxFrameSkip && 
-          this.performanceMode === 'low') {
+      if (
+        this.enableFrameSkipping &&
+        framesSkipped < this.maxFrameSkip &&
+        this.performanceMode === 'low'
+      ) {
         framesSkipped++;
         if (this.accumulator >= this.frameTime * 2) {
           // Skip this frame if we're falling behind
@@ -122,12 +121,12 @@ export class GameLoop {
    */
   private updateFPS(currentTime: number): void {
     this.frameCount++;
-    
+
     if (currentTime - this.lastFPSUpdate >= 1000) {
       this.fps = this.frameCount;
       this.frameCount = 0;
       this.lastFPSUpdate = currentTime;
-      
+
       // Adjust performance mode based on FPS
       this.adjustPerformanceMode();
     }
@@ -139,8 +138,7 @@ export class GameLoop {
   private detectPerformanceMode(): void {
     if (Platform.OS === 'web') {
       // Check for high-end features
-      const highEnd = window.devicePixelRatio > 1 && 
-                      navigator.hardwareConcurrency > 4;
+      const highEnd = window.devicePixelRatio > 1 && navigator.hardwareConcurrency > 4;
       this.performanceMode = highEnd ? 'high' : 'medium';
     } else {
       // Mobile defaults
@@ -169,7 +167,7 @@ export class GameLoop {
    */
   private onPerformanceModeChange(mode: 'high' | 'medium' | 'low'): void {
     console.log(`Performance mode changed to: ${mode}`);
-    
+
     // Adjust settings based on mode
     switch (mode) {
       case 'low':
@@ -185,7 +183,7 @@ export class GameLoop {
         this.targetFPS = 60;
         break;
     }
-    
+
     this.frameTime = 1000 / this.targetFPS;
   }
 
@@ -250,7 +248,7 @@ export function getGameLoop(options?: GameLoopOptions): GameLoop {
 // Hook for React components
 export function useGameLoop() {
   const gameLoop = getGameLoop();
-  
+
   return {
     start: gameLoop.start.bind(gameLoop),
     stop: gameLoop.stop.bind(gameLoop),

@@ -8,13 +8,10 @@ interface MineCartEnhancedProps {
   collectedCoins: number;
 }
 
-const MineCartEnhanced: React.FC<MineCartEnhancedProps> = ({
-  position,
-  collectedCoins,
-}) => {
+const MineCartEnhanced: React.FC<MineCartEnhancedProps> = ({ position, collectedCoins }) => {
   // Calculate gold pile height based on collected coins
   const goldPileHeight = Math.min(collectedCoins / 10, 20);
-  
+
   return (
     <Animated.View
       style={[
@@ -51,7 +48,7 @@ const MineCartEnhanced: React.FC<MineCartEnhancedProps> = ({
               </View>
             ))}
           </View>
-          
+
           {/* Star indicators above cart when doing well */}
           {collectedCoins > 50 && (
             <View style={styles.starContainer}>
@@ -68,7 +65,7 @@ const MineCartEnhanced: React.FC<MineCartEnhancedProps> = ({
           )}
         </View>
       )}
-      
+
       {/* Main cart body */}
       <View style={styles.cart}>
         <LinearGradient
@@ -91,14 +88,14 @@ const MineCartEnhanced: React.FC<MineCartEnhancedProps> = ({
             )}
           </View>
         </LinearGradient>
-        
+
         {/* Cart front panel */}
         <View style={styles.cartFront}>
           <View style={styles.cartBolt} />
           <View style={[styles.cartBolt, styles.cartBoltRight]} />
         </View>
       </View>
-      
+
       {/* Wheels */}
       <View style={styles.wheelsContainer}>
         <View style={styles.wheel}>
@@ -124,7 +121,7 @@ const styles = StyleSheet.create({
     height: 70,
     zIndex: 500,
   },
-  
+
   goldContainer: {
     position: 'absolute',
     top: -30,
@@ -133,14 +130,14 @@ const styles = StyleSheet.create({
     height: 40,
     zIndex: 10,
   },
-  
+
   goldPile: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
   },
-  
+
   goldCoin: {
     position: 'absolute',
     width: 30,
@@ -148,7 +145,7 @@ const styles = StyleSheet.create({
     left: '50%',
     marginLeft: -15,
   },
-  
+
   coinGradient: {
     width: '100%',
     height: '100%',
@@ -156,25 +153,25 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  
+
   starContainer: {
     position: 'absolute',
     top: -20,
     left: 10,
     flexDirection: 'row',
   },
-  
+
   star: {
     position: 'absolute',
     top: 0,
   },
-  
+
   cart: {
     width: 80,
     height: 55,
     position: 'relative',
   },
-  
+
   cartBody: {
     width: '100%',
     height: '100%',
@@ -182,7 +179,7 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     borderColor: '#4A2F18',
   },
-  
+
   cartRim: {
     position: 'absolute',
     top: 0,
@@ -193,7 +190,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 5,
     borderTopRightRadius: 5,
   },
-  
+
   cartInner: {
     position: 'absolute',
     top: 8,
@@ -203,7 +200,7 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     overflow: 'hidden',
   },
-  
+
   innerGold: {
     position: 'absolute',
     bottom: 0,
@@ -213,7 +210,7 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 3,
     borderBottomRightRadius: 3,
   },
-  
+
   cartFront: {
     position: 'absolute',
     bottom: 5,
@@ -223,7 +220,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#4A2F18',
     borderRadius: 2,
   },
-  
+
   cartBolt: {
     position: 'absolute',
     top: 5,
@@ -233,12 +230,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#333',
     borderRadius: 3,
   },
-  
+
   cartBoltRight: {
     left: undefined,
     right: 8,
   },
-  
+
   wheelsContainer: {
     position: 'absolute',
     bottom: -8,
@@ -247,7 +244,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  
+
   wheel: {
     width: 24,
     height: 24,
@@ -258,7 +255,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  
+
   wheelInner: {
     width: 8,
     height: 8,
@@ -266,14 +263,14 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     position: 'absolute',
   },
-  
+
   wheelSpoke1: {
     position: 'absolute',
     width: 20,
     height: 2,
     backgroundColor: '#444',
   },
-  
+
   wheelSpoke2: {
     position: 'absolute',
     width: 2,

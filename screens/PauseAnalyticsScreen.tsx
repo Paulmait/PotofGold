@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Dimensions,
-} from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
 import { pauseTriggerSystem } from '../utils/pauseTriggerSystem';
 
 const { width, height } = Dimensions.get('window');
@@ -58,7 +51,7 @@ export default function PauseAnalyticsScreen({ navigation }: PauseAnalyticsScree
           count: 150,
           conversionRate: 0.65,
           revenue: 420,
-          avgSpend: 2.80,
+          avgSpend: 2.8,
         },
         first_time_player: {
           count: 100,
@@ -116,10 +109,14 @@ export default function PauseAnalyticsScreen({ navigation }: PauseAnalyticsScree
 
   const getUrgencyColor = (urgency: string): string => {
     switch (urgency) {
-      case 'high': return '#FF6B6B';
-      case 'medium': return '#FFA726';
-      case 'low': return '#66BB6A';
-      default: return '#95A5A6';
+      case 'high':
+        return '#FF6B6B';
+      case 'medium':
+        return '#FFA726';
+      case 'low':
+        return '#66BB6A';
+      default:
+        return '#95A5A6';
     }
   };
 
@@ -128,17 +125,24 @@ export default function PauseAnalyticsScreen({ navigation }: PauseAnalyticsScree
       <View style={styles.triggerHeader}>
         <View style={[styles.triggerIcon, { backgroundColor: getTriggerColor(triggerId) }]}>
           <Text style={styles.triggerIconText}>
-            {triggerId === 'level_fail' ? '💀' :
-             triggerId === 'manual_pause' ? '⏸️' :
-             triggerId === 'low_lives_blocked' ? '⚠️' :
-             triggerId === 'gold_rush_active' ? '💰' :
-             triggerId === 'high_score_opportunity' ? '🏆' :
-             triggerId === 'first_time_player' ? '👋' : '❓'}
+            {triggerId === 'level_fail'
+              ? '💀'
+              : triggerId === 'manual_pause'
+                ? '⏸️'
+                : triggerId === 'low_lives_blocked'
+                  ? '⚠️'
+                  : triggerId === 'gold_rush_active'
+                    ? '💰'
+                    : triggerId === 'high_score_opportunity'
+                      ? '🏆'
+                      : triggerId === 'first_time_player'
+                        ? '👋'
+                        : '❓'}
           </Text>
         </View>
         <View style={styles.triggerInfo}>
           <Text style={styles.triggerName}>
-            {triggerId.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+            {triggerId.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
           </Text>
           <Text style={styles.triggerCount}>{data.count} triggers</Text>
         </View>
@@ -165,9 +169,11 @@ export default function PauseAnalyticsScreen({ navigation }: PauseAnalyticsScree
     <View key={index} style={styles.opportunityCard}>
       <View style={styles.opportunityHeader}>
         <Text style={styles.opportunityTitle}>
-          {opportunity.trigger.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+          {opportunity.trigger.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
         </Text>
-        <View style={[styles.urgencyBadge, { backgroundColor: getUrgencyColor(opportunity.urgency) }]}>
+        <View
+          style={[styles.urgencyBadge, { backgroundColor: getUrgencyColor(opportunity.urgency) }]}
+        >
           <Text style={styles.urgencyText}>{opportunity.urgency.toUpperCase()}</Text>
         </View>
       </View>
@@ -179,7 +185,9 @@ export default function PauseAnalyticsScreen({ navigation }: PauseAnalyticsScree
         </View>
         <View style={styles.opportunityStat}>
           <Text style={styles.opportunityLabel}>Conversion</Text>
-          <Text style={styles.opportunityValue}>{(opportunity.conversionRate * 100).toFixed(1)}%</Text>
+          <Text style={styles.opportunityValue}>
+            {(opportunity.conversionRate * 100).toFixed(1)}%
+          </Text>
         </View>
         <View style={styles.opportunityStat}>
           <Text style={styles.opportunityLabel}>Avg Revenue</Text>
@@ -265,15 +273,15 @@ export default function PauseAnalyticsScreen({ navigation }: PauseAnalyticsScree
           <View style={styles.recommendationCard}>
             <Text style={styles.recommendationTitle}>👋 Enhance First-Time Player Experience</Text>
             <Text style={styles.recommendationText}>
-              New players are most likely to purchase (92%). Improve onboarding and offer
-              more guidance during their first few games.
+              New players are most likely to purchase (92%). Improve onboarding and offer more
+              guidance during their first few games.
             </Text>
           </View>
           <View style={styles.recommendationCard}>
             <Text style={styles.recommendationTitle}>💰 Maintain Gold Rush Intensity</Text>
             <Text style={styles.recommendationText}>
-              Blocking pauses during Gold Rush effectively maintains game intensity.
-              Consider expanding this to other high-intensity moments.
+              Blocking pauses during Gold Rush effectively maintains game intensity. Consider
+              expanding this to other high-intensity moments.
             </Text>
           </View>
         </View>
@@ -495,4 +503,4 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
   },
-}); 
+});

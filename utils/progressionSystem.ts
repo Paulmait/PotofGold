@@ -71,50 +71,50 @@ export class ProgressionSystem {
     this.worlds = [
       {
         id: 1,
-        name: "Gold Mine",
-        theme: "mining",
-        description: "Start your journey in the depths of the gold mine",
-        background: "mine_background",
+        name: 'Gold Mine',
+        theme: 'mining',
+        description: 'Start your journey in the depths of the gold mine',
+        background: 'mine_background',
         unlocked: true,
         requiredLevel: 1,
         levels: this.generateMineLevels(),
       },
       {
         id: 2,
-        name: "Volcano Cave",
-        theme: "volcano",
-        description: "Navigate through the fiery depths of the volcano",
-        background: "volcano_background",
+        name: 'Volcano Cave',
+        theme: 'volcano',
+        description: 'Navigate through the fiery depths of the volcano',
+        background: 'volcano_background',
         unlocked: false,
         requiredLevel: 10,
         levels: this.generateVolcanoLevels(),
       },
       {
         id: 3,
-        name: "Rainbow Realm",
-        theme: "rainbow",
-        description: "Discover the magical rainbow realm",
-        background: "rainbow_background",
+        name: 'Rainbow Realm',
+        theme: 'rainbow',
+        description: 'Discover the magical rainbow realm',
+        background: 'rainbow_background',
         unlocked: false,
         requiredLevel: 20,
         levels: this.generateRainbowLevels(),
       },
       {
         id: 4,
-        name: "Crystal Caverns",
-        theme: "crystal",
-        description: "Explore the mysterious crystal caverns",
-        background: "crystal_background",
+        name: 'Crystal Caverns',
+        theme: 'crystal',
+        description: 'Explore the mysterious crystal caverns',
+        background: 'crystal_background',
         unlocked: false,
         requiredLevel: 30,
         levels: this.generateCrystalLevels(),
       },
       {
         id: 5,
-        name: "Cosmic Void",
-        theme: "cosmic",
-        description: "Journey through the infinite cosmic void",
-        background: "cosmic_background",
+        name: 'Cosmic Void',
+        theme: 'cosmic',
+        description: 'Journey through the infinite cosmic void',
+        background: 'cosmic_background',
         unlocked: false,
         requiredLevel: 40,
         levels: this.generateCosmicLevels(),
@@ -124,11 +124,11 @@ export class ProgressionSystem {
 
   private generateMineLevels(): Level[] {
     const levels: Level[] = [];
-    
+
     for (let day = 1; day <= 30; day++) {
       const difficulty = Math.min(1 + (day - 1) * 0.2, 5);
       const requiredScore = Math.floor(100 + (day - 1) * 50);
-      
+
       levels.push({
         id: `mine_day_${day}`,
         world: 1,
@@ -148,17 +148,17 @@ export class ProgressionSystem {
         },
       });
     }
-    
+
     return levels;
   }
 
   private generateVolcanoLevels(): Level[] {
     const levels: Level[] = [];
-    
+
     for (let day = 1; day <= 30; day++) {
       const difficulty = Math.min(2 + (day - 1) * 0.3, 6);
       const requiredScore = Math.floor(200 + (day - 1) * 75);
-      
+
       levels.push({
         id: `volcano_day_${day}`,
         world: 2,
@@ -178,17 +178,17 @@ export class ProgressionSystem {
         },
       });
     }
-    
+
     return levels;
   }
 
   private generateRainbowLevels(): Level[] {
     const levels: Level[] = [];
-    
+
     for (let day = 1; day <= 30; day++) {
       const difficulty = Math.min(3 + (day - 1) * 0.4, 7);
       const requiredScore = Math.floor(300 + (day - 1) * 100);
-      
+
       levels.push({
         id: `rainbow_day_${day}`,
         world: 3,
@@ -208,17 +208,17 @@ export class ProgressionSystem {
         },
       });
     }
-    
+
     return levels;
   }
 
   private generateCrystalLevels(): Level[] {
     const levels: Level[] = [];
-    
+
     for (let day = 1; day <= 30; day++) {
       const difficulty = Math.min(4 + (day - 1) * 0.5, 8);
       const requiredScore = Math.floor(400 + (day - 1) * 125);
-      
+
       levels.push({
         id: `crystal_day_${day}`,
         world: 4,
@@ -238,17 +238,17 @@ export class ProgressionSystem {
         },
       });
     }
-    
+
     return levels;
   }
 
   private generateCosmicLevels(): Level[] {
     const levels: Level[] = [];
-    
+
     for (let day = 1; day <= 30; day++) {
       const difficulty = Math.min(5 + (day - 1) * 0.6, 10);
       const requiredScore = Math.floor(500 + (day - 1) * 150);
-      
+
       levels.push({
         id: `cosmic_day_${day}`,
         world: 5,
@@ -268,31 +268,31 @@ export class ProgressionSystem {
         },
       });
     }
-    
+
     return levels;
   }
 
   private getUnlockedPowerUps(day: number): string[] {
     const powerUps = ['magnet', 'slowMotion', 'doublePoints', 'goldRush'];
     const unlocked: string[] = [];
-    
+
     if (day >= 1) unlocked.push('magnet');
     if (day >= 5) unlocked.push('slowMotion');
     if (day >= 10) unlocked.push('doublePoints');
     if (day >= 15) unlocked.push('goldRush');
-    
+
     return unlocked;
   }
 
   private getObstacles(day: number): string[] {
     const obstacles: string[] = [];
-    
+
     if (day >= 5) obstacles.push('falling_rocks');
     if (day >= 10) obstacles.push('fake_coins');
     if (day >= 15) obstacles.push('slippery_platforms');
     if (day >= 20) obstacles.push('wind_gusts');
     if (day >= 25) obstacles.push('gravity_shifts');
-    
+
     return obstacles;
   }
 
@@ -301,7 +301,7 @@ export class ProgressionSystem {
     try {
       // Try to load from offline storage first
       const offlineData = await offlineManager.getOfflineData(userId);
-      
+
       if (offlineData.progression) {
         this.playerProgress = offlineData.progression;
         return this.playerProgress;
@@ -356,7 +356,11 @@ export class ProgressionSystem {
   }
 
   // Complete a level
-  async completeLevel(levelId: string, score: number, coinsEarned: number): Promise<{
+  async completeLevel(
+    levelId: string,
+    score: number,
+    coinsEarned: number
+  ): Promise<{
     success: boolean;
     rewards: any;
     nextLevel?: Level;
@@ -414,8 +418,10 @@ export class ProgressionSystem {
   // Get current level
   getCurrentLevel(): Level | null {
     if (!this.playerProgress) return null;
-    
-    return this.getLevelById(`${this.getWorldTheme(this.playerProgress.currentWorld)}_day_${this.playerProgress.currentDay}`);
+
+    return this.getLevelById(
+      `${this.getWorldTheme(this.playerProgress.currentWorld)}_day_${this.playerProgress.currentDay}`
+    );
   }
 
   // Get next level
@@ -425,20 +431,20 @@ export class ProgressionSystem {
     const currentLevel = this.getCurrentLevel();
     if (!currentLevel) return null;
 
-    const world = this.worlds.find(w => w.id === currentLevel.world);
+    const world = this.worlds.find((w) => w.id === currentLevel.world);
     if (!world) return null;
 
     const nextDay = currentLevel.day + 1;
     if (nextDay > world.levels.length) {
       // Move to next world
-      const nextWorld = this.worlds.find(w => w.id === currentLevel.world + 1);
+      const nextWorld = this.worlds.find((w) => w.id === currentLevel.world + 1);
       if (nextWorld && this.playerProgress!.unlockedWorlds.includes(nextWorld.id)) {
         return nextWorld.levels[0];
       }
       return null;
     }
 
-    return world.levels.find(l => l.day === nextDay) || null;
+    return world.levels.find((l) => l.day === nextDay) || null;
   }
 
   // Check for world unlock
@@ -446,8 +452,10 @@ export class ProgressionSystem {
     if (!this.playerProgress) return null;
 
     for (const world of this.worlds) {
-      if (!this.playerProgress.unlockedWorlds.includes(world.id) && 
-          this.playerProgress.level >= world.requiredLevel) {
+      if (
+        !this.playerProgress.unlockedWorlds.includes(world.id) &&
+        this.playerProgress.level >= world.requiredLevel
+      ) {
         this.playerProgress.unlockedWorlds.push(world.id);
         return world;
       }
@@ -459,7 +467,7 @@ export class ProgressionSystem {
   // Get level by ID
   private getLevelById(levelId: string): Level | null {
     for (const world of this.worlds) {
-      const level = world.levels.find(l => l.id === levelId);
+      const level = world.levels.find((l) => l.id === levelId);
       if (level) return level;
     }
     return null;
@@ -487,7 +495,7 @@ export class ProgressionSystem {
 
     const today = new Date().toISOString().split('T')[0];
     const lastPlayed = this.playerProgress.lastPlayedDate;
-    
+
     if (lastPlayed === today) {
       // Already played today
       return;
@@ -522,4 +530,4 @@ export class ProgressionSystem {
   }
 }
 
-export const progressionSystem = ProgressionSystem.getInstance(); 
+export const progressionSystem = ProgressionSystem.getInstance();

@@ -1,10 +1,10 @@
 # Sound Assets
 
-This directory contains placeholder files for game sounds. 
+This directory contains placeholder files for game sounds.
 In production, replace these with actual sound files:
 
 - coin.mp3 - Coin collection sound
-- gem.mp3 - Gem collection sound  
+- gem.mp3 - Gem collection sound
 - diamond.mp3 - Diamond collection sound
 - explosion.mp3 - Bomb explosion sound
 - powerup.mp3 - Power-up collection sound

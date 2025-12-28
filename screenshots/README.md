@@ -7,9 +7,10 @@ This directory contains screenshots of the Pot of Gold game for documentation an
 ### 📱 Device Screenshots
 
 #### Home Screen (`home-screen.png`)
+
 - **Device**: iPhone 14 Pro / Pixel 7
 - **Orientation**: Portrait
-- **Content**: 
+- **Content**:
   - Beautiful gradient background (gold to orange)
   - Game title "Pot of Gold"
   - High score, coins, and level display
@@ -18,6 +19,7 @@ This directory contains screenshots of the Pot of Gold game for documentation an
   - Tertiary buttons: Challenge, Leaderboard, Stats
 
 #### Game Screen (`game-screen.png`)
+
 - **Device**: iPhone 14 Pro / Pixel 7
 - **Orientation**: Portrait
 - **Content**:
@@ -29,6 +31,7 @@ This directory contains screenshots of the Pot of Gold game for documentation an
   - Active power-ups (magnet, double points, etc.)
 
 #### Store Screen (`store-screen.png`)
+
 - **Device**: iPhone 14 Pro / Pixel 7
 - **Orientation**: Portrait
 - **Content**:
@@ -39,6 +42,7 @@ This directory contains screenshots of the Pot of Gold game for documentation an
   - Current balance display
 
 #### Challenge Friends (`challenge-screen.png`)
+
 - **Device**: iPhone 14 Pro / Pixel 7
 - **Orientation**: Portrait
 - **Content**:
@@ -48,6 +52,7 @@ This directory contains screenshots of the Pot of Gold game for documentation an
   - Add friends button
 
 #### Leaderboard (`leaderboard-screen.png`)
+
 - **Device**: iPhone 14 Pro / Pixel 7
 - **Orientation**: Portrait
 - **Content**:
@@ -59,18 +64,21 @@ This directory contains screenshots of the Pot of Gold game for documentation an
 ## Screenshot Guidelines
 
 ### Technical Requirements
+
 - **Resolution**: 1170x2532 (iPhone 14 Pro) or 1080x2400 (Pixel 7)
 - **Format**: PNG with transparency
 - **Quality**: High resolution, crisp text
 - **Device Frame**: Include device frame for professional look
 
 ### Visual Style
+
 - **Background**: Use game's gradient theme (gold to orange)
 - **Typography**: Bold, readable fonts
 - **Icons**: Consistent with game's icon set
 - **Colors**: Match game's color palette
 
 ### Content Guidelines
+
 - **Realistic Data**: Use realistic scores and statistics
 - **Active States**: Show buttons in pressed/active states
 - **Animations**: Capture mid-animation for dynamic feel
@@ -79,6 +87,7 @@ This directory contains screenshots of the Pot of Gold game for documentation an
 ## Screenshot Capture Process
 
 ### Using Expo Development Build
+
 1. Run the game on device/simulator
 2. Navigate to each screen
 3. Take screenshots using device screenshot function
@@ -86,6 +95,7 @@ This directory contains screenshots of the Pot of Gold game for documentation an
 5. Add device frame if needed
 
 ### Using Simulator/Emulator
+
 1. Open iOS Simulator or Android Emulator
 2. Run the game
 3. Navigate through screens
@@ -95,6 +105,7 @@ This directory contains screenshots of the Pot of Gold game for documentation an
 ## Marketing Use
 
 These screenshots will be used for:
+
 - **App Store**: Primary screenshots for iOS and Android
 - **Website**: Game showcase and features
 - **Documentation**: README and technical docs
@@ -102,6 +113,7 @@ These screenshots will be used for:
 - **Press Kit**: Media and press releases
 
 ## File Naming Convention
+
 - `home-screen.png` - Main menu
 - `game-screen.png` - Active gameplay
 - `store-screen.png` - In-game store
@@ -109,7 +121,8 @@ These screenshots will be used for:
 - `leaderboard-screen.png` - Rankings and scores
 
 ## Update Schedule
+
 - Update screenshots after major UI changes
 - Ensure screenshots match current app version
 - Test on both iOS and Android devices
-- Verify all features are properly represented 
+- Verify all features are properly represented

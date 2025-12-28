@@ -15,7 +15,16 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useGameContext } from '../context/GameContext';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import { collection, query, where, onSnapshot, addDoc, updateDoc, doc, getDoc } from 'firebase/firestore';
+import {
+  collection,
+  query,
+  where,
+  onSnapshot,
+  addDoc,
+  updateDoc,
+  doc,
+  getDoc,
+} from 'firebase/firestore';
 import { db } from '../firebase/config';
 import * as Linking from 'expo-linking';
 
@@ -88,9 +97,21 @@ const ChallengeFriendsScreen: React.FC<{ navigation: any }> = ({ navigation }) =
       // Mock friends data - in real app, this would come from Firebase
       const mockFriends: Friend[] = [
         { id: '1', name: 'Alice', username: 'alice_gamer', online: true, lastSeen: new Date() },
-        { id: '2', name: 'Bob', username: 'bob_master', online: false, lastSeen: new Date(Date.now() - 300000) },
+        {
+          id: '2',
+          name: 'Bob',
+          username: 'bob_master',
+          online: false,
+          lastSeen: new Date(Date.now() - 300000),
+        },
         { id: '3', name: 'Charlie', username: 'charlie_pro', online: true, lastSeen: new Date() },
-        { id: '4', name: 'Diana', username: 'diana_queen', online: false, lastSeen: new Date(Date.now() - 600000) },
+        {
+          id: '4',
+          name: 'Diana',
+          username: 'diana_queen',
+          online: false,
+          lastSeen: new Date(Date.now() - 600000),
+        },
       ];
       setFriends(mockFriends);
     } catch (error) {
@@ -164,13 +185,13 @@ const ChallengeFriendsScreen: React.FC<{ navigation: any }> = ({ navigation }) =
       };
 
       const docRef = await addDoc(collection(db, 'challenges'), challenge);
-      
+
       // Create shareable link
       const shareLink = `potofgold://challenge?challengeId=${docRef.id}&inviter=${gameState.userName}`;
-      
+
       Alert.alert('Challenge Sent!', `Challenge sent to ${friendName}!`, [
         { text: 'Share Link', onPress: () => shareChallengeLink(shareLink, friendUsername) },
-        { text: 'OK' }
+        { text: 'OK' },
       ]);
     } catch (error) {
       Alert.alert('Error', 'Failed to send challenge. Please try again.');
@@ -202,7 +223,7 @@ const ChallengeFriendsScreen: React.FC<{ navigation: any }> = ({ navigation }) =
       const usersRef = collection(db, 'users');
       const q = query(usersRef, where('username', '==', inviteUsername.trim()));
       const snapshot = await getDoc(doc(db, 'users', inviteUsername.trim()));
-      
+
       if (!snapshot.exists()) {
         Alert.alert('User Not Found', 'No user found with that username');
         return;
@@ -227,7 +248,7 @@ const ChallengeFriendsScreen: React.FC<{ navigation: any }> = ({ navigation }) =
           `${challenge.challengerName} has challenged you to a game!`,
           [
             { text: 'Decline', style: 'cancel' },
-            { text: 'Accept', onPress: () => acceptChallenge(challenge) }
+            { text: 'Accept', onPress: () => acceptChallenge(challenge) },
           ]
         );
       }
@@ -265,11 +286,11 @@ const ChallengeFriendsScreen: React.FC<{ navigation: any }> = ({ navigation }) =
       });
 
       // Navigate to game with session
-      navigation.navigate('Game', { 
+      navigation.navigate('Game', {
         mode: 'challenge',
         sessionId,
         timeLimit: 60,
-        opponentName: challenge.challengerName
+        opponentName: challenge.challengerName,
       });
     } catch (error) {
       Alert.alert('Error', 'Failed to accept challenge. Please try again.');
@@ -290,7 +311,10 @@ const ChallengeFriendsScreen: React.FC<{ navigation: any }> = ({ navigation }) =
               `Challenge ${friend.name} (@${friend.username}) to a 60-second game?`,
               [
                 { text: 'Cancel', style: 'cancel' },
-                { text: 'Challenge', onPress: () => sendChallenge(friend.id, friend.name, friend.username) }
+                {
+                  text: 'Challenge',
+                  onPress: () => sendChallenge(friend.id, friend.name, friend.username),
+                },
               ]
             );
           }
@@ -300,9 +324,14 @@ const ChallengeFriendsScreen: React.FC<{ navigation: any }> = ({ navigation }) =
       >
         <View style={styles.friendAvatar}>
           <Text style={styles.avatarText}>{friend.name.charAt(0)}</Text>
-          <View style={[styles.onlineIndicator, { backgroundColor: friend.online ? '#4CAF50' : '#999' }]} />
+          <View
+            style={[
+              styles.onlineIndicator,
+              { backgroundColor: friend.online ? '#4CAF50' : '#999' },
+            ]}
+          />
         </View>
-        
+
         <View style={styles.friendInfo}>
           <Text style={styles.friendName}>{friend.name}</Text>
           <Text style={styles.friendUsername}>@{friend.username}</Text>
@@ -338,10 +367,12 @@ const ChallengeFriendsScreen: React.FC<{ navigation: any }> = ({ navigation }) =
           <Text style={styles.challengeTitle}>
             {isMyChallenge ? `vs ${challenge.opponentName}` : `vs ${challenge.challengerName}`}
           </Text>
-          <View style={[
-            styles.statusBadge,
-            { backgroundColor: isReady ? '#4CAF50' : isWaiting ? '#FFA500' : '#FF6B6B' }
-          ]}>
+          <View
+            style={[
+              styles.statusBadge,
+              { backgroundColor: isReady ? '#4CAF50' : isWaiting ? '#FFA500' : '#FF6B6B' },
+            ]}
+          >
             <Text style={styles.statusText}>
               {isReady ? 'Ready' : isWaiting ? 'Waiting' : 'Pending'}
             </Text>
@@ -350,12 +381,13 @@ const ChallengeFriendsScreen: React.FC<{ navigation: any }> = ({ navigation }) =
 
         <View style={styles.challengeDetails}>
           <Text style={styles.challengeInfo}>
-            {isMyChallenge 
-              ? (isReady ? 'Game ready to start!' : 'Waiting for opponent...')
-              : 'Tap to accept challenge'
-            }
+            {isMyChallenge
+              ? isReady
+                ? 'Game ready to start!'
+                : 'Waiting for opponent...'
+              : 'Tap to accept challenge'}
           </Text>
-          
+
           {!isMyChallenge && isPending && (
             <TouchableOpacity
               style={styles.acceptButton}
@@ -369,11 +401,11 @@ const ChallengeFriendsScreen: React.FC<{ navigation: any }> = ({ navigation }) =
             <TouchableOpacity
               style={styles.startButton}
               onPress={() => {
-                navigation.navigate('Game', { 
+                navigation.navigate('Game', {
                   mode: 'challenge',
                   sessionId: challenge.sessionId,
                   timeLimit: 60,
-                  opponentName: isMyChallenge ? challenge.opponentName : challenge.challengerName
+                  opponentName: isMyChallenge ? challenge.opponentName : challenge.challengerName,
                 });
               }}
             >
@@ -403,11 +435,11 @@ const ChallengeFriendsScreen: React.FC<{ navigation: any }> = ({ navigation }) =
           <TouchableOpacity
             style={styles.joinButton}
             onPress={() => {
-              navigation.navigate('Game', { 
+              navigation.navigate('Game', {
                 mode: 'challenge',
                 sessionId: session.id,
                 timeLimit: 60,
-                opponentName
+                opponentName,
               });
             }}
           >
@@ -432,23 +464,17 @@ const ChallengeFriendsScreen: React.FC<{ navigation: any }> = ({ navigation }) =
   };
 
   return (
-    <LinearGradient
-      colors={['#FFD700', '#FFA500', '#FF8C00']}
-      style={styles.container}
-    >
+    <LinearGradient colors={['#FFD700', '#FFA500', '#FF8C00']} style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
-      
+
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color="white" />
         </TouchableOpacity>
-        
+
         <Text style={styles.title}>Challenge Friends</Text>
-        
+
         <TouchableOpacity
           style={styles.addButton}
           onPress={() => setShowInviteInput(!showInviteInput)}
@@ -469,10 +495,7 @@ const ChallengeFriendsScreen: React.FC<{ navigation: any }> = ({ navigation }) =
             autoCapitalize="none"
             autoCorrect={false}
           />
-          <TouchableOpacity
-            style={styles.inviteButton}
-            onPress={inviteByUsername}
-          >
+          <TouchableOpacity style={styles.inviteButton} onPress={inviteByUsername}>
             <Text style={styles.inviteButtonText}>Invite</Text>
           </TouchableOpacity>
         </View>
@@ -813,4 +836,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ChallengeFriendsScreen; 
+export default ChallengeFriendsScreen;

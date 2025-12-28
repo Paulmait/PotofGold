@@ -41,7 +41,7 @@ const GameActionButtons: React.FC<GameActionButtonsProps> = ({
           </View>
         )}
       </TouchableOpacity>
-      
+
       {/* Pass Button */}
       <TouchableOpacity style={styles.actionButton} onPress={onPass}>
         <MaterialCommunityIcons name="trophy" size={24} color="#FFD700" />
@@ -52,19 +52,19 @@ const GameActionButtons: React.FC<GameActionButtonsProps> = ({
           </View>
         )}
       </TouchableOpacity>
-      
+
       {/* Shop Button */}
       <TouchableOpacity style={styles.actionButton} onPress={onShop}>
         <FontAwesome5 name="shopping-cart" size={22} color="#4ECDC4" />
         <Text style={styles.buttonText}>Shop</Text>
       </TouchableOpacity>
-      
+
       {/* Skin Button */}
       <TouchableOpacity style={styles.actionButton} onPress={onSkin}>
         <MaterialCommunityIcons name="palette" size={24} color="#FF69B4" />
         <Text style={styles.buttonText}>Skin</Text>
       </TouchableOpacity>
-      
+
       {/* Vacuum Button */}
       <TouchableOpacity style={styles.actionButton} onPress={onVacuum}>
         <MaterialCommunityIcons name="magnet" size={24} color="#9B59B6" />
@@ -73,7 +73,7 @@ const GameActionButtons: React.FC<GameActionButtonsProps> = ({
           <Text style={styles.badgeText}>{vacuumCount}</Text>
         </View>
       </TouchableOpacity>
-      
+
       {/* Clear All Button */}
       <TouchableOpacity style={styles.actionButton} onPress={onClearAll}>
         <Ionicons name="close-circle" size={24} color="#E74C3C" />
@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 2,
     borderTopColor: '#2A2448',
   },
-  
+
   actionButton: {
     width: width / 6.5,
     height: 65,
@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
   },
-  
+
   buttonText: {
     color: '#FFFFFF',
     fontSize: 10,
@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
     textAlign: 'center',
   },
-  
+
   badge: {
     position: 'absolute',
     top: -5,
@@ -139,13 +139,13 @@ const styles = StyleSheet.create({
     minWidth: 20,
     alignItems: 'center',
   },
-  
+
   costBadge: {
     backgroundColor: '#FFD700',
     bottom: -5,
     top: undefined,
   },
-  
+
   badgeText: {
     color: '#FFFFFF',
     fontSize: 10,

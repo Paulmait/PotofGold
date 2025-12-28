@@ -65,7 +65,7 @@ export class MissionSystem {
   async initializeMissions(userId: string): Promise<MissionProgress> {
     try {
       const offlineData = await offlineManager.getOfflineData(userId);
-      
+
       if (offlineData.missions) {
         this.progress = offlineData.missions;
         return this.progress;
@@ -331,7 +331,7 @@ export class MissionSystem {
       if (shouldUpdate && mission.objective.current >= mission.objective.target) {
         mission.completed = true;
         completedMissions.push(mission);
-        
+
         totalRewards.coins += mission.rewards.coins;
         totalRewards.experience += mission.rewards.experience;
         totalRewards.powerUps.push(...mission.rewards.powerUps);
@@ -372,7 +372,7 @@ export class MissionSystem {
 
       if (shouldUpdate && challenge.progress >= challenge.target) {
         challenge.completed = true;
-        
+
         totalRewards.coins += challenge.reward.coins;
         totalRewards.experience += challenge.reward.experience;
         if (challenge.reward.specialReward) {
@@ -405,7 +405,7 @@ export class MissionSystem {
       if (shouldUpdate && challenge.objective.current >= challenge.objective.target) {
         challenge.completed = true;
         completedMissions.push(challenge);
-        
+
         totalRewards.coins += challenge.rewards.coins;
         totalRewards.experience += challenge.rewards.experience;
         totalRewards.powerUps.push(...challenge.rewards.powerUps);
@@ -428,7 +428,7 @@ export class MissionSystem {
   // Get available missions
   getAvailableMissions(): Mission[] {
     if (!this.progress) return [];
-    return this.progress.activeMissions.filter(mission => !mission.completed);
+    return this.progress.activeMissions.filter((mission) => !mission.completed);
   }
 
   // Get daily challenges
@@ -512,8 +512,8 @@ export class MissionSystem {
       };
     }
 
-    const dailyCompleted = this.progress.activeMissions.filter(m => m.completed).length;
-    const weeklyCompleted = this.progress.weeklyChallenges.filter(m => m.completed).length;
+    const dailyCompleted = this.progress.activeMissions.filter((m) => m.completed).length;
+    const weeklyCompleted = this.progress.weeklyChallenges.filter((m) => m.completed).length;
 
     return {
       totalCompleted: this.progress.totalMissionsCompleted,
@@ -524,4 +524,4 @@ export class MissionSystem {
   }
 }
 
-export const missionSystem = MissionSystem.getInstance(); 
+export const missionSystem = MissionSystem.getInstance();

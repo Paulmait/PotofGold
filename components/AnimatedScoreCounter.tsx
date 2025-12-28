@@ -1,11 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import {
-  View,
-  Text,
-  Animated,
-  StyleSheet,
-  Easing,
-} from 'react-native';
+import { View, Text, Animated, StyleSheet, Easing } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import particleSystem, { ParticleType } from '../utils/particleSystem';
 
@@ -41,7 +35,7 @@ const AnimatedScoreCounter: React.FC<AnimatedScoreCounterProps> = ({
     const newScore = targetScore !== undefined ? targetScore : score;
 
     // Check for milestone achievements
-    milestones.forEach(milestone => {
+    milestones.forEach((milestone) => {
       if (previousScore < milestone && newScore >= milestone) {
         triggerMilestoneAnimation(milestone);
         if (onMilestone) {
@@ -144,10 +138,7 @@ const AnimatedScoreCounter: React.FC<AnimatedScoreCounterProps> = ({
 
   const triggerMilestoneAnimation = (milestone: number) => {
     // Create celebration particles
-    particleSystem.createParticles(
-      ParticleType.ACHIEVEMENT_STARS,
-      { x: 200, y: 100 }
-    );
+    particleSystem.createParticles(ParticleType.ACHIEVEMENT_STARS, { x: 200, y: 100 });
 
     // Epic rotation animation
     Animated.sequence([
@@ -181,21 +172,31 @@ const AnimatedScoreCounter: React.FC<AnimatedScoreCounterProps> = ({
 
   const getFontSize = () => {
     switch (size) {
-      case 'small': return 18;
-      case 'medium': return 24;
-      case 'large': return 32;
-      case 'xlarge': return 48;
-      default: return 24;
+      case 'small':
+        return 18;
+      case 'medium':
+        return 24;
+      case 'large':
+        return 32;
+      case 'xlarge':
+        return 48;
+      default:
+        return 24;
     }
   };
 
   const getIconSize = () => {
     switch (size) {
-      case 'small': return 20;
-      case 'medium': return 28;
-      case 'large': return 36;
-      case 'xlarge': return 52;
-      default: return 28;
+      case 'small':
+        return 20;
+      case 'medium':
+        return 28;
+      case 'large':
+        return 36;
+      case 'xlarge':
+        return 52;
+      default:
+        return 28;
     }
   };
 
@@ -252,11 +253,7 @@ const AnimatedScoreCounter: React.FC<AnimatedScoreCounterProps> = ({
           end={{ x: 1, y: 1 }}
         >
           <View style={styles.scoreContent}>
-            {showCurrency && (
-              <Text style={[styles.coinIcon, { fontSize: getIconSize() }]}>
-                🪙
-              </Text>
-            )}
+            {showCurrency && <Text style={[styles.coinIcon, { fontSize: getIconSize() }]}>🪙</Text>}
             <Text style={[styles.scoreText, { fontSize: getFontSize() }]}>
               {formatScore(displayScore)}
             </Text>
@@ -280,9 +277,7 @@ const AnimatedScoreCounter: React.FC<AnimatedScoreCounterProps> = ({
                 },
               ]}
             >
-              <Text style={styles.scoreDiffText}>
-                +{formatScore(getScoreDiff())}
-              </Text>
+              <Text style={styles.scoreDiffText}>+{formatScore(getScoreDiff())}</Text>
             </Animated.View>
           )}
 

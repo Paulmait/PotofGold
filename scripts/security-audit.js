@@ -55,25 +55,22 @@ const secretPatterns = [
   /api[_-]?key\s*[:=]\s*["'][^"']+["']/gi, // API keys
 ];
 
-const sourceFiles = [
-  'firebase/firebase.ts',
-  'App.tsx',
-  'services/authService.ts',
-];
+const sourceFiles = ['firebase/firebase.ts', 'App.tsx', 'services/authService.ts'];
 
 let hardcodedSecretsFound = false;
-sourceFiles.forEach(file => {
+sourceFiles.forEach((file) => {
   try {
     const content = fs.readFileSync(file, 'utf8');
-    secretPatterns.forEach(pattern => {
+    secretPatterns.forEach((pattern) => {
       const matches = content.match(pattern);
       if (matches && matches.length > 0) {
         // Check if it's using environment variables
-        const isEnvVar = matches.some(match => 
-          content.includes(`process.env`) && 
-          content.indexOf('process.env') < content.indexOf(match)
+        const isEnvVar = matches.some(
+          (match) =>
+            content.includes(`process.env`) &&
+            content.indexOf('process.env') < content.indexOf(match)
         );
-        
+
         if (!isEnvVar) {
           warnings.push(`⚠️ Potential hardcoded secret in ${file}`);
           hardcodedSecretsFound = true;
@@ -108,7 +105,7 @@ console.log('5️⃣ Checking for vulnerable dependencies...');
 try {
   const auditOutput = execSync('npm audit --json', { encoding: 'utf8' });
   const audit = JSON.parse(auditOutput);
-  
+
   if (audit.metadata.vulnerabilities.critical > 0) {
     errors.push(`❌ ${audit.metadata.vulnerabilities.critical} critical vulnerabilities found!`);
     issuesFound++;
@@ -117,9 +114,11 @@ try {
     warnings.push(`⚠️ ${audit.metadata.vulnerabilities.high} high severity vulnerabilities`);
   }
   if (audit.metadata.vulnerabilities.moderate > 0) {
-    warnings.push(`⚠️ ${audit.metadata.vulnerabilities.moderate} moderate severity vulnerabilities`);
+    warnings.push(
+      `⚠️ ${audit.metadata.vulnerabilities.moderate} moderate severity vulnerabilities`
+    );
   }
-  
+
   if (audit.metadata.vulnerabilities.total === 0) {
     successes.push('✅ No vulnerabilities found');
   }
@@ -146,13 +145,13 @@ try {
     'Content-Security-Policy',
     'Strict-Transport-Security',
   ];
-  
+
   let hasAllHeaders = false;
   if (vercelConfig.headers && vercelConfig.headers[0]) {
-    const headers = vercelConfig.headers[0].headers.map(h => h.key);
-    hasAllHeaders = requiredHeaders.every(h => headers.includes(h));
+    const headers = vercelConfig.headers[0].headers.map((h) => h.key);
+    hasAllHeaders = requiredHeaders.every((h) => headers.includes(h));
   }
-  
+
   if (hasAllHeaders) {
     successes.push('✅ Security headers properly configured');
   } else {
@@ -179,11 +178,13 @@ const adminPatterns = [
 ];
 
 let adminCredsFound = false;
-const filesToCheck = fs.readdirSync('.').filter(f => f.endsWith('.ts') || f.endsWith('.tsx') || f.endsWith('.js'));
-filesToCheck.forEach(file => {
+const filesToCheck = fs
+  .readdirSync('.')
+  .filter((f) => f.endsWith('.ts') || f.endsWith('.tsx') || f.endsWith('.js'));
+filesToCheck.forEach((file) => {
   try {
     const content = fs.readFileSync(file, 'utf8');
-    adminPatterns.forEach(pattern => {
+    adminPatterns.forEach((pattern) => {
       if (pattern.test(content)) {
         warnings.push(`⚠️ Potential admin credential in ${file}`);
         adminCredsFound = true;
@@ -205,19 +206,19 @@ console.log('='.repeat(50) + '\n');
 
 if (successes.length > 0) {
   console.log('✅ PASSED CHECKS:');
-  successes.forEach(s => console.log('  ' + s));
+  successes.forEach((s) => console.log('  ' + s));
   console.log('');
 }
 
 if (warnings.length > 0) {
   console.log('⚠️ WARNINGS:');
-  warnings.forEach(w => console.log('  ' + w));
+  warnings.forEach((w) => console.log('  ' + w));
   console.log('');
 }
 
 if (errors.length > 0) {
   console.log('❌ CRITICAL ISSUES:');
-  errors.forEach(e => console.log('  ' + e));
+  errors.forEach((e) => console.log('  ' + e));
   console.log('');
 }
 

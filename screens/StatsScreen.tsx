@@ -21,7 +21,7 @@ const StatsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
-    
+
     if (hours > 0) {
       return `${hours}h ${minutes}m`;
     } else if (minutes > 0) {
@@ -51,7 +51,12 @@ const StatsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
     </View>
   );
 
-  const renderAchievement = (title: string, description: string, achieved: boolean, icon: string) => (
+  const renderAchievement = (
+    title: string,
+    description: string,
+    achieved: boolean,
+    icon: string
+  ) => (
     <View style={[styles.achievementItem, { opacity: achieved ? 1 : 0.5 }]}>
       <View style={[styles.achievementIcon, { backgroundColor: achieved ? '#4CAF50' : '#666' }]}>
         <Ionicons name={icon as any} size={20} color="white" />
@@ -60,7 +65,12 @@ const StatsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
         <Text style={[styles.achievementTitle, { color: achieved ? 'white' : '#999' }]}>
           {title}
         </Text>
-        <Text style={[styles.achievementDescription, { color: achieved ? 'rgba(255,255,255,0.8)' : '#666' }]}>
+        <Text
+          style={[
+            styles.achievementDescription,
+            { color: achieved ? 'rgba(255,255,255,0.8)' : '#666' },
+          ]}
+        >
           {description}
         </Text>
       </View>
@@ -73,19 +83,13 @@ const StatsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   );
 
   return (
-    <LinearGradient
-      colors={['#FFD700', '#FFA500', '#FF8C00']}
-      style={styles.container}
-    >
+    <LinearGradient colors={['#FFD700', '#FFA500', '#FF8C00']} style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
-      
+
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>Statistics</Text>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color="white" />
         </TouchableOpacity>
       </View>
@@ -95,8 +99,18 @@ const StatsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Key Statistics</Text>
           <View style={styles.statsGrid}>
-            {renderStatCard('High Score', gameState.highScore.toLocaleString(), 'trophy', '#FFD700')}
-            {renderStatCard('Total Coins', gameState.totalCoins.toLocaleString(), 'coin', '#FFD700')}
+            {renderStatCard(
+              'High Score',
+              gameState.highScore.toLocaleString(),
+              'trophy',
+              '#FFD700'
+            )}
+            {renderStatCard(
+              'Total Coins',
+              gameState.totalCoins.toLocaleString(),
+              'coin',
+              '#FFD700'
+            )}
             {renderStatCard('Games Played', gameState.gamesPlayed, 'game-controller', '#4CAF50')}
             {renderStatCard('Power-ups Used', gameState.powerUpsUsed, 'flash', '#FF6B6B')}
           </View>
@@ -110,17 +124,17 @@ const StatsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
               <Text style={styles.performanceLabel}>Average Score</Text>
               <Text style={styles.performanceValue}>{getAverageScore().toLocaleString()}</Text>
             </View>
-            
+
             <View style={styles.performanceItem}>
               <Text style={styles.performanceLabel}>Coin Efficiency</Text>
               <Text style={styles.performanceValue}>{getCoinEfficiency()}%</Text>
             </View>
-            
+
             <View style={styles.performanceItem}>
               <Text style={styles.performanceLabel}>Total Play Time</Text>
               <Text style={styles.performanceValue}>{formatTime(gameState.totalPlayTime)}</Text>
             </View>
-            
+
             <View style={styles.performanceItem}>
               <Text style={styles.performanceLabel}>Current Level</Text>
               <Text style={styles.performanceValue}>{gameState.level}</Text>
@@ -137,13 +151,13 @@ const StatsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
               <Text style={styles.upgradeLabel}>Pot Size</Text>
               <Text style={styles.upgradeValue}>Level {Math.floor(gameState.potSize * 5)}</Text>
             </View>
-            
+
             <View style={styles.upgradeItem}>
               <Ionicons name="speedometer" size={20} color="#FFD700" />
               <Text style={styles.upgradeLabel}>Movement Speed</Text>
               <Text style={styles.upgradeValue}>Level {Math.floor(gameState.potSpeed * 3)}</Text>
             </View>
-            
+
             <View style={styles.upgradeItem}>
               <Ionicons name="magnet" size={20} color="#FFD700" />
               <Text style={styles.upgradeLabel}>Magnet Power</Text>
@@ -155,42 +169,42 @@ const StatsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
         {/* Achievements */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Achievements</Text>
-          
+
           {renderAchievement(
             'First Steps',
             'Play your first game',
             gameState.gamesPlayed > 0,
             'footsteps'
           )}
-          
+
           {renderAchievement(
             'Coin Collector',
             'Collect 1000 coins',
             gameState.totalCoins >= 1000,
             'coin'
           )}
-          
+
           {renderAchievement(
             'High Roller',
             'Score 10,000 points',
             gameState.highScore >= 10000,
             'trophy'
           )}
-          
+
           {renderAchievement(
             'Power Player',
             'Use 50 power-ups',
             gameState.powerUpsUsed >= 50,
             'flash'
           )}
-          
+
           {renderAchievement(
             'Dedicated Player',
             'Play 100 games',
             gameState.gamesPlayed >= 100,
             'game-controller'
           )}
-          
+
           {renderAchievement(
             'Millionaire',
             'Collect 1,000,000 coins',
@@ -209,14 +223,14 @@ const StatsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
                 Last game: {gameState.gamesPlayed > 0 ? 'Today' : 'Never played'}
               </Text>
             </View>
-            
+
             <View style={styles.activityItem}>
               <Ionicons name="trending-up" size={16} color="#4CAF50" />
               <Text style={styles.activityText}>
                 Best streak: {Math.floor(gameState.highScore / 1000)}k points
               </Text>
             </View>
-            
+
             <View style={styles.activityItem}>
               <Ionicons name="star" size={16} color="#FFD700" />
               <Text style={styles.activityText}>
@@ -403,4 +417,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default StatsScreen; 
+export default StatsScreen;

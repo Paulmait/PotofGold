@@ -5,10 +5,12 @@
 All commands below have corresponding `.bat` files that automatically switch to Node.js 20 to avoid compatibility issues.
 
 ### Local Development
+
 ```bash
 # Start local development server
 start-expo.bat
 ```
+
 - Opens Expo development server
 - Scan QR code with Expo Go app on your phone
 - Hot reload enabled for live development
@@ -16,42 +18,52 @@ start-expo.bat
 ### iOS Builds
 
 #### Development Build (for testing)
+
 ```bash
 build-ios-dev.bat
 ```
+
 - Creates a development build for iOS
 - Can be installed on registered test devices
 - Includes development tools and debugging
 
 #### Production Build (for App Store)
+
 ```bash
 build-ios-prod.bat
 ```
+
 - Creates a production-ready iOS build
 - Optimized and minified
 - Ready for App Store submission
 
 #### Submit to App Store
+
 ```bash
 submit-ios.bat
 ```
+
 - Submits the latest production build to App Store Connect
 - Requires production build to be completed first
 
 ### Android Builds
 
 #### Development Build (APK for testing)
+
 ```bash
 build-android-dev.bat
 ```
+
 - Creates an APK for development testing
 - Can be installed directly on Android devices
 - Includes debugging capabilities
 
 #### Production Build (AAB for Play Store)
+
 ```bash
 build-android-prod.bat
 ```
+
 - Creates an Android App Bundle (AAB)
 - Optimized for Google Play Store
 - Smaller download size for users
@@ -68,7 +80,7 @@ npm start
 eas build --platform ios --profile development
 eas build --platform ios --profile production
 
-# Android builds  
+# Android builds
 eas build --platform android --profile development
 eas build --platform android --profile production
 
@@ -95,6 +107,7 @@ eas submit --platform android
 ## 🔧 Troubleshooting
 
 ### Node.js Version Issues
+
 - All `.bat` scripts automatically switch to Node.js 20
 - If manual commands fail, ensure you're using Node.js 20:
   ```bash
@@ -103,16 +116,19 @@ eas submit --platform android
   ```
 
 ### Build Failures
+
 - Check that all environment variables are set in `.env`
 - Verify credentials in `eas.json` are correct
 - Ensure you're logged in to EAS: `eas whoami`
 
 ### iOS Specific
+
 - Requires Apple Developer account ($99/year)
 - App Store Connect app must be created
 - Provisioning profiles managed automatically by EAS
 
 ### Android Specific
+
 - Google Play Console account required for store submission ($25 one-time)
 - APK for development, AAB for production
 

@@ -1,6 +1,7 @@
 # Gold Vault Club Subscription System
 
 ## Overview
+
 The Gold Vault Club is a premium monthly subscription offering exclusive perks and benefits to Pot of Gold players. Built with RevenueCat for cross-platform subscription management.
 
 ## Setup Instructions
@@ -34,12 +35,14 @@ REVENUECAT_PRODUCT_ID=pog_monthly_usd_4_99
 ### 3. App Store Configuration
 
 #### iOS (App Store Connect)
+
 1. Create subscription group: "Gold Vault Club"
 2. Add auto-renewable subscription
 3. Set up promotional offers (optional)
 4. Configure App Store Server Notifications URL (RevenueCat webhook)
 
 #### Android (Google Play Console)
+
 1. Create subscription: `gold_vault_monthly`
 2. Set billing period: Monthly
 3. Configure grace period: 3 days
@@ -47,16 +50,17 @@ REVENUECAT_PRODUCT_ID=pog_monthly_usd_4_99
 
 ## Product IDs
 
-| Environment | Platform | Product ID | Price |
-|------------|----------|------------|-------|
-| Production | iOS | `com.cienrios.potofgold.goldvault.monthly` | $4.99 |
-| Production | Android | `gold_vault_monthly` | $4.99 |
-| Sandbox | iOS | Same as production | $0.00 |
-| Test | Android | `android.test.purchased` | $0.00 |
+| Environment | Platform | Product ID                                 | Price |
+| ----------- | -------- | ------------------------------------------ | ----- |
+| Production  | iOS      | `com.cienrios.potofgold.goldvault.monthly` | $4.99 |
+| Production  | Android  | `gold_vault_monthly`                       | $4.99 |
+| Sandbox     | iOS      | Same as production                         | $0.00 |
+| Test        | Android  | `android.test.purchased`                   | $0.00 |
 
 ## Features & Perks
 
 ### Gold Vault Club Benefits
+
 1. **Daily Gold Bonus**: 500 coins every 24 hours
 2. **2x Unlock Speed**: Double progression for states and skins
 3. **Exclusive Monthly Drop**: Unique skin + trail each month
@@ -69,16 +73,19 @@ REVENUECAT_PRODUCT_ID=pog_monthly_usd_4_99
 ### Core Components
 
 #### 1. RevenueCat Service (`src/lib/revenuecat.ts`)
+
 - Handles initialization and API communication
 - Manages purchase flow and restoration
 - Implements 7-day offline cache for entitlements
 
 #### 2. Entitlement Hooks (`src/features/subscriptions/`)
+
 - `useEntitlements`: Core subscription state management
 - `useDailyBonus`: Daily reward claiming logic
 - `useUnlockMultiplier`: 2x speed multiplier application
 
 #### 3. UI Components
+
 - `SubscriptionVaultScreen`: Main subscription hub
 - `PaywallModal`: Purchase flow interface
 - `VIPBadge`: Visual indicator for subscribers
@@ -90,6 +97,7 @@ User Action → RevenueCat API → Local Cache → Firebase Sync → UI Update
 ```
 
 ### Offline Support
+
 - Entitlements cached for 7 days
 - Grace period for network issues
 - Cached state persists through app restarts
@@ -111,6 +119,7 @@ User Action → RevenueCat API → Local Cache → Firebase Sync → UI Update
 ### QA Test Cases
 
 #### Purchase Flow
+
 - [ ] Fresh user can view paywall
 - [ ] Price displays correctly (localized)
 - [ ] Purchase completes successfully
@@ -118,16 +127,19 @@ User Action → RevenueCat API → Local Cache → Firebase Sync → UI Update
 - [ ] Receipt validation works
 
 #### Restoration
+
 - [ ] Restore purchases button works
 - [ ] Previous purchases recovered
 - [ ] Cross-device sync functions
 
 #### Cancellation
+
 - [ ] User can access management screen
 - [ ] External cancellation reflected in app
 - [ ] Grace period handled correctly
 
 #### Edge Cases
+
 - [ ] Network failure during purchase
 - [ ] App crash during transaction
 - [ ] Multiple rapid purchase attempts
@@ -153,30 +165,33 @@ await revenueCatService.syncPurchases();
 
 Track these events for subscription funnel analysis:
 
-| Event | Properties | Trigger |
-|-------|------------|---------|
-| `paywall_viewed` | `source`, `userId` | Modal opened |
-| `purchase_initiated` | `productId`, `price` | Subscribe tapped |
-| `purchase_completed` | `productId`, `revenue` | Success |
-| `purchase_failed` | `reason`, `productId` | Error |
-| `subscription_cancelled` | `userId`, `reason` | Cancelled |
-| `daily_bonus_claimed` | `amount`, `streak` | Bonus claimed |
+| Event                    | Properties             | Trigger          |
+| ------------------------ | ---------------------- | ---------------- |
+| `paywall_viewed`         | `source`, `userId`     | Modal opened     |
+| `purchase_initiated`     | `productId`, `price`   | Subscribe tapped |
+| `purchase_completed`     | `productId`, `revenue` | Success          |
+| `purchase_failed`        | `reason`, `productId`  | Error            |
+| `subscription_cancelled` | `userId`, `reason`     | Cancelled        |
+| `daily_bonus_claimed`    | `amount`, `streak`     | Bonus claimed    |
 
 ## Troubleshooting
 
 ### Common Issues
 
 #### "Products not loading"
+
 - Verify API keys in `.env`
 - Check RevenueCat dashboard configuration
 - Ensure products approved in stores
 
 #### "Purchase fails immediately"
+
 - Check bundle ID matches store listing
 - Verify user not already subscribed
 - Confirm sandbox/production environment
 
 #### "Entitlements not updating"
+
 - Force refresh: `await refresh()`
 - Check Firebase sync permissions
 - Verify RevenueCat webhook configuration
@@ -184,11 +199,13 @@ Track these events for subscription funnel analysis:
 ### Debug Logs
 
 Enable verbose logging:
+
 ```javascript
 Purchases.setLogLevel(LOG_LEVEL.VERBOSE);
 ```
 
 Check logs for:
+
 - `[Purchases]` - SDK operations
 - `[RevenueCat]` - API responses
 - `[Entitlements]` - State changes
@@ -209,7 +226,7 @@ Check logs for:
 
 ## Version History
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0.0 | 2024-01-15 | Initial implementation |
-| 1.0.1 | TBD | Bug fixes and optimizations |
+| Version | Date       | Changes                     |
+| ------- | ---------- | --------------------------- |
+| 1.0.0   | 2024-01-15 | Initial implementation      |
+| 1.0.1   | TBD        | Bug fixes and optimizations |

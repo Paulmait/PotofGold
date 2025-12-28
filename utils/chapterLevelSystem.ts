@@ -48,7 +48,7 @@ export class ChapterLevelSystem {
   async initializeChapters(userId: string): Promise<ChapterProgress> {
     try {
       const offlineData = await offlineManager.getOfflineData(userId);
-      
+
       if (offlineData.chapterProgress) {
         this.progress = offlineData.chapterProgress;
         return this.progress;
@@ -228,7 +228,10 @@ export class ChapterLevelSystem {
   // Get current chapter
   getCurrentChapter(): Chapter | null {
     if (!this.progress) return null;
-    return this.progress.chapters.find(c => c.id === `chapter_${this.progress!.currentChapter}`) || null;
+    return (
+      this.progress.chapters.find((c) => c.id === `chapter_${this.progress!.currentChapter}`) ||
+      null
+    );
   }
 
   // Get all chapters
@@ -240,7 +243,7 @@ export class ChapterLevelSystem {
   // Check if chapter is unlocked
   isChapterUnlocked(chapterId: string): boolean {
     if (!this.progress) return false;
-    const chapter = this.progress.chapters.find(c => c.id === chapterId);
+    const chapter = this.progress.chapters.find((c) => c.id === chapterId);
     return chapter?.unlocked || false;
   }
 
@@ -272,7 +275,10 @@ export class ChapterLevelSystem {
   }
 
   // Complete chapter
-  async completeChapter(chapterId: string, score: number): Promise<{
+  async completeChapter(
+    chapterId: string,
+    score: number
+  ): Promise<{
     success: boolean;
     chapter: Chapter | null;
     reward: any;
@@ -282,7 +288,7 @@ export class ChapterLevelSystem {
       return { success: false, chapter: null, reward: null, nextChapterUnlocked: false };
     }
 
-    const chapter = this.progress.chapters.find(c => c.id === chapterId);
+    const chapter = this.progress.chapters.find((c) => c.id === chapterId);
     if (!chapter || !chapter.unlocked) {
       return { success: false, chapter: null, reward: null, nextChapterUnlocked: false };
     }
@@ -294,7 +300,8 @@ export class ChapterLevelSystem {
 
     // Update progress
     this.progress.completedChapters++;
-    this.progress.totalProgress = (this.progress.completedChapters / this.progress.totalChapters) * 100;
+    this.progress.totalProgress =
+      (this.progress.completedChapters / this.progress.totalChapters) * 100;
 
     // Unlock next chapter
     const nextChapterUnlocked = await this.unlockNextChapter();
@@ -310,7 +317,10 @@ export class ChapterLevelSystem {
   }
 
   // Check chapter objective progress
-  checkChapterProgress(chapterId: string, currentValue: number): {
+  checkChapterProgress(
+    chapterId: string,
+    currentValue: number
+  ): {
     completed: boolean;
     progress: number;
     remaining: number;
@@ -319,7 +329,7 @@ export class ChapterLevelSystem {
       return { completed: false, progress: 0, remaining: 0 };
     }
 
-    const chapter = this.progress.chapters.find(c => c.id === chapterId);
+    const chapter = this.progress.chapters.find((c) => c.id === chapterId);
     if (!chapter) {
       return { completed: false, progress: 0, remaining: 0 };
     }
@@ -353,7 +363,7 @@ export class ChapterLevelSystem {
       };
     }
 
-    const unlockedChapters = this.progress.chapters.filter(c => c.unlocked).length;
+    const unlockedChapters = this.progress.chapters.filter((c) => c.unlocked).length;
 
     return {
       totalChapters: this.progress.totalChapters,
@@ -367,17 +377,22 @@ export class ChapterLevelSystem {
   // Get chapter by ID
   getChapterById(chapterId: string): Chapter | null {
     if (!this.progress) return null;
-    return this.progress.chapters.find(c => c.id === chapterId) || null;
+    return this.progress.chapters.find((c) => c.id === chapterId) || null;
   }
 
   // Get difficulty color
   getDifficultyColor(difficulty: string): string {
     switch (difficulty) {
-      case 'easy': return '#4CAF50';
-      case 'medium': return '#FF9800';
-      case 'hard': return '#F44336';
-      case 'expert': return '#9C27B0';
-      default: return '#4CAF50';
+      case 'easy':
+        return '#4CAF50';
+      case 'medium':
+        return '#FF9800';
+      case 'hard':
+        return '#F44336';
+      case 'expert':
+        return '#9C27B0';
+      default:
+        return '#4CAF50';
     }
   }
 
@@ -400,4 +415,4 @@ export class ChapterLevelSystem {
   }
 }
 
-export const chapterLevelSystem = ChapterLevelSystem.getInstance(); 
+export const chapterLevelSystem = ChapterLevelSystem.getInstance();

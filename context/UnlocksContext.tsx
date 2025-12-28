@@ -1,14 +1,14 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { onAuthStateChanged, type User } from 'firebase/auth';
-import { 
-  doc, 
-  collection, 
-  onSnapshot, 
-  setDoc, 
+import {
+  doc,
+  collection,
+  onSnapshot,
+  setDoc,
   updateDoc,
   serverTimestamp,
   DocumentData,
-  Unsubscribe
+  Unsubscribe,
 } from 'firebase/firestore';
 import { auth, db } from '../firebase/config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -90,29 +90,29 @@ interface UnlocksContextType {
   unlocks: UserUnlocks | null;
   loading: boolean;
   error: string | null;
-  
+
   // Cart skins methods
   unlockCartSkin: (skinId: string) => Promise<void>;
   equipCartSkin: (skinId: string) => Promise<void>;
   getEquippedCartSkin: () => CartSkin | undefined;
-  
+
   // Trails methods
   unlockTrail: (trailId: string) => Promise<void>;
   equipTrail: (trailId: string) => Promise<void>;
   getEquippedTrail: () => Trail | undefined;
-  
+
   // State flags methods
   unlockStateFlag: (stateId: string) => Promise<void>;
   updateStateProgress: (stateId: string, progress: number) => Promise<void>;
   getStateFlag: (stateId: string) => StateFlag | undefined;
-  
+
   // Power-ups methods
   unlockPowerUp: (powerUpId: string) => Promise<void>;
   upgradePowerUp: (powerUpId: string) => Promise<void>;
-  
+
   // Achievements methods
   unlockAchievement: (achievementId: string, reward: Achievement['reward']) => Promise<void>;
-  
+
   // Utility methods
   syncUnlocks: () => Promise<void>;
   resetUnlocks: () => Promise<void>;
@@ -144,7 +144,7 @@ export const UnlocksProvider: React.FC<UnlocksProviderProps> = ({ children }) =>
   useEffect(() => {
     const authUnsubscribe = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
-      
+
       if (user) {
         await loadUserUnlocks(user.uid);
         subscribeToUnlocksUpdates(user.uid);
@@ -155,7 +155,7 @@ export const UnlocksProvider: React.FC<UnlocksProviderProps> = ({ children }) =>
           unsubscribe();
         }
       }
-      
+
       setLoading(false);
     });
 
@@ -182,7 +182,8 @@ export const UnlocksProvider: React.FC<UnlocksProviderProps> = ({ children }) =>
       // Then fetch from Firestore
       const unlocksRef = doc(db, 'users', uid, 'unlocks', 'data');
       const unlocksDoc = await new Promise<DocumentData | undefined>((resolve) => {
-        const unsub = onSnapshot(unlocksRef, 
+        const unsub = onSnapshot(
+          unlocksRef,
           (doc) => resolve(doc.exists() ? doc.data() : undefined),
           (error) => {
             console.error('Error loading unlocks:', error);
@@ -196,7 +197,7 @@ export const UnlocksProvider: React.FC<UnlocksProviderProps> = ({ children }) =>
       if (unlocksDoc) {
         const userUnlocks = convertFirestoreToUnlocks(uid, unlocksDoc);
         setUnlocks(userUnlocks);
-        
+
         // Cache the unlocks
         await AsyncStorage.setItem(`unlocks_${uid}`, JSON.stringify(userUnlocks));
       } else {
@@ -214,19 +215,23 @@ export const UnlocksProvider: React.FC<UnlocksProviderProps> = ({ children }) =>
   // Subscribe to real-time updates
   const subscribeToUnlocksUpdates = (uid: string) => {
     const unlocksRef = doc(db, 'users', uid, 'unlocks', 'data');
-    
-    const unsub = onSnapshot(unlocksRef, async (snapshot) => {
-      if (snapshot.exists()) {
-        const userUnlocks = convertFirestoreToUnlocks(uid, snapshot.data());
-        setUnlocks(userUnlocks);
-        
-        // Update cache
-        await AsyncStorage.setItem(`unlocks_${uid}`, JSON.stringify(userUnlocks));
+
+    const unsub = onSnapshot(
+      unlocksRef,
+      async (snapshot) => {
+        if (snapshot.exists()) {
+          const userUnlocks = convertFirestoreToUnlocks(uid, snapshot.data());
+          setUnlocks(userUnlocks);
+
+          // Update cache
+          await AsyncStorage.setItem(`unlocks_${uid}`, JSON.stringify(userUnlocks));
+        }
+      },
+      (error) => {
+        console.error('Error in unlocks subscription:', error);
+        setError('Failed to sync unlocks');
       }
-    }, (error) => {
-      console.error('Error in unlocks subscription:', error);
-      setError('Failed to sync unlocks');
-    });
+    );
 
     setUnsubscribe(() => unsub);
   };
@@ -285,7 +290,7 @@ export const UnlocksProvider: React.FC<UnlocksProviderProps> = ({ children }) =>
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
-      
+
       setUnlocks(defaultUnlocks);
       await AsyncStorage.setItem(`unlocks_${uid}`, JSON.stringify(defaultUnlocks));
     } catch (err) {
@@ -342,7 +347,7 @@ export const UnlocksProvider: React.FC<UnlocksProviderProps> = ({ children }) =>
   const equipCartSkin = async (skinId: string) => {
     if (!currentUser || !unlocks) return;
 
-    const updatedSkins = unlocks.cartSkins.map(skin => ({
+    const updatedSkins = unlocks.cartSkins.map((skin) => ({
       ...skin,
       equipped: skin.id === skinId,
     }));
@@ -356,7 +361,7 @@ export const UnlocksProvider: React.FC<UnlocksProviderProps> = ({ children }) =>
   };
 
   const getEquippedCartSkin = () => {
-    return unlocks?.cartSkins.find(skin => skin.equipped);
+    return unlocks?.cartSkins.find((skin) => skin.equipped);
   };
 
   // Trail methods
@@ -390,7 +395,7 @@ export const UnlocksProvider: React.FC<UnlocksProviderProps> = ({ children }) =>
   const equipTrail = async (trailId: string) => {
     if (!currentUser || !unlocks) return;
 
-    const updatedTrails = unlocks.trails.map(trail => ({
+    const updatedTrails = unlocks.trails.map((trail) => ({
       ...trail,
       equipped: trail.id === trailId,
     }));
@@ -404,7 +409,7 @@ export const UnlocksProvider: React.FC<UnlocksProviderProps> = ({ children }) =>
   };
 
   const getEquippedTrail = () => {
-    return unlocks?.trails.find(trail => trail.equipped);
+    return unlocks?.trails.find((trail) => trail.equipped);
   };
 
   // State flag methods
@@ -438,10 +443,8 @@ export const UnlocksProvider: React.FC<UnlocksProviderProps> = ({ children }) =>
   const updateStateProgress = async (stateId: string, progress: number) => {
     if (!currentUser || !unlocks) return;
 
-    const updatedStates = unlocks.stateFlags.map(state => 
-      state.id === stateId 
-        ? { ...state, progress: Math.min(100, Math.max(0, progress)) }
-        : state
+    const updatedStates = unlocks.stateFlags.map((state) =>
+      state.id === stateId ? { ...state, progress: Math.min(100, Math.max(0, progress)) } : state
     );
 
     const updatedUnlocks = {
@@ -453,7 +456,7 @@ export const UnlocksProvider: React.FC<UnlocksProviderProps> = ({ children }) =>
   };
 
   const getStateFlag = (stateId: string) => {
-    return unlocks?.stateFlags.find(state => state.id === stateId);
+    return unlocks?.stateFlags.find((state) => state.id === stateId);
   };
 
   // Power-up methods
@@ -486,7 +489,7 @@ export const UnlocksProvider: React.FC<UnlocksProviderProps> = ({ children }) =>
   const upgradePowerUp = async (powerUpId: string) => {
     if (!currentUser || !unlocks) return;
 
-    const updatedPowerUps = unlocks.powerUps.map(powerUp => 
+    const updatedPowerUps = unlocks.powerUps.map((powerUp) =>
       powerUp.id === powerUpId && powerUp.level < powerUp.maxLevel
         ? { ...powerUp, level: powerUp.level + 1 }
         : powerUp
@@ -536,7 +539,7 @@ export const UnlocksProvider: React.FC<UnlocksProviderProps> = ({ children }) =>
         ...updatedUnlocks,
         updatedAt: serverTimestamp(),
       });
-      
+
       setUnlocks(updatedUnlocks);
       await AsyncStorage.setItem(`unlocks_${currentUser.uid}`, JSON.stringify(updatedUnlocks));
     } catch (err) {
@@ -720,11 +723,7 @@ export const UnlocksProvider: React.FC<UnlocksProviderProps> = ({ children }) =>
     getTotalUnlocksCount,
   };
 
-  return (
-    <UnlocksContext.Provider value={value}>
-      {children}
-    </UnlocksContext.Provider>
-  );
+  return <UnlocksContext.Provider value={value}>{children}</UnlocksContext.Provider>;
 };
 
 export default UnlocksContext;

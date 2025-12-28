@@ -64,7 +64,7 @@ export default function AdminPanel() {
   const loadDashboardData = async () => {
     try {
       setRefreshing(true);
-      
+
       // Load users
       const allUsers = await authService.getAllUsers(100);
       setUsers(allUsers);
@@ -72,14 +72,14 @@ export default function AdminPanel() {
       // Calculate stats
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      
-      const activeToday = allUsers.filter(user => {
+
+      const activeToday = allUsers.filter((user) => {
         const lastLogin = user.lastLogin?.toDate ? user.lastLogin.toDate() : new Date(0);
         return lastLogin >= today;
       }).length;
 
-      const premiumUsers = allUsers.filter(user => 
-        user.subscription?.isActive && user.subscription?.type !== 'free'
+      const premiumUsers = allUsers.filter(
+        (user) => user.subscription?.isActive && user.subscription?.type !== 'free'
       ).length;
 
       setStats({
@@ -99,15 +99,16 @@ export default function AdminPanel() {
     setSearchQuery(text);
   };
 
-  const filteredUsers = users.filter(user =>
-    user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    user.displayName.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredUsers = users.filter(
+    (user) =>
+      user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.displayName.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleResetUserProgress = async (userId: string) => {
     Alert.alert(
       'Reset User Progress',
-      'Are you sure you want to reset this user\'s game progress?',
+      "Are you sure you want to reset this user's game progress?",
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -151,7 +152,7 @@ export default function AdminPanel() {
   const handleAddCoins = async (userId: string, amount: number) => {
     try {
       const userDoc = doc(db, 'users', userId);
-      const currentUser = users.find(u => u.uid === userId);
+      const currentUser = users.find((u) => u.uid === userId);
       if (!currentUser) return;
 
       await updateDoc(userDoc, {
@@ -201,10 +202,7 @@ export default function AdminPanel() {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={() => setShowUserModal(false)}
-            >
+            <TouchableOpacity style={styles.closeButton} onPress={() => setShowUserModal(false)}>
               <Ionicons name="close" size={24} color="#666" />
             </TouchableOpacity>
 
@@ -323,10 +321,7 @@ export default function AdminPanel() {
   }
 
   return (
-    <LinearGradient
-      colors={['#1a1a2e', '#16213e', '#0f3460']}
-      style={styles.container}
-    >
+    <LinearGradient colors={['#1a1a2e', '#16213e', '#0f3460']} style={styles.container}>
       <ScrollView
         refreshControl={
           <RefreshControl

@@ -1,11 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import {
-  View,
-  StyleSheet,
-  Animated,
-  Image,
-  Platform,
-} from 'react-native';
+import { View, StyleSheet, Animated, Image, Platform } from 'react-native';
 
 interface MiningCartProps {
   position: number;
@@ -143,12 +137,14 @@ export default function MiningCart({
             styles.glowEffect,
             {
               opacity: glowAnim,
-              transform: [{ 
-                scale: glowAnim.interpolate({
-                  inputRange: [0.3, 1],
-                  outputRange: [1, 1.5],
-                })
-              }],
+              transform: [
+                {
+                  scale: glowAnim.interpolate({
+                    inputRange: [0.3, 1],
+                    outputRange: [1, 1.5],
+                  }),
+                },
+              ],
             },
           ]}
         />
@@ -158,17 +154,17 @@ export default function MiningCart({
       <View style={[styles.cartBody, { backgroundColor: colors.body }]}>
         {/* Cart top rim */}
         <View style={[styles.cartRim, { backgroundColor: colors.trim }]} />
-        
+
         {/* Cart front panel - angled for mining cart look */}
         <View style={[styles.cartFront, { backgroundColor: colors.trim }]} />
-        
+
         {/* Cart back panel - angled for mining cart look */}
         <View style={[styles.cartBack, { backgroundColor: colors.trim }]} />
-        
+
         {/* Metal bands */}
         <View style={[styles.metalBand, styles.metalBandTop]} />
         <View style={[styles.metalBand, styles.metalBandBottom]} />
-        
+
         {/* Gold inside cart (if level > 1) */}
         {level > 1 && (
           <View style={styles.goldContainer}>

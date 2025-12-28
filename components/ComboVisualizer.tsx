@@ -1,12 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import {
-  View,
-  Text,
-  Animated,
-  StyleSheet,
-  Easing,
-  Dimensions,
-} from 'react-native';
+import { View, Text, Animated, StyleSheet, Easing, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import particleSystem, { ParticleType } from '../utils/particleSystem';
 import audioManager from '../utils/audioManager';
@@ -258,18 +251,13 @@ const ComboVisualizer: React.FC<ComboVisualizerProps> = ({
       >
         <Animated.View
           style={{
-            transform: [
-              { scale: pulseAnim },
-              { scale: textScaleAnim },
-            ],
+            transform: [{ scale: pulseAnim }, { scale: textScaleAnim }],
           }}
         >
           <Text style={[styles.comboTitle, { fontSize: getComboFontSize() * 0.4 }]}>
             {getComboTitle()}
           </Text>
-          <Text style={[styles.comboCount, { fontSize: getComboFontSize() }]}>
-            {comboCount}
-          </Text>
+          <Text style={[styles.comboCount, { fontSize: getComboFontSize() }]}>{comboCount}</Text>
           <Text style={styles.multiplierText}>x{multiplier.toFixed(1)}</Text>
         </Animated.View>
 
@@ -290,9 +278,7 @@ const ComboVisualizer: React.FC<ComboVisualizerProps> = ({
       )}
 
       {/* Crown for legendary combos */}
-      {comboCount > 40 && (
-        <Text style={styles.crown}>👑</Text>
-      )}
+      {comboCount > 40 && <Text style={styles.crown}>👑</Text>}
     </Animated.View>
   );
 };

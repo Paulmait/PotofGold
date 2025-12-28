@@ -106,73 +106,61 @@ interface OptimizedScoreProps {
   combo: number;
 }
 
-export const OptimizedScore = memo<OptimizedScoreProps>(
-  ({ score, multiplier, combo }) => {
-    const animatedScore = useRef(new Animated.Value(0)).current;
-    const previousScore = useRef(score);
+export const OptimizedScore = memo<OptimizedScoreProps>(({ score, multiplier, combo }) => {
+  const animatedScore = useRef(new Animated.Value(0)).current;
+  const previousScore = useRef(score);
 
-    useEffect(() => {
-      if (score !== previousScore.current) {
-        Animated.timing(animatedScore, {
-          toValue: 1,
-          duration: 200,
-          useNativeDriver: true,
-        }).start(() => {
-          animatedScore.setValue(0);
-        });
-        previousScore.current = score;
-      }
-    }, [score, animatedScore]);
+  useEffect(() => {
+    if (score !== previousScore.current) {
+      Animated.timing(animatedScore, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }).start(() => {
+        animatedScore.setValue(0);
+      });
+      previousScore.current = score;
+    }
+  }, [score, animatedScore]);
 
-    const formattedScore = useMemo(
-      () => score.toLocaleString(),
-      [score]
-    );
+  const formattedScore = useMemo(() => score.toLocaleString(), [score]);
 
-    const multiplierColor = useMemo(() => {
-      if (multiplier >= 5) return '#FF0000';
-      if (multiplier >= 3) return '#FFA500';
-      if (multiplier >= 2) return '#FFD700';
-      return '#FFFFFF';
-    }, [multiplier]);
+  const multiplierColor = useMemo(() => {
+    if (multiplier >= 5) return '#FF0000';
+    if (multiplier >= 3) return '#FFA500';
+    if (multiplier >= 2) return '#FFD700';
+    return '#FFFFFF';
+  }, [multiplier]);
 
-    const comboText = useMemo(() => {
-      if (combo >= 50) return 'MEGA COMBO!';
-      if (combo >= 20) return 'SUPER COMBO!';
-      if (combo >= 10) return 'COMBO!';
-      return '';
-    }, [combo]);
+  const comboText = useMemo(() => {
+    if (combo >= 50) return 'MEGA COMBO!';
+    if (combo >= 20) return 'SUPER COMBO!';
+    if (combo >= 10) return 'COMBO!';
+    return '';
+  }, [combo]);
 
-    const scale = animatedScore.interpolate({
-      inputRange: [0, 0.5, 1],
-      outputRange: [1, 1.2, 1],
-    });
+  const scale = animatedScore.interpolate({
+    inputRange: [0, 0.5, 1],
+    outputRange: [1, 1.2, 1],
+  });
 
-    return (
-      <View style={styles.scoreContainer}>
-        <Animated.Text
-          style={[
-            styles.scoreText,
-            { transform: [{ scale }] },
-          ]}
-        >
-          {formattedScore}
-        </Animated.Text>
-        {multiplier > 1 && (
-          <Text style={[styles.multiplierText, { color: multiplierColor }]}>
-            x{multiplier}
-          </Text>
-        )}
-        {combo > 0 && (
-          <View style={styles.comboContainer}>
-            <Text style={styles.comboText}>{comboText}</Text>
-            <Text style={styles.comboCount}>{combo}</Text>
-          </View>
-        )}
-      </View>
-    );
-  }
-);
+  return (
+    <View style={styles.scoreContainer}>
+      <Animated.Text style={[styles.scoreText, { transform: [{ scale }] }]}>
+        {formattedScore}
+      </Animated.Text>
+      {multiplier > 1 && (
+        <Text style={[styles.multiplierText, { color: multiplierColor }]}>x{multiplier}</Text>
+      )}
+      {combo > 0 && (
+        <View style={styles.comboContainer}>
+          <Text style={styles.comboText}>{comboText}</Text>
+          <Text style={styles.comboCount}>{combo}</Text>
+        </View>
+      )}
+    </View>
+  );
+});
 
 OptimizedScore.displayName = 'OptimizedScore';
 
@@ -186,54 +174,47 @@ interface PowerUpDisplayProps {
   }>;
 }
 
-export const OptimizedPowerUpDisplay = memo<PowerUpDisplayProps>(
-  ({ powerUps }) => {
-    const activePowerUps = useMemo(
-      () => powerUps.filter(p => p.remainingTime > 0),
-      [powerUps]
-    );
+export const OptimizedPowerUpDisplay = memo<PowerUpDisplayProps>(({ powerUps }) => {
+  const activePowerUps = useMemo(() => powerUps.filter((p) => p.remainingTime > 0), [powerUps]);
 
-    return (
-      <View style={styles.powerUpContainer}>
-        {activePowerUps.map(powerUp => (
-          <PowerUpItem key={powerUp.id} powerUp={powerUp} />
-        ))}
+  return (
+    <View style={styles.powerUpContainer}>
+      {activePowerUps.map((powerUp) => (
+        <PowerUpItem key={powerUp.id} powerUp={powerUp} />
+      ))}
+    </View>
+  );
+});
+
+const PowerUpItem = memo<{ powerUp: any }>(({ powerUp }) => {
+  const progress = useMemo(
+    () => powerUp.remainingTime / powerUp.duration,
+    [powerUp.remainingTime, powerUp.duration]
+  );
+
+  const progressColor = useMemo(() => {
+    if (progress > 0.5) return '#00FF00';
+    if (progress > 0.25) return '#FFA500';
+    return '#FF0000';
+  }, [progress]);
+
+  return (
+    <View style={styles.powerUpItem}>
+      <Text style={styles.powerUpType}>{powerUp.type}</Text>
+      <View style={styles.powerUpProgress}>
+        <View
+          style={[
+            styles.powerUpProgressFill,
+            {
+              width: `${progress * 100}%`,
+              backgroundColor: progressColor,
+            },
+          ]}
+        />
       </View>
-    );
-  }
-);
-
-const PowerUpItem = memo<{ powerUp: any }>(
-  ({ powerUp }) => {
-    const progress = useMemo(
-      () => powerUp.remainingTime / powerUp.duration,
-      [powerUp.remainingTime, powerUp.duration]
-    );
-
-    const progressColor = useMemo(() => {
-      if (progress > 0.5) return '#00FF00';
-      if (progress > 0.25) return '#FFA500';
-      return '#FF0000';
-    }, [progress]);
-
-    return (
-      <View style={styles.powerUpItem}>
-        <Text style={styles.powerUpType}>{powerUp.type}</Text>
-        <View style={styles.powerUpProgress}>
-          <View
-            style={[
-              styles.powerUpProgressFill,
-              {
-                width: `${progress * 100}%`,
-                backgroundColor: progressColor,
-              },
-            ]}
-          />
-        </View>
-      </View>
-    );
-  }
-);
+    </View>
+  );
+});
 
 PowerUpItem.displayName = 'PowerUpItem';
 
@@ -313,9 +294,7 @@ export const OptimizedCart = memo<OptimizedCartProps>(
           />
         </View>
         {speed > 5 && trail && (
-          <View style={styles.trailEffect}>
-            {/* Trail particles would go here */}
-          </View>
+          <View style={styles.trailEffect}>{/* Trail particles would go here */}</View>
         )}
       </Animated.View>
     );
@@ -338,17 +317,13 @@ export const OptimizedCart = memo<OptimizedCartProps>(
 OptimizedCart.displayName = 'OptimizedCart';
 
 // Heavy computation example with useMemo
-export const useGameCalculations = (
-  items: any[],
-  multipliers: number[],
-  bonuses: any[]
-) => {
+export const useGameCalculations = (items: any[], multipliers: number[], bonuses: any[]) => {
   const totalScore = useMemo(() => {
     return items.reduce((acc, item) => {
       const baseValue = item.value || 0;
       const multiplier = multipliers.reduce((m, mult) => m * mult, 1);
       const bonus = bonuses
-        .filter(b => b.appliesTo === item.type)
+        .filter((b) => b.appliesTo === item.type)
         .reduce((sum, b) => sum + b.value, 0);
       return acc + baseValue * multiplier + bonus;
     }, 0);
@@ -367,11 +342,14 @@ export const useGameCalculations = (
   }, [items]);
 
   const itemsByType = useMemo(() => {
-    return items.reduce((acc, item) => {
-      if (!acc[item.type]) acc[item.type] = [];
-      acc[item.type].push(item);
-      return acc;
-    }, {} as Record<string, any[]>);
+    return items.reduce(
+      (acc, item) => {
+        if (!acc[item.type]) acc[item.type] = [];
+        acc[item.type].push(item);
+        return acc;
+      },
+      {} as Record<string, any[]>
+    );
   }, [items]);
 
   const projectedScore = useMemo(() => {
@@ -404,53 +382,51 @@ export const OptimizedParticles = memo<{
 
   return (
     <View style={styles.particleContainer} pointerEvents="none">
-      {visibleParticles.map(particle => (
+      {visibleParticles.map((particle) => (
         <Particle key={particle.id} {...particle} />
       ))}
     </View>
   );
 });
 
-const Particle = memo<{ id: string; x: number; y: number; type: string }>(
-  ({ x, y, type }) => {
-    const opacity = useRef(new Animated.Value(1)).current;
+const Particle = memo<{ id: string; x: number; y: number; type: string }>(({ x, y, type }) => {
+  const opacity = useRef(new Animated.Value(1)).current;
 
-    useEffect(() => {
-      Animated.timing(opacity, {
-        toValue: 0,
-        duration: 1000,
-        useNativeDriver: true,
-      }).start();
-    }, [opacity]);
+  useEffect(() => {
+    Animated.timing(opacity, {
+      toValue: 0,
+      duration: 1000,
+      useNativeDriver: true,
+    }).start();
+  }, [opacity]);
 
-    const particleColor = useMemo(() => {
-      switch (type) {
-        case 'gold':
-          return '#FFD700';
-        case 'explosion':
-          return '#FF4500';
-        case 'star':
-          return '#FFFFFF';
-        default:
-          return '#888888';
-      }
-    }, [type]);
+  const particleColor = useMemo(() => {
+    switch (type) {
+      case 'gold':
+        return '#FFD700';
+      case 'explosion':
+        return '#FF4500';
+      case 'star':
+        return '#FFFFFF';
+      default:
+        return '#888888';
+    }
+  }, [type]);
 
-    return (
-      <Animated.View
-        style={[
-          styles.particle,
-          {
-            left: x,
-            top: y,
-            backgroundColor: particleColor,
-            opacity,
-          },
-        ]}
-      />
-    );
-  }
-);
+  return (
+    <Animated.View
+      style={[
+        styles.particle,
+        {
+          left: x,
+          top: y,
+          backgroundColor: particleColor,
+          opacity,
+        },
+      ]}
+    />
+  );
+});
 
 Particle.displayName = 'Particle';
 

@@ -101,7 +101,7 @@ export default function AppWeb() {
       // Check onboarding status with device tracking
       const hasCompleted = await hasCompletedOnboarding();
       setHasSeenOnboarding(hasCompleted);
-      
+
       // Track device analytics
       const analytics = await getDeviceAnalytics();
       console.log('Device analytics:', analytics);
@@ -110,14 +110,14 @@ export default function AppWeb() {
       const unsubscribe = onAuthStateChanged(auth, async (user) => {
         if (user) {
           setIsAuthenticated(true);
-          
+
           // Load user profile
           await authService.loadUserProfile(user.uid);
-          
+
           // Check admin status
           const adminStatus = await authService.checkAdminStatus();
           setIsAdmin(adminStatus);
-          
+
           // Set user context for crash reporting
           crashReporting.setUser({
             id: user.uid,
@@ -145,12 +145,7 @@ export default function AppWeb() {
 
   // Show splash screen first
   if (showSplash) {
-    return (
-      <GameLoadingSplash 
-        onComplete={() => setShowSplash(false)}
-        duration={2500}
-      />
-    );
+    return <GameLoadingSplash onComplete={() => setShowSplash(false)} duration={2500} />;
   }
 
   if (isLoading) {
@@ -193,8 +188,8 @@ export default function AppWeb() {
                 >
                   {!hasAcceptedLegal ? (
                     <>
-                      <Stack.Screen 
-                        name="LegalAgreement" 
+                      <Stack.Screen
+                        name="LegalAgreement"
                         component={LegalAgreementScreen}
                         initialParams={{
                           onAccept: async () => {
@@ -204,7 +199,7 @@ export default function AppWeb() {
                           },
                           onDecline: () => {
                             alert('You must accept the legal agreements to use Pot of Gold.');
-                          }
+                          },
                         }}
                       />
                       {/* Add all screens as fallback during transition */}
@@ -214,14 +209,14 @@ export default function AppWeb() {
                     </>
                   ) : !hasSeenOnboarding ? (
                     <>
-                      <Stack.Screen 
-                        name="Onboarding" 
+                      <Stack.Screen
+                        name="Onboarding"
                         component={OnboardingScreen}
                         initialParams={{
                           onComplete: async () => {
                             await AsyncStorage.setItem('hasSeenOnboarding', 'true');
                             setHasSeenOnboarding(true);
-                          }
+                          },
                         }}
                       />
                       {/* Add Home screen as fallback during transition */}
@@ -248,9 +243,7 @@ export default function AppWeb() {
                       <Stack.Screen name="Leaderboard" component={LeaderboardScreen} />
                       <Stack.Screen name="Stats" component={StatsScreen} />
                       <Stack.Screen name="HowToPlay" component={HowToPlayScreen} />
-                      {isAdmin && (
-                        <Stack.Screen name="AdminPanel" component={AdminPanel} />
-                      )}
+                      {isAdmin && <Stack.Screen name="AdminPanel" component={AdminPanel} />}
                     </>
                   )}
                 </Stack.Navigator>

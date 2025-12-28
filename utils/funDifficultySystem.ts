@@ -79,7 +79,7 @@ class FunDifficultySystem {
         fallSpeed: 3.5, // A bit more exciting
         spawnRate: 1500, // More items to catch
         coinValue: 15, // Bonus for adventure mode
-        powerUpChance: 0.20, // More power-ups for fun
+        powerUpChance: 0.2, // More power-ups for fun
         encouragementLevel: 8, // Lots of cheering
         mistakeTolerance: 40, // Still very forgiving
         autoHelp: false,
@@ -107,10 +107,7 @@ class FunDifficultySystem {
     audioManager.playSound('levelUp');
 
     // Show mode change particles
-    particleSystem.createParticles(
-      ParticleType.LEVEL_UP_CONFETTI,
-      { x: 200, y: 100 }
-    );
+    particleSystem.createParticles(ParticleType.LEVEL_UP_CONFETTI, { x: 200, y: 100 });
 
     return this.getModeAnnouncement(mode);
   }
@@ -136,7 +133,7 @@ class FunDifficultySystem {
         soundEffect: 'adventure',
       },
       party: {
-        text: 'Party Mode - Let\'s Celebrate!',
+        text: "Party Mode - Let's Celebrate!",
         emoji: '🎉',
         color: '#FF69B4',
         soundEffect: 'party',
@@ -146,11 +143,7 @@ class FunDifficultySystem {
     return announcements[mode] || announcements.casual;
   }
 
-  getEncouragement(
-    score: number,
-    combo: number,
-    missed: number
-  ): EncouragementMessage | null {
+  getEncouragement(score: number, combo: number, missed: number): EncouragementMessage | null {
     const now = Date.now();
 
     // Don't spam encouragement
@@ -203,11 +196,11 @@ class FunDifficultySystem {
 
     // Random positive messages
     const randomMessages: EncouragementMessage[] = [
-      { text: 'You\'re doing great!', emoji: '😄', color: '#90EE90' },
+      { text: "You're doing great!", emoji: '😄', color: '#90EE90' },
       { text: 'Awesome job!', emoji: '👏', color: '#FFD700' },
       { text: 'Keep it up!', emoji: '🎯', color: '#00CED1' },
       { text: 'Fantastic!', emoji: '⭐', color: '#FF69B4' },
-      { text: 'You\'re a star!', emoji: '🌟', color: '#FFD700' },
+      { text: "You're a star!", emoji: '🌟', color: '#FFD700' },
       { text: 'So much fun!', emoji: '🎮', color: '#9370DB' },
       { text: 'Wonderful!', emoji: '🌈', color: '#FF1493' },
       { text: 'You got this!', emoji: '💖', color: '#FF69B4' },
@@ -217,9 +210,7 @@ class FunDifficultySystem {
 
     // Add random encouragement
     if (Math.random() < 0.3) {
-      encouragements.push(
-        randomMessages[Math.floor(Math.random() * randomMessages.length)]
-      );
+      encouragements.push(randomMessages[Math.floor(Math.random() * randomMessages.length)]);
     }
 
     return encouragements.length > 0
@@ -235,7 +226,7 @@ class FunDifficultySystem {
     // Context-based hints
     if (gameState.missedItems > 10) {
       hints.push('💡 Try focusing on the center coins first!');
-      hints.push('💡 Don\'t worry about catching everything!');
+      hints.push("💡 Don't worry about catching everything!");
     }
 
     if (gameState.combo === 0 && gameState.score > 50) {
@@ -311,9 +302,7 @@ class FunDifficultySystem {
       { threshold: 2000, level: 6, message: 'Champion!', effect: 'ultimate_party' },
     ];
 
-    const celebration = celebrations
-      .reverse()
-      .find(c => score >= c.threshold) || {
+    const celebration = celebrations.reverse().find((c) => score >= c.threshold) || {
       level: 0,
       message: 'Keep Going!',
       effect: 'none',
@@ -322,7 +311,10 @@ class FunDifficultySystem {
     return celebration;
   }
 
-  getEndGameMessage(score: number, timeSurvived: number): {
+  getEndGameMessage(
+    score: number,
+    timeSurvived: number
+  ): {
     title: string;
     subtitle: string;
     emoji: string;
@@ -340,13 +332,13 @@ class FunDifficultySystem {
         title: 'Great Job!',
         subtitle: `${timeSurvived} seconds of pure fun!`,
         emoji: '⭐',
-        encouragement: 'You\'re getting better every time!',
+        encouragement: "You're getting better every time!",
       },
       {
         title: 'Well Played!',
         subtitle: `Score: ${score}`,
         emoji: '🏆',
-        encouragement: 'You\'re a natural at this!',
+        encouragement: "You're a natural at this!",
       },
       {
         title: 'Fun Times!',

@@ -108,4 +108,4 @@ describe('App Store Compliance Tests', () => {
       await expect(privacyManager.deleteUserData(userId)).resolves.not.toThrow();
     });
   });
-}); 
+});

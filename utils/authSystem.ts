@@ -62,7 +62,7 @@ export class AuthSystem {
   async initializeAuth(): Promise<AuthState> {
     try {
       const offlineData = await offlineManager.getOfflineData('auth');
-      
+
       if (offlineData.authState) {
         this.authState = offlineData.authState;
         return this.authState;
@@ -85,7 +85,11 @@ export class AuthSystem {
   }
 
   // Sign up user
-  async signUp(email: string, password: string, displayName: string): Promise<{
+  async signUp(
+    email: string,
+    password: string,
+    displayName: string
+  ): Promise<{
     success: boolean;
     user: UserProfile | null;
     message: string;
@@ -94,7 +98,7 @@ export class AuthSystem {
       // In real app, this would call Firebase Auth
       const userId = `user_${Date.now()}`;
       const inviteCode = this.generateInviteCode();
-      
+
       const user: UserProfile = {
         userId,
         email,
@@ -158,13 +162,15 @@ export class AuthSystem {
         totalPlayTime: 0,
         achievements: [],
         missions: [],
-        chapters: [{
-          id: 'chapter_1',
-          name: 'Gold Cavern',
-          unlocked: true,
-          completed: false,
-          currentLevel: 1,
-        }],
+        chapters: [
+          {
+            id: 'chapter_1',
+            name: 'Gold Cavern',
+            unlocked: true,
+            completed: false,
+            currentLevel: 1,
+          },
+        ],
         camp: {
           level: 1,
           buildings: [],
@@ -227,7 +233,10 @@ export class AuthSystem {
   }
 
   // Sign in user
-  async signIn(email: string, password: string): Promise<{
+  async signIn(
+    email: string,
+    password: string
+  ): Promise<{
     success: boolean;
     user: UserProfile | null;
     message: string;
@@ -305,7 +314,7 @@ export class AuthSystem {
     try {
       // In real app, this would sync with Firestore
       const userData = await offlineManager.getOfflineData(this.authState.user.userId);
-      
+
       // Sync progress, unlocks, coins, etc.
       const syncedData = {
         progress: userData.progress || {},
@@ -383,7 +392,7 @@ export class AuthSystem {
   // Get seasonal rewards
   getSeasonalRewards(): SeasonalReward[] {
     const now = new Date();
-    
+
     return [
       {
         id: 'state_week_2024',
@@ -411,9 +420,7 @@ export class AuthSystem {
         },
         claimed: false,
       },
-    ].filter(reward => 
-      now >= reward.startDate && now <= reward.endDate
-    );
+    ].filter((reward) => now >= reward.startDate && now <= reward.endDate);
   }
 
   // Claim seasonal reward
@@ -422,8 +429,8 @@ export class AuthSystem {
     reward: SeasonalReward | null;
     message: string;
   }> {
-    const reward = this.getSeasonalRewards().find(r => r.id === rewardId);
-    
+    const reward = this.getSeasonalRewards().find((r) => r.id === rewardId);
+
     if (!reward) {
       return { success: false, reward: null, message: 'Reward not found' };
     }
@@ -471,4 +478,4 @@ export class AuthSystem {
   }
 }
 
-export const authSystem = AuthSystem.getInstance(); 
+export const authSystem = AuthSystem.getInstance();

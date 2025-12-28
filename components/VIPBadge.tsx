@@ -1,11 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Animated,
-  ViewStyle,
-} from 'react-native';
+import { View, Text, StyleSheet, Animated, ViewStyle } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -74,7 +68,7 @@ const VIPBadge: React.FC<VIPBadgeProps> = ({
   };
 
   const dimensions = getSize();
-  
+
   const rotation = rotateAnim.interpolate({
     inputRange: [-1, 1],
     outputRange: ['-5deg', '5deg'],
@@ -86,10 +80,7 @@ const VIPBadge: React.FC<VIPBadgeProps> = ({
         styles.container,
         style,
         animated && {
-          transform: [
-            { scale: pulseAnim },
-            { rotate: rotation },
-          ],
+          transform: [{ scale: pulseAnim }, { rotate: rotation }],
         },
       ]}
     >
@@ -105,21 +96,15 @@ const VIPBadge: React.FC<VIPBadgeProps> = ({
           },
         ]}
       >
-        <Ionicons
-          name="shield-checkmark"
-          size={dimensions.iconSize}
-          color="white"
-        />
+        <Ionicons name="shield-checkmark" size={dimensions.iconSize} color="white" />
       </LinearGradient>
-      
+
       {showText && (
         <View style={styles.textContainer}>
-          <Text style={[styles.text, size === 'small' && styles.textSmall]}>
-            VIP
-          </Text>
+          <Text style={[styles.text, size === 'small' && styles.textSmall]}>VIP</Text>
         </View>
       )}
-      
+
       {/* Glow effect */}
       {animated && (
         <Animated.View
@@ -184,6 +169,6 @@ export default VIPBadge;
 // Hook to conditionally render VIP badge
 export const useVIPBadge = (isSubscriber: boolean) => {
   if (!isSubscriber) return null;
-  
+
   return <VIPBadge />;
 };

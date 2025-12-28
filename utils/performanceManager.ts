@@ -37,54 +37,54 @@ class PerformanceManager {
   private autoOptimizeEnabled: boolean = true;
   private deviceTier: 'low' | 'medium' | 'high' | 'ultra';
   private screenScale: number = 1;
-  
+
   constructor() {
     this.deviceTier = this.detectDeviceTier();
     this.settings = this.getDefaultSettings(this.deviceTier);
     this.metrics = this.getDefaultMetrics();
     this.initializePerformanceMonitoring();
   }
-  
+
   private detectDeviceTier(): 'low' | 'medium' | 'high' | 'ultra' {
     if (Platform.OS === 'web') {
       // Web performance detection
       const cores = navigator.hardwareConcurrency || 2;
       const memory = (navigator as any).deviceMemory || 2;
-      
+
       if (cores >= 8 && memory >= 8) return 'ultra';
       if (cores >= 4 && memory >= 4) return 'high';
       if (cores >= 2 && memory >= 2) return 'medium';
       return 'low';
     }
-    
+
     // Mobile device detection
     const totalMemory = Device.totalMemory || 2 * 1024 * 1024 * 1024;
     const memoryGB = totalMemory / (1024 * 1024 * 1024);
     const deviceYear = Device.deviceYearClass || 2018;
-    
+
     // Get screen dimensions for additional context
     const { width, height } = Dimensions.get('window');
     const screenPixels = width * height;
-    
+
     // Ultra tier: Latest high-end devices
     if (memoryGB >= 6 && deviceYear >= 2022 && screenPixels > 2000000) {
       return 'ultra';
     }
-    
+
     // High tier: Recent flagship devices
     if (memoryGB >= 4 && deviceYear >= 2020 && screenPixels > 1500000) {
       return 'high';
     }
-    
+
     // Medium tier: Mid-range devices
     if (memoryGB >= 2 && deviceYear >= 2018) {
       return 'medium';
     }
-    
+
     // Low tier: Older or budget devices
     return 'low';
   }
-  
+
   private getDefaultSettings(tier: 'low' | 'medium' | 'high' | 'ultra'): PerformanceSettings {
     const settings: { [key: string]: PerformanceSettings } = {
       low: {
@@ -156,10 +156,10 @@ class PerformanceManager {
         minFPS: 60,
       },
     };
-    
+
     return settings[tier];
   }
-  
+
   private getDefaultMetrics(): PerformanceMetrics {
     return {
       fps: 60,
@@ -171,7 +171,7 @@ class PerformanceManager {
       averageFPS: 60,
     };
   }
-  
+
   private initializePerformanceMonitoring() {
     if (Platform.OS === 'web') {
       // Use requestAnimationFrame for FPS monitoring
@@ -180,13 +180,13 @@ class PerformanceManager {
         const currentTime = performance.now();
         const deltaTime = currentTime - lastTime;
         lastTime = currentTime;
-        
+
         this.updateFrameMetrics(deltaTime);
-        
+
         if (this.autoOptimizeEnabled) {
           this.checkAndOptimize();
         }
-        
+
         requestAnimationFrame(measureFPS);
       };
       requestAnimationFrame(measureFPS);
@@ -199,34 +199,35 @@ class PerformanceManager {
       }, 1000);
     }
   }
-  
+
   private updateFrameMetrics(deltaTime: number) {
     const fps = 1000 / deltaTime;
     this.frameTimeHistory.push(deltaTime);
-    
+
     // Keep only last 60 frames
     if (this.frameTimeHistory.length > 60) {
       this.frameTimeHistory.shift();
     }
-    
+
     // Update metrics
     this.metrics.fps = fps;
     this.metrics.frameTime = deltaTime;
-    this.metrics.averageFPS = 1000 / (this.frameTimeHistory.reduce((a, b) => a + b, 0) / this.frameTimeHistory.length);
-    
+    this.metrics.averageFPS =
+      1000 / (this.frameTimeHistory.reduce((a, b) => a + b, 0) / this.frameTimeHistory.length);
+
     // Count dropped frames (> 33ms for 30fps target)
     if (deltaTime > 33) {
       this.metrics.droppedFrames++;
     }
   }
-  
+
   private checkAndOptimize() {
     if (!this.settings.autoOptimize) return;
-    
+
     const avgFPS = this.metrics.averageFPS;
     const targetFPS = this.settings.targetFPS;
     const minFPS = this.settings.minFPS;
-    
+
     // Performance is too low, reduce quality
     if (avgFPS < minFPS) {
       this.reduceQuality();
@@ -235,11 +236,11 @@ class PerformanceManager {
     else if (avgFPS > targetFPS * 1.2 && this.metrics.droppedFrames < 5) {
       this.increaseQuality();
     }
-    
+
     // Reset dropped frames counter
     this.metrics.droppedFrames = 0;
   }
-  
+
   private reduceQuality() {
     // Reduce settings progressively
     if (this.settings.complexAnimations) {
@@ -274,17 +275,17 @@ class PerformanceManager {
       this.settings.backgroundEffects = false;
       return;
     }
-    
+
     // Last resort: reduce physics update rate
     if (this.settings.physicsUpdateRate > 30) {
       this.settings.physicsUpdateRate = Math.max(30, this.settings.physicsUpdateRate - 15);
     }
   }
-  
+
   private increaseQuality() {
     // Only increase if we've been stable for a while
     if (this.frameTimeHistory.length < 60) return;
-    
+
     // Increase settings progressively (reverse of reduce)
     if (this.settings.physicsUpdateRate < 60) {
       this.settings.physicsUpdateRate = Math.min(60, this.settings.physicsUpdateRate + 15);
@@ -306,7 +307,10 @@ class PerformanceManager {
       this.settings.maxParticles = Math.min(50, Math.floor(this.settings.maxParticles * 1.25));
       return;
     }
-    if (!this.settings.shadowsEnabled && (this.deviceTier === 'high' || this.deviceTier === 'ultra')) {
+    if (
+      !this.settings.shadowsEnabled &&
+      (this.deviceTier === 'high' || this.deviceTier === 'ultra')
+    ) {
       this.settings.shadowsEnabled = true;
       return;
     }
@@ -314,25 +318,31 @@ class PerformanceManager {
       this.settings.screenShake = true;
       return;
     }
-    if (!this.settings.trailEffects && (this.deviceTier === 'high' || this.deviceTier === 'ultra')) {
+    if (
+      !this.settings.trailEffects &&
+      (this.deviceTier === 'high' || this.deviceTier === 'ultra')
+    ) {
       this.settings.trailEffects = true;
       return;
     }
-    if (!this.settings.complexAnimations && (this.deviceTier === 'high' || this.deviceTier === 'ultra')) {
+    if (
+      !this.settings.complexAnimations &&
+      (this.deviceTier === 'high' || this.deviceTier === 'ultra')
+    ) {
       this.settings.complexAnimations = true;
       return;
     }
   }
-  
+
   // Public methods
   public getSettings(): PerformanceSettings {
     return { ...this.settings };
   }
-  
+
   public getMetrics(): PerformanceMetrics {
     return { ...this.metrics };
   }
-  
+
   public setQuality(quality: 'low' | 'medium' | 'high' | 'ultra' | 'auto') {
     if (quality === 'auto') {
       this.settings = this.getDefaultSettings(this.deviceTier);
@@ -342,48 +352,48 @@ class PerformanceManager {
       this.settings.autoOptimize = false;
     }
   }
-  
+
   public setAutoOptimize(enabled: boolean) {
     this.settings.autoOptimize = enabled;
     this.autoOptimizeEnabled = enabled;
   }
-  
+
   public shouldRenderParticle(): boolean {
-    return this.settings.particleEffects && Math.random() < (this.settings.maxParticles / 100);
+    return this.settings.particleEffects && Math.random() < this.settings.maxParticles / 100;
   }
-  
+
   public shouldRenderShadow(): boolean {
     return this.settings.shadowsEnabled;
   }
-  
+
   public shouldRenderTrail(): boolean {
     return this.settings.trailEffects;
   }
-  
+
   public shouldRenderBackground(): boolean {
     return this.settings.backgroundEffects;
   }
-  
+
   public shouldUseScreenShake(): boolean {
     return this.settings.screenShake;
   }
-  
+
   public shouldUseComplexAnimation(): boolean {
     return this.settings.complexAnimations;
   }
-  
+
   public getMaxFallingItems(): number {
     return this.settings.maxFallingItems;
   }
-  
+
   public getItemSpawnRate(): number {
     return this.settings.itemSpawnRate;
   }
-  
+
   public getPhysicsUpdateRate(): number {
     return this.settings.physicsUpdateRate;
   }
-  
+
   public getAnimationConfig() {
     const configs = {
       low: {
@@ -407,14 +417,14 @@ class PerformanceManager {
         fps: 120,
       },
     };
-    
+
     return configs[this.settings.animationQuality];
   }
-  
+
   public getDeviceTier(): string {
     return this.deviceTier;
   }
-  
+
   public getPerformanceReport(): string {
     return `
 Performance Report:
@@ -429,33 +439,33 @@ Shadows: ${this.settings.shadowsEnabled ? 'On' : 'Off'}
 Max Items: ${this.settings.maxFallingItems}
     `.trim();
   }
-  
+
   // Memory management
   public requestGarbageCollection() {
     if (Platform.OS === 'web' && (window as any).gc) {
       (window as any).gc();
     }
   }
-  
+
   public clearCache() {
     this.frameTimeHistory = [];
     this.metrics.droppedFrames = 0;
   }
-  
+
   // Adaptive resolution scaling for web
   public getResolutionScale(): number {
     if (Platform.OS !== 'web') return 1;
-    
+
     // Scale resolution based on performance
     if (this.metrics.averageFPS < this.settings.minFPS) {
       return Math.max(0.5, this.screenScale - 0.1);
     } else if (this.metrics.averageFPS > this.settings.targetFPS * 1.2) {
       return Math.min(1, this.screenScale + 0.05);
     }
-    
+
     return this.screenScale;
   }
-  
+
   public updateResolutionScale(scale: number) {
     this.screenScale = Math.max(0.5, Math.min(1, scale));
   }

@@ -33,14 +33,14 @@ const HomeScreenGuest: React.FC<HomeScreenGuestProps> = ({ navigation }) => {
   const [userName, setUserName] = useState('Guest Player');
   const [guestHighScore, setGuestHighScore] = useState(0);
   const [guestCoins, setGuestCoins] = useState(0);
-  
+
   const fadeAnim = new Animated.Value(0);
   const scaleAnim = new Animated.Value(0.8);
 
   useEffect(() => {
     checkAuthStatus();
     loadGuestData();
-    
+
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -68,7 +68,7 @@ const HomeScreenGuest: React.FC<HomeScreenGuestProps> = ({ navigation }) => {
     try {
       const highScore = await AsyncStorage.getItem('guest_high_score');
       const coins = await AsyncStorage.getItem('guest_coins');
-      
+
       if (highScore) setGuestHighScore(parseInt(highScore, 10));
       if (coins) setGuestCoins(parseInt(coins, 10));
     } catch (error) {
@@ -87,7 +87,7 @@ const HomeScreenGuest: React.FC<HomeScreenGuestProps> = ({ navigation }) => {
     if (Platform.OS !== 'web') {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
-    
+
     if (isGuest) {
       Alert.alert(
         'Sign Up Recommended',
@@ -106,16 +106,12 @@ const HomeScreenGuest: React.FC<HomeScreenGuestProps> = ({ navigation }) => {
     if (Platform.OS !== 'web') {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
-    
+
     if (isGuest) {
-      Alert.alert(
-        'Sign Up Required',
-        'You need an account to compete on the leaderboard!',
-        [
-          { text: 'Sign Up', onPress: () => navigation.navigate('Auth') },
-          { text: 'Cancel', style: 'cancel' },
-        ]
-      );
+      Alert.alert('Sign Up Required', 'You need an account to compete on the leaderboard!', [
+        { text: 'Sign Up', onPress: () => navigation.navigate('Auth') },
+        { text: 'Cancel', style: 'cancel' },
+      ]);
     } else {
       navigation.navigate('Leaderboard');
     }
@@ -125,16 +121,12 @@ const HomeScreenGuest: React.FC<HomeScreenGuestProps> = ({ navigation }) => {
     if (Platform.OS !== 'web') {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
-    
+
     if (isGuest) {
-      Alert.alert(
-        'Limited Stats',
-        'Sign up to track all your statistics and achievements!',
-        [
-          { text: 'Sign Up', onPress: () => navigation.navigate('Auth') },
-          { text: 'View Basic Stats', onPress: () => navigation.navigate('Stats') },
-        ]
-      );
+      Alert.alert('Limited Stats', 'Sign up to track all your statistics and achievements!', [
+        { text: 'Sign Up', onPress: () => navigation.navigate('Auth') },
+        { text: 'View Basic Stats', onPress: () => navigation.navigate('Stats') },
+      ]);
     } else {
       navigation.navigate('Stats');
     }
@@ -155,35 +147,34 @@ const HomeScreenGuest: React.FC<HomeScreenGuestProps> = ({ navigation }) => {
   };
 
   return (
-    <LinearGradient
-      colors={['#1a1a2e', '#16213e', '#0f3460']}
-      style={styles.container}
-    >
+    <LinearGradient colors={['#1a1a2e', '#16213e', '#0f3460']} style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
-      
-      <ScrollView 
-        contentContainerStyle={styles.scrollContent} 
-        showsVerticalScrollIndicator={Platform.OS === 'web'} 
+
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={Platform.OS === 'web'}
         bounces={false}
         overScrollMode="never"
       >
-        <Animated.View style={[styles.content, { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }]}>
+        <Animated.View
+          style={[styles.content, { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }]}
+        >
           {/* Header */}
           <View style={styles.header}>
-            <Image 
-              source={require('../assets/images/pot_of_gold_logo.png')} 
+            <Image
+              source={require('../assets/images/pot_of_gold_logo.png')}
               style={styles.logo}
               resizeMode="contain"
             />
             <Text style={styles.title}>Pot of Gold</Text>
             <Text style={styles.subtitle}>Catch the falling treasure!</Text>
-            
+
             {/* User Status */}
             <View style={styles.userStatus}>
-              <Ionicons 
-                name={isGuest ? "person-outline" : "person"} 
-                size={Platform.OS === 'web' ? 18 : scale(20)} 
-                color="#FFD700" 
+              <Ionicons
+                name={isGuest ? 'person-outline' : 'person'}
+                size={Platform.OS === 'web' ? 18 : scale(20)}
+                color="#FFD700"
               />
               <Text style={styles.userName}>{userName}</Text>
               {isGuest && (
@@ -201,14 +192,22 @@ const HomeScreenGuest: React.FC<HomeScreenGuestProps> = ({ navigation }) => {
 
           {/* Stats Cards */}
           <View style={styles.statsContainer} accessible={true} accessibilityRole="summary">
-            <View style={styles.statCard} accessible={true} accessibilityLabel={`High Score: ${isGuest ? guestHighScore.toLocaleString() : gameState.highScore.toLocaleString()}`}>
+            <View
+              style={styles.statCard}
+              accessible={true}
+              accessibilityLabel={`High Score: ${isGuest ? guestHighScore.toLocaleString() : gameState.highScore.toLocaleString()}`}
+            >
               <Ionicons name="star" size={Platform.OS === 'web' ? 20 : scale(24)} color="#FFD700" />
               <Text style={styles.statValue}>
                 {isGuest ? guestHighScore.toLocaleString() : gameState.highScore.toLocaleString()}
               </Text>
               <Text style={styles.statLabel}>High Score</Text>
             </View>
-            <View style={styles.statCard} accessible={true} accessibilityLabel={`Coins: ${isGuest ? guestCoins.toLocaleString() : gameState.coins.toLocaleString()}${isGuest ? ', not saved' : ''}`}>
+            <View
+              style={styles.statCard}
+              accessible={true}
+              accessibilityLabel={`Coins: ${isGuest ? guestCoins.toLocaleString() : gameState.coins.toLocaleString()}${isGuest ? ', not saved' : ''}`}
+            >
               <Ionicons name="cash" size={Platform.OS === 'web' ? 20 : scale(24)} color="#FFD700" />
               <Text style={styles.statValue}>
                 {isGuest ? guestCoins.toLocaleString() : gameState.coins.toLocaleString()}
@@ -216,8 +215,16 @@ const HomeScreenGuest: React.FC<HomeScreenGuestProps> = ({ navigation }) => {
               <Text style={styles.statLabel}>Coins</Text>
               {isGuest && <Text style={styles.guestWarning}>Not Saved</Text>}
             </View>
-            <View style={styles.statCard} accessible={true} accessibilityLabel={`Games played: ${gameState.gamesPlayed}`}>
-              <Ionicons name="trophy" size={Platform.OS === 'web' ? 20 : scale(24)} color="#FFD700" />
+            <View
+              style={styles.statCard}
+              accessible={true}
+              accessibilityLabel={`Games played: ${gameState.gamesPlayed}`}
+            >
+              <Ionicons
+                name="trophy"
+                size={Platform.OS === 'web' ? 20 : scale(24)}
+                color="#FFD700"
+              />
               <Text style={styles.statValue}>{gameState.gamesPlayed}</Text>
               <Text style={styles.statLabel}>Games</Text>
             </View>
@@ -260,7 +267,11 @@ const HomeScreenGuest: React.FC<HomeScreenGuestProps> = ({ navigation }) => {
               accessibilityHint="View global leaderboard rankings"
               accessibilityRole="button"
             >
-              <Ionicons name="podium" size={Platform.OS === 'web' ? 24 : scale(24)} color="#FFD700" />
+              <Ionicons
+                name="podium"
+                size={Platform.OS === 'web' ? 24 : scale(24)}
+                color="#FFD700"
+              />
               <Text style={styles.menuButtonText}>Leaderboard</Text>
             </TouchableOpacity>
 
@@ -271,7 +282,11 @@ const HomeScreenGuest: React.FC<HomeScreenGuestProps> = ({ navigation }) => {
               accessibilityHint="View your game statistics"
               accessibilityRole="button"
             >
-              <Ionicons name="stats-chart" size={Platform.OS === 'web' ? 24 : scale(24)} color="#FFD700" />
+              <Ionicons
+                name="stats-chart"
+                size={Platform.OS === 'web' ? 24 : scale(24)}
+                color="#FFD700"
+              />
               <Text style={styles.menuButtonText}>Stats</Text>
             </TouchableOpacity>
 
@@ -282,7 +297,11 @@ const HomeScreenGuest: React.FC<HomeScreenGuestProps> = ({ navigation }) => {
               accessibilityHint="Learn how to play the game"
               accessibilityRole="button"
             >
-              <Ionicons name="help-circle" size={Platform.OS === 'web' ? 24 : scale(24)} color="#FFD700" />
+              <Ionicons
+                name="help-circle"
+                size={Platform.OS === 'web' ? 24 : scale(24)}
+                color="#FFD700"
+              />
               <Text style={styles.menuButtonText}>How to Play</Text>
             </TouchableOpacity>
           </View>
@@ -295,7 +314,7 @@ const HomeScreenGuest: React.FC<HomeScreenGuestProps> = ({ navigation }) => {
               <Text style={styles.benefitsText}>✓ All power-ups available</Text>
               <Text style={styles.benefitsText}>✗ Progress not saved</Text>
               <Text style={styles.benefitsText}>✗ No leaderboard access</Text>
-              
+
               <TouchableOpacity
                 style={styles.signUpButton}
                 onPress={handleSignUpPress}
@@ -303,10 +322,7 @@ const HomeScreenGuest: React.FC<HomeScreenGuestProps> = ({ navigation }) => {
                 accessibilityHint="Creates an account to save your game progress"
                 accessibilityRole="button"
               >
-                <LinearGradient
-                  colors={['#4CAF50', '#45a049']}
-                  style={styles.signUpButtonGradient}
-                >
+                <LinearGradient colors={['#4CAF50', '#45a049']} style={styles.signUpButtonGradient}>
                   <Text style={styles.signUpButtonText}>Sign Up to Save Progress</Text>
                 </LinearGradient>
               </TouchableOpacity>
@@ -344,7 +360,7 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     padding: Platform.OS === 'web' ? 15 : scale(20),
-    paddingTop: Platform.OS === 'web' ? 20 : (Platform.OS === 'ios' ? scale(60) : scale(40)),
+    paddingTop: Platform.OS === 'web' ? 20 : Platform.OS === 'ios' ? scale(60) : scale(40),
     // Ensure content is visible on all screen sizes
     minHeight: Platform.OS === 'web' ? 'auto' : '100%',
   },

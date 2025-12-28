@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Animated,
-  TouchableOpacity,
-  Dimensions,
-} from 'react-native';
+import { View, Text, StyleSheet, Animated, TouchableOpacity, Dimensions } from 'react-native';
 import * as Haptics from 'expo-haptics';
 
 const { width, height } = Dimensions.get('window');
@@ -123,10 +116,7 @@ export default function MysteryCrate({ visible, crate, onClose, onClaim }: Myste
           style={[
             styles.crateContainer,
             {
-              transform: [
-                { scale: scaleAnimation },
-                { rotate: rotation },
-              ],
+              transform: [{ scale: scaleAnimation }, { rotate: rotation }],
             },
           ]}
         >
@@ -139,7 +129,7 @@ export default function MysteryCrate({ visible, crate, onClose, onClaim }: Myste
               },
             ]}
           />
-          
+
           <View style={[styles.crate, { borderColor: getCrateColor() }]}>
             <Text style={styles.crateIcon}>{getCrateIcon()}</Text>
             <Text style={styles.crateText}>MYSTERY</Text>
@@ -165,7 +155,7 @@ export default function MysteryCrate({ visible, crate, onClose, onClaim }: Myste
           >
             <Text style={styles.buttonText}>CLAIM REWARD</Text>
           </TouchableOpacity>
-          
+
           <TouchableOpacity
             style={[styles.button, styles.closeButton]}
             onPress={() => {
@@ -280,4 +270,4 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#FFFFFF',
   },
-}); 
+});

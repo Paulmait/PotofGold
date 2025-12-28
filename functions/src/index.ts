@@ -1,11 +1,11 @@
-import * as admin from "firebase-admin";
+import * as admin from 'firebase-admin';
 
 // Initialize Firebase Admin
 admin.initializeApp();
 
 // Export all Cloud Functions
-export { 
+export {
   scheduleMonthlyDrop,
   triggerMonthlyDropSwitch,
-  checkMonthlyDropConsistency 
-} from "./monthlyDrop";
+  checkMonthlyDropConsistency,
+} from './monthlyDrop';

@@ -66,7 +66,7 @@ export class CollisionDetection {
   static getCartHitbox(cart: MineCart): CollisionBox {
     const extendedWidth = cart.width * 1.2; // 20% wider
     const extendedHeight = cart.height * 1.1; // 10% taller
-    
+
     return {
       x: cart.x - extendedWidth / 2,
       y: cart.y - extendedHeight * 0.1, // Slightly higher
@@ -86,19 +86,27 @@ export class CollisionDetection {
   /**
    * Get items that should be affected by magnet power-up
    */
-  static getMagnetAffectedItems(items: FallingItem[], cart: MineCart, range: number = 100): string[] {
+  static getMagnetAffectedItems(
+    items: FallingItem[],
+    cart: MineCart,
+    range: number = 100
+  ): string[] {
     return items
-      .filter(item => !item.collected && this.checkMagnetRange(item, cart, range))
-      .map(item => item.id);
+      .filter((item) => !item.collected && this.checkMagnetRange(item, cart, range))
+      .map((item) => item.id);
   }
 
   /**
    * Get items within explosion radius
    */
-  static getExplosionAffectedItems(items: FallingItem[], cart: MineCart, radius: number = 150): string[] {
+  static getExplosionAffectedItems(
+    items: FallingItem[],
+    cart: MineCart,
+    radius: number = 150
+  ): string[] {
     return items
-      .filter(item => !item.collected && Math.abs(item.x - cart.x) <= radius)
-      .map(item => item.id);
+      .filter((item) => !item.collected && Math.abs(item.x - cart.x) <= radius)
+      .map((item) => item.id);
   }
 
   /**
@@ -108,7 +116,7 @@ export class CollisionDetection {
     const cartTop = cart.y;
     const cartBottom = cart.y + cart.height;
     const itemBottom = item.y + (item.height || 30);
-    
+
     return itemBottom >= cartTop && item.y <= cartBottom;
   }
 
@@ -117,16 +125,16 @@ export class CollisionDetection {
    */
   static getCollisionPriority(itemType: string): number {
     const priorities: { [key: string]: number } = {
-      'luckyStar': 10,    // Highest priority
-      'gemstone': 9,
-      'dynamite': 8,
-      'magnet': 7,
-      'lightning': 6,
-      'moneyBag': 5,
-      'coin': 4,
-      'blackRock': 3,     // Lowest priority
+      luckyStar: 10, // Highest priority
+      gemstone: 9,
+      dynamite: 8,
+      magnet: 7,
+      lightning: 6,
+      moneyBag: 5,
+      coin: 4,
+      blackRock: 3, // Lowest priority
     };
-    
+
     return priorities[itemType] || 1;
   }
-} 
+}

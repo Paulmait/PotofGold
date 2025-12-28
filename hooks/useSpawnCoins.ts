@@ -33,7 +33,7 @@ export const useSpawnCoins = (config: SpawnConfig) => {
       y: -50,
       type: Math.random() < 0.1 ? 'powerup' : Math.random() < 0.2 ? 'bonus' : 'coin',
       value: GamePhysics.calculateCoinValue(),
-      speed: 2 + Math.random() * 2
+      speed: 2 + Math.random() * 2,
     };
 
     if (newObject.type === 'powerup') {
@@ -43,20 +43,26 @@ export const useSpawnCoins = (config: SpawnConfig) => {
       }
     }
 
-    setGameObjects(prev => [...prev, newObject]);
+    setGameObjects((prev) => [...prev, newObject]);
   }, [config.isGameActive]);
 
-  const updateObjects = useCallback((deltaTime: number) => {
-    setGameObjects(prev => 
-      prev.map(obj => ({
-        ...obj,
-        y: obj.y + obj.speed * config.gameSpeed
-      })).filter(obj => obj.y < 1000) // Remove off-screen objects
-    );
-  }, [config.gameSpeed]);
+  const updateObjects = useCallback(
+    (deltaTime: number) => {
+      setGameObjects(
+        (prev) =>
+          prev
+            .map((obj) => ({
+              ...obj,
+              y: obj.y + obj.speed * config.gameSpeed,
+            }))
+            .filter((obj) => obj.y < 1000) // Remove off-screen objects
+      );
+    },
+    [config.gameSpeed]
+  );
 
   const removeObject = useCallback((objectId: string) => {
-    setGameObjects(prev => prev.filter(obj => obj.id !== objectId));
+    setGameObjects((prev) => prev.filter((obj) => obj.id !== objectId));
   }, []);
 
   const clearAllObjects = useCallback(() => {
@@ -85,4 +91,4 @@ export const useSpawnCoins = (config: SpawnConfig) => {
     removeObject,
     clearAllObjects,
   };
-}; 
+};

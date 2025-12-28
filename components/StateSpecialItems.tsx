@@ -1,9 +1,5 @@
 import React from 'react';
-import {
-  View,
-  StyleSheet,
-  Dimensions,
-} from 'react-native';
+import { View, StyleSheet, Dimensions } from 'react-native';
 
 const { width } = Dimensions.get('window');
 
@@ -17,10 +13,10 @@ interface StateSpecialItemProps {
   };
 }
 
-export const StateSpecialItem: React.FC<StateSpecialItemProps> = ({ 
-  type, 
-  size = 30, 
-  theme = { primaryColor: '#FFD700', secondaryColor: '#FFA500', accentColor: '#FFFFFF' }
+export const StateSpecialItem: React.FC<StateSpecialItemProps> = ({
+  type,
+  size = 30,
+  theme = { primaryColor: '#FFD700', secondaryColor: '#FFA500', accentColor: '#FFFFFF' },
 }) => {
   const renderSpecialItem = () => {
     switch (type) {
@@ -33,7 +29,7 @@ export const StateSpecialItem: React.FC<StateSpecialItemProps> = ({
             <View style={[styles.lobsterTail, { backgroundColor: theme.accentColor }]} />
           </View>
         );
-      
+
       case 'peach':
         return (
           <View style={[styles.itemContainer, { width: size, height: size }]}>
@@ -42,7 +38,7 @@ export const StateSpecialItem: React.FC<StateSpecialItemProps> = ({
             <View style={[styles.peachHighlight, { backgroundColor: theme.accentColor }]} />
           </View>
         );
-      
+
       case 'oak_leaf':
         return (
           <View style={[styles.itemContainer, { width: size, height: size }]}>
@@ -50,7 +46,7 @@ export const StateSpecialItem: React.FC<StateSpecialItemProps> = ({
             <View style={[styles.oakVein, { backgroundColor: theme.secondaryColor }]} />
           </View>
         );
-      
+
       case 'blue_hen':
         return (
           <View style={[styles.itemContainer, { width: size, height: size }]}>
@@ -60,7 +56,7 @@ export const StateSpecialItem: React.FC<StateSpecialItemProps> = ({
             <View style={[styles.henWing, { backgroundColor: theme.primaryColor }]} />
           </View>
         );
-      
+
       case 'orange':
         return (
           <View style={[styles.itemContainer, { width: size, height: size }]}>
@@ -69,7 +65,7 @@ export const StateSpecialItem: React.FC<StateSpecialItemProps> = ({
             <View style={[styles.orangeHighlight, { backgroundColor: theme.accentColor }]} />
           </View>
         );
-      
+
       case 'cactus':
         return (
           <View style={[styles.itemContainer, { width: size, height: size }]}>
@@ -79,7 +75,7 @@ export const StateSpecialItem: React.FC<StateSpecialItemProps> = ({
             <View style={[styles.cactusFlower, { backgroundColor: theme.accentColor }]} />
           </View>
         );
-      
+
       case 'apple':
         return (
           <View style={[styles.itemContainer, { width: size, height: size }]}>
@@ -88,7 +84,7 @@ export const StateSpecialItem: React.FC<StateSpecialItemProps> = ({
             <View style={[styles.appleLeaf, { backgroundColor: theme.accentColor }]} />
           </View>
         );
-      
+
       case 'corn':
         return (
           <View style={[styles.itemContainer, { width: size, height: size }]}>
@@ -97,7 +93,7 @@ export const StateSpecialItem: React.FC<StateSpecialItemProps> = ({
             <View style={[styles.cornHusk, { backgroundColor: theme.accentColor }]} />
           </View>
         );
-      
+
       default:
         return (
           <View style={[styles.itemContainer, { width: size, height: size }]}>
@@ -116,7 +112,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  
+
   // Lobster (Maine)
   lobsterBody: {
     width: 20,
@@ -147,7 +143,7 @@ const styles = StyleSheet.create({
     height: 6,
     borderRadius: 2,
   },
-  
+
   // Peach (Georgia)
   peachBody: {
     width: 18,
@@ -171,7 +167,7 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     opacity: 0.6,
   },
-  
+
   // Oak Leaf (Connecticut)
   oakLeaf: {
     width: 20,
@@ -186,7 +182,7 @@ const styles = StyleSheet.create({
     height: 12,
     borderRadius: 2,
   },
-  
+
   // Blue Hen (Delaware)
   henBody: {
     width: 16,
@@ -217,7 +213,7 @@ const styles = StyleSheet.create({
     height: 4,
     borderRadius: 2,
   },
-  
+
   // Orange (Florida)
   orangeBody: {
     width: 18,
@@ -241,7 +237,7 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     opacity: 0.6,
   },
-  
+
   // Cactus (Arizona)
   cactusBody: {
     width: 8,
@@ -272,7 +268,7 @@ const styles = StyleSheet.create({
     height: 4,
     borderRadius: 2,
   },
-  
+
   // Apple (Washington)
   appleBody: {
     width: 16,
@@ -295,7 +291,7 @@ const styles = StyleSheet.create({
     height: 3,
     borderRadius: 1.5,
   },
-  
+
   // Corn (Iowa)
   cornBody: {
     width: 12,
@@ -320,11 +316,11 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#8B4513',
   },
-  
+
   // Default item
   defaultItem: {
     width: 20,
     height: 20,
     borderRadius: 10,
   },
-}); 
+});

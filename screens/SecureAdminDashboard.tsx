@@ -18,10 +18,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import * as LocalAuthentication from 'expo-local-authentication';
 import * as Haptics from 'expo-haptics';
-import { 
-  httpsCallable,
-  Functions,
-} from 'firebase/functions';
+import { httpsCallable, Functions } from 'firebase/functions';
 import { functions } from '../firebase/firebase';
 
 interface AdminSession {
@@ -84,21 +81,23 @@ export default function SecureAdminDashboard() {
   const [session, setSession] = useState<AdminSession | null>(null);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  
+
   // Login state
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [tempToken, setTempToken] = useState('');
-  
+
   // MFA state
   const [mfaCode, setMfaCode] = useState('');
   const [showMFASetup, setShowMFASetup] = useState(false);
   const [mfaQRCode, setMfaQRCode] = useState('');
   const [mfaSecret, setMfaSecret] = useState('');
   const [backupCodes, setBackupCodes] = useState<string[]>([]);
-  
+
   // Dashboard state
-  const [activeTab, setActiveTab] = useState<'users' | 'analytics' | 'security' | 'transactions'>('users');
+  const [activeTab, setActiveTab] = useState<'users' | 'analytics' | 'security' | 'transactions'>(
+    'users'
+  );
   const [users, setUsers] = useState<UserData[]>([]);
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
   const [showUserModal, setShowUserModal] = useState(false);
@@ -106,7 +105,7 @@ export default function SecureAdminDashboard() {
   const [systemHealth, setSystemHealth] = useState<SystemHealth | null>(null);
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
   const [auditLogs, setAuditLogs] = useState<any[]>([]);
-  
+
   // Session timer
   const sessionTimer = useRef<NodeJS.Timeout>();
 
@@ -121,7 +120,7 @@ export default function SecureAdminDashboard() {
         Alert.alert('Session Expired', 'Your admin session has expired. Please login again.');
         handleLogout();
       }, session.expiresIn * 1000);
-      
+
       return () => {
         if (sessionTimer.current) {
           clearTimeout(sessionTimer.current);
@@ -133,7 +132,7 @@ export default function SecureAdminDashboard() {
   const checkBiometricSupport = async () => {
     const hasHardware = await LocalAuthentication.hasHardwareAsync();
     const isEnrolled = await LocalAuthentication.isEnrolledAsync();
-    
+
     if (!hasHardware || !isEnrolled) {
       console.log('Biometric authentication not available');
     }
@@ -144,17 +143,17 @@ export default function SecureAdminDashboard() {
       Alert.alert('Error', 'Please enter email and password');
       return;
     }
-    
+
     setLoading(true);
     try {
       const adminLoginFn = httpsCallable(functions, 'adminLogin');
       const result = await adminLoginFn({ email, password });
       const data = result.data as any;
-      
+
       if (data.requiresMFA) {
         setTempToken(data.tempToken);
         setAuthStage('mfa');
-        
+
         // Try biometric authentication first
         const biometricSuccess = await authenticateWithBiometrics();
         if (!biometricSuccess) {
@@ -188,7 +187,7 @@ export default function SecureAdminDashboard() {
         disableDeviceFallback: false,
         cancelLabel: 'Use MFA Code',
       });
-      
+
       if (result.success) {
         // Biometric success counts as MFA verification
         return true;
@@ -204,16 +203,16 @@ export default function SecureAdminDashboard() {
       Alert.alert('Error', 'Please enter a 6-digit code');
       return;
     }
-    
+
     setLoading(true);
     try {
       const verifyMFAFn = httpsCallable(functions, 'verifyAdminMFA');
-      const result = await verifyMFAFn({ 
+      const result = await verifyMFAFn({
         token: mfaCode,
         tempToken,
       });
       const data = result.data as any;
-      
+
       if (data.success) {
         setSession({
           adminId: data.adminId,
@@ -224,7 +223,7 @@ export default function SecureAdminDashboard() {
         });
         setAuthStage('dashboard');
         await loadDashboardData(data.sessionToken);
-        
+
         // Clear MFA code
         setMfaCode('');
       }
@@ -242,7 +241,7 @@ export default function SecureAdminDashboard() {
       const setupMFAFn = httpsCallable(functions, 'setupAdminMFA');
       const result = await setupMFAFn({});
       const data = result.data as any;
-      
+
       setMfaQRCode(data.qrCode);
       setMfaSecret(data.secret);
       setBackupCodes(data.backupCodes);
@@ -259,21 +258,21 @@ export default function SecureAdminDashboard() {
     try {
       // Load users with proper isolation
       const getUsersFn = httpsCallable(functions, 'getUsers');
-      const usersResult = await getUsersFn({ 
+      const usersResult = await getUsersFn({
         limit: 50,
         filter: {},
         adminToken: token,
       });
       setUsers((usersResult.data as any).users || []);
-      
+
       // Load analytics
       const getAnalyticsFn = httpsCallable(functions, 'getAnalytics');
-      const analyticsResult = await getAnalyticsFn({ 
+      const analyticsResult = await getAnalyticsFn({
         period: 'day',
         adminToken: token,
       });
       setAnalytics(analyticsResult.data as Analytics);
-      
+
       // Load system health (super admin only)
       if (session?.role === 'super_admin') {
         const getHealthFn = httpsCallable(functions, 'getSystemHealth');
@@ -290,43 +289,43 @@ export default function SecureAdminDashboard() {
 
   const handleUserAction = async (action: string, userId: string, params?: any) => {
     if (!session) return;
-    
+
     setLoading(true);
     try {
       let fn: any;
-      let data: any = { 
+      let data: any = {
         userId,
         adminToken: session.sessionToken,
         reason: 'Admin dashboard action',
       };
-      
+
       switch (action) {
         case 'ban':
           fn = httpsCallable(functions, 'banUser');
           data.ban = true;
           data.duration = params?.duration || 86400000; // 24 hours default
           break;
-          
+
         case 'unban':
           fn = httpsCallable(functions, 'banUser');
           data.ban = false;
           break;
-          
+
         case 'modify':
           fn = httpsCallable(functions, 'modifyUser');
           data.updates = params;
           break;
-          
+
         case 'view':
           fn = httpsCallable(functions, 'getUserDetails');
           break;
-          
+
         default:
           throw new Error('Unknown action');
       }
-      
+
       const result = await fn(data);
-      
+
       if (result.data) {
         Alert.alert('Success', `Action completed: ${action}`);
         await loadDashboardData(session.sessionToken);
@@ -343,14 +342,14 @@ export default function SecureAdminDashboard() {
     if (session) {
       try {
         const revokeFn = httpsCallable(functions, 'revokeAdminSession');
-        await revokeFn({ 
+        await revokeFn({
           sessionId: session.sessionToken,
         });
       } catch (error) {
         console.error('Logout error:', error);
       }
     }
-    
+
     setSession(null);
     setAuthStage('login');
     setEmail('');
@@ -359,14 +358,14 @@ export default function SecureAdminDashboard() {
     setUsers([]);
     setAnalytics(null);
     setSystemHealth(null);
-    
+
     if (sessionTimer.current) {
       clearTimeout(sessionTimer.current);
     }
   };
 
   const renderLoginScreen = () => (
-    <KeyboardAvoidingView 
+    <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.authContainer}
     >
@@ -378,7 +377,7 @@ export default function SecureAdminDashboard() {
           <Ionicons name="shield-checkmark" size={60} color="#FFD700" />
           <Text style={styles.authTitle}>Admin Login</Text>
           <Text style={styles.authSubtitle}>Secure Access Portal</Text>
-          
+
           <View style={styles.inputContainer}>
             <Ionicons name="mail" size={20} color="#666" style={styles.inputIcon} />
             <TextInput
@@ -391,7 +390,7 @@ export default function SecureAdminDashboard() {
               autoCapitalize="none"
             />
           </View>
-          
+
           <View style={styles.inputContainer}>
             <Ionicons name="lock-closed" size={20} color="#666" style={styles.inputIcon} />
             <TextInput
@@ -403,7 +402,7 @@ export default function SecureAdminDashboard() {
               secureTextEntry
             />
           </View>
-          
+
           <TouchableOpacity
             style={styles.loginButton}
             onPress={handleAdminLogin}
@@ -415,7 +414,7 @@ export default function SecureAdminDashboard() {
               <Text style={styles.loginButtonText}>Login</Text>
             )}
           </TouchableOpacity>
-          
+
           <View style={styles.securityInfo}>
             <Ionicons name="lock-closed" size={16} color="#4CAF50" />
             <Text style={styles.securityText}>256-bit encryption</Text>
@@ -426,7 +425,7 @@ export default function SecureAdminDashboard() {
   );
 
   const renderMFAScreen = () => (
-    <KeyboardAvoidingView 
+    <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.authContainer}
     >
@@ -438,17 +437,15 @@ export default function SecureAdminDashboard() {
           <Ionicons name="key" size={60} color="#FFD700" />
           <Text style={styles.authTitle}>Two-Factor Authentication</Text>
           <Text style={styles.authSubtitle}>Enter your 6-digit code</Text>
-          
+
           <View style={styles.mfaCodeContainer}>
             {[0, 1, 2, 3, 4, 5].map((index) => (
               <View key={index} style={styles.mfaCodeBox}>
-                <Text style={styles.mfaCodeText}>
-                  {mfaCode[index] || ''}
-                </Text>
+                <Text style={styles.mfaCodeText}>{mfaCode[index] || ''}</Text>
               </View>
             ))}
           </View>
-          
+
           <TextInput
             style={styles.hiddenInput}
             value={mfaCode}
@@ -464,7 +461,7 @@ export default function SecureAdminDashboard() {
             maxLength={6}
             autoFocus
           />
-          
+
           <TouchableOpacity
             style={[styles.loginButton, { opacity: mfaCode.length === 6 ? 1 : 0.5 }]}
             onPress={handleMFAVerification}
@@ -476,7 +473,7 @@ export default function SecureAdminDashboard() {
               <Text style={styles.loginButtonText}>Verify</Text>
             )}
           </TouchableOpacity>
-          
+
           <TouchableOpacity onPress={() => setAuthStage('login')}>
             <Text style={styles.backLink}>Back to Login</Text>
           </TouchableOpacity>
@@ -499,17 +496,15 @@ export default function SecureAdminDashboard() {
           <Ionicons name="log-out" size={24} color="#F44336" />
         </TouchableOpacity>
       </View>
-      
+
       <View style={styles.tabContainer}>
         <TouchableOpacity
           style={[styles.tab, activeTab === 'users' && styles.activeTab]}
           onPress={() => setActiveTab('users')}
         >
-          <Text style={[styles.tabText, activeTab === 'users' && styles.activeTabText]}>
-            Users
-          </Text>
+          <Text style={[styles.tabText, activeTab === 'users' && styles.activeTabText]}>Users</Text>
         </TouchableOpacity>
-        
+
         <TouchableOpacity
           style={[styles.tab, activeTab === 'analytics' && styles.activeTab]}
           onPress={() => setActiveTab('analytics')}
@@ -518,7 +513,7 @@ export default function SecureAdminDashboard() {
             Analytics
           </Text>
         </TouchableOpacity>
-        
+
         <TouchableOpacity
           style={[styles.tab, activeTab === 'security' && styles.activeTab]}
           onPress={() => setActiveTab('security')}
@@ -527,7 +522,7 @@ export default function SecureAdminDashboard() {
             Security
           </Text>
         </TouchableOpacity>
-        
+
         <TouchableOpacity
           style={[styles.tab, activeTab === 'transactions' && styles.activeTab]}
           onPress={() => setActiveTab('transactions')}
@@ -537,7 +532,7 @@ export default function SecureAdminDashboard() {
           </Text>
         </TouchableOpacity>
       </View>
-      
+
       <ScrollView
         refreshControl={
           <RefreshControl
@@ -553,7 +548,7 @@ export default function SecureAdminDashboard() {
         {activeTab === 'security' && renderSecurityTab()}
         {activeTab === 'transactions' && renderTransactionsTab()}
       </ScrollView>
-      
+
       {renderUserModal()}
     </LinearGradient>
   );
@@ -570,41 +565,44 @@ export default function SecureAdminDashboard() {
           onChangeText={setSearchQuery}
         />
       </View>
-      
-      {users.filter(u => 
-        searchQuery === '' || 
-        u.profile.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        u.profile.username.toLowerCase().includes(searchQuery.toLowerCase())
-      ).map((user) => (
-        <TouchableOpacity
-          key={user.id}
-          style={styles.userCard}
-          onPress={() => {
-            setSelectedUser(user);
-            setShowUserModal(true);
-          }}
-        >
-          <View style={styles.userHeader}>
-            <Text style={styles.userName}>{user.profile.username}</Text>
-            {user.banned && (
-              <View style={styles.bannedBadge}>
-                <Text style={styles.bannedText}>BANNED</Text>
-              </View>
-            )}
-            {user.vipLevel > 0 && (
-              <View style={styles.vipBadge}>
-                <Text style={styles.vipText}>VIP {user.vipLevel}</Text>
-              </View>
-            )}
-          </View>
-          <Text style={styles.userEmail}>{user.profile.email}</Text>
-          <View style={styles.userStats}>
-            <Text style={styles.userStat}>Level {user.stats.level}</Text>
-            <Text style={styles.userStat}>💰 {user.stats.coins}</Text>
-            <Text style={styles.userStat}>💎 {user.stats.gems}</Text>
-          </View>
-        </TouchableOpacity>
-      ))}
+
+      {users
+        .filter(
+          (u) =>
+            searchQuery === '' ||
+            u.profile.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            u.profile.username.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+        .map((user) => (
+          <TouchableOpacity
+            key={user.id}
+            style={styles.userCard}
+            onPress={() => {
+              setSelectedUser(user);
+              setShowUserModal(true);
+            }}
+          >
+            <View style={styles.userHeader}>
+              <Text style={styles.userName}>{user.profile.username}</Text>
+              {user.banned && (
+                <View style={styles.bannedBadge}>
+                  <Text style={styles.bannedText}>BANNED</Text>
+                </View>
+              )}
+              {user.vipLevel > 0 && (
+                <View style={styles.vipBadge}>
+                  <Text style={styles.vipText}>VIP {user.vipLevel}</Text>
+                </View>
+              )}
+            </View>
+            <Text style={styles.userEmail}>{user.profile.email}</Text>
+            <View style={styles.userStats}>
+              <Text style={styles.userStat}>Level {user.stats.level}</Text>
+              <Text style={styles.userStat}>💰 {user.stats.coins}</Text>
+              <Text style={styles.userStat}>💎 {user.stats.gems}</Text>
+            </View>
+          </TouchableOpacity>
+        ))}
     </View>
   );
 
@@ -630,11 +628,12 @@ export default function SecureAdminDashboard() {
               <Text style={styles.statLabel}>Games Played</Text>
             </View>
           </View>
-          
+
           <View style={styles.analyticsSection}>
             <Text style={styles.sectionTitle}>Session Metrics</Text>
             <Text style={styles.metricText}>
-              Average Session: {Math.floor(analytics.avgSessionLength / 60)}m {analytics.avgSessionLength % 60}s
+              Average Session: {Math.floor(analytics.avgSessionLength / 60)}m{' '}
+              {analytics.avgSessionLength % 60}s
             </Text>
           </View>
         </>
@@ -654,7 +653,12 @@ export default function SecureAdminDashboard() {
             </View>
             <View style={styles.healthMetric}>
               <Text style={styles.metricLabel}>Error Rate:</Text>
-              <Text style={[styles.metricValue, { color: systemHealth.api.errorRate > 0.01 ? '#F44336' : '#4CAF50' }]}>
+              <Text
+                style={[
+                  styles.metricValue,
+                  { color: systemHealth.api.errorRate > 0.01 ? '#F44336' : '#4CAF50' },
+                ]}
+              >
                 {(systemHealth.api.errorRate * 100).toFixed(2)}%
               </Text>
             </View>
@@ -663,7 +667,7 @@ export default function SecureAdminDashboard() {
               <Text style={styles.metricValue}>{systemHealth.database.size}</Text>
             </View>
           </View>
-          
+
           <View style={styles.securitySection}>
             <Text style={styles.sectionTitle}>Security Alerts</Text>
             <View style={styles.alertCard}>
@@ -701,7 +705,7 @@ export default function SecureAdminDashboard() {
 
   const renderUserModal = () => {
     if (!selectedUser) return null;
-    
+
     return (
       <Modal
         visible={showUserModal}
@@ -711,42 +715,41 @@ export default function SecureAdminDashboard() {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <TouchableOpacity
-              style={styles.modalClose}
-              onPress={() => setShowUserModal(false)}
-            >
+            <TouchableOpacity style={styles.modalClose} onPress={() => setShowUserModal(false)}>
               <Ionicons name="close" size={24} color="#666" />
             </TouchableOpacity>
-            
+
             <Text style={styles.modalTitle}>User Details</Text>
-            
+
             <View style={styles.userDetail}>
               <Text style={styles.detailLabel}>ID:</Text>
               <Text style={styles.detailValue}>{selectedUser.id}</Text>
             </View>
-            
+
             <View style={styles.userDetail}>
               <Text style={styles.detailLabel}>Username:</Text>
               <Text style={styles.detailValue}>{selectedUser.profile.username}</Text>
             </View>
-            
+
             <View style={styles.userDetail}>
               <Text style={styles.detailLabel}>Email:</Text>
               <Text style={styles.detailValue}>{selectedUser.profile.email}</Text>
             </View>
-            
+
             <View style={styles.userDetail}>
               <Text style={styles.detailLabel}>Status:</Text>
-              <Text style={[styles.detailValue, { color: selectedUser.banned ? '#F44336' : '#4CAF50' }]}>
+              <Text
+                style={[styles.detailValue, { color: selectedUser.banned ? '#F44336' : '#4CAF50' }]}
+              >
                 {selectedUser.banned ? 'BANNED' : 'ACTIVE'}
               </Text>
             </View>
-            
+
             <View style={styles.userDetail}>
               <Text style={styles.detailLabel}>Violations:</Text>
               <Text style={styles.detailValue}>{selectedUser.violations}</Text>
             </View>
-            
+
             <View style={styles.modalActions}>
               {selectedUser.banned ? (
                 <TouchableOpacity
@@ -763,12 +766,14 @@ export default function SecureAdminDashboard() {
                   <Text style={styles.actionButtonText}>Ban User</Text>
                 </TouchableOpacity>
               )}
-              
+
               <TouchableOpacity
                 style={[styles.actionButton, { backgroundColor: '#FF9800' }]}
-                onPress={() => handleUserAction('modify', selectedUser.id, {
-                  'stats.coins': selectedUser.stats.coins + 1000
-                })}
+                onPress={() =>
+                  handleUserAction('modify', selectedUser.id, {
+                    'stats.coins': selectedUser.stats.coins + 1000,
+                  })
+                }
               >
                 <Text style={styles.actionButtonText}>Add 1000 Coins</Text>
               </TouchableOpacity>

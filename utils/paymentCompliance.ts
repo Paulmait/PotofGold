@@ -64,7 +64,11 @@ export class PaymentComplianceSystem {
 
   // =============== SUBSCRIPTION MANAGEMENT ===============
 
-  async createSubscription(productId: string, userId: string, amount: number): Promise<Subscription> {
+  async createSubscription(
+    productId: string,
+    userId: string,
+    amount: number
+  ): Promise<Subscription> {
     // Verify age before subscription
     const age = await this.getUserAge(userId);
     if (age < this.MINOR_AGE_LIMIT) {
@@ -87,7 +91,7 @@ export class PaymentComplianceSystem {
 
     await this.saveSubscription(subscription);
     await this.sendSubscriptionConfirmation(subscription);
-    
+
     return subscription;
   }
 
@@ -104,23 +108,23 @@ export class PaymentComplianceSystem {
     subscription.autoRenew = false;
 
     await this.saveSubscription(subscription);
-    
+
     // Send immediate confirmation
     Alert.alert(
       'Subscription Cancelled',
       `Your subscription has been cancelled immediately. You will continue to have access until ${new Date(subscription.endDate).toLocaleDateString()}.`,
       [
         { text: 'OK' },
-        { 
-          text: 'Undo', 
-          onPress: () => this.reactivateSubscription(subscriptionId) 
-        }
+        {
+          text: 'Undo',
+          onPress: () => this.reactivateSubscription(subscriptionId),
+        },
       ]
     );
 
     // Log for compliance
     await this.logCancellation(subscription);
-    
+
     return true;
   }
 
@@ -143,7 +147,7 @@ export class PaymentComplianceSystem {
       ios: 'https://apps.apple.com/account/subscriptions',
       android: 'https://play.google.com/store/account/subscriptions',
     });
-    
+
     if (url) {
       Linking.openURL(url);
     }
@@ -160,7 +164,7 @@ export class PaymentComplianceSystem {
     // Check if within cooling-off period (14 days in EU)
     const purchaseDate = new Date(transaction.timestamp).getTime();
     const now = Date.now();
-    const isWithinCoolingOff = (now - purchaseDate) <= this.COOLING_OFF_PERIOD;
+    const isWithinCoolingOff = now - purchaseDate <= this.COOLING_OFF_PERIOD;
 
     const refundRequest: RefundRequest = {
       transactionId,
@@ -185,17 +189,17 @@ export class PaymentComplianceSystem {
     transaction.status = 'refunded';
     transaction.refundDate = new Date().toISOString();
     transaction.refundReason = refundRequest.reason;
-    
+
     refundRequest.status = 'approved';
     refundRequest.processedDate = new Date().toISOString();
     refundRequest.refundAmount = transaction.amount;
 
     // Remove purchased items from user account
     await this.reversePurchase(transaction);
-    
+
     // Process actual refund through payment provider
     await this.initiateProviderRefund(transaction);
-    
+
     // Send confirmation
     Alert.alert(
       'Refund Processed',
@@ -210,25 +214,25 @@ export class PaymentComplianceSystem {
     const today = new Date();
     let age = today.getFullYear() - birth.getFullYear();
     const monthDiff = today.getMonth() - birth.getMonth();
-    
+
     if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
       age--;
     }
-    
+
     await AsyncStorage.setItem('user_age', age.toString());
     await AsyncStorage.setItem('age_verified_date', new Date().toISOString());
-    
+
     return age;
   }
 
   async checkParentalConsent(userId: string): Promise<boolean> {
     const age = await this.getUserAge(userId);
-    
+
     if (age < this.MINOR_AGE_LIMIT) {
       // Require parental consent
       return await this.requestParentalConsent(userId);
     }
-    
+
     return true;
   }
 
@@ -244,13 +248,13 @@ export class PaymentComplianceSystem {
               // In production, send email to parent
               this.sendParentalConsentEmail(userId);
               resolve(false);
-            }
+            },
           },
           {
             text: 'Cancel',
             style: 'cancel',
-            onPress: () => resolve(false)
-          }
+            onPress: () => resolve(false),
+          },
         ]
       );
     });
@@ -261,18 +265,20 @@ export class PaymentComplianceSystem {
   async checkSpendingLimit(userId: string, amount: number): Promise<boolean> {
     const age = await this.getUserAge(userId);
     const isMinor = age < 18;
-    
+
     const spending = await this.getUserSpending(userId);
-    const limits = isMinor ? {
-      daily: this.SPENDING_LIMITS.minor_daily,
-      weekly: this.SPENDING_LIMITS.minor_weekly,
-      monthly: this.SPENDING_LIMITS.minor_monthly,
-    } : {
-      daily: this.SPENDING_LIMITS.daily,
-      weekly: this.SPENDING_LIMITS.weekly,
-      monthly: this.SPENDING_LIMITS.monthly,
-    };
-    
+    const limits = isMinor
+      ? {
+          daily: this.SPENDING_LIMITS.minor_daily,
+          weekly: this.SPENDING_LIMITS.minor_weekly,
+          monthly: this.SPENDING_LIMITS.minor_monthly,
+        }
+      : {
+          daily: this.SPENDING_LIMITS.daily,
+          weekly: this.SPENDING_LIMITS.weekly,
+          monthly: this.SPENDING_LIMITS.monthly,
+        };
+
     if (spending.daily + amount > limits.daily) {
       Alert.alert(
         'Daily Spending Limit Reached',
@@ -280,7 +286,7 @@ export class PaymentComplianceSystem {
       );
       return false;
     }
-    
+
     if (spending.weekly + amount > limits.weekly) {
       Alert.alert(
         'Weekly Spending Limit Reached',
@@ -288,7 +294,7 @@ export class PaymentComplianceSystem {
       );
       return false;
     }
-    
+
     if (spending.monthly + amount > limits.monthly) {
       Alert.alert(
         'Monthly Spending Limit Reached',
@@ -296,7 +302,7 @@ export class PaymentComplianceSystem {
       );
       return false;
     }
-    
+
     return true;
   }
 
@@ -316,19 +322,19 @@ export class PaymentComplianceSystem {
         throw new Error('Parental consent required');
       }
     }
-    
+
     // Spending limits
     const withinLimit = await this.checkSpendingLimit(userId, amount);
     if (!withinLimit) {
       throw new Error('Spending limit exceeded');
     }
-    
+
     // Duplicate prevention
     const isDuplicate = await this.checkDuplicatePurchase(receipt);
     if (isDuplicate) {
       throw new Error('Duplicate purchase detected');
     }
-    
+
     // Create transaction record
     const transaction: Transaction = {
       id: this.generateTransactionId(),
@@ -342,20 +348,20 @@ export class PaymentComplianceSystem {
       parentalConsent: age < this.MINOR_AGE_LIMIT,
       ageVerified: true,
     };
-    
+
     // Validate with payment provider
     const isValid = await this.validateWithProvider(receipt);
     if (!isValid) {
       transaction.status = 'failed';
       throw new Error('Invalid receipt');
     }
-    
+
     transaction.status = 'completed';
     await this.saveTransaction(transaction);
-    
+
     // Create audit trail
     await this.createAuditLog(transaction);
-    
+
     return transaction;
   }
 
@@ -365,24 +371,21 @@ export class PaymentComplianceSystem {
     try {
       // Get all purchases for user
       const transactions = await this.getUserTransactions(userId);
-      const validPurchases = transactions.filter(t => t.status === 'completed');
-      
+      const validPurchases = transactions.filter((t) => t.status === 'completed');
+
       // Restore each purchase
       for (const purchase of validPurchases) {
         await this.restorePurchaseItems(purchase);
       }
-      
+
       Alert.alert(
         'Purchases Restored',
         `Successfully restored ${validPurchases.length} purchase(s).`
       );
-      
+
       return validPurchases;
     } catch (error) {
-      Alert.alert(
-        'Restoration Failed',
-        'Unable to restore purchases. Please try again later.'
-      );
+      Alert.alert('Restoration Failed', 'Unable to restore purchases. Please try again later.');
       throw error;
     }
   }
@@ -402,7 +405,7 @@ export class PaymentComplianceSystem {
       platform: Platform.OS,
       appVersion: await this.getAppVersion(),
     };
-    
+
     // Store for 7 years (financial regulation requirement)
     await this.storeAuditLog(auditEntry);
   }
@@ -417,22 +420,22 @@ export class PaymentComplianceSystem {
   private async getUserSpending(userId: string) {
     const transactions = await this.getUserTransactions(userId);
     const now = Date.now();
-    const dayAgo = now - (24 * 60 * 60 * 1000);
-    const weekAgo = now - (7 * 24 * 60 * 60 * 1000);
-    const monthAgo = now - (30 * 24 * 60 * 60 * 1000);
-    
+    const dayAgo = now - 24 * 60 * 60 * 1000;
+    const weekAgo = now - 7 * 24 * 60 * 60 * 1000;
+    const monthAgo = now - 30 * 24 * 60 * 60 * 1000;
+
     const daily = transactions
-      .filter(t => new Date(t.timestamp).getTime() > dayAgo && t.status === 'completed')
+      .filter((t) => new Date(t.timestamp).getTime() > dayAgo && t.status === 'completed')
       .reduce((sum, t) => sum + t.amount, 0);
-      
+
     const weekly = transactions
-      .filter(t => new Date(t.timestamp).getTime() > weekAgo && t.status === 'completed')
+      .filter((t) => new Date(t.timestamp).getTime() > weekAgo && t.status === 'completed')
       .reduce((sum, t) => sum + t.amount, 0);
-      
+
     const monthly = transactions
-      .filter(t => new Date(t.timestamp).getTime() > monthAgo && t.status === 'completed')
+      .filter((t) => new Date(t.timestamp).getTime() > monthAgo && t.status === 'completed')
       .reduce((sum, t) => sum + t.amount, 0);
-    
+
     return { daily, weekly, monthly };
   }
 
@@ -473,7 +476,7 @@ export class PaymentComplianceSystem {
   private async saveTransaction(transaction: Transaction) {
     const key = `transaction_${transaction.id}`;
     await AsyncStorage.setItem(key, JSON.stringify(transaction));
-    
+
     // Also store receipt to prevent duplicates
     if (transaction.receiptData) {
       await AsyncStorage.setItem(`receipt_${transaction.receiptData}`, transaction.id);

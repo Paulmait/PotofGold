@@ -1,11 +1,11 @@
-import Purchases, { 
+import Purchases, {
   PurchasesOfferings,
   CustomerInfo,
   PurchasesEntitlementInfos,
   LOG_LEVEL,
   PurchasesPackage,
   PurchasesError,
-  PURCHASES_ERROR_CODE
+  PURCHASES_ERROR_CODE,
 } from 'react-native-purchases';
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -87,7 +87,7 @@ class RevenueCatService {
       return await Purchases.getCustomerInfo();
     } catch (error) {
       console.error('Error getting customer info:', error);
-      
+
       // Fall back to cached data for offline support
       const cached = await this.getCachedEntitlements();
       if (cached && this.isCacheValid(cached)) {
@@ -96,7 +96,7 @@ class RevenueCatService {
           entitlements: cached.entitlements,
         } as CustomerInfo;
       }
-      
+
       return null;
     }
   }
@@ -128,7 +128,7 @@ class RevenueCatService {
       return customerInfo;
     } catch (error) {
       const purchasesError = error as PurchasesError;
-      
+
       // Handle specific error codes
       if (purchasesError.code === PURCHASES_ERROR_CODE.USER_CANCELLED) {
         console.log('User cancelled purchase');
@@ -139,7 +139,7 @@ class RevenueCatService {
       } else {
         console.error('Purchase error:', purchasesError);
       }
-      
+
       throw error;
     }
   }
@@ -206,7 +206,7 @@ class RevenueCatService {
     try {
       const cached = await AsyncStorage.getItem(CACHE_KEY);
       if (!cached) return null;
-      
+
       return JSON.parse(cached) as CachedEntitlements;
     } catch (error) {
       console.error('Error getting cached entitlements:', error);
@@ -256,7 +256,7 @@ class RevenueCatService {
   // Development/Testing helpers
   async syncPurchases(): Promise<void> {
     if (!this.isInitialized) return;
-    
+
     try {
       await Purchases.syncPurchases();
       console.log('Purchases synced successfully');
@@ -267,7 +267,7 @@ class RevenueCatService {
 
   async logOut(): Promise<void> {
     if (!this.isInitialized) return;
-    
+
     try {
       await Purchases.logOut();
       await this.clearCache();
@@ -282,7 +282,7 @@ class RevenueCatService {
     if (!this.isInitialized) {
       throw new Error('RevenueCat not initialized');
     }
-    
+
     try {
       // RevenueCat SDK doesn't have direct subscription management
       // On iOS, this would open Settings > Apple ID > Subscriptions
@@ -305,9 +305,9 @@ export const revenueCatService = RevenueCatService.getInstance();
 export const RevenueCatManager = RevenueCatService.getInstance();
 
 // Export types for use in other files
-export type { 
-  CustomerInfo, 
-  PurchasesPackage, 
+export type {
+  CustomerInfo,
+  PurchasesPackage,
   PurchasesOfferings,
-  PurchasesEntitlementInfos 
+  PurchasesEntitlementInfos,
 } from 'react-native-purchases';

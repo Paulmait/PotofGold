@@ -9,9 +9,6 @@ import { unlockTreeSystem } from './unlockTreeSystem';
 import { adRewardsSystem } from './adRewardsSystem';
 import { offlineManager } from './offlineManager';
 
-
-
-
 export interface GameState {
   userId: string;
   isInitialized: boolean;
@@ -70,7 +67,9 @@ export class MasterGameManager {
         userId,
         isInitialized: true,
         currentLevel: progressionSystem.getCurrentLevel(),
-        currentWorld: progressionSystem.getWorlds().find(w => w.id === playerProgress.currentWorld),
+        currentWorld: progressionSystem
+          .getWorlds()
+          .find((w) => w.id === playerProgress.currentWorld),
         playerProgress,
         metaGameProgress,
         missionProgress,
@@ -170,7 +169,6 @@ export class MasterGameManager {
 
       this.gameState.lastUpdated = new Date();
       await this.saveGameState();
-
     } catch (error) {
       console.log('Error completing game session:', error);
     }
@@ -279,12 +277,10 @@ export class MasterGameManager {
 
     return {
       seasonPass: seasonPassSystem.getCurrentSeason(),
-      premiumUpgrades: metaGameSystem.getAvailableShopItems().filter(item => 
-        item.currency === 'real_money'
-      ),
-      exclusiveSkins: metaGameSystem.getOwnedSkins().filter(skin => 
-        skin.rarity === 'legendary'
-      ),
+      premiumUpgrades: metaGameSystem
+        .getAvailableShopItems()
+        .filter((item) => item.currency === 'real_money'),
+      exclusiveSkins: metaGameSystem.getOwnedSkins().filter((skin) => skin.rarity === 'legendary'),
       adRewards: adRewardsSystem.getAvailableAdRewards(),
       inviteRewards: [], // Would be implemented with social features
     };

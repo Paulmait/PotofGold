@@ -25,11 +25,11 @@ beforeAll(() => {
   global.setTimeout = patchedSetTimeout as typeof setTimeout;
   global.setInterval = patchedSetInterval as typeof setInterval;
   global.clearTimeout = (id: any) => {
-    activeTimeouts = activeTimeouts.filter(t => t !== id);
+    activeTimeouts = activeTimeouts.filter((t) => t !== id);
     return originalClearTimeout(id);
   };
   global.clearInterval = (id: any) => {
-    activeIntervals = activeIntervals.filter(t => t !== id);
+    activeIntervals = activeIntervals.filter((t) => t !== id);
     return originalClearInterval(id);
   };
 });
@@ -40,8 +40,8 @@ afterEach(async () => {
   jest.runOnlyPendingTimers();
   jest.useRealTimers();
   // Clear all tracked timeouts/intervals
-  activeTimeouts.forEach(id => originalClearTimeout(id));
-  activeIntervals.forEach(id => originalClearInterval(id));
+  activeTimeouts.forEach((id) => originalClearTimeout(id));
+  activeIntervals.forEach((id) => originalClearInterval(id));
   activeTimeouts = [];
   activeIntervals = [];
   cleanup();
@@ -61,7 +61,9 @@ jest.mock('react-native-gesture-handler', () => {
   const React = require('react');
   const { View, ScrollView } = require('react-native');
   const mockComponent = (name: any) => {
-    return React.forwardRef((props: any, ref: any) => React.createElement(View, { ...props, ref }, props.children));
+    return React.forwardRef((props: any, ref: any) =>
+      React.createElement(View, { ...props, ref }, props.children)
+    );
   };
   const Animated = {
     View,
@@ -230,7 +232,7 @@ jest.mock('../../components/StateUnlockNotification', () => ({
         <Text>StateUnlockNotification Mock</Text>
       </View>
     );
-  }
+  },
 }));
 
 jest.mock('../../components/MysteryCrate', () => {
@@ -296,7 +298,7 @@ describe('Game Simulation Flows', () => {
         potLevel: 1,
         ownedSkins: ['default_pot'],
         currentSkin: 'default_pot',
-      }
+      },
     });
     (skinSystem.getOwnedSkins as jest.Mock).mockResolvedValue([
       { id: 'default_pot', name: 'Default Pot', owned: true, equipped: true },
@@ -373,7 +375,7 @@ describe('Game Simulation Flows', () => {
       // Step 2: Simulate game start
       mockGameEngine.startGame();
       mockGameEngine.gameState.isActive = true;
-      
+
       await waitFor(() => {
         expect(mockGameEngine.startGame).toHaveBeenCalled();
       });
@@ -382,7 +384,7 @@ describe('Game Simulation Flows', () => {
       for (let i = 0; i < 10; i++) {
         mockGameEngine.collectCoin();
       }
-      
+
       await waitFor(() => {
         expect(mockGameEngine.collectCoin).toHaveBeenCalledTimes(10);
       });
@@ -390,7 +392,7 @@ describe('Game Simulation Flows', () => {
       // Step 4: Simulate pause
       mockGameEngine.pauseGame();
       mockGameEngine.gameState.isPaused = true;
-      
+
       await waitFor(() => {
         expect(mockGameEngine.pauseGame).toHaveBeenCalled();
       });
@@ -418,7 +420,7 @@ describe('Game Simulation Flows', () => {
       // Step 7: Simulate resume
       mockGameEngine.resumeGame();
       mockGameEngine.gameState.isPaused = false;
-      
+
       await waitFor(() => {
         expect(mockGameEngine.resumeGame).toHaveBeenCalled();
       });
@@ -562,7 +564,7 @@ describe('Game Simulation Flows', () => {
       // Simulate offline skin purchase
       // @ts-ignore
       await skinSystem.purchaseSkin('golden_pot');
-      
+
       // @ts-ignore
       expect(skinSystem.purchaseSkin).toHaveBeenCalled();
 
@@ -594,7 +596,7 @@ describe('Game Simulation Flows', () => {
           coins: 1000,
           ownedSkins: ['default_pot'],
           potLevel: 1,
-        }
+        },
       };
 
       const mockRemoteState = {
@@ -604,7 +606,7 @@ describe('Game Simulation Flows', () => {
           coins: 1500,
           ownedSkins: ['default_pot', 'golden_pot'],
           potLevel: 2,
-        }
+        },
       };
 
       // @ts-ignore
@@ -661,7 +663,7 @@ describe('Game Simulation Flows', () => {
 
       // Stress test with rapid interactions
       const startTime = Date.now();
-      
+
       for (let i = 0; i < 1000; i++) {
         mockGameEngine.collectCoin();
         if (i % 10 === 0) {
@@ -707,7 +709,7 @@ describe('Game Simulation Flows', () => {
       const startTime = Date.now();
       fireEvent.press(getByText('🔄 Retry'));
       const endTime = Date.now();
-      
+
       expect(endTime - startTime).toBeLessThan(100); // Should be very fast
     });
   });
@@ -731,9 +733,7 @@ describe('Game Simulation Flows', () => {
     });
 
     it('should handle sound system failures without breaking gameplay', async () => {
-      (soundSystem.playSound as jest.Mock).mockRejectedValue(
-        new Error('Audio system unavailable')
-      );
+      (soundSystem.playSound as jest.Mock).mockRejectedValue(new Error('Audio system unavailable'));
 
       const mockGameEngine = {
         gameState: { isActive: false, isPaused: false },
@@ -751,7 +751,7 @@ describe('Game Simulation Flows', () => {
 
       // Game should continue despite sound errors
       mockGameEngine.startGame();
-      
+
       await waitFor(() => {
         expect(mockGameEngine.startGame).toHaveBeenCalled();
       });
@@ -778,7 +778,7 @@ describe('Game Simulation Flows', () => {
 
       // Verify no memory leaks
       unmount();
-      
+
       // If we get here without crashes, memory management is working
       expect(true).toBe(true);
     });

@@ -22,53 +22,191 @@ const STATE_FLAGS = [
   { id: 'alabama', name: 'Alabama', price: 500, colors: ['#FF0000', '#FFFFFF'], icon: '🌟' },
   { id: 'alaska', name: 'Alaska', price: 500, colors: ['#002868', '#FFD700'], icon: '🐻' },
   { id: 'arizona', name: 'Arizona', price: 500, colors: ['#CE1126', '#FFC72C'], icon: '☀️' },
-  { id: 'arkansas', name: 'Arkansas', price: 500, colors: ['#FF0000', '#FFFFFF', '#002868'], icon: '💎' },
+  {
+    id: 'arkansas',
+    name: 'Arkansas',
+    price: 500,
+    colors: ['#FF0000', '#FFFFFF', '#002868'],
+    icon: '💎',
+  },
   { id: 'california', name: 'California', price: 750, colors: ['#FFFFFF', '#FF0000'], icon: '🐻' },
-  { id: 'colorado', name: 'Colorado', price: 500, colors: ['#002868', '#FFFFFF', '#FFD700'], icon: '⛰️' },
-  { id: 'connecticut', name: 'Connecticut', price: 500, colors: ['#002868', '#FFFFFF'], icon: '🌳' },
+  {
+    id: 'colorado',
+    name: 'Colorado',
+    price: 500,
+    colors: ['#002868', '#FFFFFF', '#FFD700'],
+    icon: '⛰️',
+  },
+  {
+    id: 'connecticut',
+    name: 'Connecticut',
+    price: 500,
+    colors: ['#002868', '#FFFFFF'],
+    icon: '🌳',
+  },
   { id: 'delaware', name: 'Delaware', price: 500, colors: ['#00308F', '#FFD700'], icon: '💠' },
   { id: 'florida', name: 'Florida', price: 750, colors: ['#FF0000', '#FFFFFF'], icon: '☀️' },
-  { id: 'georgia', name: 'Georgia', price: 500, colors: ['#FF0000', '#FFFFFF', '#002868'], icon: '🍑' },
-  { id: 'hawaii', name: 'Hawaii', price: 750, colors: ['#FF0000', '#FFFFFF', '#002868'], icon: '🌺' },
+  {
+    id: 'georgia',
+    name: 'Georgia',
+    price: 500,
+    colors: ['#FF0000', '#FFFFFF', '#002868'],
+    icon: '🍑',
+  },
+  {
+    id: 'hawaii',
+    name: 'Hawaii',
+    price: 750,
+    colors: ['#FF0000', '#FFFFFF', '#002868'],
+    icon: '🌺',
+  },
   { id: 'idaho', name: 'Idaho', price: 500, colors: ['#FF0000', '#FFFFFF', '#002868'], icon: '🥔' },
   { id: 'illinois', name: 'Illinois', price: 500, colors: ['#FFFFFF', '#FF0000'], icon: '🌆' },
   { id: 'indiana', name: 'Indiana', price: 500, colors: ['#002868', '#FFD700'], icon: '🏁' },
   { id: 'iowa', name: 'Iowa', price: 500, colors: ['#FF0000', '#FFFFFF', '#002868'], icon: '🌽' },
   { id: 'kansas', name: 'Kansas', price: 500, colors: ['#002868', '#FFD700'], icon: '🌻' },
   { id: 'kentucky', name: 'Kentucky', price: 500, colors: ['#002868', '#FFFFFF'], icon: '🐎' },
-  { id: 'louisiana', name: 'Louisiana', price: 500, colors: ['#002868', '#FFD700', '#FFFFFF'], icon: '⚜️' },
+  {
+    id: 'louisiana',
+    name: 'Louisiana',
+    price: 500,
+    colors: ['#002868', '#FFD700', '#FFFFFF'],
+    icon: '⚜️',
+  },
   { id: 'maine', name: 'Maine', price: 500, colors: ['#002868', '#FFFFFF'], icon: '🦞' },
-  { id: 'maryland', name: 'Maryland', price: 500, colors: ['#FF0000', '#FFD700', '#000000'], icon: '🦀' },
-  { id: 'massachusetts', name: 'Massachusetts', price: 500, colors: ['#FFFFFF', '#002868'], icon: '📚' },
+  {
+    id: 'maryland',
+    name: 'Maryland',
+    price: 500,
+    colors: ['#FF0000', '#FFD700', '#000000'],
+    icon: '🦀',
+  },
+  {
+    id: 'massachusetts',
+    name: 'Massachusetts',
+    price: 500,
+    colors: ['#FFFFFF', '#002868'],
+    icon: '📚',
+  },
   { id: 'michigan', name: 'Michigan', price: 500, colors: ['#002868', '#FFFFFF'], icon: '🚗' },
   { id: 'minnesota', name: 'Minnesota', price: 500, colors: ['#002868', '#FFFFFF'], icon: '❄️' },
-  { id: 'mississippi', name: 'Mississippi', price: 500, colors: ['#FF0000', '#FFFFFF', '#002868'], icon: '🎺' },
-  { id: 'missouri', name: 'Missouri', price: 500, colors: ['#FF0000', '#FFFFFF', '#002868'], icon: '🏛️' },
+  {
+    id: 'mississippi',
+    name: 'Mississippi',
+    price: 500,
+    colors: ['#FF0000', '#FFFFFF', '#002868'],
+    icon: '🎺',
+  },
+  {
+    id: 'missouri',
+    name: 'Missouri',
+    price: 500,
+    colors: ['#FF0000', '#FFFFFF', '#002868'],
+    icon: '🏛️',
+  },
   { id: 'montana', name: 'Montana', price: 500, colors: ['#002868', '#FFD700'], icon: '🏔️' },
   { id: 'nebraska', name: 'Nebraska', price: 500, colors: ['#002868', '#FFD700'], icon: '🌾' },
   { id: 'nevada', name: 'Nevada', price: 750, colors: ['#002868', '#C0C0C0'], icon: '🎰' },
-  { id: 'newhampshire', name: 'New Hampshire', price: 500, colors: ['#002868', '#FFFFFF'], icon: '🏔️' },
+  {
+    id: 'newhampshire',
+    name: 'New Hampshire',
+    price: 500,
+    colors: ['#002868', '#FFFFFF'],
+    icon: '🏔️',
+  },
   { id: 'newjersey', name: 'New Jersey', price: 500, colors: ['#FFC72C', '#002868'], icon: '🌊' },
   { id: 'newmexico', name: 'New Mexico', price: 500, colors: ['#FFD700', '#FF0000'], icon: '☀️' },
-  { id: 'newyork', name: 'New York', price: 1000, colors: ['#002868', '#FF6600', '#FFFFFF'], icon: '🗽' },
-  { id: 'northcarolina', name: 'North Carolina', price: 500, colors: ['#FF0000', '#FFFFFF', '#002868'], icon: '✈️' },
-  { id: 'northdakota', name: 'North Dakota', price: 500, colors: ['#002868', '#FFD700'], icon: '🌻' },
+  {
+    id: 'newyork',
+    name: 'New York',
+    price: 1000,
+    colors: ['#002868', '#FF6600', '#FFFFFF'],
+    icon: '🗽',
+  },
+  {
+    id: 'northcarolina',
+    name: 'North Carolina',
+    price: 500,
+    colors: ['#FF0000', '#FFFFFF', '#002868'],
+    icon: '✈️',
+  },
+  {
+    id: 'northdakota',
+    name: 'North Dakota',
+    price: 500,
+    colors: ['#002868', '#FFD700'],
+    icon: '🌻',
+  },
   { id: 'ohio', name: 'Ohio', price: 500, colors: ['#FF0000', '#FFFFFF', '#002868'], icon: '🌰' },
   { id: 'oklahoma', name: 'Oklahoma', price: 500, colors: ['#005CAB', '#FFFFFF'], icon: '🛢️' },
   { id: 'oregon', name: 'Oregon', price: 500, colors: ['#002868', '#FFD700'], icon: '🌲' },
-  { id: 'pennsylvania', name: 'Pennsylvania', price: 500, colors: ['#002868', '#FFD700'], icon: '🔔' },
-  { id: 'rhodeisland', name: 'Rhode Island', price: 500, colors: ['#FFFFFF', '#002868', '#FFD700'], icon: '⚓' },
-  { id: 'southcarolina', name: 'South Carolina', price: 500, colors: ['#002868', '#FFFFFF'], icon: '🌴' },
-  { id: 'southdakota', name: 'South Dakota', price: 500, colors: ['#002868', '#FFD700'], icon: '🗿' },
-  { id: 'tennessee', name: 'Tennessee', price: 500, colors: ['#FF0000', '#FFFFFF', '#002868'], icon: '🎸' },
-  { id: 'texas', name: 'Texas', price: 1000, colors: ['#002868', '#FFFFFF', '#FF0000'], icon: '⭐' },
+  {
+    id: 'pennsylvania',
+    name: 'Pennsylvania',
+    price: 500,
+    colors: ['#002868', '#FFD700'],
+    icon: '🔔',
+  },
+  {
+    id: 'rhodeisland',
+    name: 'Rhode Island',
+    price: 500,
+    colors: ['#FFFFFF', '#002868', '#FFD700'],
+    icon: '⚓',
+  },
+  {
+    id: 'southcarolina',
+    name: 'South Carolina',
+    price: 500,
+    colors: ['#002868', '#FFFFFF'],
+    icon: '🌴',
+  },
+  {
+    id: 'southdakota',
+    name: 'South Dakota',
+    price: 500,
+    colors: ['#002868', '#FFD700'],
+    icon: '🗿',
+  },
+  {
+    id: 'tennessee',
+    name: 'Tennessee',
+    price: 500,
+    colors: ['#FF0000', '#FFFFFF', '#002868'],
+    icon: '🎸',
+  },
+  {
+    id: 'texas',
+    name: 'Texas',
+    price: 1000,
+    colors: ['#002868', '#FFFFFF', '#FF0000'],
+    icon: '⭐',
+  },
   { id: 'utah', name: 'Utah', price: 500, colors: ['#002868', '#FFFFFF', '#FF0000'], icon: '🏔️' },
-  { id: 'vermont', name: 'Vermont', price: 500, colors: ['#002868', '#FFFFFF', '#008000'], icon: '🍁' },
+  {
+    id: 'vermont',
+    name: 'Vermont',
+    price: 500,
+    colors: ['#002868', '#FFFFFF', '#008000'],
+    icon: '🍁',
+  },
   { id: 'virginia', name: 'Virginia', price: 500, colors: ['#002868', '#FFFFFF'], icon: '🏛️' },
   { id: 'washington', name: 'Washington', price: 500, colors: ['#00A651', '#FFFFFF'], icon: '🌲' },
-  { id: 'westvirginia', name: 'West Virginia', price: 500, colors: ['#002868', '#FFFFFF'], icon: '⛰️' },
+  {
+    id: 'westvirginia',
+    name: 'West Virginia',
+    price: 500,
+    colors: ['#002868', '#FFFFFF'],
+    icon: '⛰️',
+  },
   { id: 'wisconsin', name: 'Wisconsin', price: 500, colors: ['#002868', '#FFFFFF'], icon: '🧀' },
-  { id: 'wyoming', name: 'Wyoming', price: 500, colors: ['#002868', '#FFFFFF', '#FF0000'], icon: '🦬' },
+  {
+    id: 'wyoming',
+    name: 'Wyoming',
+    price: 500,
+    colors: ['#002868', '#FFFFFF', '#FF0000'],
+    icon: '🦬',
+  },
 ];
 
 // Coin Packages for Purchase
@@ -83,21 +221,93 @@ const COIN_PACKAGES = [
 
 // Power-ups for Purchase
 const POWERUPS = [
-  { id: 'magnet', name: 'Magnet', duration: '30 seconds', price: 100, icon: 'magnet', color: '#FFD700' },
-  { id: 'shield', name: 'Shield', duration: '3 hits', price: 150, icon: 'shield', color: '#00BFFF' },
-  { id: '2x', name: '2x Multiplier', duration: '60 seconds', price: 200, icon: 'flash', color: '#FF4500' },
-  { id: 'bomb-clear', name: 'Bomb Clear', duration: 'Instant', price: 50, icon: 'nuclear', color: '#FF0000' },
-  { id: 'continue', name: 'Continue Token', duration: '1 use', price: 500, icon: 'heart', color: '#FF69B4' },
-  { id: 'mega-boost', name: 'Mega Boost', duration: '5 minutes', price: 1000, icon: 'rocket', color: '#9C27B0' },
+  {
+    id: 'magnet',
+    name: 'Magnet',
+    duration: '30 seconds',
+    price: 100,
+    icon: 'magnet',
+    color: '#FFD700',
+  },
+  {
+    id: 'shield',
+    name: 'Shield',
+    duration: '3 hits',
+    price: 150,
+    icon: 'shield',
+    color: '#00BFFF',
+  },
+  {
+    id: '2x',
+    name: '2x Multiplier',
+    duration: '60 seconds',
+    price: 200,
+    icon: 'flash',
+    color: '#FF4500',
+  },
+  {
+    id: 'bomb-clear',
+    name: 'Bomb Clear',
+    duration: 'Instant',
+    price: 50,
+    icon: 'nuclear',
+    color: '#FF0000',
+  },
+  {
+    id: 'continue',
+    name: 'Continue Token',
+    duration: '1 use',
+    price: 500,
+    icon: 'heart',
+    color: '#FF69B4',
+  },
+  {
+    id: 'mega-boost',
+    name: 'Mega Boost',
+    duration: '5 minutes',
+    price: 1000,
+    icon: 'rocket',
+    color: '#9C27B0',
+  },
 ];
 
 // Cart Upgrades
 const CART_UPGRADES = [
-  { id: 'size-1', name: 'Bigger Cart I', description: '+10% collection area', price: 2500, level: 1 },
-  { id: 'size-2', name: 'Bigger Cart II', description: '+20% collection area', price: 5000, level: 2 },
-  { id: 'size-3', name: 'Bigger Cart III', description: '+30% collection area', price: 10000, level: 3 },
-  { id: 'speed-1', name: 'Speed Boost I', description: '+15% movement speed', price: 3000, level: 1 },
-  { id: 'speed-2', name: 'Speed Boost II', description: '+30% movement speed', price: 6000, level: 2 },
+  {
+    id: 'size-1',
+    name: 'Bigger Cart I',
+    description: '+10% collection area',
+    price: 2500,
+    level: 1,
+  },
+  {
+    id: 'size-2',
+    name: 'Bigger Cart II',
+    description: '+20% collection area',
+    price: 5000,
+    level: 2,
+  },
+  {
+    id: 'size-3',
+    name: 'Bigger Cart III',
+    description: '+30% collection area',
+    price: 10000,
+    level: 3,
+  },
+  {
+    id: 'speed-1',
+    name: 'Speed Boost I',
+    description: '+15% movement speed',
+    price: 3000,
+    level: 1,
+  },
+  {
+    id: 'speed-2',
+    name: 'Speed Boost II',
+    description: '+30% movement speed',
+    price: 6000,
+    level: 2,
+  },
   { id: 'luck-1', name: 'Lucky Cart', description: '+10% rare item chance', price: 8000, level: 1 },
 ];
 
@@ -116,7 +326,7 @@ export default function ShopScreenPro({ navigation }: any) {
     try {
       const savedCoins = await AsyncStorage.getItem('user_coins');
       const savedOwned = await AsyncStorage.getItem('owned_items');
-      
+
       if (savedCoins) setCoins(parseInt(savedCoins, 10));
       if (savedOwned) setOwnedItems(JSON.parse(savedOwned));
     } catch (error) {
@@ -132,16 +342,16 @@ export default function ShopScreenPro({ navigation }: any) {
         `Buy ${item.coins.toLocaleString()} coins for $${item.price}?`,
         [
           { text: 'Cancel', style: 'cancel' },
-          { 
-            text: 'Buy', 
+          {
+            text: 'Buy',
             onPress: async () => {
               // Simulate IAP (implement real IAP for production)
               const newCoins = coins + item.coins;
               setCoins(newCoins);
               await AsyncStorage.setItem('user_coins', newCoins.toString());
               Alert.alert('Success!', `You received ${item.coins.toLocaleString()} coins!`);
-            }
-          }
+            },
+          },
         ]
       );
     } else {
@@ -149,13 +359,13 @@ export default function ShopScreenPro({ navigation }: any) {
       if (coins >= item.price) {
         const newCoins = coins - item.price;
         setCoins(newCoins);
-        
+
         const newOwned = [...ownedItems, item.id];
         setOwnedItems(newOwned);
-        
+
         await AsyncStorage.setItem('user_coins', newCoins.toString());
         await AsyncStorage.setItem('owned_items', JSON.stringify(newOwned));
-        
+
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         Alert.alert('Success!', `You purchased ${item.name}!`);
         setShowPurchaseModal(false);
@@ -167,7 +377,7 @@ export default function ShopScreenPro({ navigation }: any) {
 
   const renderStateFlagItem = (flag: any) => {
     const isOwned = ownedItems.includes(flag.id);
-    
+
     return (
       <TouchableOpacity
         key={flag.id}
@@ -180,10 +390,7 @@ export default function ShopScreenPro({ navigation }: any) {
         }}
         disabled={isOwned}
       >
-        <LinearGradient
-          colors={flag.colors}
-          style={styles.flagGradient}
-        >
+        <LinearGradient colors={flag.colors} style={styles.flagGradient}>
           <Text style={styles.flagIcon}>{flag.icon}</Text>
         </LinearGradient>
         <Text style={styles.flagName}>{flag.name}</Text>
@@ -212,9 +419,7 @@ export default function ShopScreenPro({ navigation }: any) {
       )}
       <Ionicons name="logo-bitcoin" size={40} color="#FFD700" />
       <Text style={styles.coinAmount}>{pkg.coins.toLocaleString()}</Text>
-      {pkg.bonus > 0 && (
-        <Text style={styles.bonusText}>+{pkg.bonus}% BONUS</Text>
-      )}
+      {pkg.bonus > 0 && <Text style={styles.bonusText}>+{pkg.bonus}% BONUS</Text>}
       <TouchableOpacity style={styles.buyButton}>
         <Text style={styles.buyButtonText}>${pkg.price}</Text>
       </TouchableOpacity>
@@ -223,7 +428,7 @@ export default function ShopScreenPro({ navigation }: any) {
 
   const renderPowerup = (powerup: any) => {
     const isOwned = ownedItems.includes(powerup.id);
-    
+
     return (
       <TouchableOpacity
         key={powerup.id}
@@ -250,7 +455,7 @@ export default function ShopScreenPro({ navigation }: any) {
 
   const renderUpgrade = (upgrade: any) => {
     const isOwned = ownedItems.includes(upgrade.id);
-    
+
     return (
       <TouchableOpacity
         key={upgrade.id}
@@ -283,16 +488,10 @@ export default function ShopScreenPro({ navigation }: any) {
   };
 
   return (
-    <LinearGradient
-      colors={['#1a1a2e', '#16213e', '#0f3460']}
-      style={styles.container}
-    >
+    <LinearGradient colors={['#1a1a2e', '#16213e', '#0f3460']} style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color="#FFD700" />
         </TouchableOpacity>
         <Text style={styles.title}>Shop</Text>
@@ -341,36 +540,24 @@ export default function ShopScreenPro({ navigation }: any) {
       {/* Content */}
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {selectedTab === 'flags' && (
-          <View style={styles.flagsGrid}>
-            {STATE_FLAGS.map(renderStateFlagItem)}
-          </View>
+          <View style={styles.flagsGrid}>{STATE_FLAGS.map(renderStateFlagItem)}</View>
         )}
 
         {selectedTab === 'coins' && (
-          <View style={styles.coinsGrid}>
-            {COIN_PACKAGES.map(renderCoinPackage)}
-          </View>
+          <View style={styles.coinsGrid}>{COIN_PACKAGES.map(renderCoinPackage)}</View>
         )}
 
         {selectedTab === 'powerups' && (
-          <View style={styles.powerupsList}>
-            {POWERUPS.map(renderPowerup)}
-          </View>
+          <View style={styles.powerupsList}>{POWERUPS.map(renderPowerup)}</View>
         )}
 
         {selectedTab === 'upgrades' && (
-          <View style={styles.upgradesList}>
-            {CART_UPGRADES.map(renderUpgrade)}
-          </View>
+          <View style={styles.upgradesList}>{CART_UPGRADES.map(renderUpgrade)}</View>
         )}
       </ScrollView>
 
       {/* Purchase Modal */}
-      <Modal
-        visible={showPurchaseModal}
-        transparent
-        animationType="slide"
-      >
+      <Modal visible={showPurchaseModal} transparent animationType="slide">
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Confirm Purchase</Text>

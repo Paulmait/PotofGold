@@ -169,16 +169,16 @@ export default function PauseModal({
       if (result.success) {
         // Play upgrade success sound
         await soundSystem.playSound('upgrade_success');
-        
+
         // Update local state
         setUpgradeCost(result.newLevel * 100);
-        
+
         // Notify parent of state update
         onStateUpdate?.({
           potLevel: result.newLevel,
           coins: currentCoins - upgradeCost,
         });
-        
+
         Alert.alert('Success!', `Pot upgraded to level ${result.newLevel}`);
         onResume(); // Resume game with updated pot
       } else {
@@ -200,14 +200,14 @@ export default function PauseModal({
       if (result.success) {
         // Play skin change sound
         await soundSystem.playSound('skin_change');
-        
+
         setSelectedSkin(skinId);
-        
+
         // Notify parent of state update
         onStateUpdate?.({
           currentSkin: skinId,
         });
-        
+
         Alert.alert('Success!', `Equipped ${result.skin?.name}`);
         onResume(); // Resume game with new skin
       } else {
@@ -224,7 +224,7 @@ export default function PauseModal({
     try {
       // Play power-up sound
       await soundSystem.playSound('powerup_activate');
-      
+
       Alert.alert('Power-up Activated!', 'Power-up will be active when you resume!');
       onResume();
     } catch (error) {
@@ -235,7 +235,7 @@ export default function PauseModal({
   const renderSkinButton = (skin: any) => {
     const isSelected = selectedSkin === skin.id;
     const isEquipped = skin.id === currentSkin;
-    
+
     return (
       <Animated.View
         key={skin.id}
@@ -262,26 +262,13 @@ export default function PauseModal({
   };
 
   return (
-    <Modal
-      visible={visible}
-      transparent={true}
-      animationType="none"
-      onRequestClose={onClose}
-    >
-      <Animated.View 
-        style={[
-          styles.overlay,
-          { opacity: fadeAnim }
-        ]}
-      >
-        <Animated.View 
+    <Modal visible={visible} transparent={true} animationType="none" onRequestClose={onClose}>
+      <Animated.View style={[styles.overlay, { opacity: fadeAnim }]}>
+        <Animated.View
           style={[
             styles.modalContainer,
             {
-              transform: [
-                { translateY: slideAnim },
-                { scale: scaleAnim },
-              ],
+              transform: [{ translateY: slideAnim }, { scale: scaleAnim }],
             },
           ]}
         >
@@ -303,7 +290,11 @@ export default function PauseModal({
                 onPress={upgradePot}
                 disabled={currentCoins < upgradeCost || isUpgrading}
                 accessibilityLabel={`Upgrade pot. Cost: ${upgradeCost} coins`}
-                accessibilityHint={currentCoins < upgradeCost ? "Not enough coins" : "Upgrades your pot to catch more items"}
+                accessibilityHint={
+                  currentCoins < upgradeCost
+                    ? 'Not enough coins'
+                    : 'Upgrades your pot to catch more items'
+                }
                 accessibilityRole="button"
                 accessibilityState={{ disabled: currentCoins < upgradeCost || isUpgrading }}
               >
@@ -318,8 +309,8 @@ export default function PauseModal({
           {/* Skin Selection */}
           <View style={styles.skinSection}>
             <Text style={styles.skinSectionTitle}>Switch Skin:</Text>
-            <ScrollView 
-              horizontal 
+            <ScrollView
+              horizontal
               showsHorizontalScrollIndicator={false}
               style={styles.skinScrollView}
             >
@@ -331,8 +322,8 @@ export default function PauseModal({
           {availablePowerUps.length > 0 && (
             <View style={styles.powerUpSection}>
               <Text style={styles.powerUpSectionTitle}>Power-ups:</Text>
-              <ScrollView 
-                horizontal 
+              <ScrollView
+                horizontal
                 showsHorizontalScrollIndicator={false}
                 style={styles.powerUpScrollView}
               >
@@ -597,4 +588,4 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
-}); 
+});

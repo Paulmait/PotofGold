@@ -77,12 +77,12 @@ export function GoldCoin({ size = 40, isAnimated = true }: Omit<ItemProps, 'type
             <Stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
           </LinearGradient>
         </Defs>
-        
+
         {/* Coin base */}
         <Circle cx="20" cy="20" r="18" fill="url(#goldCoin)" />
         <Circle cx="20" cy="20" r="18" fill="none" stroke="#B8860B" strokeWidth="1" />
         <Circle cx="20" cy="20" r="15" fill="none" stroke="#DAA520" strokeWidth="0.5" />
-        
+
         {/* Dollar sign */}
         <Path
           d="M 20 10 L 20 30 M 15 15 Q 15 13, 20 13 Q 25 13, 25 17 Q 25 20, 20 20 Q 15 20, 15 23 Q 15 27, 20 27 Q 25 27, 25 25"
@@ -91,16 +91,9 @@ export function GoldCoin({ size = 40, isAnimated = true }: Omit<ItemProps, 'type
           strokeWidth="2"
           strokeLinecap="round"
         />
-        
+
         {/* Shine effect */}
-        <Animated.Ellipse
-          cx="15"
-          cy="15"
-          rx="8"
-          ry="4"
-          fill="url(#goldShine)"
-          opacity={shine}
-        />
+        <Animated.Ellipse cx="15" cy="15" rx="8" ry="4" fill="url(#goldShine)" opacity={shine} />
       </Svg>
     </Animated.View>
   );
@@ -138,7 +131,7 @@ export function Diamond({ size = 40, isAnimated = true }: Omit<ItemProps, 'type'
             <Stop offset="100%" stopColor="#4169E1" />
           </LinearGradient>
         </Defs>
-        
+
         {/* Diamond shape */}
         <Path
           d="M 20 5 L 30 15 L 20 35 L 10 15 Z"
@@ -146,12 +139,12 @@ export function Diamond({ size = 40, isAnimated = true }: Omit<ItemProps, 'type'
           stroke="#1E90FF"
           strokeWidth="1"
         />
-        
+
         {/* Facets */}
         <Path d="M 20 5 L 15 15 L 20 35" fill="none" stroke="#B0E0E6" strokeWidth="0.5" />
         <Path d="M 20 5 L 25 15 L 20 35" fill="none" stroke="#B0E0E6" strokeWidth="0.5" />
         <Path d="M 10 15 L 30 15" fill="none" stroke="#B0E0E6" strokeWidth="0.5" />
-        
+
         {/* Sparkle */}
         <Animated.G opacity={sparkle}>
           <Circle cx="18" cy="12" r="1.5" fill="#FFFFFF" />
@@ -199,7 +192,7 @@ export function GoldNugget({ size = 40, isAnimated = true }: Omit<ItemProps, 'ty
             <Stop offset="100%" stopColor="#B8860B" />
           </RadialGradient>
         </Defs>
-        
+
         {/* Irregular nugget shape */}
         <Path
           d="M 15 12 Q 10 15, 12 20 Q 14 25, 20 27 Q 26 28, 30 25 Q 32 20, 28 15 Q 24 10, 18 11 Q 15 11, 15 12"
@@ -207,12 +200,12 @@ export function GoldNugget({ size = 40, isAnimated = true }: Omit<ItemProps, 'ty
           stroke="#B8860B"
           strokeWidth="1"
         />
-        
+
         {/* Texture spots */}
         <Circle cx="18" cy="18" r="2" fill="#DAA520" opacity="0.6" />
         <Circle cx="25" cy="20" r="1.5" fill="#DAA520" opacity="0.5" />
         <Circle cx="22" cy="23" r="1" fill="#FFA500" opacity="0.4" />
-        
+
         {/* Shine */}
         <Ellipse cx="20" cy="16" rx="4" ry="2" fill="#FFFFFF" opacity="0.4" />
       </Svg>
@@ -256,7 +249,7 @@ export function Emerald({ size = 40, isAnimated = true }: Omit<ItemProps, 'type'
             <Stop offset="100%" stopColor="#228B22" />
           </LinearGradient>
         </Defs>
-        
+
         {/* Emerald cut shape */}
         <Rect x="10" y="12" width="20" height="16" rx="2" fill="url(#emeraldGrad)" />
         <Path
@@ -265,12 +258,12 @@ export function Emerald({ size = 40, isAnimated = true }: Omit<ItemProps, 'type'
           stroke="#228B22"
           strokeWidth="0.5"
         />
-        
+
         {/* Facet lines */}
         <Path d="M 15 12 L 15 28" stroke="#90EE90" strokeWidth="0.5" opacity="0.6" />
         <Path d="M 20 12 L 20 28" stroke="#90EE90" strokeWidth="0.5" opacity="0.6" />
         <Path d="M 25 12 L 25 28" stroke="#90EE90" strokeWidth="0.5" opacity="0.6" />
-        
+
         {/* Glow */}
         <Ellipse cx="20" cy="15" rx="6" ry="3" fill="#FFFFFF" opacity="0.3" />
       </Svg>
@@ -331,17 +324,17 @@ export function Bomb({ size = 40, isAnimated = true }: Omit<ItemProps, 'type'>) 
             <Stop offset="100%" stopColor="#1C1C1C" />
           </RadialGradient>
         </Defs>
-        
+
         {/* Bomb body */}
         <Circle cx="20" cy="22" r="12" fill="url(#bombGrad)" />
         <Circle cx="20" cy="22" r="12" fill="none" stroke="#000000" strokeWidth="1" />
-        
+
         {/* Skull symbol */}
         <Circle cx="20" cy="20" r="3" fill="#FFFFFF" />
         <Rect x="18" y="23" width="4" height="4" fill="#FFFFFF" />
         <Circle cx="17" cy="20" r="1" fill="#000000" />
         <Circle cx="23" cy="20" r="1" fill="#000000" />
-        
+
         {/* Fuse */}
         <Path
           d="M 25 15 Q 28 10, 30 8"
@@ -350,7 +343,7 @@ export function Bomb({ size = 40, isAnimated = true }: Omit<ItemProps, 'type'>) 
           strokeWidth="2"
           strokeLinecap="round"
         />
-        
+
         {/* Spark */}
         <Animated.G opacity={fuse}>
           <Circle cx="30" cy="8" r="2" fill="#FF4500" />
@@ -361,7 +354,11 @@ export function Bomb({ size = 40, isAnimated = true }: Omit<ItemProps, 'type'>) 
   );
 }
 
-export function PowerUp({ size = 40, isAnimated = true, powerType = 'magnet' }: Omit<ItemProps, 'type'> & { powerType?: string }) {
+export function PowerUp({
+  size = 40,
+  isAnimated = true,
+  powerType = 'magnet',
+}: Omit<ItemProps, 'type'> & { powerType?: string }) {
   const pulse = useRef(new Animated.Value(1)).current;
   const rotate = useRef(new Animated.Value(0)).current;
 
@@ -410,7 +407,7 @@ export function PowerUp({ size = 40, isAnimated = true, powerType = 'magnet' }: 
             <Stop offset="100%" stopColor="#FF6347" />
           </RadialGradient>
         </Defs>
-        
+
         {/* Star shape */}
         <Polygon
           points="20,5 24,16 35,16 26,24 30,35 20,27 10,35 14,24 5,16 16,16"
@@ -418,10 +415,10 @@ export function PowerUp({ size = 40, isAnimated = true, powerType = 'magnet' }: 
           stroke="#FF4500"
           strokeWidth="1"
         />
-        
+
         {/* Center glow */}
         <Circle cx="20" cy="20" r="5" fill="#FFFFFF" opacity="0.6" />
-        
+
         {/* Power symbol */}
         <Path
           d="M 20 17 L 20 23 M 17 19 L 23 19"
@@ -484,19 +481,14 @@ export function MysteryBox({ size = 40, isAnimated = true }: Omit<ItemProps, 'ty
             <Stop offset="100%" stopColor="#8E44AD" />
           </LinearGradient>
         </Defs>
-        
+
         {/* Box body */}
         <Rect x="8" y="15" width="24" height="20" fill="url(#boxGrad)" />
         <Rect x="8" y="15" width="24" height="20" fill="none" stroke="#6C3483" strokeWidth="1" />
-        
+
         {/* Box lid */}
-        <Path
-          d="M 8 15 L 12 10 L 28 10 L 32 15"
-          fill="#8E44AD"
-          stroke="#6C3483"
-          strokeWidth="1"
-        />
-        
+        <Path d="M 8 15 L 12 10 L 28 10 L 32 15" fill="#8E44AD" stroke="#6C3483" strokeWidth="1" />
+
         {/* Question mark */}
         <Animated.Text
           x="20"
@@ -509,7 +501,7 @@ export function MysteryBox({ size = 40, isAnimated = true }: Omit<ItemProps, 'ty
         >
           ?
         </Animated.Text>
-        
+
         {/* Sparkles */}
         <Animated.G opacity={glow}>
           <Circle cx="10" cy="12" r="1" fill="#FFFF00" />

@@ -14,7 +14,7 @@ const GameBackground: React.FC = () => {
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
       />
-      
+
       {/* Rolling hills landscape */}
       <View style={styles.landscape}>
         {/* Left hill */}
@@ -26,7 +26,7 @@ const GameBackground: React.FC = () => {
             end={{ x: 1, y: 1 }}
           />
         </View>
-        
+
         {/* Right hill */}
         <View style={styles.hillRight}>
           <LinearGradient
@@ -36,7 +36,7 @@ const GameBackground: React.FC = () => {
             end={{ x: 1, y: 1 }}
           />
         </View>
-        
+
         {/* Middle hill */}
         <View style={styles.hillMiddle}>
           <LinearGradient
@@ -47,7 +47,7 @@ const GameBackground: React.FC = () => {
           />
         </View>
       </View>
-      
+
       {/* Ground/track bed */}
       <View style={styles.ground}>
         <LinearGradient
@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
   },
-  
+
   skyGradient: {
     position: 'absolute',
     top: 0,
@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
     right: 0,
     height: height * 0.75,
   },
-  
+
   landscape: {
     position: 'absolute',
     bottom: height * 0.15,
@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
     right: 0,
     height: height * 0.25,
   },
-  
+
   hillLeft: {
     position: 'absolute',
     bottom: 0,
@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
     transform: [{ skewX: '-10deg' }],
     overflow: 'hidden',
   },
-  
+
   hillRight: {
     position: 'absolute',
     bottom: 0,
@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
     transform: [{ skewX: '10deg' }],
     overflow: 'hidden',
   },
-  
+
   hillMiddle: {
     position: 'absolute',
     bottom: -20,
@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 200,
     overflow: 'hidden',
   },
-  
+
   ground: {
     position: 'absolute',
     bottom: 0,

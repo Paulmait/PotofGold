@@ -43,7 +43,7 @@ export class DailyStreakSystem {
   async initializeStreak(userId: string): Promise<DailyStreak> {
     try {
       const offlineData = await offlineManager.getOfflineData(userId);
-      
+
       if (offlineData.dailyStreak) {
         this.streak = offlineData.dailyStreak;
         return this.streak;
@@ -71,7 +71,7 @@ export class DailyStreakSystem {
   // Generate daily gifts
   private generateDailyGifts(): DailyGift[] {
     const gifts: DailyGift[] = [];
-    
+
     for (let day = 1; day <= 30; day++) {
       const gift: DailyGift = {
         id: `gift_day_${day}`,
@@ -83,10 +83,10 @@ export class DailyStreakSystem {
         claimed: false,
         available: false,
       };
-      
+
       gifts.push(gift);
     }
-    
+
     return gifts;
   }
 
@@ -227,7 +227,7 @@ export class DailyStreakSystem {
 
     const today = new Date().toISOString().split('T')[0];
     const lastLogin = this.streak.lastLoginDate;
-    
+
     if (lastLogin === today) {
       // Already logged in today
       return {
@@ -274,7 +274,7 @@ export class DailyStreakSystem {
   private updateAvailableGifts(): void {
     if (!this.streak) return;
 
-    this.streak.gifts.forEach(gift => {
+    this.streak.gifts.forEach((gift) => {
       gift.available = gift.day <= this.streak!.currentStreak && !gift.claimed;
     });
   }
@@ -283,9 +283,9 @@ export class DailyStreakSystem {
   private updateAvailableStreakRewards(): void {
     if (!this.streak) return;
 
-    this.streak.streakRewards.forEach(reward => {
+    this.streak.streakRewards.forEach((reward) => {
       reward.claimed = false;
-      reward.rewards.forEach(gift => {
+      reward.rewards.forEach((gift) => {
         gift.available = this.streak!.currentStreak >= reward.streakDays && !gift.claimed;
       });
     });
@@ -301,7 +301,7 @@ export class DailyStreakSystem {
       return { success: false, gift: null, rewards: {} };
     }
 
-    const gift = this.streak.gifts.find(g => g.id === giftId);
+    const gift = this.streak.gifts.find((g) => g.id === giftId);
     if (!gift || !gift.available || gift.claimed) {
       return { success: false, gift: null, rewards: {} };
     }
@@ -330,13 +330,13 @@ export class DailyStreakSystem {
       return { success: false, rewards: [] };
     }
 
-    const streakReward = this.streak.streakRewards.find(r => r.streakDays === streakDays);
+    const streakReward = this.streak.streakRewards.find((r) => r.streakDays === streakDays);
     if (!streakReward || streakReward.claimed || this.streak.currentStreak < streakDays) {
       return { success: false, rewards: [] };
     }
 
     streakReward.claimed = true;
-    streakReward.rewards.forEach(gift => {
+    streakReward.rewards.forEach((gift) => {
       gift.claimed = true;
     });
 
@@ -351,14 +351,14 @@ export class DailyStreakSystem {
   // Get available gifts
   getAvailableGifts(): DailyGift[] {
     if (!this.streak) return [];
-    return this.streak.gifts.filter(gift => gift.available);
+    return this.streak.gifts.filter((gift) => gift.available);
   }
 
   // Get available streak rewards
   getAvailableStreakRewards(): StreakReward[] {
     if (!this.streak) return [];
-    return this.streak.streakRewards.filter(reward => 
-      this.streak!.currentStreak >= reward.streakDays && !reward.claimed
+    return this.streak.streakRewards.filter(
+      (reward) => this.streak!.currentStreak >= reward.streakDays && !reward.claimed
     );
   }
 
@@ -378,9 +378,9 @@ export class DailyStreakSystem {
       };
     }
 
-    const nextReward = this.streak.streakRewards.find(reward => 
-      this.streak!.currentStreak < reward.streakDays
-    )?.streakDays || 0;
+    const nextReward =
+      this.streak.streakRewards.find((reward) => this.streak!.currentStreak < reward.streakDays)
+        ?.streakDays || 0;
 
     return {
       currentStreak: this.streak.currentStreak,
@@ -409,4 +409,4 @@ export class DailyStreakSystem {
   }
 }
 
-export const dailyStreakSystem = DailyStreakSystem.getInstance(); 
+export const dailyStreakSystem = DailyStreakSystem.getInstance();

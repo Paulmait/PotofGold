@@ -164,7 +164,7 @@ export class AchievementSystem {
   private unlockedAchievements: Set<string> = new Set();
 
   constructor() {
-    ACHIEVEMENTS.forEach(achievement => {
+    ACHIEVEMENTS.forEach((achievement) => {
       this.achievements.set(achievement.id, { ...achievement });
     });
     this.loadUnlockedAchievements();
@@ -181,7 +181,7 @@ export class AchievementSystem {
 
       if (achievement.requirement.type === type) {
         achievement.progress = Math.min(value, achievement.maxProgress);
-        
+
         if (achievement.progress >= achievement.requirement.value) {
           this.unlockAchievement(id);
           newlyUnlocked.push(achievement);
@@ -215,7 +215,7 @@ export class AchievementSystem {
    * Get unlocked achievements
    */
   getUnlockedAchievements(): Achievement[] {
-    return Array.from(this.achievements.values()).filter(a => a.isUnlocked);
+    return Array.from(this.achievements.values()).filter((a) => a.isUnlocked);
   }
 
   /**
@@ -255,4 +255,4 @@ export class AchievementSystem {
     // In a real app, save to AsyncStorage
     console.log('Saving unlocked achievements:', Array.from(this.unlockedAchievements));
   }
-} 
+}

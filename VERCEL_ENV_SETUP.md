@@ -5,10 +5,12 @@
 Follow these steps to securely configure your environment variables in Vercel:
 
 ### Step 1: Access Vercel Dashboard
+
 1. Go to [https://vercel.com/dashboard](https://vercel.com/dashboard)
 2. Select your "pot-of-gold-game" project
 
 ### Step 2: Navigate to Settings
+
 1. Click on the "Settings" tab in your project
 2. Select "Environment Variables" from the left sidebar
 
@@ -16,29 +18,29 @@ Follow these steps to securely configure your environment variables in Vercel:
 
 Add the following environment variables for **Production** environment:
 
-| Variable Name | Value | Environment |
-|--------------|-------|-------------|
-| `EXPO_PUBLIC_FIREBASE_API_KEY` | Your Firebase API Key | Production |
-| `EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN` | potofgold-production.firebaseapp.com | Production |
-| `EXPO_PUBLIC_FIREBASE_PROJECT_ID` | potofgold-production | Production |
-| `EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET` | potofgold-production.firebasestorage.app | Production |
-| `EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | Your Messaging Sender ID | Production |
-| `EXPO_PUBLIC_FIREBASE_APP_ID` | Your Firebase App ID | Production |
-| `EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID` | Your Measurement ID | Production |
-| `EXPO_PUBLIC_ENV` | production | Production |
-| `NODE_ENV` | production | Production |
+| Variable Name                              | Value                                    | Environment |
+| ------------------------------------------ | ---------------------------------------- | ----------- |
+| `EXPO_PUBLIC_FIREBASE_API_KEY`             | Your Firebase API Key                    | Production  |
+| `EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN`         | potofgold-production.firebaseapp.com     | Production  |
+| `EXPO_PUBLIC_FIREBASE_PROJECT_ID`          | potofgold-production                     | Production  |
+| `EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET`      | potofgold-production.firebasestorage.app | Production  |
+| `EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | Your Messaging Sender ID                 | Production  |
+| `EXPO_PUBLIC_FIREBASE_APP_ID`              | Your Firebase App ID                     | Production  |
+| `EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID`      | Your Measurement ID                      | Production  |
+| `EXPO_PUBLIC_ENV`                          | production                               | Production  |
+| `NODE_ENV`                                 | production                               | Production  |
 
 ### Step 4: Add Development/Preview Environment Variables
 
 For **Preview** and **Development** environments, you can use the same values or different Firebase projects:
 
-| Variable Name | Value | Environment |
-|--------------|-------|-------------|
-| `EXPO_PUBLIC_FIREBASE_API_KEY` | Your Dev Firebase API Key | Preview, Development |
+| Variable Name                      | Value                         | Environment          |
+| ---------------------------------- | ----------------------------- | -------------------- |
+| `EXPO_PUBLIC_FIREBASE_API_KEY`     | Your Dev Firebase API Key     | Preview, Development |
 | `EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN` | potofgold-dev.firebaseapp.com | Preview, Development |
-| `EXPO_PUBLIC_FIREBASE_PROJECT_ID` | potofgold-dev | Preview, Development |
-| `EXPO_PUBLIC_ENV` | development | Preview, Development |
-| `NODE_ENV` | development | Preview, Development |
+| `EXPO_PUBLIC_FIREBASE_PROJECT_ID`  | potofgold-dev                 | Preview, Development |
+| `EXPO_PUBLIC_ENV`                  | development                   | Preview, Development |
+| `NODE_ENV`                         | development                   | Preview, Development |
 
 ### Step 5: Secure Sensitive Variables
 
@@ -50,7 +52,8 @@ For admin and sensitive configurations, use Vercel's encrypted environment varia
    - API secrets
    - Private keys
 
-**DO NOT** add these to client-side variables (no EXPO_PUBLIC_ prefix):
+**DO NOT** add these to client-side variables (no EXPO*PUBLIC* prefix):
+
 - Admin passwords
 - Admin PINs
 - Private API keys
@@ -59,6 +62,7 @@ For admin and sensitive configurations, use Vercel's encrypted environment varia
 ### Step 6: Verify Configuration
 
 After adding all variables:
+
 1. Click "Save" for each variable
 2. Trigger a new deployment to apply the changes
 3. Check the deployment logs for any missing variable errors
@@ -66,6 +70,7 @@ After adding all variables:
 ### Step 7: Local Development
 
 For local development, use your `.env` file (which is gitignored):
+
 ```bash
 # Copy the example file
 cp .env.example .env
@@ -125,16 +130,19 @@ If your keys were compromised:
 ## 🆘 Troubleshooting
 
 ### "Missing Firebase configuration" error
+
 - Ensure all `EXPO_PUBLIC_FIREBASE_*` variables are set
 - Check variable names match exactly (case-sensitive)
 - Redeploy after adding variables
 
 ### "Firebase App not initialized" error
+
 - Verify API key is correct
 - Check Firebase project is active
 - Ensure domain is authorized in Firebase Console
 
 ### CSP blocking Firebase
+
 - Check Content-Security-Policy in vercel.json
 - Ensure Firebase domains are whitelisted
 - Test in browser console for CSP violations

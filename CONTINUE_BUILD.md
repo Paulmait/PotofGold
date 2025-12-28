@@ -15,6 +15,7 @@ npx eas build --platform ios --profile production --auto-submit --clear-cache
 ```
 
 This will:
+
 1. Clear cached builds
 2. Build fresh iOS app with all fixes
 3. Automatically submit to Apple App Store Connect
@@ -23,14 +24,14 @@ This will:
 
 ## What Was Fixed (Already Committed)
 
-| Issue | Fix | File |
-|-------|-----|------|
-| main.jsbundle not found | Created proper entry point | `index.js` |
-| Firebase ESM resolution | Added .mjs/.cjs support | `metro.config.js` |
-| Invalid entryPoint config | Removed from app.json | `app.json` |
-| Package main entry | Changed to index.js | `package.json` |
-| Hardcoded credentials | Removed fallbacks | `firebase/firebase.ts` |
-| Privacy defaults | Changed to opt-in | Privacy tests pass |
+| Issue                     | Fix                        | File                   |
+| ------------------------- | -------------------------- | ---------------------- |
+| main.jsbundle not found   | Created proper entry point | `index.js`             |
+| Firebase ESM resolution   | Added .mjs/.cjs support    | `metro.config.js`      |
+| Invalid entryPoint config | Removed from app.json      | `app.json`             |
+| Package main entry        | Changed to index.js        | `package.json`         |
+| Hardcoded credentials     | Removed fallbacks          | `firebase/firebase.ts` |
+| Privacy defaults          | Changed to opt-in          | Privacy tests pass     |
 
 ---
 
@@ -71,11 +72,13 @@ npx eas build:view [BUILD_ID]
 ## If Build Fails Again
 
 1. Check the error logs:
+
    ```bash
    npx eas build:view [BUILD_ID]
    ```
 
 2. Run local bundle test:
+
    ```bash
    npx react-native bundle --platform ios --dev false --entry-file index.js --bundle-output test.jsbundle
    ```
@@ -103,6 +106,7 @@ npx eas build:view [BUILD_ID]
 ## Previous Build Errors (Now Fixed)
 
 All these builds failed due to `main.jsbundle does not exist`:
+
 - `4144c5d8` - Dec 20, 6:50 PM (old commit)
 - `6655c31c` - Dec 20, 6:42 PM (old commit)
 - `babbce0c` - Dec 20, 6:33 PM (old commit)

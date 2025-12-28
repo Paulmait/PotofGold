@@ -1,12 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  View,
-  StyleSheet,
-  Dimensions,
-  Platform,
-  SafeAreaView,
-  StatusBar,
-} from 'react-native';
+import { View, StyleSheet, Dimensions, Platform, SafeAreaView, StatusBar } from 'react-native';
 import {
   responsiveDimensions,
   handleOrientationChange,
@@ -41,28 +34,28 @@ const ResponsiveGameContainer: React.FC<ResponsiveGameContainerProps> = ({ child
   // Calculate responsive container styles
   const getContainerStyle = () => {
     const { width, height, isLandscape } = dimensions;
-    
+
     // For web, constrain to reasonable game dimensions
     if (Platform.OS === 'web') {
       const maxWidth = 480;
       const maxHeight = 900;
       const aspectRatio = 9 / 16;
-      
+
       let containerWidth = width;
       let containerHeight = height;
-      
+
       // Constrain width
       if (width > maxWidth) {
         containerWidth = maxWidth;
         containerHeight = maxWidth / aspectRatio;
       }
-      
+
       // Constrain height
       if (containerHeight > maxHeight) {
         containerHeight = maxHeight;
         containerWidth = maxHeight * aspectRatio;
       }
-      
+
       return {
         width: containerWidth,
         height: containerHeight,
@@ -71,7 +64,7 @@ const ResponsiveGameContainer: React.FC<ResponsiveGameContainerProps> = ({ child
         alignSelf: 'center' as const,
       };
     }
-    
+
     // For mobile, use full dimensions
     return {
       width: '100%',

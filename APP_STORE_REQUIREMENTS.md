@@ -3,9 +3,11 @@
 ## 🔐 Admin Credentials
 
 ### Configuration Instructions
+
 Admin credentials should be configured via environment variables or EAS secrets.
 
 **Required Environment Variables:**
+
 ```bash
 # Set these via EAS secrets (eas secret:create) or .env file
 ADMIN_USERNAME=your-admin-email
@@ -15,6 +17,7 @@ ADMIN_RECOVERY_EMAIL=your-recovery-email
 ```
 
 **To set up via EAS:**
+
 ```bash
 eas secret:create --name ADMIN_USERNAME --value "admin@yourdomain.com"
 eas secret:create --name ADMIN_PASSWORD --value "YourSecurePassword123!"
@@ -29,19 +32,20 @@ eas secret:create --name ADMIN_PIN --value "1234"
 
 ### Required APIs & Services
 
-| Service | Status | Configuration |
-|---------|--------|--------------|
-| **Apple Developer Account** | Required | $99/year |
-| **App Store Connect API** | Required | Generate API key in App Store Connect |
-| **Push Notifications (APNs)** | Required | Configure in Apple Developer Portal |
-| **Sign in with Apple** | Required | Enable in Capabilities |
-| **RevenueCat iOS SDK** | Required | `appl_YourIOSPublicKeyHere` |
-| **CloudKit** | Optional | For iCloud sync |
-| **GameCenter** | Recommended | For leaderboards |
+| Service                       | Status      | Configuration                         |
+| ----------------------------- | ----------- | ------------------------------------- |
+| **Apple Developer Account**   | Required    | $99/year                              |
+| **App Store Connect API**     | Required    | Generate API key in App Store Connect |
+| **Push Notifications (APNs)** | Required    | Configure in Apple Developer Portal   |
+| **Sign in with Apple**        | Required    | Enable in Capabilities                |
+| **RevenueCat iOS SDK**        | Required    | `appl_YourIOSPublicKeyHere`           |
+| **CloudKit**                  | Optional    | For iCloud sync                       |
+| **GameCenter**                | Recommended | For leaderboards                      |
 
 ### Required Assets
 
 #### App Icons (iOS)
+
 ```
 📁 ios/PotOfGold/Images.xcassets/AppIcon.appiconset/
 ├── Icon-20@2x.png (40x40)
@@ -56,6 +60,7 @@ eas secret:create --name ADMIN_PIN --value "1234"
 ```
 
 #### Screenshots (iOS)
+
 ```
 Required sizes:
 - iPhone 6.7" (1290 × 2796) - iPhone 15 Pro Max
@@ -68,6 +73,7 @@ Minimum 3, Maximum 10 per size
 ```
 
 ### App Store Metadata
+
 ```json
 {
   "appName": "Pot of Gold - Coin Catcher",
@@ -92,19 +98,20 @@ Minimum 3, Maximum 10 per size
 
 ### Required APIs & Services
 
-| Service | Status | Configuration |
-|---------|--------|--------------|
-| **Google Play Console** | Required | $25 one-time |
-| **Google Play Services** | Required | Configure in Firebase |
-| **Google Sign-In** | Recommended | OAuth 2.0 client ID |
-| **Firebase Analytics** | Required | For metrics |
-| **RevenueCat Android SDK** | Required | `goog_YourAndroidPublicKeyHere` |
-| **Google Play Games** | Recommended | For achievements |
-| **Android App Bundle** | Required | .aab format |
+| Service                    | Status      | Configuration                   |
+| -------------------------- | ----------- | ------------------------------- |
+| **Google Play Console**    | Required    | $25 one-time                    |
+| **Google Play Services**   | Required    | Configure in Firebase           |
+| **Google Sign-In**         | Recommended | OAuth 2.0 client ID             |
+| **Firebase Analytics**     | Required    | For metrics                     |
+| **RevenueCat Android SDK** | Required    | `goog_YourAndroidPublicKeyHere` |
+| **Google Play Games**      | Recommended | For achievements                |
+| **Android App Bundle**     | Required    | .aab format                     |
 
 ### Required Assets
 
 #### App Icons (Android)
+
 ```
 📁 android/app/src/main/res/
 ├── mipmap-hdpi/ic_launcher.png (72x72)
@@ -116,6 +123,7 @@ Minimum 3, Maximum 10 per size
 ```
 
 #### Screenshots (Android)
+
 ```
 Required:
 - Phone: 1080 × 1920 (minimum 2 screenshots)
@@ -126,12 +134,14 @@ Maximum 8 per device type
 ```
 
 #### Feature Graphic
+
 ```
 Required: 1024 × 500 PNG/JPG
 Used in Play Store listings
 ```
 
 ### Play Store Metadata
+
 ```json
 {
   "title": "Pot of Gold - Coin Catcher",
@@ -152,6 +162,7 @@ Used in Play Store listings
 ## 🎨 Asset Generation Commands
 
 ### Generate App Icons
+
 ```bash
 # Install sharp-cli globally
 npm install -g sharp-cli
@@ -164,6 +175,7 @@ npx expo-optimize assets/icon-512.png --android
 ```
 
 ### Generate Screenshots
+
 ```bash
 # Use the screenshot generator
 npm run generate-screenshots
@@ -180,6 +192,7 @@ adb shell screencap -p /sdcard/android-screenshot.png
 ### Local Testing Setup
 
 #### 1. Install Dependencies
+
 ```bash
 # Install all dependencies
 cd C:\Users\maito\potofgold
@@ -190,6 +203,7 @@ cd ios && pod install && cd ..
 ```
 
 #### 2. Start Metro Bundler
+
 ```bash
 # Start the development server
 npx expo start
@@ -201,6 +215,7 @@ npx expo start -c
 ### 📱 iOS Testing (Mac Required)
 
 #### Simulator Testing
+
 ```bash
 # List available iOS simulators
 xcrun simctl list devices
@@ -216,6 +231,7 @@ npx expo run:ios --device
 ```
 
 #### Build for Testing
+
 ```bash
 # Development build for simulator
 eas build --platform ios --profile development --local
@@ -227,6 +243,7 @@ eas build --platform ios --profile preview
 ### 🤖 Android Testing
 
 #### Emulator Testing
+
 ```bash
 # List available Android emulators
 emulator -list-avds
@@ -242,6 +259,7 @@ npx expo run:android --device
 ```
 
 #### Build for Testing
+
 ```bash
 # Development build APK
 eas build --platform android --profile development --local
@@ -251,6 +269,7 @@ eas build --platform android --profile preview
 ```
 
 ### 🌐 Web Testing (Bonus)
+
 ```bash
 # Test in web browser
 npx expo start --web
@@ -264,6 +283,7 @@ npx expo start --web --browser chrome
 ## 📦 EAS Build Configuration
 
 ### Configure eas.json
+
 ```json
 {
   "cli": {
@@ -314,6 +334,7 @@ npx expo start --web --browser chrome
 ```
 
 ### Build & Submit Commands
+
 ```bash
 # Login to Expo account
 eas login
@@ -339,6 +360,7 @@ eas submit --platform android
 ## ✅ Pre-Submission Checklist
 
 ### Legal & Compliance
+
 - [ ] Privacy Policy URL active
 - [ ] Terms of Service URL active
 - [ ] GDPR compliance implemented
@@ -347,6 +369,7 @@ eas submit --platform android
 - [ ] Copyright information accurate
 
 ### Technical Requirements
+
 - [ ] No crashes in testing
 - [ ] All links functional
 - [ ] Push notifications configured
@@ -355,6 +378,7 @@ eas submit --platform android
 - [ ] Performance optimized
 
 ### Store Assets
+
 - [ ] All icon sizes generated
 - [ ] Screenshots for all devices
 - [ ] App preview video (optional but recommended)
@@ -362,6 +386,7 @@ eas submit --platform android
 - [ ] Description optimized with keywords
 
 ### Testing
+
 - [ ] Tested on physical devices
 - [ ] Tested on minimum OS versions
 - [ ] All IAPs tested
@@ -369,6 +394,7 @@ eas submit --platform android
 - [ ] Accessibility tested
 
 ### Review Guidelines
+
 - [ ] No copyrighted content
 - [ ] No misleading functionality
 - [ ] Appropriate content rating
@@ -380,6 +406,7 @@ eas submit --platform android
 ## 🚀 Quick Start Testing Commands
 
 ### Complete Testing Flow
+
 ```bash
 # 1. Clean install
 cd C:\Users\maito\potofgold
@@ -416,14 +443,15 @@ eas build --platform all --profile production
 
 ## 📊 Expected Approval Timeline
 
-| Store | Review Time | Success Rate |
-|-------|------------|--------------|
+| Store               | Review Time | Success Rate         |
+| ------------------- | ----------- | -------------------- |
 | **Apple App Store** | 24-48 hours | 95%+ with this setup |
-| **Google Play** | 2-3 hours | 98%+ with this setup |
+| **Google Play**     | 2-3 hours   | 98%+ with this setup |
 
 ## 🎯 Success Metrics
 
 With all requirements met:
+
 - **First submission approval rate: 95%+**
 - **Update approval rate: 99%+**
 - **Review time: <48 hours**

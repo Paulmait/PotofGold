@@ -95,7 +95,7 @@ export class DailyChallengeSystem {
    */
   refreshChallenges(): void {
     const today = new Date().toDateString();
-    
+
     if (this.lastRefreshDate !== today) {
       this.lastRefreshDate = today;
       this.challenges.clear();
@@ -105,7 +105,7 @@ export class DailyChallengeSystem {
       const shuffled = [...DAILY_CHALLENGES].sort(() => 0.5 - Math.random());
       const selectedChallenges = shuffled.slice(0, 3);
 
-      selectedChallenges.forEach(challenge => {
+      selectedChallenges.forEach((challenge) => {
         const expiresAt = new Date();
         expiresAt.setHours(23, 59, 59, 999); // End of day
 
@@ -130,10 +130,9 @@ export class DailyChallengeSystem {
     this.challenges.forEach((challenge, id) => {
       if (this.completedChallenges.has(id)) return;
 
-      if (challenge.type === type || 
-          (type === 'collection' && challenge.type === 'collection')) {
+      if (challenge.type === type || (type === 'collection' && challenge.type === 'collection')) {
         challenge.progress = Math.min(value, challenge.target);
-        
+
         if (challenge.progress >= challenge.target && !challenge.isCompleted) {
           this.completeChallenge(id);
           completed.push(challenge);
@@ -167,7 +166,7 @@ export class DailyChallengeSystem {
    * Get completed challenges
    */
   getCompletedChallenges(): DailyChallenge[] {
-    return Array.from(this.challenges.values()).filter(c => c.isCompleted);
+    return Array.from(this.challenges.values()).filter((c) => c.isCompleted);
   }
 
   /**
@@ -193,7 +192,7 @@ export class DailyChallengeSystem {
     let totalExperience = 0;
     const specialRewards: string[] = [];
 
-    this.getCompletedChallenges().forEach(challenge => {
+    this.getCompletedChallenges().forEach((challenge) => {
       totalCoins += challenge.reward.coins;
       totalExperience += challenge.reward.experience;
       if (challenge.reward.specialReward) {
@@ -227,4 +226,4 @@ export class DailyChallengeSystem {
     // In a real app, load from AsyncStorage
     console.log('Loading daily challenges...');
   }
-} 
+}

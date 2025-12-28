@@ -8,7 +8,7 @@ import {
   RefreshControl,
   Dimensions,
   ActivityIndicator,
-  Alert
+  Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -22,7 +22,9 @@ export default function AdminDashboard() {
   const [realtimeMetrics, setRealtimeMetrics] = useState<RealtimeMetrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [selectedTab, setSelectedTab] = useState<'overview' | 'revenue' | 'users' | 'liveops'>('overview');
+  const [selectedTab, setSelectedTab] = useState<'overview' | 'revenue' | 'users' | 'liveops'>(
+    'overview'
+  );
   const [timeRange, setTimeRange] = useState<'24h' | '7d' | '30d'>('24h');
 
   useEffect(() => {
@@ -36,9 +38,9 @@ export default function AdminDashboard() {
     try {
       const [dashboard, realtime] = await Promise.all([
         AnalyticsSystem.getDashboardData(),
-        AnalyticsSystem.getRealtimeMetrics()
+        AnalyticsSystem.getRealtimeMetrics(),
       ]);
-      
+
       setDashboardData(dashboard);
       setRealtimeMetrics(realtime);
       setLoading(false);
@@ -88,9 +90,24 @@ export default function AdminDashboard() {
     <View style={styles.tabContent}>
       <View style={styles.metricsGrid}>
         {renderMetricCard('DAU', formatNumber(dashboardData?.overview.dau || 0), 5.2, 'people')}
-        {renderMetricCard('MAU', formatNumber(dashboardData?.overview.mau || 0), 3.1, 'people-outline')}
-        {renderMetricCard('Daily Revenue', formatCurrency(dashboardData?.overview.revenue.daily || 0), 12.5, 'cash')}
-        {renderMetricCard('ARPU', formatCurrency(dashboardData?.overview.arpu || 0), -2.3, 'analytics')}
+        {renderMetricCard(
+          'MAU',
+          formatNumber(dashboardData?.overview.mau || 0),
+          3.1,
+          'people-outline'
+        )}
+        {renderMetricCard(
+          'Daily Revenue',
+          formatCurrency(dashboardData?.overview.revenue.daily || 0),
+          12.5,
+          'cash'
+        )}
+        {renderMetricCard(
+          'ARPU',
+          formatCurrency(dashboardData?.overview.arpu || 0),
+          -2.3,
+          'analytics'
+        )}
       </View>
 
       <View style={styles.section}>
@@ -98,15 +115,21 @@ export default function AdminDashboard() {
         <View style={styles.retentionGrid}>
           <View style={styles.retentionItem}>
             <Text style={styles.retentionLabel}>Day 1</Text>
-            <Text style={styles.retentionValue}>{formatPercentage(dashboardData?.retention.day1 || 0)}</Text>
+            <Text style={styles.retentionValue}>
+              {formatPercentage(dashboardData?.retention.day1 || 0)}
+            </Text>
           </View>
           <View style={styles.retentionItem}>
             <Text style={styles.retentionLabel}>Day 7</Text>
-            <Text style={styles.retentionValue}>{formatPercentage(dashboardData?.retention.day7 || 0)}</Text>
+            <Text style={styles.retentionValue}>
+              {formatPercentage(dashboardData?.retention.day7 || 0)}
+            </Text>
           </View>
           <View style={styles.retentionItem}>
             <Text style={styles.retentionLabel}>Day 30</Text>
-            <Text style={styles.retentionValue}>{formatPercentage(dashboardData?.retention.day30 || 0)}</Text>
+            <Text style={styles.retentionValue}>
+              {formatPercentage(dashboardData?.retention.day30 || 0)}
+            </Text>
           </View>
         </View>
       </View>
@@ -122,12 +145,16 @@ export default function AdminDashboard() {
           <View style={styles.liveMetricItem}>
             <Icon name="server" size={24} color="#2196F3" />
             <Text style={styles.liveMetricLabel}>Server Load</Text>
-            <Text style={styles.liveMetricValue}>{formatPercentage(realtimeMetrics?.serverLoad || 0)}</Text>
+            <Text style={styles.liveMetricValue}>
+              {formatPercentage(realtimeMetrics?.serverLoad || 0)}
+            </Text>
           </View>
           <View style={styles.liveMetricItem}>
             <Icon name="warning" size={24} color="#FF9800" />
             <Text style={styles.liveMetricLabel}>Crash Rate</Text>
-            <Text style={styles.liveMetricValue}>{formatPercentage(realtimeMetrics?.crashRate || 0)}</Text>
+            <Text style={styles.liveMetricValue}>
+              {formatPercentage(realtimeMetrics?.crashRate || 0)}
+            </Text>
           </View>
         </View>
       </View>
@@ -138,13 +165,15 @@ export default function AdminDashboard() {
     <View style={styles.tabContent}>
       <View style={styles.revenueHeader}>
         <View style={styles.timeRangeSelector}>
-          {(['24h', '7d', '30d'] as const).map(range => (
+          {(['24h', '7d', '30d'] as const).map((range) => (
             <TouchableOpacity
               key={range}
               style={[styles.timeRangeButton, timeRange === range && styles.timeRangeActive]}
               onPress={() => setTimeRange(range)}
             >
-              <Text style={[styles.timeRangeText, timeRange === range && styles.timeRangeTextActive]}>
+              <Text
+                style={[styles.timeRangeText, timeRange === range && styles.timeRangeTextActive]}
+              >
                 {range}
               </Text>
             </TouchableOpacity>
@@ -157,15 +186,19 @@ export default function AdminDashboard() {
           <Text style={styles.revenueCardTitle}>Total Revenue</Text>
           <Text style={styles.revenueCardValue}>
             {formatCurrency(
-              timeRange === '24h' ? dashboardData?.overview.revenue.daily || 0 :
-              timeRange === '7d' ? dashboardData?.overview.revenue.weekly || 0 :
-              dashboardData?.overview.revenue.monthly || 0
+              timeRange === '24h'
+                ? dashboardData?.overview.revenue.daily || 0
+                : timeRange === '7d'
+                  ? dashboardData?.overview.revenue.weekly || 0
+                  : dashboardData?.overview.revenue.monthly || 0
             )}
           </Text>
         </View>
         <View style={styles.revenueCard}>
           <Text style={styles.revenueCardTitle}>ARPPU</Text>
-          <Text style={styles.revenueCardValue}>{formatCurrency(dashboardData?.overview.arppu || 0)}</Text>
+          <Text style={styles.revenueCardValue}>
+            {formatCurrency(dashboardData?.overview.arppu || 0)}
+          </Text>
         </View>
       </View>
 
@@ -226,16 +259,30 @@ export default function AdminDashboard() {
         <View style={styles.funnelItem}>
           <Text style={styles.funnelLabel}>First Game → Day 1</Text>
           <View style={styles.funnelBar}>
-            <View style={[styles.funnelProgress, { width: `${(dashboardData?.retention.day1 || 0) * 100}%` }]} />
+            <View
+              style={[
+                styles.funnelProgress,
+                { width: `${(dashboardData?.retention.day1 || 0) * 100}%` },
+              ]}
+            />
           </View>
-          <Text style={styles.funnelPercent}>{formatPercentage(dashboardData?.retention.day1 || 0)}</Text>
+          <Text style={styles.funnelPercent}>
+            {formatPercentage(dashboardData?.retention.day1 || 0)}
+          </Text>
         </View>
         <View style={styles.funnelItem}>
           <Text style={styles.funnelLabel}>Day 1 → Purchase</Text>
           <View style={styles.funnelBar}>
-            <View style={[styles.funnelProgress, { width: `${(dashboardData?.overview.conversionRate || 0) * 100}%` }]} />
+            <View
+              style={[
+                styles.funnelProgress,
+                { width: `${(dashboardData?.overview.conversionRate || 0) * 100}%` },
+              ]}
+            />
           </View>
-          <Text style={styles.funnelPercent}>{formatPercentage(dashboardData?.overview.conversionRate || 0)}</Text>
+          <Text style={styles.funnelPercent}>
+            {formatPercentage(dashboardData?.overview.conversionRate || 0)}
+          </Text>
         </View>
       </View>
 
@@ -244,15 +291,21 @@ export default function AdminDashboard() {
         <View style={styles.performanceGrid}>
           <View style={styles.performanceItem}>
             <Text style={styles.performanceLabel}>Crash-Free Rate</Text>
-            <Text style={styles.performanceValue}>{formatPercentage(dashboardData?.performance.crashFreeRate || 0)}</Text>
+            <Text style={styles.performanceValue}>
+              {formatPercentage(dashboardData?.performance.crashFreeRate || 0)}
+            </Text>
           </View>
           <View style={styles.performanceItem}>
             <Text style={styles.performanceLabel}>Avg Load Time</Text>
-            <Text style={styles.performanceValue}>{(dashboardData?.performance.averageLoadTime || 0) / 1000}s</Text>
+            <Text style={styles.performanceValue}>
+              {(dashboardData?.performance.averageLoadTime || 0) / 1000}s
+            </Text>
           </View>
           <View style={styles.performanceItem}>
             <Text style={styles.performanceLabel}>Avg FPS</Text>
-            <Text style={styles.performanceValue}>{Math.round(dashboardData?.performance.averageFPS || 0)}</Text>
+            <Text style={styles.performanceValue}>
+              {Math.round(dashboardData?.performance.averageFPS || 0)}
+            </Text>
           </View>
         </View>
       </View>
@@ -283,21 +336,31 @@ export default function AdminDashboard() {
           </View>
           <View style={styles.liveOpsItem}>
             <Text style={styles.liveOpsLabel}>Event Participation</Text>
-            <Text style={styles.liveOpsValue}>{formatPercentage(dashboardData?.liveOps.eventParticipation || 0)}</Text>
+            <Text style={styles.liveOpsValue}>
+              {formatPercentage(dashboardData?.liveOps.eventParticipation || 0)}
+            </Text>
           </View>
           <View style={styles.liveOpsItem}>
             <Text style={styles.liveOpsLabel}>Battle Pass Progress</Text>
-            <Text style={styles.liveOpsValue}>{formatPercentage(dashboardData?.liveOps.battlePassProgress || 0)}</Text>
+            <Text style={styles.liveOpsValue}>
+              {formatPercentage(dashboardData?.liveOps.battlePassProgress || 0)}
+            </Text>
           </View>
         </View>
       </View>
 
-      <TouchableOpacity style={styles.actionButton} onPress={() => Alert.alert('Push Notification', 'Notification sent to all users!')}>
+      <TouchableOpacity
+        style={styles.actionButton}
+        onPress={() => Alert.alert('Push Notification', 'Notification sent to all users!')}
+      >
         <Icon name="notifications" size={20} color="#FFF" />
         <Text style={styles.actionButtonText}>Send Push Notification</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.actionButton} onPress={() => Alert.alert('New Event', 'Event created successfully!')}>
+      <TouchableOpacity
+        style={styles.actionButton}
+        onPress={() => Alert.alert('New Event', 'Event created successfully!')}
+      >
         <Icon name="add-circle" size={20} color="#FFF" />
         <Text style={styles.actionButtonText}>Create New Event</Text>
       </TouchableOpacity>
@@ -328,7 +391,7 @@ export default function AdminDashboard() {
 
         <View style={styles.tabContainer}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {(['overview', 'revenue', 'users', 'liveops'] as const).map(tab => (
+            {(['overview', 'revenue', 'users', 'liveops'] as const).map((tab) => (
               <TouchableOpacity
                 key={tab}
                 style={[styles.tab, selectedTab === tab && styles.tabActive]}

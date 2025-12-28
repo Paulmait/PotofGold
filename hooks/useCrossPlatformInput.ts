@@ -22,7 +22,7 @@ export const useCrossPlatformInput = (onMove: (x: number) => void) => {
     PanResponder.create({
       onMoveShouldSetPanResponder: () => true,
       onPanResponderGrant: () => {
-        setInputPosition(prev => ({ ...prev, isPressed: true }));
+        setInputPosition((prev) => ({ ...prev, isPressed: true }));
         PlatformUtils.hapticFeedback('light');
       },
       onPanResponderMove: (evt, gestureState) => {
@@ -35,7 +35,7 @@ export const useCrossPlatformInput = (onMove: (x: number) => void) => {
         });
       },
       onPanResponderRelease: () => {
-        setInputPosition(prev => ({ ...prev, isPressed: false }));
+        setInputPosition((prev) => ({ ...prev, isPressed: false }));
         panValue.setValue({ x: 0, y: 0 });
       },
     })
@@ -74,15 +74,15 @@ export const useCrossPlatformInput = (onMove: (x: number) => void) => {
     // Mouse controls
     const handleMouseMove = (e: MouseEvent) => {
       if (!isMouseDown) return;
-      
+
       const rect = (e.target as HTMLElement).getBoundingClientRect();
       const centerX = rect.width / 2;
       const relativeX = e.clientX - rect.left - centerX;
       const normalizedX = Math.max(-150, Math.min(150, relativeX));
-      
+
       currentX = normalizedX;
       onMove(normalizedX);
-      
+
       setInputPosition({
         x: normalizedX,
         y: e.clientY - rect.top,
@@ -97,7 +97,7 @@ export const useCrossPlatformInput = (onMove: (x: number) => void) => {
 
     const handleMouseUp = () => {
       isMouseDown = false;
-      setInputPosition(prev => ({ ...prev, isPressed: false }));
+      setInputPosition((prev) => ({ ...prev, isPressed: false }));
     };
 
     // Touch controls for web
@@ -107,10 +107,10 @@ export const useCrossPlatformInput = (onMove: (x: number) => void) => {
       const centerX = rect.width / 2;
       const relativeX = touch.clientX - rect.left - centerX;
       const normalizedX = Math.max(-150, Math.min(150, relativeX));
-      
+
       currentX = normalizedX;
       onMove(normalizedX);
-      
+
       setInputPosition({
         x: normalizedX,
         y: touch.clientY - rect.top,
@@ -119,27 +119,27 @@ export const useCrossPlatformInput = (onMove: (x: number) => void) => {
     };
 
     const handleTouchEnd = () => {
-      setInputPosition(prev => ({ ...prev, isPressed: false }));
+      setInputPosition((prev) => ({ ...prev, isPressed: false }));
     };
 
     // Gamepad support
     const handleGamepad = () => {
       const gamepads = navigator.getGamepads();
       const gamepad = gamepads[0];
-      
+
       if (gamepad && gamepad.connected) {
         const leftStickX = gamepad.axes[0];
         if (Math.abs(leftStickX) > 0.1) {
           currentX = leftStickX * 150;
           onMove(currentX);
         }
-        
+
         // Check buttons
         if (gamepad.buttons[0].pressed) {
           // A button pressed
         }
       }
-      
+
       animationFrame = requestAnimationFrame(handleGamepad);
     };
 
@@ -150,7 +150,7 @@ export const useCrossPlatformInput = (onMove: (x: number) => void) => {
     window.addEventListener('mouseup', handleMouseUp);
     window.addEventListener('touchmove', handleTouchMove);
     window.addEventListener('touchend', handleTouchEnd);
-    
+
     // Start gamepad polling if available
     if ('getGamepads' in navigator) {
       animationFrame = requestAnimationFrame(handleGamepad);
@@ -163,7 +163,7 @@ export const useCrossPlatformInput = (onMove: (x: number) => void) => {
       window.removeEventListener('mouseup', handleMouseUp);
       window.removeEventListener('touchmove', handleTouchMove);
       window.removeEventListener('touchend', handleTouchEnd);
-      
+
       if (animationFrame) {
         cancelAnimationFrame(animationFrame);
       }

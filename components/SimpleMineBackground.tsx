@@ -1,11 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import {
-  View,
-  StyleSheet,
-  Animated,
-  Dimensions,
-  ImageBackground,
-} from 'react-native';
+import { View, StyleSheet, Animated, Dimensions, ImageBackground } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 const { width, height } = Dimensions.get('window');
@@ -16,10 +10,10 @@ interface SimpleMineBackgroundProps {
   level?: number;
 }
 
-export default function SimpleMineBackground({ 
-  speed = 1, 
+export default function SimpleMineBackground({
+  speed = 1,
   isPaused = false,
-  level = 1 
+  level = 1,
 }: SimpleMineBackgroundProps) {
   // Parallax layers animations
   const bgLayer1 = useRef(new Animated.Value(0)).current;
@@ -69,10 +63,7 @@ export default function SimpleMineBackground({
   return (
     <View style={styles.container}>
       {/* Gradient background */}
-      <LinearGradient
-        colors={getBackgroundColor()}
-        style={StyleSheet.absoluteFillObject}
-      />
+      <LinearGradient colors={getBackgroundColor()} style={StyleSheet.absoluteFillObject} />
 
       {/* Layer 1: Cave walls */}
       <Animated.View

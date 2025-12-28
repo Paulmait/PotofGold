@@ -95,7 +95,7 @@ class LegalAuditService {
         // Save to anonymous collection if not authenticated
         const anonymousRef = collection(db, 'legal_audit_anonymous');
         const docRef = await addDoc(anonymousRef, enhancedRecord);
-        
+
         // Store reference for later linking
         await AsyncStorage.setItem('anonymous_legal_doc_id', docRef.id);
       } else {
@@ -106,7 +106,7 @@ class LegalAuditService {
           userId: auth.currentUser.uid,
           userEmail: auth.currentUser.email,
         });
-        
+
         // Link anonymous acceptance if exists
         const anonDocId = await AsyncStorage.getItem('anonymous_legal_doc_id');
         if (anonDocId) {
@@ -250,7 +250,7 @@ class LegalAuditService {
 
   async getAcceptanceHistory(): Promise<any[]> {
     const history = [];
-    
+
     try {
       // Get all local audit records
       const keys = [
@@ -299,7 +299,10 @@ class LegalAuditService {
         const records = JSON.parse(updateAcceptance);
         if (records.length > 0) {
           const latest = records[records.length - 1];
-          if (!latestAcceptance || new Date(latest.timestamp) > new Date(latestAcceptance.timestamp)) {
+          if (
+            !latestAcceptance ||
+            new Date(latest.timestamp) > new Date(latestAcceptance.timestamp)
+          ) {
             latestAcceptance = latest;
           }
         }

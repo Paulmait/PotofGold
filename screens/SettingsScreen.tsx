@@ -36,7 +36,7 @@ export default function SettingsScreen() {
       const sound = await AsyncStorage.getItem('soundEnabled');
       const haptics = await AsyncStorage.getItem('hapticsEnabled');
       const notifications = await AsyncStorage.getItem('notificationsEnabled');
-      
+
       if (sound !== null) setSoundEnabled(sound === 'true');
       if (haptics !== null) setHapticsEnabled(haptics === 'true');
       if (notifications !== null) setNotificationsEnabled(notifications === 'true');
@@ -71,34 +71,23 @@ export default function SettingsScreen() {
 
   const handleRestorePurchases = async () => {
     try {
-      Alert.alert(
-        'Restoring Purchases',
-        'Please wait while we restore your purchases...',
-        [],
-        { cancelable: false }
-      );
-      
+      Alert.alert('Restoring Purchases', 'Please wait while we restore your purchases...', [], {
+        cancelable: false,
+      });
+
       const restored = await RevenueCatManager.restorePurchases();
-      
+
       if (restored) {
-        Alert.alert(
-          'Success',
-          'Your purchases have been restored successfully!',
-          [{ text: 'OK' }]
-        );
+        Alert.alert('Success', 'Your purchases have been restored successfully!', [{ text: 'OK' }]);
       } else {
-        Alert.alert(
-          'No Purchases Found',
-          'No previous purchases were found to restore.',
-          [{ text: 'OK' }]
-        );
+        Alert.alert('No Purchases Found', 'No previous purchases were found to restore.', [
+          { text: 'OK' },
+        ]);
       }
     } catch (error) {
-      Alert.alert(
-        'Restore Failed',
-        'Failed to restore purchases. Please try again later.',
-        [{ text: 'OK' }]
-      );
+      Alert.alert('Restore Failed', 'Failed to restore purchases. Please try again later.', [
+        { text: 'OK' },
+      ]);
     }
   };
 
@@ -125,11 +114,9 @@ export default function SettingsScreen() {
 
   const handleTermsOfService = () => {
     // In production, open a webview or external browser
-    Alert.alert(
-      'Terms of Service',
-      'View our terms at https://cienrios.com/potofgold/terms',
-      [{ text: 'OK' }]
-    );
+    Alert.alert('Terms of Service', 'View our terms at https://cienrios.com/potofgold/terms', [
+      { text: 'OK' },
+    ]);
   };
 
   const handleReviewLegalAgreements = () => {
@@ -155,11 +142,7 @@ export default function SettingsScreen() {
   };
 
   const handleSupport = () => {
-    Alert.alert(
-      'Support',
-      'Contact us at support@cienrios.com',
-      [{ text: 'OK' }]
-    );
+    Alert.alert('Support', 'Contact us at support@cienrios.com', [{ text: 'OK' }]);
   };
 
   return (
@@ -170,127 +153,112 @@ export default function SettingsScreen() {
           onDecline={handleLegalReviewDecline}
         />
       )}
-      
+
       <ScrollView style={styles.container}>
         <View style={styles.content}>
-        {/* Gold Vault Club Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Gold Vault Club</Text>
-          
-          {isSubscribed ? (
-            <View style={styles.subscriptionActive}>
-              <Text style={styles.vipBadge}>⭐ VIP Member</Text>
-              <Text style={styles.subscriptionText}>Your membership is active</Text>
+          {/* Gold Vault Club Section */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Gold Vault Club</Text>
+
+            {isSubscribed ? (
+              <View style={styles.subscriptionActive}>
+                <Text style={styles.vipBadge}>⭐ VIP Member</Text>
+                <Text style={styles.subscriptionText}>Your membership is active</Text>
+                <TouchableOpacity style={styles.button} onPress={handleManageSubscription}>
+                  <Text style={styles.buttonText}>Manage Subscription</Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
               <TouchableOpacity
-                style={styles.button}
-                onPress={handleManageSubscription}
+                style={styles.goldButton}
+                onPress={() => navigation.navigate('SubscriptionVault')}
               >
-                <Text style={styles.buttonText}>Manage Subscription</Text>
+                <Text style={styles.goldButtonText}>🌟 Join Gold Vault Club</Text>
+                <Text style={styles.goldButtonSubtext}>Get 2x rewards & exclusive perks</Text>
               </TouchableOpacity>
+            )}
+          </View>
+
+          {/* Game Settings */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Game Settings</Text>
+
+            <View style={styles.settingRow}>
+              <Text style={styles.settingLabel}>Sound Effects</Text>
+              <Switch
+                value={soundEnabled}
+                onValueChange={handleSoundToggle}
+                trackColor={{ false: '#767577', true: '#FFD700' }}
+                thumbColor={soundEnabled ? '#f4f3f4' : '#f4f3f4'}
+              />
             </View>
-          ) : (
-            <TouchableOpacity
-              style={styles.goldButton}
-              onPress={() => navigation.navigate('SubscriptionVault')}
-            >
-              <Text style={styles.goldButtonText}>🌟 Join Gold Vault Club</Text>
-              <Text style={styles.goldButtonSubtext}>Get 2x rewards & exclusive perks</Text>
+
+            <View style={styles.settingRow}>
+              <Text style={styles.settingLabel}>Haptic Feedback</Text>
+              <Switch
+                value={hapticsEnabled}
+                onValueChange={handleHapticsToggle}
+                trackColor={{ false: '#767577', true: '#FFD700' }}
+                thumbColor={hapticsEnabled ? '#f4f3f4' : '#f4f3f4'}
+              />
+            </View>
+
+            <View style={styles.settingRow}>
+              <Text style={styles.settingLabel}>Notifications</Text>
+              <Switch
+                value={notificationsEnabled}
+                onValueChange={handleNotificationsToggle}
+                trackColor={{ false: '#767577', true: '#FFD700' }}
+                thumbColor={notificationsEnabled ? '#f4f3f4' : '#f4f3f4'}
+              />
+            </View>
+          </View>
+
+          {/* Account */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Account</Text>
+
+            <TouchableOpacity style={styles.button} onPress={handleRestorePurchases}>
+              <Text style={styles.buttonText}>Restore Purchases</Text>
             </TouchableOpacity>
-          )}
-        </View>
-
-        {/* Game Settings */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Game Settings</Text>
-          
-          <View style={styles.settingRow}>
-            <Text style={styles.settingLabel}>Sound Effects</Text>
-            <Switch
-              value={soundEnabled}
-              onValueChange={handleSoundToggle}
-              trackColor={{ false: '#767577', true: '#FFD700' }}
-              thumbColor={soundEnabled ? '#f4f3f4' : '#f4f3f4'}
-            />
           </View>
-          
-          <View style={styles.settingRow}>
-            <Text style={styles.settingLabel}>Haptic Feedback</Text>
-            <Switch
-              value={hapticsEnabled}
-              onValueChange={handleHapticsToggle}
-              trackColor={{ false: '#767577', true: '#FFD700' }}
-              thumbColor={hapticsEnabled ? '#f4f3f4' : '#f4f3f4'}
-            />
+
+          {/* Legal */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Legal</Text>
+
+            <TouchableOpacity style={styles.button} onPress={handlePrivacyPolicy}>
+              <Text style={styles.buttonText}>Privacy Policy</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.button} onPress={handleTermsOfService}>
+              <Text style={styles.buttonText}>Terms of Service</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.button, styles.reviewButton]}
+              onPress={handleReviewLegalAgreements}
+            >
+              <Text style={styles.buttonText}>📋 Review Legal Agreements</Text>
+            </TouchableOpacity>
           </View>
-          
-          <View style={styles.settingRow}>
-            <Text style={styles.settingLabel}>Notifications</Text>
-            <Switch
-              value={notificationsEnabled}
-              onValueChange={handleNotificationsToggle}
-              trackColor={{ false: '#767577', true: '#FFD700' }}
-              thumbColor={notificationsEnabled ? '#f4f3f4' : '#f4f3f4'}
-            />
+
+          {/* Support */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Support</Text>
+
+            <TouchableOpacity style={styles.button} onPress={handleSupport}>
+              <Text style={styles.buttonText}>Contact Support</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Version */}
+          <View style={styles.footer}>
+            <Text style={styles.versionText}>Pot of Gold v1.0.0</Text>
+            <Text style={styles.copyrightText}>© 2024 Cien Rios</Text>
           </View>
         </View>
-
-        {/* Account */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Account</Text>
-          
-          <TouchableOpacity
-            style={styles.button}
-            onPress={handleRestorePurchases}
-          >
-            <Text style={styles.buttonText}>Restore Purchases</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Legal */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Legal</Text>
-          
-          <TouchableOpacity
-            style={styles.button}
-            onPress={handlePrivacyPolicy}
-          >
-            <Text style={styles.buttonText}>Privacy Policy</Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity
-            style={styles.button}
-            onPress={handleTermsOfService}
-          >
-            <Text style={styles.buttonText}>Terms of Service</Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity
-            style={[styles.button, styles.reviewButton]}
-            onPress={handleReviewLegalAgreements}
-          >
-            <Text style={styles.buttonText}>📋 Review Legal Agreements</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Support */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Support</Text>
-          
-          <TouchableOpacity
-            style={styles.button}
-            onPress={handleSupport}
-          >
-            <Text style={styles.buttonText}>Contact Support</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Version */}
-        <View style={styles.footer}>
-          <Text style={styles.versionText}>Pot of Gold v1.0.0</Text>
-          <Text style={styles.copyrightText}>© 2024 Cien Rios</Text>
-        </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
     </>
   );
 }

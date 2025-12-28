@@ -1,9 +1,6 @@
 module.exports = {
   root: true,
-  extends: [
-    'expo',
-    'plugin:@typescript-eslint/recommended',
-  ],
+  extends: ['expo', 'plugin:@typescript-eslint/recommended'],
   parser: '@typescript-eslint/parser',
   plugins: ['@typescript-eslint', 'react', 'react-native'],
   rules: {
@@ -21,14 +18,14 @@ module.exports = {
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-non-null-assertion': 'off',
-    
+
     // React rules
     'react/prop-types': 'off',
     'react/react-in-jsx-scope': 'off',
     'react/jsx-uses-react': 'off',
     'react/jsx-no-undef': 'off',
     'react-hooks/rules-of-hooks': 'off',
-    
+
     // React Native rules
     'react-native/no-unused-styles': 'warn',
     'react-native/split-platform-components': 'warn',
@@ -43,7 +40,7 @@ module.exports = {
     'no-var': 'off',
     'object-shorthand': 'off',
     'prefer-template': 'off',
-    
+
     // Import rules
     'import/no-unresolved': 'off',
     'import/namespace': 'off',
@@ -84,4 +81,4 @@ module.exports = {
     'functions/',
     '__tests__/',
   ],
-}; 
+};

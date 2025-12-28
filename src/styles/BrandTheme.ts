@@ -14,7 +14,7 @@ const scale = (size: number): number => {
   const scaleFactor = screenWidth / baseWidth;
   const maxScale = 1.5; // Don't scale too much on large screens
   const minScale = 0.85; // Don't scale too small
-  
+
   const finalScale = Math.min(maxScale, Math.max(minScale, scaleFactor));
   return Math.round(size * finalScale);
 };
@@ -252,7 +252,7 @@ export const ResponsiveUtils = {
   getSafeGameArea: () => {
     const { width, height } = Dimensions.get('window');
     const isWeb = Platform.OS === 'web';
-    
+
     return {
       width: Math.min(width * (isWeb ? 0.9 : 1), 600),
       height: Math.min(height * (isWeb ? 0.85 : 0.9), 900),

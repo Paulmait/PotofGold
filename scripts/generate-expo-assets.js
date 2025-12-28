@@ -6,36 +6,36 @@ const path = require('path');
 
 // Asset configurations
 const ASSETS = {
-  icon: { 
-    size: 1024, 
+  icon: {
+    size: 1024,
     name: 'pot_of_gold_icon.png',
-    description: 'Main app icon'
+    description: 'Main app icon',
   },
-  splash: { 
-    width: 2048, 
-    height: 2048, 
+  splash: {
+    width: 2048,
+    height: 2048,
     name: 'pot_of_gold_splash.png',
-    description: 'Splash screen'
+    description: 'Splash screen',
   },
-  adaptiveIcon: { 
-    size: 512, 
+  adaptiveIcon: {
+    size: 512,
     name: 'adaptive-icon.png',
-    description: 'Android adaptive icon'
+    description: 'Android adaptive icon',
   },
-  favicon: { 
-    size: 48, 
+  favicon: {
+    size: 48,
     name: 'favicon.png',
-    description: 'Web favicon'
-  }
+    description: 'Web favicon',
+  },
 };
 
 // Colors for the Pot of Gold theme
 const COLORS = {
-  gold: { r: 255, g: 215, b: 0 },      // #FFD700
-  darkGold: { r: 255, g: 165, b: 0 },  // #FFA500
-  brown: { r: 139, g: 69, b: 19 },     // #8B4513
-  green: { r: 34, g: 139, b: 34 },     // #228B22
-  lightGreen: { r: 144, g: 238, b: 144 } // #90EE90
+  gold: { r: 255, g: 215, b: 0 }, // #FFD700
+  darkGold: { r: 255, g: 165, b: 0 }, // #FFA500
+  brown: { r: 139, g: 69, b: 19 }, // #8B4513
+  green: { r: 34, g: 139, b: 34 }, // #228B22
+  lightGreen: { r: 144, g: 238, b: 144 }, // #90EE90
 };
 
 // Create SVG for Pot of Gold icon
@@ -79,12 +79,20 @@ function createPotOfGoldSVG(width, height, includeTitle = false) {
   <!-- Rainbow arc -->`;
 
   // Rainbow colors
-  const rainbowColors = ['#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#0000FF', '#4B0082', '#9400D3'];
+  const rainbowColors = [
+    '#FF0000',
+    '#FF7F00',
+    '#FFFF00',
+    '#00FF00',
+    '#0000FF',
+    '#4B0082',
+    '#9400D3',
+  ];
   const rainbowRadius = 350 * scale;
   const rainbowWidth = 30 * scale;
-  
+
   rainbowColors.forEach((color, index) => {
-    const radius = rainbowRadius - (index * rainbowWidth);
+    const radius = rainbowRadius - index * rainbowWidth;
     svg += `
   <path d="M ${centerX - radius} ${centerY + 100 * scale} 
            A ${radius} ${radius} 0 0 1 ${centerX + radius} ${centerY + 100 * scale}"
@@ -130,14 +138,14 @@ function createPotOfGoldSVG(width, height, includeTitle = false) {
     { x: -120, y: -80 },
     { x: 120, y: -80 },
     { x: -60, y: -100 },
-    { x: 60, y: -100 }
+    { x: 60, y: -100 },
   ];
 
   coinPositions.forEach((pos, index) => {
     const coinX = centerX + pos.x * scale;
     const coinY = centerY + pos.y * scale;
     const coinRadius = 35 * scale;
-    
+
     svg += `
   <!-- Coin ${index + 1} -->
   <ellipse cx="${coinX + 3 * scale}" cy="${coinY + 3 * scale}" 
@@ -160,19 +168,19 @@ function createPotOfGoldSVG(width, height, includeTitle = false) {
     { x: 150, y: -150 },
     { x: -200, y: 0 },
     { x: 200, y: 0 },
-    { x: 0, y: -200 }
+    { x: 0, y: -200 },
   ];
 
-  sparklePositions.forEach(pos => {
+  sparklePositions.forEach((pos) => {
     const sparkleX = centerX + pos.x * scale;
     const sparkleY = centerY + pos.y * scale;
     const size = 20 * scale;
-    
+
     svg += `
   <!-- Sparkle -->
   <g transform="translate(${sparkleX}, ${sparkleY})">
-    <path d="M 0,-${size} L ${size/3},0 L 0,${size} L -${size/3},0 Z" fill="#FFD700" opacity="0.8"/>
-    <path d="M -${size},0 L 0,-${size/3} L ${size},0 L 0,${size/3} Z" fill="#FFD700" opacity="0.8"/>
+    <path d="M 0,-${size} L ${size / 3},0 L 0,${size} L -${size / 3},0 Z" fill="#FFD700" opacity="0.8"/>
+    <path d="M -${size},0 L 0,-${size / 3} L ${size},0 L 0,${size / 3} Z" fill="#FFD700" opacity="0.8"/>
   </g>`;
   });
 
@@ -206,9 +214,7 @@ function createPotOfGoldSVG(width, height, includeTitle = false) {
 // Generate an image from SVG
 async function generateImage(svgContent, outputPath) {
   try {
-    await sharp(Buffer.from(svgContent))
-      .png()
-      .toFile(outputPath);
+    await sharp(Buffer.from(svgContent)).png().toFile(outputPath);
     return true;
   } catch (error) {
     console.error(`Error generating ${outputPath}:`, error.message);
@@ -219,9 +225,9 @@ async function generateImage(svgContent, outputPath) {
 // Main function to generate all assets
 async function generateAllAssets() {
   console.log('🎨 Starting Pot of Gold asset generation...\n');
-  
+
   const assetsDir = path.join(__dirname, '..', 'assets', 'images');
-  
+
   // Ensure directory exists
   if (!fs.existsSync(assetsDir)) {
     fs.mkdirSync(assetsDir, { recursive: true });
@@ -256,7 +262,9 @@ async function generateAllAssets() {
   console.log(`\n🤖 Generating ${ASSETS.adaptiveIcon.description}...`);
   const adaptiveSVG = createPotOfGoldSVG(ASSETS.adaptiveIcon.size, ASSETS.adaptiveIcon.size, false);
   if (await generateImage(adaptiveSVG, path.join(assetsDir, ASSETS.adaptiveIcon.name))) {
-    console.log(`  ✅ ${ASSETS.adaptiveIcon.name} (${ASSETS.adaptiveIcon.size}x${ASSETS.adaptiveIcon.size})`);
+    console.log(
+      `  ✅ ${ASSETS.adaptiveIcon.name} (${ASSETS.adaptiveIcon.size}x${ASSETS.adaptiveIcon.size})`
+    );
     successCount++;
   } else {
     console.log(`  ❌ Failed to generate ${ASSETS.adaptiveIcon.name}`);
@@ -274,7 +282,7 @@ async function generateAllAssets() {
   <circle cx="28" cy="18" r="5" fill="#FFD700"/>
   <text x="24" y="30" font-family="Arial" font-size="14" text-anchor="middle" fill="#654321">$</text>
 </svg>`;
-  
+
   if (await generateImage(faviconSVG, path.join(assetsDir, ASSETS.favicon.name))) {
     console.log(`  ✅ ${ASSETS.favicon.name} (${ASSETS.favicon.size}x${ASSETS.favicon.size})`);
     successCount++;
@@ -293,15 +301,15 @@ async function generateAllAssets() {
       darkGold: '#FFA500',
       brown: '#8B4513',
       green: '#228B22',
-      lightGreen: '#90EE90'
+      lightGreen: '#90EE90',
     },
     assets: Object.entries(ASSETS).map(([key, config]) => ({
       type: key,
       filename: config.name,
       size: config.size || `${config.width}x${config.height}`,
-      description: config.description
+      description: config.description,
     })),
-    totalAssets: successCount
+    totalAssets: successCount,
   };
 
   fs.writeFileSync(
@@ -319,7 +327,7 @@ async function generateAllAssets() {
   console.log('📁 Assets location: assets/images/');
   console.log('📝 Metadata saved to: expo-assets-metadata.json');
   console.log('='.repeat(50));
-  
+
   if (successCount === Object.keys(ASSETS).length) {
     console.log('\n✅ All assets generated successfully!');
     console.log('\nNext steps:');
@@ -345,7 +353,7 @@ function checkDependencies() {
 // Run the generator
 if (require.main === module) {
   if (checkDependencies()) {
-    generateAllAssets().catch(error => {
+    generateAllAssets().catch((error) => {
       console.error('Fatal error:', error);
       process.exit(1);
     });

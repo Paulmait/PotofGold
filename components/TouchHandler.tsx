@@ -34,69 +34,78 @@ const TouchHandler: React.FC<TouchHandlerProps> = ({
   const touchStartPosition = useRef(0);
   const isTouchMove = useRef(false);
   const sensitivity = gameResponsive.movementSensitivity();
-  
-  const handleTouchStart = useCallback((e: GestureResponderEvent) => {
-    if (!enabled) return;
 
-    touchStartX.current = e.nativeEvent.locationX;
-    touchStartPosition.current = currentPosition || touchStartX.current;
-    isTouchMove.current = false;
-    lastTouchTime.current = Date.now();
+  const handleTouchStart = useCallback(
+    (e: GestureResponderEvent) => {
+      if (!enabled) return;
 
-    // Prevent default browser behavior
-    if (Platform.OS === 'web') {
-      e.preventDefault?.();
-    }
-  }, [enabled, currentPosition]);
-  
-  const handleTouchMove = useCallback((e: GestureResponderEvent, gestureState?: PanResponderGestureState) => {
-    if (!enabled) return;
+      touchStartX.current = e.nativeEvent.locationX;
+      touchStartPosition.current = currentPosition || touchStartX.current;
+      isTouchMove.current = false;
+      lastTouchTime.current = Date.now();
 
-    // Get current touch position
-    const currentX = e.nativeEvent.locationX;
+      // Prevent default browser behavior
+      if (Platform.OS === 'web') {
+        e.preventDefault?.();
+      }
+    },
+    [enabled, currentPosition]
+  );
 
-    // If we have gesture state (pan), use delta movement
-    if (gestureState) {
-      const deltaX = Math.abs(gestureState.dx);
+  const handleTouchMove = useCallback(
+    (e: GestureResponderEvent, gestureState?: PanResponderGestureState) => {
+      if (!enabled) return;
 
-      // Consider it a move if finger moved more than 5 pixels
-      if (deltaX > 5) {
+      // Get current touch position
+      const currentX = e.nativeEvent.locationX;
+
+      // If we have gesture state (pan), use delta movement
+      if (gestureState) {
+        const deltaX = Math.abs(gestureState.dx);
+
+        // Consider it a move if finger moved more than 5 pixels
+        if (deltaX > 5) {
+          isTouchMove.current = true;
+          onMove(currentX);
+        }
+      } else {
+        // Direct position update
         isTouchMove.current = true;
         onMove(currentX);
       }
-    } else {
-      // Direct position update
-      isTouchMove.current = true;
-      onMove(currentX);
-    }
 
-    // Prevent default browser behavior
-    if (Platform.OS === 'web') {
-      e.preventDefault?.();
-    }
-  }, [enabled, onMove]);
-  
-  const handleTouchEnd = useCallback((e: GestureResponderEvent) => {
-    if (!enabled) return;
+      // Prevent default browser behavior
+      if (Platform.OS === 'web') {
+        e.preventDefault?.();
+      }
+    },
+    [enabled, onMove]
+  );
 
-    const touchEndX = e.nativeEvent.locationX;
+  const handleTouchEnd = useCallback(
+    (e: GestureResponderEvent) => {
+      if (!enabled) return;
 
-    // If it wasn't a move, treat it as a tap
-    if (!isTouchMove.current && onTap) {
-      onTap(touchEndX);
-    }
+      const touchEndX = e.nativeEvent.locationX;
 
-    // Reset refs
-    touchStartX.current = 0;
-    touchStartPosition.current = 0;
-    isTouchMove.current = false;
+      // If it wasn't a move, treat it as a tap
+      if (!isTouchMove.current && onTap) {
+        onTap(touchEndX);
+      }
 
-    // Prevent default browser behavior
-    if (Platform.OS === 'web') {
-      e.preventDefault?.();
-    }
-  }, [enabled, onTap]);
-  
+      // Reset refs
+      touchStartX.current = 0;
+      touchStartPosition.current = 0;
+      isTouchMove.current = false;
+
+      // Prevent default browser behavior
+      if (Platform.OS === 'web') {
+        e.preventDefault?.();
+      }
+    },
+    [enabled, onTap]
+  );
+
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => enabled,
@@ -109,7 +118,7 @@ const TouchHandler: React.FC<TouchHandlerProps> = ({
       onPanResponderTerminate: handleTouchEnd,
     })
   ).current;
-  
+
   // Keyboard controls for accessibility
   useEffect(() => {
     if (Platform.OS === 'web' && enabled && currentPosition !== undefined) {

@@ -4,22 +4,17 @@
  */
 
 const { initializeApp } = require('firebase/app');
-const { 
-  getFirestore, 
-  collection, 
-  addDoc,
-  serverTimestamp 
-} = require('firebase/firestore');
+const { getFirestore, collection, addDoc, serverTimestamp } = require('firebase/firestore');
 
 // Your Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyBJSp7vX2-SOWCpjbgTEAPj_T9QQL72JX4",
-  authDomain: "potofgold-production.firebaseapp.com",
-  projectId: "potofgold-production",
-  storageBucket: "potofgold-production.firebasestorage.app",
-  messagingSenderId: "511446280789",
-  appId: "1:511446280789:web:f52cfd9a863631ad0b82dc",
-  measurementId: "G-GFP64LBLZ3"
+  apiKey: 'AIzaSyBJSp7vX2-SOWCpjbgTEAPj_T9QQL72JX4',
+  authDomain: 'potofgold-production.firebaseapp.com',
+  projectId: 'potofgold-production',
+  storageBucket: 'potofgold-production.firebasestorage.app',
+  messagingSenderId: '511446280789',
+  appId: '1:511446280789:web:f52cfd9a863631ad0b82dc',
+  measurementId: 'G-GFP64LBLZ3',
 };
 
 // Initialize Firebase
@@ -85,19 +80,22 @@ async function initializeFirestore() {
     console.log('   ✅ legal_audit');
     console.log('   ✅ legal_audit_anonymous');
     console.log('\n📍 View your data at:');
-    console.log('   https://console.firebase.google.com/project/potofgold-production/firestore/data');
+    console.log(
+      '   https://console.firebase.google.com/project/potofgold-production/firestore/data'
+    );
     console.log('\n💡 Additional collections will be created when:');
     console.log('   • Users sign up (users collection)');
     console.log('   • Users make purchases (purchase_audit)');
     console.log('   • Users play games (game_data)');
     console.log('   • Admin configures settings (config)');
-
   } catch (error) {
     console.error('\n❌ Error:', error.message);
-    
+
     if (error.code === 'permission-denied') {
       console.log('\n⚠️  Make sure you have published the security rules in Firebase Console:');
-      console.log('   1. Go to: https://console.firebase.google.com/project/potofgold-production/firestore/rules');
+      console.log(
+        '   1. Go to: https://console.firebase.google.com/project/potofgold-production/firestore/rules'
+      );
       console.log('   2. Copy the rules from firestore.rules file');
       console.log('   3. Click "Publish"');
       console.log('   4. Wait 1-2 minutes for rules to propagate');

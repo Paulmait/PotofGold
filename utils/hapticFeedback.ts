@@ -103,4 +103,4 @@ export class HapticFeedback {
     this.error();
     setTimeout(() => this.heavy(), 200);
   }
-} 
+}

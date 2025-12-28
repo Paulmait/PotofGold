@@ -11,7 +11,7 @@ const COLORS = {
   brown: '#8B4513',
   darkBrown: '#654321',
   green: '#228B22',
-  lightGreen: '#90EE90'
+  lightGreen: '#90EE90',
 };
 
 // Draw a pot of gold
@@ -28,13 +28,21 @@ function drawPotOfGold(ctx, width, height, includeTitle = false) {
   ctx.fillRect(0, 0, width, height);
 
   // Draw rainbow arc
-  const rainbowColors = ['#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#0000FF', '#4B0082', '#9400D3'];
+  const rainbowColors = [
+    '#FF0000',
+    '#FF7F00',
+    '#FFFF00',
+    '#00FF00',
+    '#0000FF',
+    '#4B0082',
+    '#9400D3',
+  ];
   const rainbowRadius = 350 * scale;
   const rainbowWidth = 30 * scale;
-  
+
   rainbowColors.forEach((color, index) => {
     ctx.beginPath();
-    ctx.arc(centerX, centerY + 100 * scale, rainbowRadius - (index * rainbowWidth), Math.PI, 0, true);
+    ctx.arc(centerX, centerY + 100 * scale, rainbowRadius - index * rainbowWidth, Math.PI, 0, true);
     ctx.strokeStyle = color;
     ctx.lineWidth = rainbowWidth;
     ctx.stroke();
@@ -67,10 +75,10 @@ function drawPotOfGold(ctx, width, height, includeTitle = false) {
     { x: 40, y: -140 },
     { x: 0, y: -160 },
     { x: -120, y: -80 },
-    { x: 120, y: -80 }
+    { x: 120, y: -80 },
   ];
 
-  coinPositions.forEach(pos => {
+  coinPositions.forEach((pos) => {
     // Coin shadow
     ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
     ctx.beginPath();
@@ -79,7 +87,9 @@ function drawPotOfGold(ctx, width, height, includeTitle = false) {
       centerY + (pos.y + 5) * scale,
       40 * scale,
       35 * scale,
-      0, 0, Math.PI * 2
+      0,
+      0,
+      Math.PI * 2
     );
     ctx.fill();
 
@@ -101,7 +111,9 @@ function drawPotOfGold(ctx, width, height, includeTitle = false) {
       centerY + pos.y * scale,
       40 * scale,
       35 * scale,
-      0, 0, Math.PI * 2
+      0,
+      0,
+      Math.PI * 2
     );
     ctx.fill();
 
@@ -113,7 +125,9 @@ function drawPotOfGold(ctx, width, height, includeTitle = false) {
       centerY + (pos.y - 10) * scale,
       15 * scale,
       12 * scale,
-      0, 0, Math.PI * 2
+      0,
+      0,
+      Math.PI * 2
     );
     ctx.fill();
 
@@ -131,10 +145,10 @@ function drawPotOfGold(ctx, width, height, includeTitle = false) {
     { x: 150, y: -150 },
     { x: -200, y: 0 },
     { x: 200, y: 0 },
-    { x: 0, y: -200 }
+    { x: 0, y: -200 },
   ];
 
-  sparklePositions.forEach(pos => {
+  sparklePositions.forEach((pos) => {
     drawSparkle(ctx, centerX + pos.x * scale, centerY + pos.y * scale, 20 * scale);
   });
 
@@ -148,7 +162,12 @@ function drawPotOfGold(ctx, width, height, includeTitle = false) {
     ctx.fillText('GOLD', centerX + 3, centerY + 450 * scale + 3);
 
     // Title text with gradient
-    const textGradient = ctx.createLinearGradient(0, centerY + 300 * scale, 0, centerY + 500 * scale);
+    const textGradient = ctx.createLinearGradient(
+      0,
+      centerY + 300 * scale,
+      0,
+      centerY + 500 * scale
+    );
     textGradient.addColorStop(0, COLORS.gold);
     textGradient.addColorStop(1, COLORS.darkGold);
     ctx.fillStyle = textGradient;
@@ -162,7 +181,7 @@ function drawSparkle(ctx, x, y, size) {
   ctx.save();
   ctx.fillStyle = COLORS.gold;
   ctx.translate(x, y);
-  
+
   for (let i = 0; i < 4; i++) {
     ctx.rotate(Math.PI / 4);
     ctx.beginPath();
@@ -172,7 +191,7 @@ function drawSparkle(ctx, x, y, size) {
     ctx.closePath();
     ctx.fill();
   }
-  
+
   ctx.restore();
 }
 
@@ -208,17 +227,17 @@ function generateFavicon() {
   console.log('Generating favicon...');
   const canvas = createCanvas(48, 48);
   const ctx = canvas.getContext('2d');
-  
+
   // Simple gold background with pot icon
   ctx.fillStyle = COLORS.gold;
   ctx.fillRect(0, 0, 48, 48);
-  
+
   // Draw mini pot
   ctx.fillStyle = COLORS.brown;
   ctx.beginPath();
   ctx.ellipse(24, 28, 15, 12, 0, 0, Math.PI * 2);
   ctx.fill();
-  
+
   // Draw mini coins
   ctx.fillStyle = COLORS.darkGold;
   ctx.beginPath();
@@ -230,7 +249,7 @@ function generateFavicon() {
   ctx.beginPath();
   ctx.arc(30, 16, 6, 0, Math.PI * 2);
   ctx.fill();
-  
+
   return canvas;
 }
 
@@ -238,27 +257,29 @@ function generateFavicon() {
 function main() {
   try {
     const assetsDir = path.join(__dirname, '..', 'assets', 'images');
-    
+
     // Ensure assets directory exists
     if (!fs.existsSync(assetsDir)) {
       fs.mkdirSync(assetsDir, { recursive: true });
     }
-    
+
     // Generate all assets
     const appIcon = generateAppIcon();
     const splashScreen = generateSplashScreen();
     const adaptiveIcon = generateAdaptiveIcon();
     const favicon = generateFavicon();
-    
+
     // Save assets as PNG files
     fs.writeFileSync(path.join(assetsDir, 'pot_of_gold_icon.png'), appIcon.toBuffer('image/png'));
-    fs.writeFileSync(path.join(assetsDir, 'pot_of_gold_splash.png'), splashScreen.toBuffer('image/png'));
+    fs.writeFileSync(
+      path.join(assetsDir, 'pot_of_gold_splash.png'),
+      splashScreen.toBuffer('image/png')
+    );
     fs.writeFileSync(path.join(assetsDir, 'adaptive-icon.png'), adaptiveIcon.toBuffer('image/png'));
     fs.writeFileSync(path.join(assetsDir, 'favicon.png'), favicon.toBuffer('image/png'));
-    
+
     console.log('✅ All app assets generated successfully!');
     console.log('📱 Assets saved to assets/images/ directory');
-    
   } catch (error) {
     console.error('❌ Error generating assets:', error);
     process.exit(1);
@@ -270,4 +291,4 @@ if (require.main === module) {
   main();
 }
 
-module.exports = { generateAppIcon, generateSplashScreen, generateAdaptiveIcon, generateFavicon }; 
+module.exports = { generateAppIcon, generateSplashScreen, generateAdaptiveIcon, generateFavicon };

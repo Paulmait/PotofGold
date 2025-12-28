@@ -28,7 +28,7 @@ export function useDrop(): UseDropResult {
   const [loading, setLoading] = useState(true);
   const [claiming, setClaiming] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   const { isSubscribed } = useEntitlements();
   const user = auth.currentUser;
 
@@ -45,7 +45,7 @@ export function useDrop(): UseDropResult {
     try {
       // Get current drop ID from Firestore
       const currentDropId = await dropService.getCurrentDropId();
-      
+
       if (currentDropId) {
         // Get drop details from catalog
         const drop = dropCatalog.getDropById(currentDropId);
@@ -84,15 +84,15 @@ export function useDrop(): UseDropResult {
 
     try {
       const result = await dropService.claimCurrentDrop();
-      
+
       if (result.success) {
         setIsClaimed(true);
-        
+
         // Show success feedback
         if (result.grantedItems) {
           console.log('Drop claimed successfully!', result.grantedItems);
         }
-        
+
         return true;
       } else {
         setError(result.error || 'Failed to claim drop');
@@ -134,15 +134,18 @@ export function useDrop(): UseDropResult {
   useEffect(() => {
     if (!currentDrop) return;
 
-    const interval = setInterval(() => {
-      const days = dropCatalog.getDaysRemainingInClaimWindow(currentDrop.id);
-      setDaysRemaining(days);
-      
-      // Refresh claimability if window expired
-      if (days === 0 && isClaimable) {
-        setIsClaimable(false);
-      }
-    }, 60 * 60 * 1000); // Check every hour
+    const interval = setInterval(
+      () => {
+        const days = dropCatalog.getDaysRemainingInClaimWindow(currentDrop.id);
+        setDaysRemaining(days);
+
+        // Refresh claimability if window expired
+        if (days === 0 && isClaimable) {
+          setIsClaimable(false);
+        }
+      },
+      60 * 60 * 1000
+    ); // Check every hour
 
     return () => clearInterval(interval);
   }, [currentDrop, isClaimable]);
@@ -156,6 +159,6 @@ export function useDrop(): UseDropResult {
     claiming,
     error,
     claim,
-    refresh
+    refresh,
   };
 }

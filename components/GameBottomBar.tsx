@@ -1,11 +1,5 @@
 import React, { memo } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Platform,
-} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -27,139 +21,119 @@ interface GameBottomBarProps {
   hasNewTier?: boolean;
 }
 
-const GameBottomBar: React.FC<GameBottomBarProps> = memo(({
-  coins,
-  streakDays,
-  seasonTier,
-  blockages = 0,
-  maxBlockages = 5,
-  onStreakPress,
-  onSeasonPassPress,
-  onShopPress,
-  onSkinsPress,
-  onVacuumPress,
-  onClearAllPress,
-  vacuumCost = 25,
-  clearAllCost = 50,
-  hasNewStreak = false,
-  hasNewTier = false,
-}) => {
-  const canAffordVacuum = coins >= vacuumCost;
-  const canAffordClearAll = coins >= clearAllCost;
+const GameBottomBar: React.FC<GameBottomBarProps> = memo(
+  ({
+    coins,
+    streakDays,
+    seasonTier,
+    blockages = 0,
+    maxBlockages = 5,
+    onStreakPress,
+    onSeasonPassPress,
+    onShopPress,
+    onSkinsPress,
+    onVacuumPress,
+    onClearAllPress,
+    vacuumCost = 25,
+    clearAllCost = 50,
+    hasNewStreak = false,
+    hasNewTier = false,
+  }) => {
+    const canAffordVacuum = coins >= vacuumCost;
+    const canAffordClearAll = coins >= clearAllCost;
 
-  return (
-    <View style={styles.container}>
-      {/* Quick Stats Section */}
-      <View style={styles.statsSection}>
-        <TouchableOpacity 
-          style={styles.statButton} 
-          onPress={onStreakPress}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.statEmoji}>🔥</Text>
-          <Text style={styles.statText}>{streakDays}</Text>
-          {hasNewStreak && <View style={styles.notificationDot} />}
-        </TouchableOpacity>
+    return (
+      <View style={styles.container}>
+        {/* Quick Stats Section */}
+        <View style={styles.statsSection}>
+          <TouchableOpacity style={styles.statButton} onPress={onStreakPress} activeOpacity={0.7}>
+            <Text style={styles.statEmoji}>🔥</Text>
+            <Text style={styles.statText}>{streakDays}</Text>
+            {hasNewStreak && <View style={styles.notificationDot} />}
+          </TouchableOpacity>
 
-        <TouchableOpacity 
-          style={styles.statButton} 
-          onPress={onSeasonPassPress}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.statEmoji}>⭐</Text>
-          <Text style={styles.statText}>T{seasonTier}</Text>
-          {hasNewTier && <View style={styles.notificationDot} />}
-        </TouchableOpacity>
-        
-        {/* Blockage indicator */}
-        {blockages > 0 && (
-          <View style={[
-            styles.statButton,
-            blockages >= maxBlockages * 0.8 && styles.criticalStat
-          ]}>
-            <Text style={styles.statEmoji}>🚫</Text>
-            <Text style={[
-              styles.statText,
-              blockages >= maxBlockages * 0.8 && styles.criticalText
-            ]}>
-              {blockages}/{maxBlockages}
-            </Text>
-          </View>
-        )}
-      </View>
-
-      {/* Action Buttons Section */}
-      <View style={styles.actionsSection}>
-        <TouchableOpacity 
-          style={styles.actionButton} 
-          onPress={onShopPress}
-          activeOpacity={0.7}
-        >
-          <Ionicons name="cart" size={20} color="#FFD700" />
-          <Text style={styles.actionText}>Shop</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-          style={styles.actionButton} 
-          onPress={onSkinsPress}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.actionEmoji}>🎨</Text>
-          <Text style={styles.actionText}>Skins</Text>
-        </TouchableOpacity>
-
-        {/* Power Actions with Costs */}
-        <TouchableOpacity 
-          style={[
-            styles.powerButton,
-            !canAffordVacuum && styles.disabledButton
-          ]} 
-          onPress={canAffordVacuum ? onVacuumPress : undefined}
-          activeOpacity={canAffordVacuum ? 0.7 : 1}
-        >
-          <LinearGradient
-            colors={canAffordVacuum ? ['#4CAF50', '#45a049'] : ['#555', '#333']}
-            style={styles.powerButtonGradient}
+          <TouchableOpacity
+            style={styles.statButton}
+            onPress={onSeasonPassPress}
+            activeOpacity={0.7}
           >
-            <Text style={styles.powerEmoji}>🌪️</Text>
-            <Text style={styles.powerText}>Vacuum</Text>
-            <View style={styles.costBadge}>
-              <Text style={styles.costEmoji}>🪙</Text>
-              <Text style={[
-                styles.costText,
-                !canAffordVacuum && styles.costTextDisabled
-              ]}>{vacuumCost}</Text>
-            </View>
-          </LinearGradient>
-        </TouchableOpacity>
+            <Text style={styles.statEmoji}>⭐</Text>
+            <Text style={styles.statText}>T{seasonTier}</Text>
+            {hasNewTier && <View style={styles.notificationDot} />}
+          </TouchableOpacity>
 
-        <TouchableOpacity 
-          style={[
-            styles.powerButton,
-            !canAffordClearAll && styles.disabledButton
-          ]} 
-          onPress={canAffordClearAll ? onClearAllPress : undefined}
-          activeOpacity={canAffordClearAll ? 0.7 : 1}
-        >
-          <LinearGradient
-            colors={canAffordClearAll ? ['#FF6B6B', '#ee5a52'] : ['#555', '#333']}
-            style={styles.powerButtonGradient}
-          >
-            <Text style={styles.powerEmoji}>💥</Text>
-            <Text style={styles.powerText}>Clear</Text>
-            <View style={styles.costBadge}>
-              <Text style={styles.costEmoji}>🪙</Text>
-              <Text style={[
-                styles.costText,
-                !canAffordClearAll && styles.costTextDisabled
-              ]}>{clearAllCost}</Text>
+          {/* Blockage indicator */}
+          {blockages > 0 && (
+            <View
+              style={[styles.statButton, blockages >= maxBlockages * 0.8 && styles.criticalStat]}
+            >
+              <Text style={styles.statEmoji}>🚫</Text>
+              <Text
+                style={[styles.statText, blockages >= maxBlockages * 0.8 && styles.criticalText]}
+              >
+                {blockages}/{maxBlockages}
+              </Text>
             </View>
-          </LinearGradient>
-        </TouchableOpacity>
+          )}
+        </View>
+
+        {/* Action Buttons Section */}
+        <View style={styles.actionsSection}>
+          <TouchableOpacity style={styles.actionButton} onPress={onShopPress} activeOpacity={0.7}>
+            <Ionicons name="cart" size={20} color="#FFD700" />
+            <Text style={styles.actionText}>Shop</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.actionButton} onPress={onSkinsPress} activeOpacity={0.7}>
+            <Text style={styles.actionEmoji}>🎨</Text>
+            <Text style={styles.actionText}>Skins</Text>
+          </TouchableOpacity>
+
+          {/* Power Actions with Costs */}
+          <TouchableOpacity
+            style={[styles.powerButton, !canAffordVacuum && styles.disabledButton]}
+            onPress={canAffordVacuum ? onVacuumPress : undefined}
+            activeOpacity={canAffordVacuum ? 0.7 : 1}
+          >
+            <LinearGradient
+              colors={canAffordVacuum ? ['#4CAF50', '#45a049'] : ['#555', '#333']}
+              style={styles.powerButtonGradient}
+            >
+              <Text style={styles.powerEmoji}>🌪️</Text>
+              <Text style={styles.powerText}>Vacuum</Text>
+              <View style={styles.costBadge}>
+                <Text style={styles.costEmoji}>🪙</Text>
+                <Text style={[styles.costText, !canAffordVacuum && styles.costTextDisabled]}>
+                  {vacuumCost}
+                </Text>
+              </View>
+            </LinearGradient>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.powerButton, !canAffordClearAll && styles.disabledButton]}
+            onPress={canAffordClearAll ? onClearAllPress : undefined}
+            activeOpacity={canAffordClearAll ? 0.7 : 1}
+          >
+            <LinearGradient
+              colors={canAffordClearAll ? ['#FF6B6B', '#ee5a52'] : ['#555', '#333']}
+              style={styles.powerButtonGradient}
+            >
+              <Text style={styles.powerEmoji}>💥</Text>
+              <Text style={styles.powerText}>Clear</Text>
+              <View style={styles.costBadge}>
+                <Text style={styles.costEmoji}>🪙</Text>
+                <Text style={[styles.costText, !canAffordClearAll && styles.costTextDisabled]}>
+                  {clearAllCost}
+                </Text>
+              </View>
+            </LinearGradient>
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
-  );
-});
+    );
+  }
+);
 
 const styles = StyleSheet.create({
   container: {

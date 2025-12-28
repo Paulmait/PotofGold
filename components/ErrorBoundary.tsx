@@ -35,14 +35,17 @@ export class ErrorBoundary extends Component<Props, State> {
   componentDidCatch(error: Error, errorInfo: any) {
     // Log error to crash reporting service
     console.error('Error caught by boundary:', error, errorInfo);
-    
+
     // Save error to AsyncStorage for debugging
-    AsyncStorage.setItem('last_error', JSON.stringify({
-      error: error.toString(),
-      stack: error.stack,
-      componentStack: errorInfo.componentStack,
-      timestamp: new Date().toISOString(),
-    }));
+    AsyncStorage.setItem(
+      'last_error',
+      JSON.stringify({
+        error: error.toString(),
+        stack: error.stack,
+        componentStack: errorInfo.componentStack,
+        timestamp: new Date().toISOString(),
+      })
+    );
 
     // Call custom error handler if provided
     if (this.props.onError) {
@@ -75,16 +78,12 @@ export class ErrorBoundary extends Component<Props, State> {
             <Text style={styles.message}>
               We encountered an unexpected error. Please try restarting the game.
             </Text>
-            
+
             {__DEV__ && this.state.error && (
               <ScrollView style={styles.errorDetails}>
-                <Text style={styles.errorText}>
-                  {this.state.error.toString()}
-                </Text>
+                <Text style={styles.errorText}>{this.state.error.toString()}</Text>
                 {this.state.error.stack && (
-                  <Text style={styles.stackTrace}>
-                    {this.state.error.stack}
-                  </Text>
+                  <Text style={styles.stackTrace}>{this.state.error.stack}</Text>
                 )}
               </ScrollView>
             )}

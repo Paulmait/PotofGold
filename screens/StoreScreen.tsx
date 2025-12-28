@@ -29,7 +29,9 @@ interface StoreItem {
 
 const StoreScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const { gameState, updateGameState, addCoins } = useGameContext();
-  const [selectedCategory, setSelectedCategory] = useState<'upgrades' | 'skins' | 'powerups'>('upgrades');
+  const [selectedCategory, setSelectedCategory] = useState<'upgrades' | 'skins' | 'powerups'>(
+    'upgrades'
+  );
 
   const storeItems: StoreItem[] = [
     // Upgrades
@@ -141,9 +143,9 @@ const StoreScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
         }
         break;
       case 'skin':
-        updateGameState({ 
+        updateGameState({
           ownedSkins: [...gameState.ownedSkins, item.id],
-          currentSkin: item.id 
+          currentSkin: item.id,
         });
         break;
       case 'powerup':
@@ -155,7 +157,7 @@ const StoreScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   };
 
   const getFilteredItems = () => {
-    return storeItems.filter(item => {
+    return storeItems.filter((item) => {
       if (selectedCategory === 'upgrades') return item.type === 'upgrade';
       if (selectedCategory === 'skins') return item.type === 'skin';
       if (selectedCategory === 'powerups') return item.type === 'powerup';
@@ -170,20 +172,14 @@ const StoreScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
     return (
       <TouchableOpacity
         key={item.id}
-        style={[
-          styles.storeItem,
-          { opacity: canAfford ? 1 : 0.6 },
-        ]}
+        style={[styles.storeItem, { opacity: canAfford ? 1 : 0.6 }]}
         onPress={() => canAfford && !isOwned && handlePurchase(item)}
         disabled={!canAfford || isOwned}
       >
-        <LinearGradient
-          colors={[item.color, item.color + '80']}
-          style={styles.itemIcon}
-        >
+        <LinearGradient colors={[item.color, item.color + '80']} style={styles.itemIcon}>
           <Ionicons name={item.icon as any} size={24} color="white" />
         </LinearGradient>
-        
+
         <View style={styles.itemInfo}>
           <Text style={styles.itemName}>{item.name}</Text>
           <Text style={styles.itemDescription}>{item.description}</Text>
@@ -203,23 +199,17 @@ const StoreScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   };
 
   return (
-    <LinearGradient
-      colors={['#FFD700', '#FFA500', '#FF8C00']}
-      style={styles.container}
-    >
+    <LinearGradient colors={['#FFD700', '#FFA500', '#FF8C00']} style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
-      
+
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color="white" />
         </TouchableOpacity>
-        
+
         <Text style={styles.title}>Store</Text>
-        
+
         <View style={styles.coinsContainer}>
           <Ionicons name="coin" size={20} color="#FFD700" />
           <Text style={styles.coinsText}>{gameState.coins.toLocaleString()}</Text>
@@ -392,4 +382,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default StoreScreen; 
+export default StoreScreen;

@@ -13,7 +13,7 @@ describe('Pot of Gold E2E Tests', () => {
     it('should handle authentication successfully', async () => {
       // Wait for app to load
       await expect(element(by.text('Pot of Gold'))).toBeVisible();
-      
+
       // Check if login screen appears
       await expect(element(by.text('Start Game'))).toBeVisible();
     });
@@ -23,28 +23,28 @@ describe('Pot of Gold E2E Tests', () => {
     it('should complete full game session', async () => {
       // Start game
       await element(by.text('Start Game')).tap();
-      
+
       // Verify game is active
       await expect(element(by.text('Score:'))).toBeVisible();
       await expect(element(by.text('Coins:'))).toBeVisible();
-      
+
       // Collect coins
       await element(by.text('Collect Coin')).tap();
       await element(by.text('Collect Coin')).tap();
       await element(by.text('Collect Coin')).tap();
-      
+
       // Verify score increased
       await expect(element(by.text('Score: 30'))).toBeVisible();
-      
+
       // Pause game
       await element(by.text('Pause')).tap();
-      
+
       // Verify pause modal
       await expect(element(by.text('⏸ Game Paused'))).toBeVisible();
-      
+
       // Resume game
       await element(by.text('▶️ Resume')).tap();
-      
+
       // Verify game resumed
       await expect(element(by.text('⏸ Game Paused'))).not.toBeVisible();
     });
@@ -53,10 +53,10 @@ describe('Pot of Gold E2E Tests', () => {
       // Start game and pause
       await element(by.text('Start Game')).tap();
       await element(by.text('Pause')).tap();
-      
+
       // Find and tap upgrade button
       await element(by.text(/Upgrade Pot/)).tap();
-      
+
       // Verify upgrade success
       await expect(element(by.text('Success!'))).toBeVisible();
     });
@@ -65,10 +65,10 @@ describe('Pot of Gold E2E Tests', () => {
       // Start game and pause
       await element(by.text('Start Game')).tap();
       await element(by.text('Pause')).tap();
-      
+
       // Find and tap skin button
       await element(by.text('🎨')).tap();
-      
+
       // Verify skin change
       await expect(element(by.text('Success!'))).toBeVisible();
     });
@@ -78,13 +78,13 @@ describe('Pot of Gold E2E Tests', () => {
     it('should show game over when pot is blocked', async () => {
       // Start game
       await element(by.text('Start Game')).tap();
-      
+
       // Simulate blockage (this would need game logic to trigger)
       // For now, we'll test the game over screen directly
-      
+
       // Navigate to game over (this would normally be triggered by game logic)
       await device.reloadReactNative();
-      
+
       // Verify game over elements
       await expect(element(by.text('Game Over'))).toBeVisible();
       await expect(element(by.text('🔄 Retry'))).toBeVisible();
@@ -95,15 +95,15 @@ describe('Pot of Gold E2E Tests', () => {
     it('should handle rapid button presses', async () => {
       // Start game
       await element(by.text('Start Game')).tap();
-      
+
       // Rapid button presses
       const collectButton = element(by.text('Collect Coin'));
-      
+
       for (let i = 0; i < 50; i++) {
         await collectButton.tap();
-        await new Promise(resolve => setTimeout(resolve, 50)); // Small delay
+        await new Promise((resolve) => setTimeout(resolve, 50)); // Small delay
       }
-      
+
       // Verify app didn't crash
       await expect(element(by.text('Score:'))).toBeVisible();
     });
@@ -111,18 +111,18 @@ describe('Pot of Gold E2E Tests', () => {
     it('should handle memory pressure', async () => {
       // Start game
       await element(by.text('Start Game')).tap();
-      
+
       // Simulate memory pressure by rapid state changes
       const collectButton = element(by.text('Collect Coin'));
       const pauseButton = element(by.text('Pause'));
-      
+
       for (let i = 0; i < 20; i++) {
         await collectButton.tap();
         await pauseButton.tap();
         await element(by.text('▶️ Resume')).tap();
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 100));
       }
-      
+
       // Verify app still responsive
       await expect(element(by.text('Score:'))).toBeVisible();
     });
@@ -133,11 +133,11 @@ describe('Pot of Gold E2E Tests', () => {
       // Test portrait mode
       await device.setOrientation('portrait');
       await expect(element(by.text('Start Game'))).toBeVisible();
-      
+
       // Test landscape mode
       await device.setOrientation('landscape');
       await expect(element(by.text('Start Game'))).toBeVisible();
-      
+
       // Return to portrait
       await device.setOrientation('portrait');
     });
@@ -153,13 +153,13 @@ describe('Pot of Gold E2E Tests', () => {
     it('should handle offline mode gracefully', async () => {
       // Simulate offline mode
       await device.setURLBlacklist(['.*']);
-      
+
       // Start game
       await element(by.text('Start Game')).tap();
-      
+
       // Verify app continues to work
       await expect(element(by.text('Score:'))).toBeVisible();
-      
+
       // Restore network
       await device.setURLBlacklist([]);
     });
@@ -167,14 +167,14 @@ describe('Pot of Gold E2E Tests', () => {
     it('should sync data when coming back online', async () => {
       // Go offline
       await device.setURLBlacklist(['.*']);
-      
+
       // Perform some actions
       await element(by.text('Start Game')).tap();
       await element(by.text('Collect Coin')).tap();
-      
+
       // Go back online
       await device.setURLBlacklist([]);
-      
+
       // Verify sync occurred
       await expect(element(by.text('Score:'))).toBeVisible();
     });
@@ -183,20 +183,20 @@ describe('Pot of Gold E2E Tests', () => {
   describe('Accessibility', () => {
     it('should support screen readers', async () => {
       // Note: Accessibility testing would require platform-specific setup
-      
+
       // Verify accessibility labels
       await expect(element(by.label('Start Game Button'))).toBeVisible();
       await expect(element(by.label('Collect Coin Button'))).toBeVisible();
-      
+
       // Reset accessibility settings if needed
     });
 
     it('should handle large text sizes', async () => {
       // Note: Font size testing would require platform-specific setup
-      
+
       // Verify UI still usable
       await expect(element(by.text('Start Game'))).toBeVisible();
-      
+
       // Reset font size if needed
     });
   });
@@ -204,27 +204,27 @@ describe('Pot of Gold E2E Tests', () => {
   describe('Battery and Performance', () => {
     it('should handle low battery mode', async () => {
       // Note: Battery simulation would require platform-specific setup
-      
+
       // Verify app continues to work
       await element(by.text('Start Game')).tap();
       await expect(element(by.text('Score:'))).toBeVisible();
-      
+
       // Reset battery level if needed
     });
 
     it('should handle background/foreground transitions', async () => {
       // Start game
       await element(by.text('Start Game')).tap();
-      
+
       // Send app to background
       await device.sendToHome();
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
       // Bring app back to foreground
       await device.launchApp({ newInstance: false });
-      
+
       // Verify game state preserved
       await expect(element(by.text('Score:'))).toBeVisible();
     });
   });
-}); 
+});

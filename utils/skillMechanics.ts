@@ -84,7 +84,7 @@ export class SkillMechanicsSystem {
   async initializeSkillProgress(userId: string): Promise<SkillProgression> {
     try {
       const offlineData = await offlineManager.getOfflineData(userId);
-      
+
       if (offlineData.skillProgress) {
         this.skillProgress = offlineData.skillProgress;
         return this.skillProgress;
@@ -122,44 +122,50 @@ export class SkillMechanicsSystem {
   generateObstacles(level: number, difficulty: number): Obstacle[] {
     const obstacles: Obstacle[] = [];
     const obstacleCount = Math.min(3 + Math.floor(level / 5), 10);
-    
+
     for (let i = 0; i < obstacleCount; i++) {
       const obstacleType = this.getRandomObstacleType(level);
       const obstacle = this.createObstacle(obstacleType, level, difficulty);
       obstacles.push(obstacle);
     }
-    
+
     this.obstacles = obstacles;
     return obstacles;
   }
 
   // Get random obstacle type based on level
   private getRandomObstacleType(level: number): Obstacle['type'] {
-    const types: Obstacle['type'][] = ['falling_rock', 'fake_coin', 'slippery_platform', 'wind_gust', 'gravity_shift'];
+    const types: Obstacle['type'][] = [
+      'falling_rock',
+      'fake_coin',
+      'slippery_platform',
+      'wind_gust',
+      'gravity_shift',
+    ];
     const weights = [0.4, 0.3, 0.2, 0.08, 0.02]; // Probability weights
-    
+
     // Adjust weights based on level
     if (level >= 10) weights[3] += 0.1; // More wind gusts
     if (level >= 20) weights[4] += 0.05; // More gravity shifts
-    
+
     const random = Math.random();
     let cumulativeWeight = 0;
-    
+
     for (let i = 0; i < types.length; i++) {
       cumulativeWeight += weights[i];
       if (random <= cumulativeWeight) {
         return types[i] || 'falling_rock';
       }
     }
-    
+
     return 'falling_rock';
   }
 
   // Create obstacle with properties
   private createObstacle(type: Obstacle['type'], level: number, difficulty: number): Obstacle {
-    const baseSpeed = 2 + (level * 0.1) + (difficulty * 0.2);
+    const baseSpeed = 2 + level * 0.1 + difficulty * 0.2;
     const baseDamage = 1 + Math.floor(level / 5);
-    
+
     switch (type) {
       case 'falling_rock':
         return {
@@ -175,7 +181,7 @@ export class SkillMechanicsSystem {
           effect: 'damage_on_hit',
           active: true,
         };
-      
+
       case 'fake_coin':
         return {
           id: `fake_coin_${Date.now()}_${Math.random()}`,
@@ -190,7 +196,7 @@ export class SkillMechanicsSystem {
           effect: 'penalty_on_collect',
           active: true,
         };
-      
+
       case 'slippery_platform':
         return {
           id: `platform_${Date.now()}_${Math.random()}`,
@@ -205,7 +211,7 @@ export class SkillMechanicsSystem {
           effect: 'reduced_control',
           active: true,
         };
-      
+
       case 'wind_gust':
         return {
           id: `wind_${Date.now()}_${Math.random()}`,
@@ -220,7 +226,7 @@ export class SkillMechanicsSystem {
           effect: 'push_effect',
           active: true,
         };
-      
+
       case 'gravity_shift':
         return {
           id: `gravity_${Date.now()}_${Math.random()}`,
@@ -235,7 +241,7 @@ export class SkillMechanicsSystem {
           effect: 'reverse_gravity',
           active: true,
         };
-      
+
       default:
         return {
           id: `obstacle_${Date.now()}_${Math.random()}`,
@@ -255,13 +261,13 @@ export class SkillMechanicsSystem {
 
   // Update obstacle positions
   updateObstacles(deltaTime: number): void {
-    this.obstacles.forEach(obstacle => {
+    this.obstacles.forEach((obstacle) => {
       if (!obstacle.active) return;
-      
+
       // Update position
       obstacle.x += Math.cos(obstacle.direction) * obstacle.speed * deltaTime;
       obstacle.y += Math.sin(obstacle.direction) * obstacle.speed * deltaTime;
-      
+
       // Remove obstacles that are off screen
       if (obstacle.y > height + 50 || obstacle.x < -50 || obstacle.x > width + 50) {
         obstacle.active = false;
@@ -270,7 +276,12 @@ export class SkillMechanicsSystem {
   }
 
   // Check collision with obstacles
-  checkObstacleCollision(potX: number, potY: number, potWidth: number, potHeight: number): {
+  checkObstacleCollision(
+    potX: number,
+    potY: number,
+    potWidth: number,
+    potHeight: number
+  ): {
     collision: boolean;
     damage: number;
     effect: string;
@@ -278,11 +289,19 @@ export class SkillMechanicsSystem {
   } {
     for (const obstacle of this.obstacles) {
       if (!obstacle.active) continue;
-      
-      if (this.isColliding(
-        potX, potY, potWidth, potHeight,
-        obstacle.x, obstacle.y, obstacle.width, obstacle.height
-      )) {
+
+      if (
+        this.isColliding(
+          potX,
+          potY,
+          potWidth,
+          potHeight,
+          obstacle.x,
+          obstacle.y,
+          obstacle.width,
+          obstacle.height
+        )
+      ) {
         obstacle.active = false;
         return {
           collision: true,
@@ -292,7 +311,7 @@ export class SkillMechanicsSystem {
         };
       }
     }
-    
+
     return {
       collision: false,
       damage: 0,
@@ -303,32 +322,44 @@ export class SkillMechanicsSystem {
 
   // Check collision between two rectangles
   private isColliding(
-    x1: number, y1: number, w1: number, h1: number,
-    x2: number, y2: number, w2: number, h2: number
+    x1: number,
+    y1: number,
+    w1: number,
+    h1: number,
+    x2: number,
+    y2: number,
+    w2: number,
+    h2: number
   ): boolean {
     return x1 < x2 + w2 && x1 + w1 > x2 && y1 < y2 + h2 && y1 + h1 > y2;
   }
 
   // Update combo system
-  updateCombo(coinCollected: boolean, timeSinceLastCoin: number): {
+  updateCombo(
+    coinCollected: boolean,
+    timeSinceLastCoin: number
+  ): {
     combo: number;
     multiplier: number;
     rewards: any;
   } {
     const now = Date.now();
-    
+
     if (coinCollected) {
       if (timeSinceLastCoin <= this.comboSystem.comboTimeWindow) {
         this.comboSystem.currentCombo++;
-        this.comboSystem.comboMultiplier = Math.min(1 + (this.comboSystem.currentCombo * 0.1), 5);
+        this.comboSystem.comboMultiplier = Math.min(1 + this.comboSystem.currentCombo * 0.1, 5);
       } else {
         this.comboSystem.currentCombo = 1;
         this.comboSystem.comboMultiplier = 1;
       }
-      
+
       this.comboSystem.lastCoinTime = now;
-      this.comboSystem.maxCombo = Math.max(this.comboSystem.maxCombo, this.comboSystem.currentCombo);
-      
+      this.comboSystem.maxCombo = Math.max(
+        this.comboSystem.maxCombo,
+        this.comboSystem.currentCombo
+      );
+
       // Calculate combo rewards
       this.comboSystem.comboRewards = this.calculateComboRewards(this.comboSystem.currentCombo);
     } else {
@@ -338,7 +369,7 @@ export class SkillMechanicsSystem {
         this.comboSystem.comboMultiplier = 1;
       }
     }
-    
+
     return {
       combo: this.comboSystem.currentCombo,
       multiplier: this.comboSystem.comboMultiplier,
@@ -350,7 +381,7 @@ export class SkillMechanicsSystem {
   private calculateComboRewards(combo: number): ComboSystem['comboRewards'] {
     const baseCoins = 1;
     const baseExperience = 2;
-    
+
     return {
       coins: baseCoins * combo,
       experience: baseExperience * combo,
@@ -371,10 +402,11 @@ export class SkillMechanicsSystem {
 
     // Update basic stats
     this.skillProgress.totalGamesPlayed++;
-    this.skillProgress.averageScore = 
-      (this.skillProgress.averageScore * (this.skillProgress.totalGamesPlayed - 1) + gameData.score) / 
+    this.skillProgress.averageScore =
+      (this.skillProgress.averageScore * (this.skillProgress.totalGamesPlayed - 1) +
+        gameData.score) /
       this.skillProgress.totalGamesPlayed;
-    
+
     this.skillProgress.bestCombo = Math.max(this.skillProgress.bestCombo, gameData.comboAchieved);
     this.skillProgress.obstaclesAvoided += gameData.obstaclesAvoided;
 
@@ -386,9 +418,12 @@ export class SkillMechanicsSystem {
     this.updateSkill('endurance', gameData.timeSurvived);
 
     // Check for level up
-    const totalExperience = Object.values(this.skillProgress.skills).reduce((sum, skill) => sum + skill, 0);
+    const totalExperience = Object.values(this.skillProgress.skills).reduce(
+      (sum, skill) => sum + skill,
+      0
+    );
     const newLevel = Math.floor(totalExperience / 100) + 1;
-    
+
     if (newLevel > this.skillProgress.level) {
       this.skillProgress.level = newLevel;
       this.checkAchievements();
@@ -404,9 +439,9 @@ export class SkillMechanicsSystem {
 
     const currentSkill = this.skillProgress.skills[skillName];
     const improvement = Math.min(value * 0.1, 5); // Cap improvement per game
-    
+
     this.skillProgress.skills[skillName] = Math.min(currentSkill + improvement, 100);
-    
+
     // Update mastery level
     const masteryLevel = Math.floor(this.skillProgress.skills[skillName] / 20);
     this.skillProgress.masteryLevels[skillName] = masteryLevel;
@@ -427,7 +462,7 @@ export class SkillMechanicsSystem {
       { id: 'reflex_legend', condition: () => this.skillProgress!.skills.reflexes >= 90 },
     ];
 
-    achievements.forEach(achievement => {
+    achievements.forEach((achievement) => {
       if (!this.skillProgress!.achievements.includes(achievement.id) && achievement.condition()) {
         this.skillProgress!.achievements.push(achievement.id);
       }
@@ -436,7 +471,7 @@ export class SkillMechanicsSystem {
 
   // Get current obstacles
   getObstacles(): Obstacle[] {
-    return this.obstacles.filter(obstacle => obstacle.active);
+    return this.obstacles.filter((obstacle) => obstacle.active);
   }
 
   // Get combo system
@@ -453,7 +488,8 @@ export class SkillMechanicsSystem {
   getSkillDifficultyMultiplier(): number {
     if (!this.skillProgress) return 1;
 
-    const averageSkill = Object.values(this.skillProgress.skills).reduce((sum, skill) => sum + skill, 0) / 5;
+    const averageSkill =
+      Object.values(this.skillProgress.skills).reduce((sum, skill) => sum + skill, 0) / 5;
     return Math.max(0.5, Math.min(2, 1 + (averageSkill - 50) / 100));
   }
 
@@ -476,4 +512,4 @@ export class SkillMechanicsSystem {
   }
 }
 
-export const skillMechanicsSystem = SkillMechanicsSystem.getInstance(); 
+export const skillMechanicsSystem = SkillMechanicsSystem.getInstance();

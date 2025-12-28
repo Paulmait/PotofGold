@@ -31,11 +31,11 @@ const SubscriptionVaultScreen: React.FC<{ navigation: any }> = ({ navigation }) 
     isLoading: entitlementsLoading,
     refresh: refreshEntitlements,
   } = useEntitlements();
-  
+
   const dailyBonus = useDailyBonus();
   const { getMultiplier } = useUnlockMultiplier();
   const multiplier = getMultiplier();
-  
+
   const {
     currentDrop,
     isClaimed,
@@ -47,11 +47,11 @@ const SubscriptionVaultScreen: React.FC<{ navigation: any }> = ({ navigation }) 
     claim: claimDrop,
     refresh: refreshDrop,
   } = useDrop();
-  
+
   const [showPaywall, setShowPaywall] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [showClaimAnimation, setShowClaimAnimation] = useState(false);
-  
+
   // Animation values
   const fadeAnim = new Animated.Value(0);
   const scaleAnim = new Animated.Value(0.8);
@@ -71,7 +71,7 @@ const SubscriptionVaultScreen: React.FC<{ navigation: any }> = ({ navigation }) 
         useNativeDriver: true,
       }),
     ]).start();
-    
+
     // Preload drop assets
     if (currentDrop) {
       preloadDropAssets(currentDrop.id).catch(console.warn);
@@ -80,11 +80,7 @@ const SubscriptionVaultScreen: React.FC<{ navigation: any }> = ({ navigation }) 
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    await Promise.all([
-      refreshEntitlements(),
-      refreshDrop(),
-      dailyBonus.refresh(),
-    ]);
+    await Promise.all([refreshEntitlements(), refreshDrop(), dailyBonus.refresh()]);
     setRefreshing(false);
   };
 
@@ -93,11 +89,9 @@ const SubscriptionVaultScreen: React.FC<{ navigation: any }> = ({ navigation }) 
       const success = await dailyBonus.claimBonus();
       if (success) {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        Alert.alert(
-          '🎉 Daily Bonus Claimed!',
-          'You received 500 gold coins!',
-          [{ text: 'Awesome!' }]
-        );
+        Alert.alert('🎉 Daily Bonus Claimed!', 'You received 500 gold coins!', [
+          { text: 'Awesome!' },
+        ]);
       }
     }
   };
@@ -106,18 +100,18 @@ const SubscriptionVaultScreen: React.FC<{ navigation: any }> = ({ navigation }) 
     if (!isClaimable || isClaimed || claiming) return;
 
     const success = await claimDrop();
-    
+
     if (success) {
       // Show celebration animation
       setShowClaimAnimation(true);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      
+
       Alert.alert(
         '🎁 Monthly Drop Claimed!',
         `You received:\n• ${currentDrop?.cartSkinId}\n• ${currentDrop?.trailId}\n• ${currentDrop?.badgeId}\n• ${currentDrop?.frameId}\n• +${currentDrop?.bonusCoins} coins`,
         [{ text: 'Awesome!' }]
       );
-      
+
       setTimeout(() => {
         setShowClaimAnimation(false);
       }, 3000);
@@ -145,7 +139,7 @@ const SubscriptionVaultScreen: React.FC<{ navigation: any }> = ({ navigation }) 
     }
 
     return (
-      <Animated.View 
+      <Animated.View
         style={[
           styles.dropCard,
           {
@@ -155,10 +149,7 @@ const SubscriptionVaultScreen: React.FC<{ navigation: any }> = ({ navigation }) 
         ]}
       >
         {/* Header */}
-        <LinearGradient
-          colors={['#FFD700', '#FFA500']}
-          style={styles.dropHeader}
-        >
+        <LinearGradient colors={['#FFD700', '#FFA500']} style={styles.dropHeader}>
           <Text style={styles.dropMonth}>{currentDrop.monthLabel}</Text>
           {daysRemaining > 0 && (
             <View style={styles.countdownBadge}>
@@ -173,7 +164,7 @@ const SubscriptionVaultScreen: React.FC<{ navigation: any }> = ({ navigation }) 
             skinId={currentDrop.cartSkinId}
             type="cart"
             variant="hero"
-            aspectRatio={isTablet ? 1536/2048 : 1080/1920}
+            aspectRatio={isTablet ? 1536 / 2048 : 1080 / 1920}
             containerStyle={styles.heroPreview}
             priority="high"
             showPlaceholder={true}
@@ -214,23 +205,33 @@ const SubscriptionVaultScreen: React.FC<{ navigation: any }> = ({ navigation }) 
           <Text style={styles.itemsTitle}>This Month's Bundle Includes:</Text>
           <View style={styles.itemRow}>
             <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
-            <Text style={styles.itemText}>{currentDrop.cartSkinId.replace(/_/g, ' ').toUpperCase()}</Text>
+            <Text style={styles.itemText}>
+              {currentDrop.cartSkinId.replace(/_/g, ' ').toUpperCase()}
+            </Text>
           </View>
           <View style={styles.itemRow}>
             <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
-            <Text style={styles.itemText}>{currentDrop.trailId.replace(/_/g, ' ').toUpperCase()}</Text>
+            <Text style={styles.itemText}>
+              {currentDrop.trailId.replace(/_/g, ' ').toUpperCase()}
+            </Text>
           </View>
           <View style={styles.itemRow}>
             <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
-            <Text style={styles.itemText}>{currentDrop.badgeId.replace(/_/g, ' ').toUpperCase()}</Text>
+            <Text style={styles.itemText}>
+              {currentDrop.badgeId.replace(/_/g, ' ').toUpperCase()}
+            </Text>
           </View>
           <View style={styles.itemRow}>
             <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
-            <Text style={styles.itemText}>{currentDrop.frameId.replace(/_/g, ' ').toUpperCase()}</Text>
+            <Text style={styles.itemText}>
+              {currentDrop.frameId.replace(/_/g, ' ').toUpperCase()}
+            </Text>
           </View>
           <View style={styles.itemRow}>
             <Ionicons name="gift" size={20} color="#FFD700" />
-            <Text style={[styles.itemText, styles.bonusText]}>+{currentDrop.bonusCoins} Bonus Coins</Text>
+            <Text style={[styles.itemText, styles.bonusText]}>
+              +{currentDrop.bonusCoins} Bonus Coins
+            </Text>
           </View>
         </View>
 
@@ -257,10 +258,7 @@ const SubscriptionVaultScreen: React.FC<{ navigation: any }> = ({ navigation }) 
             )}
           </TouchableOpacity>
         ) : (
-          <TouchableOpacity
-            style={styles.unlockButton}
-            onPress={handleUnlockVault}
-          >
+          <TouchableOpacity style={styles.unlockButton} onPress={handleUnlockVault}>
             <Text style={styles.unlockButtonText}>🔒 Subscribe to Unlock</Text>
           </TouchableOpacity>
         )}
@@ -292,11 +290,7 @@ const SubscriptionVaultScreen: React.FC<{ navigation: any }> = ({ navigation }) 
         <Text style={styles.perkDescription}>{description}</Text>
       </View>
       {onPress && (
-        <Ionicons 
-          name="chevron-forward" 
-          size={20} 
-          color={isActive ? '#FFD700' : '#666'} 
-        />
+        <Ionicons name="chevron-forward" size={20} color={isActive ? '#FFD700' : '#666'} />
       )}
     </TouchableOpacity>
   );
@@ -314,18 +308,11 @@ const SubscriptionVaultScreen: React.FC<{ navigation: any }> = ({ navigation }) 
     <ScrollView
       style={styles.container}
       refreshControl={
-        <RefreshControl
-          refreshing={refreshing}
-          onRefresh={handleRefresh}
-          tintColor="#FFD700"
-        />
+        <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor="#FFD700" />
       }
     >
       {/* Header */}
-      <LinearGradient
-        colors={['#2a2a2a', '#1a1a1a']}
-        style={styles.header}
-      >
+      <LinearGradient colors={['#2a2a2a', '#1a1a1a']} style={styles.header}>
         <View style={styles.headerContent}>
           <Text style={styles.title}>⚜️ Gold Vault Club</Text>
           {isGoldVaultMember ? (
@@ -333,10 +320,7 @@ const SubscriptionVaultScreen: React.FC<{ navigation: any }> = ({ navigation }) 
               <Text style={styles.statusText}>✨ VIP MEMBER</Text>
             </View>
           ) : (
-            <TouchableOpacity 
-              style={styles.joinButton}
-              onPress={handleUnlockVault}
-            >
+            <TouchableOpacity style={styles.joinButton} onPress={handleUnlockVault}>
               <Text style={styles.joinButtonText}>Join Now</Text>
             </TouchableOpacity>
           )}
@@ -355,9 +339,7 @@ const SubscriptionVaultScreen: React.FC<{ navigation: any }> = ({ navigation }) 
         {renderPerk(
           '🪙',
           '500 Daily Coins',
-          dailyBonus.canClaim 
-            ? 'Claim now!' 
-            : `Next claim in ${dailyBonus.timeUntilNextClaim}`,
+          dailyBonus.canClaim ? 'Claim now!' : `Next claim in ${dailyBonus.timeUntilNextClaim}`,
           isGoldVaultMember,
           isGoldVaultMember && dailyBonus.canClaim ? handleClaimDailyBonus : undefined
         )}
@@ -372,41 +354,18 @@ const SubscriptionVaultScreen: React.FC<{ navigation: any }> = ({ navigation }) 
           multiplier > 1 ? 'Active - Progress twice as fast!' : 'Unlock faster progression',
           isGoldVaultMember
         )}
-        {renderPerk(
-          '🏆',
-          'VIP Badge',
-          'Stand out on leaderboards',
-          isGoldVaultMember
-        )}
-        {renderPerk(
-          '🚫',
-          'Ad-Free Experience',
-          'No interruptions',
-          isGoldVaultMember
-        )}
-        {renderPerk(
-          '🎯',
-          'Early Access',
-          'Try new features first',
-          isGoldVaultMember
-        )}
+        {renderPerk('🏆', 'VIP Badge', 'Stand out on leaderboards', isGoldVaultMember)}
+        {renderPerk('🚫', 'Ad-Free Experience', 'No interruptions', isGoldVaultMember)}
+        {renderPerk('🎯', 'Early Access', 'Try new features first', isGoldVaultMember)}
       </View>
 
       {/* Subscribe CTA */}
       {!isGoldVaultMember && (
-        <TouchableOpacity 
-          style={styles.subscribeCTA}
-          onPress={handleUnlockVault}
-        >
-          <LinearGradient
-            colors={['#FFD700', '#FFA500']}
-            style={styles.subscribeGradient}
-          >
+        <TouchableOpacity style={styles.subscribeCTA} onPress={handleUnlockVault}>
+          <LinearGradient colors={['#FFD700', '#FFA500']} style={styles.subscribeGradient}>
             <Text style={styles.subscribeCTATitle}>Unlock Everything</Text>
             <Text style={styles.subscribeCTAPrice}>$4.99/month</Text>
-            <Text style={styles.subscribeCTADescription}>
-              Cancel anytime • Instant access
-            </Text>
+            <Text style={styles.subscribeCTADescription}>Cancel anytime • Instant access</Text>
           </LinearGradient>
         </TouchableOpacity>
       )}

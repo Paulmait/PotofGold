@@ -2,7 +2,13 @@ export interface StateBonusItem {
   type: string;
   emoji: string;
   points: number;
-  effect: 'bonus_points' | 'double_score' | 'slow_fall' | 'extra_life' | 'magnet_boost' | 'combo_multiplier';
+  effect:
+    | 'bonus_points'
+    | 'double_score'
+    | 'slow_fall'
+    | 'extra_life'
+    | 'magnet_boost'
+    | 'combo_multiplier';
   description: string;
   state: string;
 }
@@ -15,7 +21,7 @@ export class StateBonusItemManager {
       points: 15,
       effect: 'bonus_points',
       description: 'Georgia Peach - Sweet bonus points!',
-      state: 'Georgia'
+      state: 'Georgia',
     },
     {
       type: 'vermont_maple',
@@ -23,7 +29,7 @@ export class StateBonusItemManager {
       points: 10,
       effect: 'double_score',
       description: 'Vermont Maple - Double score for 10 seconds!',
-      state: 'Vermont'
+      state: 'Vermont',
     },
     {
       type: 'colorado_crystal',
@@ -31,7 +37,7 @@ export class StateBonusItemManager {
       points: 12,
       effect: 'slow_fall',
       description: 'Colorado Crystal - Slows falling items!',
-      state: 'Colorado'
+      state: 'Colorado',
     },
     {
       type: 'hawaii_hibiscus',
@@ -39,7 +45,7 @@ export class StateBonusItemManager {
       points: 14,
       effect: 'extra_life',
       description: 'Hawaii Hibiscus - Grants an extra life!',
-      state: 'Hawaii'
+      state: 'Hawaii',
     },
     {
       type: 'maine_lobster',
@@ -47,7 +53,7 @@ export class StateBonusItemManager {
       points: 20,
       effect: 'bonus_points',
       description: 'Maine Lobster - Premium bonus points!',
-      state: 'Maine'
+      state: 'Maine',
     },
     {
       type: 'texas_star',
@@ -55,7 +61,7 @@ export class StateBonusItemManager {
       points: 18,
       effect: 'bonus_points',
       description: 'Texas Star - Lone star bonus!',
-      state: 'Texas'
+      state: 'Texas',
     },
     {
       type: 'alaska_aurora',
@@ -63,7 +69,7 @@ export class StateBonusItemManager {
       points: 16,
       effect: 'bonus_points',
       description: 'Alaska Aurora - Northern lights bonus!',
-      state: 'Alaska'
+      state: 'Alaska',
     },
     {
       type: 'arizona_cactus',
@@ -71,7 +77,7 @@ export class StateBonusItemManager {
       points: 13,
       effect: 'bonus_points',
       description: 'Arizona Cactus - Desert bonus!',
-      state: 'Arizona'
+      state: 'Arizona',
     },
     {
       type: 'washington_apple',
@@ -79,7 +85,7 @@ export class StateBonusItemManager {
       points: 11,
       effect: 'bonus_points',
       description: 'Washington Apple - Evergreen bonus!',
-      state: 'Washington'
+      state: 'Washington',
     },
     {
       type: 'louisiana_bayou',
@@ -87,7 +93,7 @@ export class StateBonusItemManager {
       points: 17,
       effect: 'bonus_points',
       description: 'Louisiana Bayou - Mystical bonus!',
-      state: 'Louisiana'
+      state: 'Louisiana',
     },
     {
       type: 'nevada_silver',
@@ -95,7 +101,7 @@ export class StateBonusItemManager {
       points: 19,
       effect: 'bonus_points',
       description: 'Nevada Silver - Silver state bonus!',
-      state: 'Nevada'
+      state: 'Nevada',
     },
     {
       type: 'oregon_beaver',
@@ -103,7 +109,7 @@ export class StateBonusItemManager {
       points: 16,
       effect: 'bonus_points',
       description: 'Oregon Beaver - Beaver state bonus!',
-      state: 'Oregon'
+      state: 'Oregon',
     },
     {
       type: 'montana_star',
@@ -111,8 +117,8 @@ export class StateBonusItemManager {
       points: 15,
       effect: 'bonus_points',
       description: 'Montana Star - Big sky bonus!',
-      state: 'Montana'
-    }
+      state: 'Montana',
+    },
   ];
 
   /**
@@ -133,14 +139,14 @@ export class StateBonusItemManager {
    * Get item by type
    */
   static getItemByType(type: string): StateBonusItem | undefined {
-    return this.items.find(item => item.type === type);
+    return this.items.find((item) => item.type === type);
   }
 
   /**
    * Check if an item type is a state bonus item
    */
   static isStateBonusItem(type: string): boolean {
-    return this.items.some(item => item.type === type);
+    return this.items.some((item) => item.type === type);
   }
 
   /**
@@ -162,7 +168,7 @@ export class StateBonusItemManager {
    * Apply item effect to game state
    */
   static applyItemEffect(
-    itemType: string, 
+    itemType: string,
     gameState: {
       score: number;
       coins: number;
@@ -188,7 +194,7 @@ export class StateBonusItemManager {
         newFallSpeed: gameState.fallSpeed,
         newMagnetRange: gameState.magnetRange,
         effectMessage: '',
-        effectDuration: 0
+        effectDuration: 0,
       };
     }
 
@@ -205,25 +211,25 @@ export class StateBonusItemManager {
         newScore += item.points;
         effectMessage = `+${item.points} points from ${item.state}!`;
         break;
-      
+
       case 'double_score':
         newScore *= 2;
         effectDuration = 10000; // 10 seconds
         effectMessage = `Double score from ${item.state}!`;
         break;
-      
+
       case 'slow_fall':
         newFallSpeed *= 0.7; // 30% slower
         effectDuration = 8000; // 8 seconds
         effectMessage = `Slow fall from ${item.state}!`;
         break;
-      
+
       case 'magnet_boost':
         newMagnetRange *= 1.5; // 50% stronger magnet
         effectDuration = 12000; // 12 seconds
         effectMessage = `Magnet boost from ${item.state}!`;
         break;
-      
+
       case 'combo_multiplier':
         newCombo *= 2;
         effectDuration = 15000; // 15 seconds
@@ -238,7 +244,7 @@ export class StateBonusItemManager {
       newFallSpeed,
       newMagnetRange,
       effectMessage,
-      effectDuration
+      effectDuration,
     };
   }
 
@@ -246,13 +252,13 @@ export class StateBonusItemManager {
    * Get items by state
    */
   static getItemsByState(state: string): StateBonusItem[] {
-    return this.items.filter(item => item.state === state);
+    return this.items.filter((item) => item.state === state);
   }
 
   /**
    * Get all available states
    */
   static getAvailableStates(): string[] {
-    return [...new Set(this.items.map(item => item.state))];
+    return [...new Set(this.items.map((item) => item.state))];
   }
-} 
+}

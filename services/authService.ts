@@ -8,11 +8,11 @@ import {
   onAuthStateChanged,
   sendEmailVerification,
 } from 'firebase/auth';
-import { 
-  doc, 
-  setDoc, 
-  getDoc, 
-  updateDoc, 
+import {
+  doc,
+  setDoc,
+  getDoc,
+  updateDoc,
   serverTimestamp,
   collection,
   query,
@@ -124,10 +124,10 @@ class AuthService {
       };
 
       await setDoc(doc(db, 'users', user.uid), userProfile);
-      
+
       // Track signup event
       Sentry.captureMessage('New user signup', 'info');
-      
+
       this.userProfile = userProfile;
       return userProfile;
     } catch (error: any) {
@@ -190,32 +190,32 @@ class AuthService {
       if (docSnap.exists()) {
         const profile = docSnap.data() as UserProfile;
         this.userProfile = profile;
-        
+
         // Cache profile locally
         await AsyncStorage.setItem('userProfile', JSON.stringify(profile));
-        
+
         // Also trigger unlocks preloading
         await this.preloadUserUnlocks(uid);
-        
+
         return profile;
       }
-      
+
       // Try loading from cache if online fetch fails
       const cached = await AsyncStorage.getItem('userProfile');
       if (cached) {
         return JSON.parse(cached);
       }
-      
+
       return null;
     } catch (error: any) {
       Sentry.captureException(error);
-      
+
       // Fallback to cached profile
       const cached = await AsyncStorage.getItem('userProfile');
       if (cached) {
         return JSON.parse(cached);
       }
-      
+
       throw error;
     }
   }
@@ -225,7 +225,7 @@ class AuthService {
       // Preload unlocks data for faster access
       const unlocksRef = doc(db, 'users', uid, 'unlocks', 'data');
       const unlocksSnap = await getDoc(unlocksRef);
-      
+
       if (unlocksSnap.exists()) {
         // Cache unlocks data
         await AsyncStorage.setItem(`unlocks_${uid}`, JSON.stringify(unlocksSnap.data()));
@@ -247,7 +247,7 @@ class AuthService {
     try {
       const docRef = doc(db, 'users', this.currentUser.uid);
       await updateDoc(docRef, updates);
-      
+
       // Update local cache
       if (this.userProfile) {
         this.userProfile = { ...this.userProfile, ...updates };
@@ -271,7 +271,7 @@ class AuthService {
           ...progress,
         },
       };
-      
+
       await this.updateUserProfile(updates);
     } catch (error: any) {
       // Queue for offline sync
@@ -292,7 +292,7 @@ class AuthService {
   }
 
   private async queueOfflineUpdate(type: string, data: any): Promise<void> {
-    const queue = await AsyncStorage.getItem('offlineQueue') || '[]';
+    const queue = (await AsyncStorage.getItem('offlineQueue')) || '[]';
     const updates = JSON.parse(queue);
     updates.push({
       type,
@@ -326,7 +326,7 @@ class AuthService {
   // Admin functions
   async checkAdminStatus(): Promise<boolean> {
     if (!this.currentUser) return false;
-    
+
     try {
       const adminDoc = await getDoc(doc(db, 'admins', this.currentUser.uid));
       return adminDoc.exists();
@@ -336,7 +336,7 @@ class AuthService {
   }
 
   async getAllUsers(limitCount: number = 50): Promise<UserProfile[]> {
-    if (!await this.checkAdminStatus()) {
+    if (!(await this.checkAdminStatus())) {
       throw new Error('Unauthorized: Admin access required');
     }
 
@@ -344,8 +344,8 @@ class AuthService {
       const usersRef = collection(db, 'users');
       const q = query(usersRef, orderBy('createdAt', 'desc'), limit(limitCount));
       const snapshot = await getDocs(q);
-      
-      return snapshot.docs.map(doc => doc.data() as UserProfile);
+
+      return snapshot.docs.map((doc) => doc.data() as UserProfile);
     } catch (error: any) {
       Sentry.captureException(error);
       throw error;
@@ -353,7 +353,7 @@ class AuthService {
   }
 
   async resetUserAccount(userId: string): Promise<void> {
-    if (!await this.checkAdminStatus()) {
+    if (!(await this.checkAdminStatus())) {
       throw new Error('Unauthorized: Admin access required');
     }
 
@@ -374,7 +374,7 @@ class AuthService {
       };
 
       await updateDoc(doc(db, 'users', userId), resetData);
-      
+
       Sentry.captureMessage(`Admin reset account for user ${userId}`, 'info');
     } catch (error: any) {
       Sentry.captureException(error);

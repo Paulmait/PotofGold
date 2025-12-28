@@ -1,13 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import {
-  View,
-  StyleSheet,
-  Animated,
-  Dimensions,
-  Image,
-  Text,
-  StatusBar,
-} from 'react-native';
+import { View, StyleSheet, Animated, Dimensions, Image, Text, StatusBar } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 const { width, height } = Dimensions.get('window');
@@ -127,10 +119,7 @@ export default function SplashScreen({ onComplete, duration = 3000 }: SplashScre
           style={[
             styles.potContainer,
             {
-              transform: [
-                { scale: scaleAnim },
-                { translateY: floatAnim },
-              ],
+              transform: [{ scale: scaleAnim }, { translateY: floatAnim }],
             },
           ]}
         >
@@ -142,7 +131,7 @@ export default function SplashScreen({ onComplete, duration = 3000 }: SplashScre
               style={styles.potImage}
               resizeMode="contain"
             />
-            
+
             {/* Fallback: Styled pot representation */}
             <View style={styles.potFallback}>
               <View style={styles.potBody}>
@@ -155,7 +144,7 @@ export default function SplashScreen({ onComplete, duration = 3000 }: SplashScre
                 <View style={styles.potRim} />
                 <View style={styles.potHandle} />
               </View>
-              
+
               {/* Coins in pot */}
               <View style={styles.coinsContainer}>
                 {[...Array(12)].map((_, i) => (
@@ -210,10 +199,7 @@ export default function SplashScreen({ onComplete, duration = 3000 }: SplashScre
                 },
               ]}
             >
-              <LinearGradient
-                colors={['#FFD700', '#FFA500']}
-                style={styles.floatingCoinGradient}
-              />
+              <LinearGradient colors={['#FFD700', '#FFA500']} style={styles.floatingCoinGradient} />
             </Animated.View>
           ))}
         </Animated.View>

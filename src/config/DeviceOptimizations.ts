@@ -54,7 +54,7 @@ class DeviceOptimizationManager {
       return this.getiOSOptimizations(deviceInfo, performanceProfile);
     }
 
-    // Android-specific optimizations  
+    // Android-specific optimizations
     if (Platform.OS === 'android') {
       return this.getAndroidOptimizations(deviceInfo, performanceProfile);
     }
@@ -71,7 +71,7 @@ class DeviceOptimizationManager {
   private getiOSOptimizations(deviceInfo: any, profile: any): OptimizationConfig {
     const isIPad = deviceInfo.deviceType === 'tablet';
     const hasNotch = deviceInfo.hasNotch;
-    
+
     return {
       animations: {
         enabled: !deviceInfo.isLowEnd,
@@ -105,7 +105,7 @@ class DeviceOptimizationManager {
   private getAndroidOptimizations(deviceInfo: any, profile: any): OptimizationConfig {
     const androidVersion = Platform.Version || 28;
     const isModern = androidVersion >= 28; // Android 9.0+
-    
+
     return {
       animations: {
         enabled: !deviceInfo.isLowEnd && isModern,
@@ -139,7 +139,7 @@ class DeviceOptimizationManager {
   private getWebOptimizations(deviceInfo: any, profile: any): OptimizationConfig {
     const isDesktop = deviceInfo.deviceType === 'desktop';
     const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-    
+
     return {
       animations: {
         enabled: true,
@@ -203,8 +203,12 @@ class DeviceOptimizationManager {
 
   // Dynamic adjustment methods
   adjustForMemoryPressure() {
-    this.optimizations.gameplay.particleLimit = Math.floor(this.optimizations.gameplay.particleLimit * 0.5);
-    this.optimizations.assets.preloadLimit = Math.floor(this.optimizations.assets.preloadLimit * 0.5);
+    this.optimizations.gameplay.particleLimit = Math.floor(
+      this.optimizations.gameplay.particleLimit * 0.5
+    );
+    this.optimizations.assets.preloadLimit = Math.floor(
+      this.optimizations.assets.preloadLimit * 0.5
+    );
     this.optimizations.rendering.shadowsEnabled = false;
     this.optimizations.rendering.blurEnabled = false;
   }
@@ -305,7 +309,7 @@ class DeviceOptimizationManager {
   getWebSpecificOptimizations() {
     const isChrome = /Chrome/.test(navigator.userAgent);
     const isFirefox = /Firefox/.test(navigator.userAgent);
-    
+
     return {
       useWebGL2: true,
       useOffscreenCanvas: 'OffscreenCanvas' in window,

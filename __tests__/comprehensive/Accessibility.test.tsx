@@ -16,7 +16,7 @@ describe('Accessibility Tests', () => {
 
     test('should have proper accessibility hints', () => {
       const { getByLabelText } = render(
-        <TouchableOpacity 
+        <TouchableOpacity
           accessibilityLabel="Settings Button"
           accessibilityHint="Opens game settings menu"
         >
@@ -45,7 +45,7 @@ describe('Accessibility Tests', () => {
         background: '#000000',
         text: '#FFFFFF',
         primary: '#FFFF00',
-        secondary: '#00FFFF'
+        secondary: '#00FFFF',
       };
 
       // Check contrast ratios
@@ -62,10 +62,10 @@ describe('Accessibility Tests', () => {
       const colorPairs = [
         { background: '#FFFFFF', text: '#000000' },
         { background: '#000000', text: '#FFFFFF' },
-        { background: '#FFFF00', text: '#000000' }
+        { background: '#FFFF00', text: '#000000' },
       ];
 
-      colorPairs.forEach(pair => {
+      colorPairs.forEach((pair) => {
         const contrastRatio = 4.5; // Mock calculation
         expect(contrastRatio).toBeGreaterThanOrEqual(4.5);
       });
@@ -99,10 +99,10 @@ describe('Accessibility Tests', () => {
       const animations = {
         coinFall: { duration: 0 },
         powerUpEffect: { duration: 0 },
-        levelUp: { duration: 0 }
+        levelUp: { duration: 0 },
       };
 
-      Object.values(animations).forEach(animation => {
+      Object.values(animations).forEach((animation) => {
         expect(animation.duration).toBe(0);
       });
     });
@@ -113,21 +113,16 @@ describe('Accessibility Tests', () => {
       const focusableElements = [
         { id: 'start-button', accessible: true },
         { id: 'settings-button', accessible: true },
-        { id: 'pause-button', accessible: true }
+        { id: 'pause-button', accessible: true },
       ];
 
-      focusableElements.forEach(element => {
+      focusableElements.forEach((element) => {
         expect(element.accessible).toBe(true);
       });
     });
 
     test('should have logical tab order', () => {
-      const tabOrder = [
-        'start-button',
-        'settings-button',
-        'pause-button',
-        'resume-button'
-      ];
+      const tabOrder = ['start-button', 'settings-button', 'pause-button', 'resume-button'];
 
       expect(tabOrder).toHaveLength(4);
       expect(tabOrder[0]).toBe('start-button');
@@ -136,14 +131,9 @@ describe('Accessibility Tests', () => {
 
   describe('Voice Control Support', () => {
     test('should support voice control commands', () => {
-      const voiceCommands = [
-        'start game',
-        'pause game',
-        'open settings',
-        'close menu'
-      ];
+      const voiceCommands = ['start game', 'pause game', 'open settings', 'close menu'];
 
-      voiceCommands.forEach(command => {
+      voiceCommands.forEach((command) => {
         expect(typeof command).toBe('string');
         expect(command.length).toBeGreaterThan(0);
       });
@@ -153,10 +143,10 @@ describe('Accessibility Tests', () => {
       const voiceLabels = {
         startButton: 'Start Game Button',
         pauseButton: 'Pause Game Button',
-        settingsButton: 'Settings Menu Button'
+        settingsButton: 'Settings Menu Button',
       };
 
-      Object.values(voiceLabels).forEach(label => {
+      Object.values(voiceLabels).forEach((label) => {
         expect(label).toContain('Button');
         expect(label.length).toBeGreaterThan(5);
       });
@@ -168,10 +158,10 @@ describe('Accessibility Tests', () => {
       const colorIndicators = [
         { color: 'red', text: 'Danger', icon: '⚠️' },
         { color: 'green', text: 'Safe', icon: '✅' },
-        { color: 'yellow', text: 'Warning', icon: '⚠️' }
+        { color: 'yellow', text: 'Warning', icon: '⚠️' },
       ];
 
-      colorIndicators.forEach(indicator => {
+      colorIndicators.forEach((indicator) => {
         expect(indicator.text).toBeDefined();
         expect(indicator.icon).toBeDefined();
       });
@@ -181,10 +171,10 @@ describe('Accessibility Tests', () => {
       const indicators = {
         health: { color: 'red', shape: 'circle', text: 'Low Health' },
         power: { color: 'blue', shape: 'square', text: 'Power Up' },
-        score: { color: 'green', shape: 'star', text: 'High Score' }
+        score: { color: 'green', shape: 'star', text: 'High Score' },
       };
 
-      Object.values(indicators).forEach(indicator => {
+      Object.values(indicators).forEach((indicator) => {
         expect(indicator.shape).toBeDefined();
         expect(indicator.text).toBeDefined();
       });
@@ -197,10 +187,10 @@ describe('Accessibility Tests', () => {
         'button_press',
         'coin_collection',
         'power_up_activation',
-        'level_completion'
+        'level_completion',
       ];
 
-      hapticActions.forEach(action => {
+      hapticActions.forEach((action) => {
         expect(typeof action).toBe('string');
       });
     });
@@ -218,10 +208,10 @@ describe('Accessibility Tests', () => {
       const audioCues = {
         coinCollected: 'coin_sound.mp3',
         powerUpActivated: 'powerup_sound.mp3',
-        levelCompleted: 'level_complete_sound.mp3'
+        levelCompleted: 'level_complete_sound.mp3',
       };
 
-      Object.values(audioCues).forEach(cue => {
+      Object.values(audioCues).forEach((cue) => {
         expect(cue).toMatch(/\.mp3$/);
       });
     });
@@ -233,4 +223,4 @@ describe('Accessibility Tests', () => {
       expect(audioFeedback).toBe('disabled');
     });
   });
-}); 
+});

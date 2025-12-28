@@ -53,7 +53,10 @@ export class MultiplayerRacingSystem {
   private updateInterval: NodeJS.Timeout | null = null;
   private spectatorMode: SpectatorData | null = null;
   private matchQueue: string[] = [];
-  private playerPredictions: Map<string, { position: { x: number; y: number }; velocity: { x: number; y: number } }> = new Map();
+  private playerPredictions: Map<
+    string,
+    { position: { x: number; y: number }; velocity: { x: number; y: number } }
+  > = new Map();
   private lastServerUpdate = 0;
   private serverTickRate = 60; // 60Hz server update rate
   private clientPredictionEnabled = true;
@@ -192,7 +195,7 @@ export class MultiplayerRacingSystem {
     if (!this.currentMatch) return;
 
     this.currentMatch.status = 'countdown';
-    
+
     eventBus.emit('race:countdown', {
       seconds: data.seconds,
     });
@@ -212,7 +215,7 @@ export class MultiplayerRacingSystem {
   private handlePlayerUpdate(data: any) {
     if (!this.currentMatch) return;
 
-    const player = this.currentMatch.players.find(p => p.id === data.playerId);
+    const player = this.currentMatch.players.find((p) => p.id === data.playerId);
     if (!player) return;
 
     // Store server state for reconciliation
@@ -279,7 +282,7 @@ export class MultiplayerRacingSystem {
   }
 
   private handlePowerupUsed(data: any) {
-    const player = this.currentMatch?.players.find(p => p.id === data.playerId);
+    const player = this.currentMatch?.players.find((p) => p.id === data.playerId);
     if (!player) return;
 
     gameEvents.emit(GameEventType.POWERUP_ACTIVATED, {
@@ -296,10 +299,10 @@ export class MultiplayerRacingSystem {
     this.currentMatch.winner = data.winnerId;
 
     // Award rewards based on position
-    const localPlayer = this.currentMatch.players.find(p => p.isLocal);
+    const localPlayer = this.currentMatch.players.find((p) => p.isLocal);
     if (localPlayer) {
       const reward = this.calculateReward(localPlayer.rank);
-      
+
       gameEvents.emit(GameEventType.CURRENCY_EARNED, {
         type: 'gold',
         amount: reward.gold,
@@ -324,7 +327,7 @@ export class MultiplayerRacingSystem {
   }
 
   private handlePlayerDisconnected(data: any) {
-    const player = this.currentMatch?.players.find(p => p.id === data.playerId);
+    const player = this.currentMatch?.players.find((p) => p.id === data.playerId);
     if (player) {
       player.connectionStatus = 'disconnected';
     }
@@ -335,7 +338,7 @@ export class MultiplayerRacingSystem {
   }
 
   private handlePlayerReconnected(data: any) {
-    const player = this.currentMatch?.players.find(p => p.id === data.playerId);
+    const player = this.currentMatch?.players.find((p) => p.id === data.playerId);
     if (player) {
       player.connectionStatus = 'connected';
       Object.assign(player, data.playerState);
@@ -379,13 +382,13 @@ export class MultiplayerRacingSystem {
   private handlePlayerInput(input: any) {
     if (!this.currentMatch || this.currentMatch.status !== 'racing') return;
 
-    const localPlayer = this.currentMatch.players.find(p => p.isLocal);
+    const localPlayer = this.currentMatch.players.find((p) => p.isLocal);
     if (!localPlayer) return;
 
     // Apply input immediately for responsive feel (client prediction)
     if (this.clientPredictionEnabled) {
       this.applyInputLocally(localPlayer, input);
-      
+
       // Store prediction for reconciliation
       this.playerPredictions.set(localPlayer.id, {
         position: { ...localPlayer.position },
@@ -422,7 +425,7 @@ export class MultiplayerRacingSystem {
 
     // Sort players by score
     this.currentMatch.players.sort((a, b) => b.score - a.score);
-    
+
     // Update ranks
     this.currentMatch.players.forEach((player, index) => {
       player.rank = index + 1;
@@ -528,7 +531,7 @@ export class MultiplayerRacingSystem {
   private updateRaceState() {
     // Update local race state
     const elapsed = Date.now() - this.currentMatch!.startTime;
-    
+
     if (elapsed >= this.currentMatch!.duration) {
       // Race time limit reached
       this.sendToServer({
@@ -575,7 +578,7 @@ export class MultiplayerRacingSystem {
       try {
         await this.connectToServer(this.getServerUrl());
         this.reconnectAttempts = 0;
-        
+
         if (this.currentMatch) {
           // Rejoin current match
           this.sendToServer({

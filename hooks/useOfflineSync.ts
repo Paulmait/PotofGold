@@ -38,7 +38,7 @@ export const useOfflineSync = () => {
       const isOnline = netInfo.isConnected && netInfo.isInternetReachable;
 
       if (wasOnline !== isOnline) {
-        setSyncState(prev => ({
+        setSyncState((prev) => ({
           ...prev,
           isOnline,
           syncError: isOnline ? null : 'No internet connection',
@@ -60,15 +60,15 @@ export const useOfflineSync = () => {
       return { success: false, syncedActions: 0, errors: ['Offline or already syncing'] };
     }
 
-    setSyncState(prev => ({ ...prev, isSyncing: true, syncError: null }));
+    setSyncState((prev) => ({ ...prev, isSyncing: true, syncError: null }));
 
     try {
       // Get pending actions from storage
       const pendingActionsData = await AsyncStorage.getItem('offline_actions');
       const pendingActions = pendingActionsData ? JSON.parse(pendingActionsData) : [];
-      
+
       if (pendingActions.length === 0) {
-        setSyncState(prev => ({
+        setSyncState((prev) => ({
           ...prev,
           isSyncing: false,
           lastSyncTime: new Date(),
@@ -83,19 +83,19 @@ export const useOfflineSync = () => {
             switch (action.type) {
               case 'game_session':
                 return await masterGameManager.completeGameSession(action.data);
-              
+
               case 'purchase':
                 return await masterGameManager.processPurchase(action.data);
-              
+
               case 'achievement':
                 return await masterGameManager.unlockAchievement(action.data);
-              
+
               case 'analytics':
                 return await masterGameManager.logAnalytics(action.data);
-              
+
               case 'user_progress':
                 return await masterGameManager.updateUserProgress(action.data);
-              
+
               default:
                 throw new Error(`Unknown action type: ${action.type}`);
             }
@@ -127,7 +127,7 @@ export const useOfflineSync = () => {
 
       // Update sync state
       const remainingActions = await offlineManager.getPendingActions();
-      setSyncState(prev => ({
+      setSyncState((prev) => ({
         ...prev,
         isSyncing: false,
         lastSyncTime: new Date(),
@@ -140,10 +140,9 @@ export const useOfflineSync = () => {
         syncedActions: successfulActions.length,
         errors,
       };
-
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown sync error';
-      setSyncState(prev => ({
+      setSyncState((prev) => ({
         ...prev,
         isSyncing: false,
         syncError: errorMessage,
@@ -159,22 +158,22 @@ export const useOfflineSync = () => {
     try {
       // Get local state
       const localState = await offlineManager.getLocalState();
-      
+
       // Get remote state
       const remoteState = await masterGameManager.getUserState();
-      
+
       // Compare and resolve conflicts
       const conflicts = findConflicts(localState, remoteState);
-      
+
       if (conflicts.length > 0) {
         console.log('Found state conflicts:', conflicts);
-        
+
         // Resolve conflicts (prefer remote for critical data, local for recent actions)
         const resolvedState = await resolveConflicts(localState, remoteState, conflicts);
-        
+
         // Update local state with resolved data
         await offlineManager.updateLocalState(resolvedState);
-        
+
         // Sync any remaining pending actions
         await syncPendingActions();
       }
@@ -186,39 +185,39 @@ export const useOfflineSync = () => {
   // Find conflicts between local and remote state
   const findConflicts = (local: any, remote: any): string[] => {
     const conflicts: string[] = [];
-    
+
     // Check for version conflicts
     if (local.version !== remote.version) {
       conflicts.push('version_mismatch');
     }
-    
+
     // Check for data conflicts
     if (local.lastModified > remote.lastModified) {
       conflicts.push('local_newer');
     } else if (remote.lastModified > local.lastModified) {
       conflicts.push('remote_newer');
     }
-    
+
     return conflicts;
   };
 
   // Resolve conflicts between local and remote state
   const resolveConflicts = async (local: any, remote: any, conflicts: string[]): Promise<any> => {
     const resolved = { ...local };
-    
+
     for (const conflict of conflicts) {
       switch (conflict) {
         case 'version_mismatch':
           // Prefer remote version for critical data
           resolved.version = remote.version;
           break;
-          
+
         case 'local_newer':
           // Keep local changes but merge with remote
           resolved.lastModified = Math.max(local.lastModified, remote.lastModified);
           resolved.data = { ...remote.data, ...local.data };
           break;
-          
+
         case 'remote_newer':
           // Prefer remote data
           resolved.lastModified = remote.lastModified;
@@ -226,14 +225,14 @@ export const useOfflineSync = () => {
           break;
       }
     }
-    
+
     return resolved;
   };
 
   // Manual sync trigger
   const triggerSync = useCallback(async () => {
     if (!syncState.isOnline) {
-      setSyncState(prev => ({ ...prev, syncError: 'Cannot sync while offline' }));
+      setSyncState((prev) => ({ ...prev, syncError: 'Cannot sync while offline' }));
       return;
     }
 
@@ -255,7 +254,7 @@ export const useOfflineSync = () => {
   // Periodic sync check
   useEffect(() => {
     const checkInterval = setInterval(checkConnectivity, 5000); // Check every 5 seconds
-    
+
     return () => {
       clearInterval(checkInterval);
       if (syncTimeoutRef.current) clearTimeout(syncTimeoutRef.current);
@@ -269,7 +268,7 @@ export const useOfflineSync = () => {
       if (syncTimeoutRef.current) {
         clearTimeout(syncTimeoutRef.current);
       }
-      
+
       syncTimeoutRef.current = setTimeout(syncPendingActions, 2000); // Sync after 2 seconds
     }
   }, [syncState.isOnline, syncState.pendingActions, syncPendingActions]);
@@ -286,7 +285,7 @@ export const useOfflineSync = () => {
     const updatePendingCount = async () => {
       try {
         const pendingActions = await offlineManager.getPendingActions();
-        setSyncState(prev => ({ ...prev, pendingActions: pendingActions.length }));
+        setSyncState((prev) => ({ ...prev, pendingActions: pendingActions.length }));
       } catch (error) {
         console.log('Error updating pending count:', error);
       }
@@ -301,4 +300,4 @@ export const useOfflineSync = () => {
     reconcileState,
     checkConnectivity,
   };
-}; 
+};

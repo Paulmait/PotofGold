@@ -150,14 +150,16 @@ const BuyGoldScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
       // }
 
       // Simulate purchase delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
       // Simulate successful purchase
       await handlePurchaseSuccess(product);
-
     } catch (error) {
       console.log('Purchase error:', error);
-      Alert.alert('Purchase Failed', 'There was an error processing your purchase. Please try again.');
+      Alert.alert(
+        'Purchase Failed',
+        'There was an error processing your purchase. Please try again.'
+      );
     } finally {
       setPurchasing(null);
     }
@@ -178,16 +180,19 @@ const BuyGoldScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
         if (userDoc.exists()) {
           const userData = userDoc.data();
           const currentCoins = userData.coins || 0;
-          
+
           await updateDoc(userRef, {
             coins: currentCoins + product.coins,
-            purchases: [...(userData.purchases || []), {
-              productId: product.id,
-              productName: product.title,
-              coins: product.coins,
-              price: product.price,
-              purchasedAt: new Date(),
-            }],
+            purchases: [
+              ...(userData.purchases || []),
+              {
+                productId: product.id,
+                productName: product.title,
+                coins: product.coins,
+                price: product.price,
+                purchasedAt: new Date(),
+              },
+            ],
             lastPurchaseAt: new Date(),
           });
         }
@@ -196,38 +201,43 @@ const BuyGoldScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
       // Show success message
       Alert.alert(
         'Purchase Successful!',
-        product.coins > 0 
+        product.coins > 0
           ? `You've received ${product.coins} coins!`
           : product.id === 'remove_ads'
-          ? 'Ads have been removed from your game!'
-          : 'Premium power-ups unlocked for 30 days!',
+            ? 'Ads have been removed from your game!'
+            : 'Premium power-ups unlocked for 30 days!',
         [{ text: 'Great!' }]
       );
 
       // Navigate back to previous screen
       navigation.goBack();
-
     } catch (error) {
       console.log('Error updating user data:', error);
-      Alert.alert('Error', 'Purchase successful but there was an error updating your data. Please contact support.');
+      Alert.alert(
+        'Error',
+        'Purchase successful but there was an error updating your data. Please contact support.'
+      );
     }
   };
 
   const handleRestorePurchases = async () => {
     try {
       setLoading(true);
-      
+
       // In real app, you would use:
       // const customerInfo = await Purchases.restorePurchases();
       // handleRestoredPurchases(customerInfo);
 
       // Simulate restore
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
       Alert.alert('Restore Complete', 'Your purchases have been restored successfully!');
     } catch (error) {
       console.log('Restore error:', error);
-      Alert.alert('Restore Failed', 'There was an error restoring your purchases. Please try again.');
+      Alert.alert(
+        'Restore Failed',
+        'There was an error restoring your purchases. Please try again.'
+      );
     } finally {
       setLoading(false);
     }
@@ -253,7 +263,7 @@ const BuyGoldScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
             <Text style={styles.popularText}>POPULAR</Text>
           </View>
         )}
-        
+
         {product.bestValue && (
           <View style={styles.bestValueBadge}>
             <Text style={styles.bestValueText}>BEST VALUE</Text>
@@ -302,22 +312,16 @@ const BuyGoldScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   return (
     <LinearGradient colors={['#FFD700', '#FFA500', '#FF8C00']} style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
-      
+
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color="white" />
         </TouchableOpacity>
-        
+
         <Text style={styles.title}>Buy Gold</Text>
-        
-        <TouchableOpacity
-          style={styles.restoreButton}
-          onPress={handleRestorePurchases}
-        >
+
+        <TouchableOpacity style={styles.restoreButton} onPress={handleRestorePurchases}>
           <Ionicons name="refresh" size={24} color="white" />
         </TouchableOpacity>
       </View>
@@ -339,15 +343,13 @@ const BuyGoldScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
         ]}
       >
         <ScrollView showsVerticalScrollIndicator={false}>
-          <View style={styles.productsGrid}>
-            {products.map(renderProduct)}
-          </View>
+          <View style={styles.productsGrid}>{products.map(renderProduct)}</View>
 
           {/* Terms and Privacy */}
           <View style={styles.termsContainer}>
             <Text style={styles.termsText}>
-              By making a purchase, you agree to our Terms of Service and Privacy Policy.
-              All purchases are final and non-refundable.
+              By making a purchase, you agree to our Terms of Service and Privacy Policy. All
+              purchases are final and non-refundable.
             </Text>
           </View>
         </ScrollView>
@@ -532,4 +534,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default BuyGoldScreen; 
+export default BuyGoldScreen;

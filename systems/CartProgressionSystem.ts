@@ -54,7 +54,7 @@ export interface CartAbility {
   effect: () => void;
 }
 
-type AbilityType = 
+type AbilityType =
   | 'vacuum' // Sucks all items on screen
   | 'teleport' // Instant movement
   | 'shield' // Temporary invincibility
@@ -391,7 +391,7 @@ export const CART_PROGRESSION: { [key: string]: CartStats } = {
       coins: 100000,
       gems: 500,
       level: 100,
-      collectibles: { 'phoenix_feather': 1 },
+      collectibles: { phoenix_feather: 1 },
     },
     stats: {
       coinBonus: 3.0,
@@ -430,7 +430,7 @@ export const CART_PROGRESSION: { [key: string]: CartStats } = {
       coins: 100000,
       gems: 500,
       level: 100,
-      collectibles: { 'dragon_scale': 1 },
+      collectibles: { dragon_scale: 1 },
     },
     stats: {
       coinBonus: 3.0,
@@ -470,7 +470,7 @@ export const CART_PROGRESSION: { [key: string]: CartStats } = {
       coins: 1000000,
       gems: 5000,
       level: 200,
-      collectibles: { 'infinity_gem': 1 },
+      collectibles: { infinity_gem: 1 },
       vipLevel: 10, // Eternal VIP
     },
     stats: {
@@ -510,7 +510,7 @@ export const CART_PROGRESSION: { [key: string]: CartStats } = {
     requirements: {
       coins: 6666,
       gems: 66,
-      collectibles: { 'pumpkin': 10 },
+      collectibles: { pumpkin: 10 },
     },
     stats: {
       coinBonus: 1.666,
@@ -548,7 +548,7 @@ export const CART_PROGRESSION: { [key: string]: CartStats } = {
     requirements: {
       coins: 12250,
       gems: 125,
-      collectibles: { 'snowflake': 25 },
+      collectibles: { snowflake: 25 },
     },
     stats: {
       coinBonus: 2.0,
@@ -572,13 +572,13 @@ export const UPGRADE_PATHS = {
 export class CartAbilityManager {
   private activeAbilities: Map<string, any> = new Map();
   private cooldowns: Map<string, number> = new Map();
-  
+
   activateAbility(cart: CartStats, gameContext: any): boolean {
     if (!cart.specialAbility) return false;
-    
+
     const ability = cart.specialAbility;
     const cooldownKey = `${cart.id}_${ability.type}`;
-    
+
     // Check cooldown
     if (this.cooldowns.has(cooldownKey)) {
       const remainingTime = this.cooldowns.get(cooldownKey)! - Date.now();
@@ -586,7 +586,7 @@ export class CartAbilityManager {
         return false; // Still on cooldown
       }
     }
-    
+
     // Execute ability
     switch (ability.type) {
       case 'vacuum':
@@ -614,52 +614,52 @@ export class CartAbilityManager {
         this.activateInfinityMode(gameContext);
         break;
     }
-    
+
     // Set cooldown
     this.cooldowns.set(cooldownKey, Date.now() + ability.cooldown);
-    
+
     // Set duration if applicable
     if (ability.duration > 0) {
       setTimeout(() => {
         this.deactivateAbility(ability.type, gameContext);
       }, ability.duration);
     }
-    
+
     return true;
   }
-  
+
   private activateVacuum(context: any) {
     context.magnetRange = 9999; // Collect everything on screen
   }
-  
+
   private activateTeleport(context: any) {
     context.canTeleport = true;
   }
-  
+
   private activateShield(context: any) {
     context.invincible = true;
     context.destroyObstacles = true;
   }
-  
+
   private activateTimeFreeze(context: any) {
     context.timeScale = 0.2; // Slow motion
   }
-  
+
   private activateGoldenTouch(context: any) {
     context.goldenMode = true;
     context.coinMultiplier *= 3;
   }
-  
+
   private activatePhoenix(context: any) {
     context.hasRevive = true;
   }
-  
+
   private activateDragonBreath(context: any) {
     context.dragonMode = true;
     context.burnObstacles = true;
     context.coinMultiplier *= 2;
   }
-  
+
   private activateInfinityMode(context: any) {
     // Activate ALL abilities
     this.activateVacuum(context);
@@ -668,7 +668,7 @@ export class CartAbilityManager {
     this.activateDragonBreath(context);
     context.infinityMode = true;
   }
-  
+
   private deactivateAbility(type: AbilityType, context: any) {
     switch (type) {
       case 'vacuum':
@@ -700,13 +700,13 @@ export class CartAbilityManager {
         break;
     }
   }
-  
+
   getCooldownRemaining(cart: CartStats): number {
     if (!cart.specialAbility) return 0;
-    
+
     const cooldownKey = `${cart.id}_${cart.specialAbility.type}`;
     if (!this.cooldowns.has(cooldownKey)) return 0;
-    
+
     const remaining = this.cooldowns.get(cooldownKey)! - Date.now();
     return Math.max(0, remaining);
   }

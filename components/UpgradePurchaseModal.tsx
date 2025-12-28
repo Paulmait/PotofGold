@@ -1,12 +1,5 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  Modal,
-  TouchableOpacity,
-  StyleSheet,
-  Alert,
-} from 'react-native';
+import { View, Text, Modal, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
@@ -81,7 +74,12 @@ const UpgradePurchaseModal: React.FC<UpgradePurchaseModalProps> = ({
         `You need ${upgrade.cost - coins} more coins for this upgrade.`,
         [
           { text: 'OK', style: 'cancel' },
-          { text: 'Get More Coins', onPress: () => {/* Navigate to shop */} },
+          {
+            text: 'Get More Coins',
+            onPress: () => {
+              /* Navigate to shop */
+            },
+          },
         ]
       );
       return;
@@ -94,39 +92,25 @@ const UpgradePurchaseModal: React.FC<UpgradePurchaseModalProps> = ({
       setCurrentLevel(upgrade.level);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
-      Alert.alert(
-        '🎉 Upgrade Purchased!',
-        `You now have ${upgrade.total} missed item chances!`,
-        [{ text: 'Awesome!', onPress: onClose }]
-      );
+      Alert.alert('🎉 Upgrade Purchased!', `You now have ${upgrade.total} missed item chances!`, [
+        { text: 'Awesome!', onPress: onClose },
+      ]);
     } catch (error) {
       console.error('Failed to save upgrade:', error);
     }
   };
 
   return (
-    <Modal
-      visible={visible}
-      transparent={true}
-      animationType="slide"
-      onRequestClose={onClose}
-    >
+    <Modal visible={visible} transparent={true} animationType="slide" onRequestClose={onClose}>
       <View style={styles.modalContainer}>
         <View style={styles.contentContainer}>
-          <LinearGradient
-            colors={['#FFD700', '#FFA500', '#FF8C00']}
-            style={styles.gradient}
-          >
+          <LinearGradient colors={['#FFD700', '#FFA500', '#FF8C00']} style={styles.gradient}>
             <Text style={styles.title}>🛍️ Upgrade Shop 🛍️</Text>
             <Text style={styles.subtitle}>Get More Chances!</Text>
 
             <View style={styles.currentStatus}>
-              <Text style={styles.statusText}>
-                Current: {currentMaxMissed} chances
-              </Text>
-              <Text style={styles.coinsText}>
-                Your Coins: 🪙 {coins}
-              </Text>
+              <Text style={styles.statusText}>Current: {currentMaxMissed} chances</Text>
+              <Text style={styles.coinsText}>Your Coins: 🪙 {coins}</Text>
             </View>
 
             <View style={styles.upgradesContainer}>
@@ -147,23 +131,16 @@ const UpgradePurchaseModal: React.FC<UpgradePurchaseModalProps> = ({
                   >
                     <View style={styles.upgradeHeader}>
                       <Text style={styles.upgradeEmoji}>{upgrade.emoji}</Text>
-                      <Text style={styles.upgradeDescription}>
-                        {upgrade.description}
-                      </Text>
+                      <Text style={styles.upgradeDescription}>{upgrade.description}</Text>
                     </View>
 
                     <View style={styles.upgradeDetails}>
-                      <Text style={styles.upgradeTotal}>
-                        Total: {upgrade.total} chances
-                      </Text>
+                      <Text style={styles.upgradeTotal}>Total: {upgrade.total} chances</Text>
                       {isPurchased ? (
                         <Text style={styles.ownedText}>✅ Owned</Text>
                       ) : (
                         <View style={styles.costContainer}>
-                          <Text style={[
-                            styles.costText,
-                            !canAfford && styles.costTextLocked
-                          ]}>
+                          <Text style={[styles.costText, !canAfford && styles.costTextLocked]}>
                             🪙 {upgrade.cost}
                           </Text>
                           {!canAfford && (
@@ -186,18 +163,13 @@ const UpgradePurchaseModal: React.FC<UpgradePurchaseModalProps> = ({
             </View>
 
             <View style={styles.infoBox}>
-              <Text style={styles.infoText}>
-                💡 Tip: More chances = Longer gameplay!
-              </Text>
+              <Text style={styles.infoText}>💡 Tip: More chances = Longer gameplay!</Text>
               <Text style={styles.infoText}>
                 Upgrades are permanent and apply to all future games.
               </Text>
             </View>
 
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={onClose}
-            >
+            <TouchableOpacity style={styles.closeButton} onPress={onClose}>
               <Text style={styles.closeButtonText}>Maybe Later</Text>
             </TouchableOpacity>
           </LinearGradient>

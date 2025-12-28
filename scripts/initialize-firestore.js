@@ -110,8 +110,9 @@ async function initializeFirestore() {
     console.log('✅ Created config collection with legal version');
 
     console.log('\n🎉 Firestore initialization complete!');
-    console.log('📍 View your data at: https://console.firebase.google.com/project/potofgold-production/firestore/data');
-
+    console.log(
+      '📍 View your data at: https://console.firebase.google.com/project/potofgold-production/firestore/data'
+    );
   } catch (error) {
     console.error('❌ Error initializing Firestore:', error);
   }

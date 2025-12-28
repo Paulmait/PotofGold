@@ -17,12 +17,14 @@ export const validateEmail = (email: string): boolean => {
  * Validate password strength
  * Requirements: 8+ chars, uppercase, lowercase, number, special char
  */
-export const validatePassword = (password: string): {
+export const validatePassword = (
+  password: string
+): {
   isValid: boolean;
   errors: string[];
 } => {
   const errors: string[] = [];
-  
+
   if (password.length < 8) {
     errors.push('Password must be at least 8 characters long');
   }
@@ -38,10 +40,10 @@ export const validatePassword = (password: string): {
   if (!/[@$!%*?&#]/.test(password)) {
     errors.push('Password must contain at least one special character');
   }
-  
+
   return {
     isValid: errors.length === 0,
-    errors
+    errors,
   };
 };
 
@@ -81,16 +83,14 @@ export class RateLimiter {
   isAllowed(identifier: string): boolean {
     const now = Date.now();
     const attempts = this.attempts.get(identifier) || [];
-    
+
     // Filter out old attempts
-    const recentAttempts = attempts.filter(
-      time => now - time < this.windowMs
-    );
-    
+    const recentAttempts = attempts.filter((time) => now - time < this.windowMs);
+
     if (recentAttempts.length >= this.maxAttempts) {
       return false;
     }
-    
+
     recentAttempts.push(now);
     this.attempts.set(identifier, recentAttempts);
     return true;
@@ -99,9 +99,7 @@ export class RateLimiter {
   getRemainingAttempts(identifier: string): number {
     const now = Date.now();
     const attempts = this.attempts.get(identifier) || [];
-    const recentAttempts = attempts.filter(
-      time => now - time < this.windowMs
-    );
+    const recentAttempts = attempts.filter((time) => now - time < this.windowMs);
     return Math.max(0, this.maxAttempts - recentAttempts.length);
   }
 
@@ -117,7 +115,7 @@ export const validateGameScore = (score: number, playtime: number): boolean => {
   // Maximum possible score per second of gameplay
   const maxScorePerSecond = 100;
   const maxPossibleScore = playtime * maxScorePerSecond;
-  
+
   return score >= 0 && score <= maxPossibleScore;
 };
 
@@ -159,7 +157,7 @@ export const validateFirebaseConfig = (): boolean => {
       return false;
     }
   }
-  
+
   return true;
 };
 
@@ -185,7 +183,7 @@ export const validatePurchase = (productId: string, price: number): boolean => {
     'vip_subscription',
     'remove_ads',
   ];
-  
+
   return validProducts.includes(productId) && price > 0 && price < 1000;
 };
 
@@ -197,25 +195,23 @@ export const detectSuspiciousActivity = (
 ): boolean => {
   // Check for rapid-fire actions (potential bot)
   const recentActions = actions.filter(
-    a => Date.now() - a.timestamp < 1000 // Last second
+    (a) => Date.now() - a.timestamp < 1000 // Last second
   );
-  
+
   if (recentActions.length > 10) {
     return true; // Too many actions in 1 second
   }
-  
+
   // Check for impossible game patterns
-  const scores = actions
-    .filter(a => a.type === 'score_update')
-    .map(a => (a as any).score);
-    
+  const scores = actions.filter((a) => a.type === 'score_update').map((a) => (a as any).score);
+
   for (let i = 1; i < scores.length; i++) {
     const increase = scores[i] - scores[i - 1];
     if (increase > 10000) {
       return true; // Impossible score jump
     }
   }
-  
+
   return false;
 };
 

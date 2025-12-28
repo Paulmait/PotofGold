@@ -18,7 +18,7 @@ export interface DailyBonusState {
 export const useDailyBonus = (userId?: string) => {
   const { isGoldVaultMember, isLoading: entitlementLoading } = useGoldVaultSubscription(userId);
   const { addCoins } = useGameContext();
-  
+
   const [state, setState] = useState<DailyBonusState>({
     canClaim: false,
     lastClaimedAt: null,
@@ -33,14 +33,14 @@ export const useDailyBonus = (userId?: string) => {
     try {
       const key = userId ? `${DAILY_BONUS_KEY}_${userId}` : DAILY_BONUS_KEY;
       const stored = await AsyncStorage.getItem(key);
-      
+
       if (stored) {
         const lastClaimedAt = parseInt(stored, 10);
         const now = Date.now();
         const timeSinceLastClaim = now - lastClaimedAt;
         const canClaim = timeSinceLastClaim >= BONUS_COOLDOWN;
-        const hoursUntilNextClaim = canClaim 
-          ? 0 
+        const hoursUntilNextClaim = canClaim
+          ? 0
           : Math.ceil((BONUS_COOLDOWN - timeSinceLastClaim) / (1000 * 60 * 60));
 
         setState({
@@ -74,16 +74,16 @@ export const useDailyBonus = (userId?: string) => {
     try {
       const now = Date.now();
       const key = userId ? `${DAILY_BONUS_KEY}_${userId}` : DAILY_BONUS_KEY;
-      
+
       // Save claim timestamp
       await AsyncStorage.setItem(key, now.toString());
-      
+
       // Add coins to user balance
       addCoins(state.bonusAmount);
-      
+
       // Haptic feedback for successful claim
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      
+
       // Update state
       setState({
         canClaim: false,
@@ -91,7 +91,7 @@ export const useDailyBonus = (userId?: string) => {
         hoursUntilNextClaim: 24,
         bonusAmount: BONUS_AMOUNT,
       });
-      
+
       // Log analytics event
       if (window.analyticsSystem) {
         window.analyticsSystem.track('daily_bonus_claimed', {
@@ -100,7 +100,7 @@ export const useDailyBonus = (userId?: string) => {
           timestamp: now,
         });
       }
-      
+
       return true;
     } catch (error) {
       console.error('Error claiming daily bonus:', error);
@@ -139,15 +139,20 @@ export const useDailyBonus = (userId?: string) => {
   }, [state.lastClaimedAt]);
 
   // Get streak information (for future enhancement)
-  const getStreakInfo = useCallback(async (): Promise<{ currentStreak: number; bestStreak: number }> => {
+  const getStreakInfo = useCallback(async (): Promise<{
+    currentStreak: number;
+    bestStreak: number;
+  }> => {
     try {
-      const streakKey = userId ? `${DAILY_BONUS_KEY}_streak_${userId}` : `${DAILY_BONUS_KEY}_streak`;
+      const streakKey = userId
+        ? `${DAILY_BONUS_KEY}_streak_${userId}`
+        : `${DAILY_BONUS_KEY}_streak`;
       const streakData = await AsyncStorage.getItem(streakKey);
-      
+
       if (streakData) {
         return JSON.parse(streakData);
       }
-      
+
       return { currentStreak: 0, bestStreak: 0 };
     } catch (error) {
       console.error('Error getting streak info:', error);
@@ -174,13 +179,13 @@ export const useDailyBonus = (userId?: string) => {
   // Set up timer to auto-update when bonus becomes available
   useEffect(() => {
     if (!state.canClaim && state.lastClaimedAt) {
-      const timeUntilAvailable = (state.lastClaimedAt + BONUS_COOLDOWN) - Date.now();
-      
+      const timeUntilAvailable = state.lastClaimedAt + BONUS_COOLDOWN - Date.now();
+
       if (timeUntilAvailable > 0) {
         const timer = setTimeout(() => {
           loadLastClaimed();
         }, timeUntilAvailable);
-        
+
         return () => clearTimeout(timer);
       }
     }

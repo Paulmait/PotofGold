@@ -1,6 +1,7 @@
 # 🎨 Pot of Gold - Art Pipeline Documentation
 
 ## Table of Contents
+
 1. [Overview](#overview)
 2. [Asset Architecture](#asset-architecture)
 3. [Art Generation Pipeline](#art-generation-pipeline)
@@ -15,6 +16,7 @@
 The Pot of Gold art pipeline is a comprehensive system for managing, generating, and displaying game assets across mobile devices. It provides automatic asset optimization, responsive display, and seamless integration with the monthly drops system.
 
 ### Key Features
+
 - ✅ Automatic generation of @1x/@2x/@3x variants
 - ✅ Device-specific hero images (phone/tablet)
 - ✅ Sharp-based image processing
@@ -26,6 +28,7 @@ The Pot of Gold art pipeline is a comprehensive system for managing, generating,
 ## Asset Architecture
 
 ### Directory Structure
+
 ```
 assets/
 ├── skins/
@@ -55,23 +58,24 @@ assets/
 
 ### Asset Types & Dimensions
 
-| Type | Base Size | @2x Size | @3x Size | Usage |
-|------|-----------|----------|----------|--------|
-| **Cart** | 360px | 720px | 1080px | Main pot/cart sprite |
-| **Trail** | 240px | 480px | 720px | Movement effects |
-| **Badge** | 120px | 240px | 360px | Achievement icons |
-| **Frame** | 400px | 800px | 1200px | UI borders/frames |
+| Type      | Base Size | @2x Size | @3x Size | Usage                |
+| --------- | --------- | -------- | -------- | -------------------- |
+| **Cart**  | 360px     | 720px    | 1080px   | Main pot/cart sprite |
+| **Trail** | 240px     | 480px    | 720px    | Movement effects     |
+| **Badge** | 120px     | 240px    | 360px    | Achievement icons    |
+| **Frame** | 400px     | 800px    | 1200px   | UI borders/frames    |
 
 ### Hero Images
 
-| Device | Resolution | Aspect Ratio | Usage |
-|--------|------------|--------------|--------|
-| **Phone** | 1080×1920 | 9:16 | Full-screen previews |
-| **Tablet** | 1536×2048 | 3:4 | iPad-optimized views |
+| Device     | Resolution | Aspect Ratio | Usage                |
+| ---------- | ---------- | ------------ | -------------------- |
+| **Phone**  | 1080×1920  | 9:16         | Full-screen previews |
+| **Tablet** | 1536×2048  | 3:4          | iPad-optimized views |
 
 ## Art Generation Pipeline
 
 ### 1. Manual Asset Creation
+
 Artists create master artwork using provided templates:
 
 ```bash
@@ -85,6 +89,7 @@ npm run generate-templates
 ```
 
 ### 2. Automated Processing
+
 The pipeline automatically generates all required variants:
 
 ```bash
@@ -112,6 +117,7 @@ npm run generate-art:watch
 ```
 
 ### 4. Validation
+
 Automated validation ensures quality:
 
 ```bash
@@ -138,6 +144,7 @@ The `.github/workflows/art-generation.yml` workflow automates:
    - Manual workflow dispatch
 
 2. **Processing Steps**
+
    ```yaml
    - Detect changed drops
    - Generate affected assets
@@ -252,28 +259,21 @@ for (const skin of skins) {
 
 ```tsx
 // Collection grid
-{collection.map(item => (
-  <View key={item.id}>
-    <OptimizedArt
-      skinId={item.id}
-      type={item.type}
-      variant="thumbnail"
-    />
-    {item.equipped && <EquippedBadge />}
-  </View>
-))}
+{
+  collection.map((item) => (
+    <View key={item.id}>
+      <OptimizedArt skinId={item.id} type={item.type} variant="thumbnail" />
+      {item.equipped && <EquippedBadge />}
+    </View>
+  ));
+}
 
 // Current loadout display
 <View style={styles.loadout}>
   {Object.entries(equipped).map(([type, skinId]) => (
-    <OptimizedArt
-      key={type}
-      skinId={skinId}
-      type={type}
-      variant="thumbnail"
-    />
+    <OptimizedArt key={type} skinId={skinId} type={type} variant="thumbnail" />
   ))}
-</View>
+</View>;
 ```
 
 ## Performance Optimization
@@ -286,15 +286,16 @@ for (const skin of skins) {
    - Thumbnails: <50KB
 
 2. **Compression Settings**
+
    ```javascript
    // Sharp compression
    sharp(input)
-     .png({ 
+     .png({
        quality: 90,
        compressionLevel: 9,
        adaptiveFiltering: true
      })
-   
+
    // Post-processing with pngquant
    pngquant --quality=85-95 --ext=.png --force
    ```
@@ -302,29 +303,28 @@ for (const skin of skins) {
 3. **Caching Strategy**
    ```typescript
    // expo-image caching
-   cachePolicy="memory-disk"  // Default
-   cachePolicy="disk"         // Large images
-   cachePolicy="memory"       // Frequently accessed
-   cachePolicy="none"         // Dynamic content
+   cachePolicy = 'memory-disk'; // Default
+   cachePolicy = 'disk'; // Large images
+   cachePolicy = 'memory'; // Frequently accessed
+   cachePolicy = 'none'; // Dynamic content
    ```
 
 ### Loading Performance
 
 1. **Lazy Loading**
+
    ```tsx
    // Load images as they enter viewport
    <FlatList
      data={items}
      renderItem={({ item }) => (
-       <OptimizedArt
-         skinId={item.id}
-         priority={item.visible ? 'high' : 'low'}
-       />
+       <OptimizedArt skinId={item.id} priority={item.visible ? 'high' : 'low'} />
      )}
    />
    ```
 
 2. **Progressive Loading**
+
    ```tsx
    // Blurhash placeholders
    const BLURHASH_PLACEHOLDERS = {
@@ -345,18 +345,17 @@ for (const skin of skins) {
 ### Memory Management
 
 1. **Image Recycling**
+
    ```tsx
    // Use recyclingKey for list items
-   <OptimizedArt
-     recyclingKey={`${skinId}-${variant}`}
-     allowDownscaling={true}
-   />
+   <OptimizedArt recyclingKey={`${skinId}-${variant}`} allowDownscaling={true} />
    ```
 
 2. **Cache Clearing**
+
    ```typescript
    import { clearImageCache } from '../src/components/OptimizedArt';
-   
+
    // Clear on app update
    await clearImageCache();
    ```
@@ -391,6 +390,7 @@ for (const skin of skins) {
 ### Common Issues
 
 #### 1. Missing Assets
+
 ```bash
 # Regenerate missing assets
 npm run generate-art
@@ -400,6 +400,7 @@ node tools/validate-assets.js
 ```
 
 #### 2. Wrong Dimensions
+
 ```bash
 # Check master file dimensions
 identify assets/skins/masters/cart_aurora_gold_v1.png
@@ -409,6 +410,7 @@ npm run generate-art -- --skin cart_aurora_gold_v1
 ```
 
 #### 3. Performance Issues
+
 ```typescript
 // Clear cache
 await clearImageCache();
@@ -418,6 +420,7 @@ const quality = DeviceInfo.getTotalMemory() < 2GB ? 'low' : 'high';
 ```
 
 #### 4. Build Errors
+
 ```bash
 # Clean and rebuild
 rm -rf node_modules/.cache
@@ -474,35 +477,36 @@ done
 
 ### Supported Devices
 
-| Platform | Min Resolution | Max Resolution | DPI Range |
-|----------|---------------|----------------|-----------|
-| iOS | 375×667 (iPhone SE) | 430×932 (iPhone Pro Max) | @2x-@3x |
-| Android | 360×640 (Budget) | 412×915 (Premium) | mdpi-xxxhdpi |
-| iPad | 768×1024 (Mini) | 1024×1366 (Pro) | @2x |
+| Platform | Min Resolution      | Max Resolution           | DPI Range    |
+| -------- | ------------------- | ------------------------ | ------------ |
+| iOS      | 375×667 (iPhone SE) | 430×932 (iPhone Pro Max) | @2x-@3x      |
+| Android  | 360×640 (Budget)    | 412×915 (Premium)        | mdpi-xxxhdpi |
+| iPad     | 768×1024 (Mini)     | 1024×1366 (Pro)          | @2x          |
 
 ### File Size Budget
 
-| Asset Type | Compressed | Uncompressed | Network |
-|------------|------------|--------------|----------|
-| Hero Image | <500KB | <2MB | WiFi preferred |
-| Game Asset | <200KB | <800KB | Any network |
-| Thumbnail | <50KB | <200KB | Any network |
-| Icon | <20KB | <80KB | Any network |
+| Asset Type | Compressed | Uncompressed | Network        |
+| ---------- | ---------- | ------------ | -------------- |
+| Hero Image | <500KB     | <2MB         | WiFi preferred |
+| Game Asset | <200KB     | <800KB       | Any network    |
+| Thumbnail  | <50KB      | <200KB       | Any network    |
+| Icon       | <20KB      | <80KB        | Any network    |
 
 ### Performance Metrics
 
-| Metric | Target | Acceptable | Poor |
-|--------|--------|------------|------|
-| First Load | <500ms | <1s | >2s |
-| Subsequent Load | <100ms | <250ms | >500ms |
-| Memory Usage | <50MB | <100MB | >200MB |
-| FPS Impact | 60fps | 30fps | <30fps |
+| Metric          | Target | Acceptable | Poor   |
+| --------------- | ------ | ---------- | ------ |
+| First Load      | <500ms | <1s        | >2s    |
+| Subsequent Load | <100ms | <250ms     | >500ms |
+| Memory Usage    | <50MB  | <100MB     | >200MB |
+| FPS Impact      | 60fps  | 30fps      | <30fps |
 
 ---
 
 ## Support
 
 For questions or issues:
+
 - 📧 Email: gamedev@potofgold.com
 - 💬 Discord: discord.gg/potofgold
 - 📚 Wiki: github.com/potofgold/wiki

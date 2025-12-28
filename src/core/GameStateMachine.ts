@@ -219,9 +219,7 @@ export class GameStateMachine {
       onExit: () => {
         this.disconnectSpectatorMode();
       },
-      validTransitions: new Map([
-        [GameTransition.RETURN_TO_MENU, GameState.MENU],
-      ]),
+      validTransitions: new Map([[GameTransition.RETURN_TO_MENU, GameState.MENU]]),
     });
 
     // ERROR State
@@ -271,9 +269,7 @@ export class GameStateMachine {
 
     const nextState = stateConfig.validTransitions.get(transition);
     if (!nextState) {
-      console.error(
-        `Invalid transition ${transition} from state ${this.currentState}`
-      );
+      console.error(`Invalid transition ${transition} from state ${this.currentState}`);
       return false;
     }
 
@@ -337,11 +333,7 @@ export class GameStateMachine {
     }
   }
 
-  addTransitionGuard(
-    from: GameState,
-    to: GameState,
-    guard: TransitionGuard
-  ) {
+  addTransitionGuard(from: GameState, to: GameState, guard: TransitionGuard) {
     const key = `${from}->${to}`;
     this.transitionGuards.set(key, guard);
   }

@@ -40,14 +40,14 @@ class MonetizationManager {
   private maxDailyAds: number = 10;
   private totalSpent: number = 0;
   private vipLevel: number = 0;
-  
+
   constructor() {
     this.initializeProducts();
     this.initializeAdRewards();
     this.initializeDailyRewards();
     this.loadUserData();
   }
-  
+
   private initializeProducts() {
     // Coin Packages
     this.products.set('coins_small', {
@@ -59,7 +59,7 @@ class MonetizationManager {
       type: 'consumable',
       rewards: [{ type: 'coins', amount: 500 }],
     });
-    
+
     this.products.set('coins_medium', {
       id: 'coins_medium',
       name: 'Bag of Coins',
@@ -71,7 +71,7 @@ class MonetizationManager {
       bonus: '+10% Bonus',
       popular: true,
     });
-    
+
     this.products.set('coins_large', {
       id: 'coins_large',
       name: 'Chest of Coins',
@@ -82,7 +82,7 @@ class MonetizationManager {
       rewards: [{ type: 'coins', amount: 7200 }],
       bonus: '+20% Bonus',
     });
-    
+
     this.products.set('coins_mega', {
       id: 'coins_mega',
       name: 'Vault of Coins',
@@ -94,7 +94,7 @@ class MonetizationManager {
       bonus: '+30% Bonus',
       bestValue: true,
     });
-    
+
     // Gem Packages
     this.products.set('gems_small', {
       id: 'gems_small',
@@ -105,7 +105,7 @@ class MonetizationManager {
       type: 'consumable',
       rewards: [{ type: 'gems', amount: 50 }],
     });
-    
+
     this.products.set('gems_medium', {
       id: 'gems_medium',
       name: 'Gem Box',
@@ -117,7 +117,7 @@ class MonetizationManager {
       bonus: '+25 Bonus Gems',
       popular: true,
     });
-    
+
     this.products.set('gems_large', {
       id: 'gems_large',
       name: 'Gem Treasure',
@@ -129,7 +129,7 @@ class MonetizationManager {
       bonus: '+100 Bonus Gems',
       bestValue: true,
     });
-    
+
     // Starter Packs (One-time purchases)
     this.products.set('starter_pack', {
       id: 'starter_pack',
@@ -146,7 +146,7 @@ class MonetizationManager {
       ],
       popular: true,
     });
-    
+
     this.products.set('pro_pack', {
       id: 'pro_pack',
       name: 'Pro Player Pack',
@@ -163,7 +163,7 @@ class MonetizationManager {
       ],
       bestValue: true,
     });
-    
+
     // Season Pass
     this.products.set('season_pass', {
       id: 'season_pass',
@@ -172,11 +172,9 @@ class MonetizationManager {
       price: 4.99,
       currency: 'USD',
       type: 'non-consumable',
-      rewards: [
-        { type: 'achievement', itemId: 'season_pass_holder' },
-      ],
+      rewards: [{ type: 'achievement', itemId: 'season_pass_holder' }],
     });
-    
+
     // Subscriptions
     this.products.set('vip_monthly', {
       id: 'vip_monthly',
@@ -187,10 +185,10 @@ class MonetizationManager {
       type: 'subscription',
       rewards: [
         { type: 'coins', amount: 500 }, // Daily login bonus
-        { type: 'gems', amount: 50 },   // Weekly bonus
+        { type: 'gems', amount: 50 }, // Weekly bonus
       ],
     });
-    
+
     this.products.set('vip_yearly', {
       id: 'vip_yearly',
       name: 'VIP Yearly',
@@ -200,12 +198,12 @@ class MonetizationManager {
       type: 'subscription',
       rewards: [
         { type: 'coins', amount: 1000 }, // Daily login bonus
-        { type: 'gems', amount: 100 },   // Weekly bonus
+        { type: 'gems', amount: 100 }, // Weekly bonus
         { type: 'skin', itemId: 'vip_exclusive', rarity: 'legendary' },
       ],
       bestValue: true,
     });
-    
+
     // Special Offers
     this.products.set('no_ads', {
       id: 'no_ads',
@@ -214,11 +212,9 @@ class MonetizationManager {
       price: 3.99,
       currency: 'USD',
       type: 'non-consumable',
-      rewards: [
-        { type: 'achievement', itemId: 'ad_free' },
-      ],
+      rewards: [{ type: 'achievement', itemId: 'ad_free' }],
     });
-    
+
     this.products.set('double_coins', {
       id: 'double_coins',
       name: 'Double Coins Forever',
@@ -226,44 +222,42 @@ class MonetizationManager {
       price: 7.99,
       currency: 'USD',
       type: 'non-consumable',
-      rewards: [
-        { type: 'achievement', itemId: 'double_coins' },
-      ],
+      rewards: [{ type: 'achievement', itemId: 'double_coins' }],
     });
   }
-  
+
   private initializeAdRewards() {
     this.adRewards.set('bonus_coins', {
       type: 'coins',
       amount: 100,
       cooldown: 300, // 5 minutes
     });
-    
+
     this.adRewards.set('bonus_gems', {
       type: 'gems',
       amount: 5,
       cooldown: 1800, // 30 minutes
     });
-    
+
     this.adRewards.set('free_powerup', {
       type: 'powerup',
       amount: 1,
       cooldown: 600, // 10 minutes
     });
-    
+
     this.adRewards.set('extra_life', {
       type: 'life',
       amount: 1,
       cooldown: 900, // 15 minutes
     });
-    
+
     this.adRewards.set('continue_game', {
       type: 'continue',
       amount: 1,
       cooldown: 0, // No cooldown, but costs increase
     });
   }
-  
+
   private initializeDailyRewards() {
     // 7-day reward cycle
     this.dailyRewards = [
@@ -273,14 +267,18 @@ class MonetizationManager {
       { day: 4, rewards: [{ type: 'coins', amount: 500 }], claimed: false },
       { day: 5, rewards: [{ type: 'powerup', amount: 3 }], claimed: false },
       { day: 6, rewards: [{ type: 'gems', amount: 25 }], claimed: false },
-      { day: 7, rewards: [
-        { type: 'coins', amount: 1000 },
-        { type: 'gems', amount: 50 },
-        { type: 'skin', itemId: 'weekly_reward', rarity: 'rare' },
-      ], claimed: false },
+      {
+        day: 7,
+        rewards: [
+          { type: 'coins', amount: 1000 },
+          { type: 'gems', amount: 50 },
+          { type: 'skin', itemId: 'weekly_reward', rarity: 'rare' },
+        ],
+        claimed: false,
+      },
     ];
   }
-  
+
   private async loadUserData() {
     try {
       const data = await AsyncStorage.multiGet([
@@ -292,7 +290,7 @@ class MonetizationManager {
         'monetization_vip_level',
         'monetization_watched_ads',
       ]);
-      
+
       data.forEach(([key, value]) => {
         if (value) {
           switch (key) {
@@ -323,13 +321,13 @@ class MonetizationManager {
           }
         }
       });
-      
+
       this.updateVIPLevel();
     } catch (error) {
       console.error('Error loading monetization data:', error);
     }
   }
-  
+
   private async saveUserData() {
     try {
       await AsyncStorage.multiSet([
@@ -339,38 +337,52 @@ class MonetizationManager {
         ['monetization_last_claim', this.lastDailyClaimDate || ''],
         ['monetization_total_spent', this.totalSpent.toString()],
         ['monetization_vip_level', this.vipLevel.toString()],
-        ['monetization_watched_ads', JSON.stringify({
-          date: new Date().toDateString(),
-          count: this.watchedAdsToday,
-        })],
+        [
+          'monetization_watched_ads',
+          JSON.stringify({
+            date: new Date().toDateString(),
+            count: this.watchedAdsToday,
+          }),
+        ],
       ]);
     } catch (error) {
       console.error('Error saving monetization data:', error);
     }
   }
-  
+
   // Purchase handling
-  public async purchaseProduct(productId: string): Promise<{ success: boolean; rewards?: Reward[]; error?: string }> {
+  public async purchaseProduct(
+    productId: string
+  ): Promise<{ success: boolean; rewards?: Reward[]; error?: string }> {
     const product = this.products.get(productId);
     if (!product) {
       return { success: false, error: 'Product not found' };
     }
-    
+
     // Check if already purchased (for non-consumables)
     if (product.type === 'non-consumable') {
-      const alreadyPurchased = this.purchases.some(p => p.productId === productId && p.status === 'completed');
+      const alreadyPurchased = this.purchases.some(
+        (p) => p.productId === productId && p.status === 'completed'
+      );
       if (alreadyPurchased) {
         return { success: false, error: 'Already purchased' };
       }
     }
-    
+
     // Create purchase record
-    const purchaseType = product.type === 'subscription' ? 'subscription' : 
-                        productId.includes('season') ? 'seasonpass' : 
-                        product.rewards[0]?.type === 'skin' ? 'skin' :
-                        product.rewards[0]?.type === 'powerup' ? 'powerup' :
-                        product.rewards[0]?.type === 'gems' ? 'gems' : 'coins';
-    
+    const purchaseType =
+      product.type === 'subscription'
+        ? 'subscription'
+        : productId.includes('season')
+          ? 'seasonpass'
+          : product.rewards[0]?.type === 'skin'
+            ? 'skin'
+            : product.rewards[0]?.type === 'powerup'
+              ? 'powerup'
+              : product.rewards[0]?.type === 'gems'
+                ? 'gems'
+                : 'coins';
+
     const purchase: Purchase = {
       id: `purchase_${Date.now()}`,
       type: purchaseType as any,
@@ -380,72 +392,79 @@ class MonetizationManager {
       purchaseDate: new Date(),
       status: 'pending',
     };
-    
+
     this.purchases.push(purchase);
-    
+
     // Simulate purchase (in production, this would call the platform's IAP API)
     try {
       // Mock successful purchase
       purchase.status = 'completed';
       this.totalSpent += product.price;
       this.updateVIPLevel();
-      
+
       await this.saveUserData();
-      
+
       return { success: true, rewards: product.rewards };
     } catch (error) {
       purchase.status = 'failed';
       return { success: false, error: 'Purchase failed' };
     }
   }
-  
+
   // Ad watching
-  public async watchAd(rewardType: string): Promise<{ success: boolean; reward?: AdReward; error?: string }> {
+  public async watchAd(
+    rewardType: string
+  ): Promise<{ success: boolean; reward?: AdReward; error?: string }> {
     // Check daily ad limit
     if (this.watchedAdsToday >= this.maxDailyAds) {
       return { success: false, error: 'Daily ad limit reached' };
     }
-    
+
     const adReward = this.adRewards.get(rewardType);
     if (!adReward) {
       return { success: false, error: 'Invalid reward type' };
     }
-    
+
     // Check cooldown
     const lastWatchTime = this.lastAdWatchTime.get(rewardType) || 0;
     const now = Date.now();
-    const cooldownRemaining = (lastWatchTime + adReward.cooldown * 1000) - now;
-    
+    const cooldownRemaining = lastWatchTime + adReward.cooldown * 1000 - now;
+
     if (cooldownRemaining > 0) {
-      return { 
-        success: false, 
-        error: `Please wait ${Math.ceil(cooldownRemaining / 1000)} seconds` 
+      return {
+        success: false,
+        error: `Please wait ${Math.ceil(cooldownRemaining / 1000)} seconds`,
       };
     }
-    
+
     // Simulate ad watching (in production, this would call the ad SDK)
     try {
       // Mock successful ad watch
       this.lastAdWatchTime.set(rewardType, now);
       this.watchedAdsToday++;
-      
+
       await this.saveUserData();
-      
+
       return { success: true, reward: adReward };
     } catch (error) {
       return { success: false, error: 'Ad failed to load' };
     }
   }
-  
+
   // Daily rewards
-  public async claimDailyReward(): Promise<{ success: boolean; rewards?: Reward[]; nextDay?: number; error?: string }> {
+  public async claimDailyReward(): Promise<{
+    success: boolean;
+    rewards?: Reward[];
+    nextDay?: number;
+    error?: string;
+  }> {
     const today = new Date().toDateString();
-    
+
     // Check if already claimed today
     if (this.lastDailyClaimDate === today) {
       return { success: false, error: 'Already claimed today' };
     }
-    
+
     // Check streak
     const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toDateString();
     if (this.lastDailyClaimDate === yesterday) {
@@ -453,43 +472,43 @@ class MonetizationManager {
     } else {
       this.currentDailyStreak = 1;
     }
-    
+
     // Get current day reward (cycles every 7 days)
     const dayIndex = (this.currentDailyStreak - 1) % 7;
     const dailyReward = this.dailyRewards[dayIndex];
-    
+
     if (!dailyReward) {
       return { success: false, error: 'Invalid daily reward' };
     }
-    
+
     // Mark as claimed
     dailyReward.claimed = true;
     this.lastDailyClaimDate = today;
-    
+
     // Apply streak bonus
     let rewards = [...dailyReward.rewards];
     if (this.currentDailyStreak >= 7) {
       // Add streak bonus every 7 days
       const streakMultiplier = Math.floor(this.currentDailyStreak / 7);
-      rewards = rewards.map(r => ({
+      rewards = rewards.map((r) => ({
         ...r,
         amount: r.amount ? r.amount * (1 + streakMultiplier * 0.1) : r.amount,
       }));
     }
-    
+
     await this.saveUserData();
-    
-    return { 
-      success: true, 
+
+    return {
+      success: true,
       rewards,
-      nextDay: (dayIndex + 1) % 7 + 1,
+      nextDay: ((dayIndex + 1) % 7) + 1,
     };
   }
-  
+
   // VIP Level calculation
   private updateVIPLevel() {
     const vipThresholds = [0, 10, 25, 50, 100, 250, 500, 1000, 2500, 5000];
-    
+
     for (let i = vipThresholds.length - 1; i >= 0; i--) {
       if (this.totalSpent >= vipThresholds[i]) {
         this.vipLevel = i;
@@ -497,7 +516,7 @@ class MonetizationManager {
       }
     }
   }
-  
+
   // VIP Benefits
   public getVIPBenefits(): { [key: string]: any } {
     const benefits: { [key: string]: any } = {
@@ -572,21 +591,23 @@ class MonetizationManager {
         dailyAds: 100,
       },
     };
-    
+
     return benefits[this.vipLevel] || benefits[0];
   }
-  
+
   // Subscription management
-  public async activateSubscription(type: 'monthly' | 'yearly'): Promise<{ success: boolean; error?: string }> {
+  public async activateSubscription(
+    type: 'monthly' | 'yearly'
+  ): Promise<{ success: boolean; error?: string }> {
     const productId = type === 'monthly' ? 'vip_monthly' : 'vip_yearly';
     const product = this.products.get(productId);
-    
+
     if (!product) {
       return { success: false, error: 'Invalid subscription type' };
     }
-    
+
     const duration = type === 'monthly' ? 30 : 365;
-    
+
     this.activeSubscription = {
       id: `sub_${Date.now()}`,
       type,
@@ -602,12 +623,12 @@ class MonetizationManager {
       ],
       autoRenew: true,
     };
-    
+
     await this.saveUserData();
-    
+
     return { success: true };
   }
-  
+
   public cancelSubscription(): void {
     if (this.activeSubscription) {
       this.activeSubscription.autoRenew = false;
@@ -615,52 +636,54 @@ class MonetizationManager {
       this.saveUserData();
     }
   }
-  
+
   // Getters
   public getProducts(): Product[] {
     return Array.from(this.products.values());
   }
-  
+
   public getActiveSubscription(): Subscription | null {
     return this.activeSubscription;
   }
-  
+
   public getDailyStreak(): number {
     return this.currentDailyStreak;
   }
-  
+
   public getVIPLevel(): number {
     return this.vipLevel;
   }
-  
+
   public getTotalSpent(): number {
     return this.totalSpent;
   }
-  
+
   public canWatchAd(): boolean {
     return this.watchedAdsToday < this.maxDailyAds;
   }
-  
+
   public getRemainingAds(): number {
     return Math.max(0, this.maxDailyAds - this.watchedAdsToday);
   }
-  
+
   public hasProduct(productId: string): boolean {
-    return this.purchases.some(p => p.productId === productId && p.status === 'completed');
+    return this.purchases.some((p) => p.productId === productId && p.status === 'completed');
   }
-  
+
   public isSubscriptionActive(): boolean {
     if (!this.activeSubscription) return false;
-    
+
     const now = new Date();
-    return this.activeSubscription.status === 'active' && 
-           (!this.activeSubscription.endDate || new Date(this.activeSubscription.endDate) > now);
+    return (
+      this.activeSubscription.status === 'active' &&
+      (!this.activeSubscription.endDate || new Date(this.activeSubscription.endDate) > now)
+    );
   }
-  
+
   // Special offers
   public getSpecialOffers(): Product[] {
     const offers: Product[] = [];
-    
+
     // First-time buyer offer
     if (this.totalSpent === 0) {
       offers.push({
@@ -678,7 +701,7 @@ class MonetizationManager {
         bestValue: true,
       });
     }
-    
+
     // Weekend offer (Friday-Sunday)
     const day = new Date().getDay();
     if (day === 0 || day === 5 || day === 6) {
@@ -697,7 +720,7 @@ class MonetizationManager {
         popular: true,
       });
     }
-    
+
     return offers;
   }
 }

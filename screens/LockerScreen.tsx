@@ -44,28 +44,91 @@ export default function LockerScreen({ navigation }: LockerScreenProps) {
       // Load user's collection
       const ownedSkins = metaGameSystem.getOwnedSkins();
       const equippedData = metaGameSystem.getEquippedItems();
-      
+
       // Mock collection data with real skins
       const mockCollection = [
-        { id: 'cart_aurora_gold_v1', type: 'cart', name: 'Aurora Gold Cart', rarity: 'legendary', equipped: false, unlockDate: '2025-08-01' },
-        { id: 'cart_harvest_brass_v1', type: 'cart', name: 'Harvest Brass Cart', rarity: 'epic', equipped: true, unlockDate: '2025-09-01' },
-        { id: 'cart_starlight_chrome_v1', type: 'cart', name: 'Starlight Chrome', rarity: 'rare', equipped: false, unlockDate: '2025-12-01' },
-        { id: 'trail_sunflare_v1', type: 'trail', name: 'Sunflare Trail', rarity: 'rare', equipped: true, unlockDate: '2025-08-01' },
-        { id: 'trail_crystal_snow_v1', type: 'trail', name: 'Crystal Snow', rarity: 'seasonal', equipped: false, unlockDate: '2025-12-01' },
-        { id: 'badge_founders_vault_v1', type: 'badge', name: 'Founders Badge', rarity: 'epic', equipped: true, unlockDate: '2025-08-01' },
-        { id: 'badge_solstice_star_v1', type: 'badge', name: 'Solstice Star', rarity: 'legendary', equipped: false, unlockDate: '2025-12-01' },
-        { id: 'frame_aurum_ribbon_v1', type: 'frame', name: 'Aurum Ribbon', rarity: 'uncommon', equipped: false, unlockDate: '2025-08-01' },
-        { id: 'frame_northern_arc_v1', type: 'frame', name: 'Northern Arc', rarity: 'rare', equipped: true, unlockDate: '2025-12-01' },
+        {
+          id: 'cart_aurora_gold_v1',
+          type: 'cart',
+          name: 'Aurora Gold Cart',
+          rarity: 'legendary',
+          equipped: false,
+          unlockDate: '2025-08-01',
+        },
+        {
+          id: 'cart_harvest_brass_v1',
+          type: 'cart',
+          name: 'Harvest Brass Cart',
+          rarity: 'epic',
+          equipped: true,
+          unlockDate: '2025-09-01',
+        },
+        {
+          id: 'cart_starlight_chrome_v1',
+          type: 'cart',
+          name: 'Starlight Chrome',
+          rarity: 'rare',
+          equipped: false,
+          unlockDate: '2025-12-01',
+        },
+        {
+          id: 'trail_sunflare_v1',
+          type: 'trail',
+          name: 'Sunflare Trail',
+          rarity: 'rare',
+          equipped: true,
+          unlockDate: '2025-08-01',
+        },
+        {
+          id: 'trail_crystal_snow_v1',
+          type: 'trail',
+          name: 'Crystal Snow',
+          rarity: 'seasonal',
+          equipped: false,
+          unlockDate: '2025-12-01',
+        },
+        {
+          id: 'badge_founders_vault_v1',
+          type: 'badge',
+          name: 'Founders Badge',
+          rarity: 'epic',
+          equipped: true,
+          unlockDate: '2025-08-01',
+        },
+        {
+          id: 'badge_solstice_star_v1',
+          type: 'badge',
+          name: 'Solstice Star',
+          rarity: 'legendary',
+          equipped: false,
+          unlockDate: '2025-12-01',
+        },
+        {
+          id: 'frame_aurum_ribbon_v1',
+          type: 'frame',
+          name: 'Aurum Ribbon',
+          rarity: 'uncommon',
+          equipped: false,
+          unlockDate: '2025-08-01',
+        },
+        {
+          id: 'frame_northern_arc_v1',
+          type: 'frame',
+          name: 'Northern Arc',
+          rarity: 'rare',
+          equipped: true,
+          unlockDate: '2025-12-01',
+        },
       ];
-      
+
       setCollection(mockCollection);
-      
+
       // Set equipped items
       const equipped = {
-        cart: mockCollection.find(i => i.type === 'cart' && i.equipped)?.id || null,
-        trail: mockCollection.find(i => i.type === 'trail' && i.equipped)?.id || null,
-        badge: mockCollection.find(i => i.type === 'badge' && i.equipped)?.id || null,
-        frame: mockCollection.find(i => i.type === 'frame' && i.equipped)?.id || null,
+        cart: mockCollection.find((i) => i.type === 'cart' && i.equipped)?.id || null,
+        trail: mockCollection.find((i) => i.type === 'trail' && i.equipped)?.id || null,
+        badge: mockCollection.find((i) => i.type === 'badge' && i.equipped)?.id || null,
+        frame: mockCollection.find((i) => i.type === 'frame' && i.equipped)?.id || null,
       };
       setEquippedItems(equipped);
     } catch (error) {
@@ -77,62 +140,71 @@ export default function LockerScreen({ navigation }: LockerScreenProps) {
 
   const handleEquip = async (item: any) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    
+
     // Unequip current item of same type
-    const updatedCollection = collection.map(i => ({
+    const updatedCollection = collection.map((i) => ({
       ...i,
-      equipped: i.type === item.type ? i.id === item.id : i.equipped
+      equipped: i.type === item.type ? i.id === item.id : i.equipped,
     }));
-    
+
     setCollection(updatedCollection);
     setEquippedItems({
       ...equippedItems,
-      [item.type]: item.id
+      [item.type]: item.id,
     });
-    
-    Alert.alert(
-      'Equipped!',
-      `${item.name} is now equipped`,
-      [{ text: 'OK' }]
-    );
+
+    Alert.alert('Equipped!', `${item.name} is now equipped`, [{ text: 'OK' }]);
   };
 
   const getRarityColor = (rarity: string) => {
     switch (rarity) {
-      case 'common': return '#ccc';
-      case 'uncommon': return '#4CAF50';
-      case 'rare': return '#2196F3';
-      case 'epic': return '#9C27B0';
-      case 'legendary': return '#FFD700';
-      case 'seasonal': return '#FF6B6B';
-      default: return '#ccc';
+      case 'common':
+        return '#ccc';
+      case 'uncommon':
+        return '#4CAF50';
+      case 'rare':
+        return '#2196F3';
+      case 'epic':
+        return '#9C27B0';
+      case 'legendary':
+        return '#FFD700';
+      case 'seasonal':
+        return '#FF6B6B';
+      default:
+        return '#ccc';
     }
   };
 
   const getRarityGradient = (rarity: string): [string, string] => {
     switch (rarity) {
-      case 'legendary': return ['#FFD700', '#FFA500'];
-      case 'epic': return ['#9C27B0', '#E91E63'];
-      case 'rare': return ['#2196F3', '#00BCD4'];
-      case 'uncommon': return ['#4CAF50', '#8BC34A'];
-      case 'seasonal': return ['#FF6B6B', '#FF8E53'];
-      default: return ['#757575', '#9E9E9E'];
+      case 'legendary':
+        return ['#FFD700', '#FFA500'];
+      case 'epic':
+        return ['#9C27B0', '#E91E63'];
+      case 'rare':
+        return ['#2196F3', '#00BCD4'];
+      case 'uncommon':
+        return ['#4CAF50', '#8BC34A'];
+      case 'seasonal':
+        return ['#FF6B6B', '#FF8E53'];
+      default:
+        return ['#757575', '#9E9E9E'];
     }
   };
 
   const categoryMap: Record<string, string> = {
-    'carts': 'cart',
-    'trails': 'trail',
-    'badges': 'badge',
-    'frames': 'frame'
+    carts: 'cart',
+    trails: 'trail',
+    badges: 'badge',
+    frames: 'frame',
   };
 
   const currentType = categoryMap[selectedCategory] || 'cart';
-  const filteredCollection = collection.filter(item => item.type === currentType);
+  const filteredCollection = collection.filter((item) => item.type === currentType);
 
   const renderLockerItem = (item: any) => {
     const isEquipped = equippedItems[item.type] === item.id;
-    
+
     return (
       <TouchableOpacity
         key={item.id}
@@ -140,10 +212,7 @@ export default function LockerScreen({ navigation }: LockerScreenProps) {
         onPress={() => setSelectedItem(item)}
         activeOpacity={0.9}
       >
-        <LinearGradient
-          colors={getRarityGradient(item.rarity)}
-          style={styles.rarityBorder}
-        >
+        <LinearGradient colors={getRarityGradient(item.rarity)} style={styles.rarityBorder}>
           <View style={styles.itemInner}>
             {/* Item Preview */}
             <View style={styles.itemPreview}>
@@ -168,7 +237,7 @@ export default function LockerScreen({ navigation }: LockerScreenProps) {
             <Text style={[styles.itemRarity, { color: getRarityColor(item.rarity) }]}>
               {item.rarity.toUpperCase()}
             </Text>
-            
+
             {/* Unlock Date */}
             <Text style={styles.unlockDate}>
               Unlocked: {new Date(item.unlockDate).toLocaleDateString()}
@@ -176,10 +245,7 @@ export default function LockerScreen({ navigation }: LockerScreenProps) {
 
             {/* Equip Button */}
             {!isEquipped && (
-              <TouchableOpacity
-                style={styles.equipButton}
-                onPress={() => handleEquip(item)}
-              >
+              <TouchableOpacity style={styles.equipButton} onPress={() => handleEquip(item)}>
                 <Text style={styles.equipButtonText}>EQUIP</Text>
               </TouchableOpacity>
             )}
@@ -196,12 +262,9 @@ export default function LockerScreen({ navigation }: LockerScreenProps) {
 
     return (
       <View style={styles.previewSection}>
-        <LinearGradient
-          colors={['#2a2a2a', '#1a1a1a']}
-          style={styles.previewContainer}
-        >
+        <LinearGradient colors={['#2a2a2a', '#1a1a1a']} style={styles.previewContainer}>
           <Text style={styles.previewTitle}>PREVIEW</Text>
-          
+
           <OptimizedArt
             skinId={selectedItem.id}
             type={selectedItem.type}
@@ -231,10 +294,7 @@ export default function LockerScreen({ navigation }: LockerScreenProps) {
             </View>
           )}
 
-          <TouchableOpacity
-            style={styles.closePreview}
-            onPress={() => setSelectedItem(null)}
-          >
+          <TouchableOpacity style={styles.closePreview} onPress={() => setSelectedItem(null)}>
             <Ionicons name="close-circle" size={30} color="#666" />
           </TouchableOpacity>
         </LinearGradient>
@@ -282,42 +342,32 @@ export default function LockerScreen({ navigation }: LockerScreenProps) {
   return (
     <View style={styles.container}>
       {/* Header */}
-      <LinearGradient
-        colors={['#2a2a2a', '#1a1a1a']}
-        style={styles.header}
-      >
+      <LinearGradient colors={['#2a2a2a', '#1a1a1a']} style={styles.header}>
         <Text style={styles.headerTitle}>🏆 MY LOCKER</Text>
-        <Text style={styles.headerSubtitle}>
-          {collection.length} items collected
-        </Text>
+        <Text style={styles.headerSubtitle}>{collection.length} items collected</Text>
       </LinearGradient>
 
       {/* Current Loadout */}
       {renderLoadout()}
 
       {/* Category Tabs */}
-      <ScrollView 
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.categoryScroll}
-      >
-        {['carts', 'trails', 'badges', 'frames'].map(category => (
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryScroll}>
+        {['carts', 'trails', 'badges', 'frames'].map((category) => (
           <TouchableOpacity
             key={category}
-            style={[
-              styles.categoryTab,
-              selectedCategory === category && styles.categoryTabActive
-            ]}
+            style={[styles.categoryTab, selectedCategory === category && styles.categoryTabActive]}
             onPress={() => setSelectedCategory(category)}
           >
-            <Text style={[
-              styles.categoryText,
-              selectedCategory === category && styles.categoryTextActive
-            ]}>
+            <Text
+              style={[
+                styles.categoryText,
+                selectedCategory === category && styles.categoryTextActive,
+              ]}
+            >
               {category.toUpperCase()}
             </Text>
             <Text style={styles.categoryCount}>
-              {collection.filter(i => i.type === categoryMap[category]).length}
+              {collection.filter((i) => i.type === categoryMap[category]).length}
             </Text>
           </TouchableOpacity>
         ))}
@@ -327,7 +377,7 @@ export default function LockerScreen({ navigation }: LockerScreenProps) {
       <ScrollView style={styles.collectionContainer}>
         <View style={styles.collectionGrid}>
           {filteredCollection.map(renderLockerItem)}
-          
+
           {filteredCollection.length === 0 && (
             <View style={styles.emptyState}>
               <Ionicons name="lock-closed" size={50} color="#666" />
@@ -348,17 +398,11 @@ export default function LockerScreen({ navigation }: LockerScreenProps) {
 
       {/* Navigation */}
       <View style={styles.navigation}>
-        <TouchableOpacity
-          style={styles.navButton}
-          onPress={() => navigation.goBack()}
-        >
+        <TouchableOpacity style={styles.navButton} onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color="#fff" />
           <Text style={styles.navButtonText}>Back</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.navButton}
-          onPress={() => navigation.navigate('Shop')}
-        >
+        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Shop')}>
           <Ionicons name="cart" size={24} color="#fff" />
           <Text style={styles.navButtonText}>Shop</Text>
         </TouchableOpacity>

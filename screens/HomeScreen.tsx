@@ -78,13 +78,12 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   };
 
   return (
-    <LinearGradient
-      colors={['#FFD700', '#FFA500', '#FF8C00']}
-      style={styles.container}
-    >
+    <LinearGradient colors={['#FFD700', '#FFA500', '#FF8C00']} style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
-      
-      <Animated.View style={[styles.content, { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }]}>
+
+      <Animated.View
+        style={[styles.content, { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }]}
+      >
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.title}>Pot of Gold</Text>
@@ -98,13 +97,13 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
             <Text style={styles.statValue}>{gameState.highScore.toLocaleString()}</Text>
             <Text style={styles.statLabel}>High Score</Text>
           </View>
-          
+
           <View style={styles.statCard}>
             <Ionicons name="coin" size={24} color="#FFD700" />
             <Text style={styles.statValue}>{gameState.coins.toLocaleString()}</Text>
             <Text style={styles.statLabel}>Coins</Text>
           </View>
-          
+
           <View style={styles.statCard}>
             <Ionicons name="trophy" size={24} color="#FFD700" />
             <Text style={styles.statValue}>{gameState.level}</Text>
@@ -119,10 +118,7 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
             onPress={handlePlayPress}
             activeOpacity={0.8}
           >
-            <LinearGradient
-              colors={['#4CAF50', '#45A049']}
-              style={styles.buttonGradient}
-            >
+            <LinearGradient colors={['#4CAF50', '#45A049']} style={styles.buttonGradient}>
               <Ionicons name="play" size={32} color="white" />
               <Text style={styles.playButtonText}>PLAY</Text>
             </LinearGradient>
@@ -352,4 +348,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HomeScreen; 
+export default HomeScreen;

@@ -52,7 +52,7 @@ export class DeviceCompatibility {
   private detectDevice(): DeviceInfo {
     const { width, height } = Dimensions.get('window');
     const pixelDensity = PixelRatio.get();
-    
+
     return {
       platform: Platform.OS as any,
       deviceType: this.getDeviceType(),
@@ -78,7 +78,7 @@ export class DeviceCompatibility {
     // For testing, check screen size to determine tablet
     const { width } = Dimensions.get('window');
     if (width >= 768) return 'tablet';
-    
+
     return 'phone';
   }
 
@@ -92,7 +92,7 @@ export class DeviceCompatibility {
     };
 
     // If 2 or more indicators are true, consider it low-end
-    const lowEndCount = Object.values(indicators).filter(v => v).length;
+    const lowEndCount = Object.values(indicators).filter((v) => v).length;
     return lowEndCount >= 2;
   }
 
@@ -210,9 +210,9 @@ export class DeviceCompatibility {
 
   private handleOrientationChange(orientation: 'portrait' | 'landscape') {
     eventBus.emit('device:orientation:changed', { orientation });
-    
+
     // Notify all listeners
-    this.orientationListeners.forEach(listener => listener(orientation));
+    this.orientationListeners.forEach((listener) => listener(orientation));
 
     // Adjust performance profile if needed
     if (orientation === 'landscape' && this.deviceInfo.isLowEnd) {
@@ -230,7 +230,7 @@ export class DeviceCompatibility {
       this.performanceProfile.particleLimit = Math.floor(this.performanceProfile.particleLimit / 2);
       this.performanceProfile.textureQuality = 'low';
       this.performanceProfile.maxConcurrentSounds = 2;
-      
+
       eventBus.emit('device:memory:critical', {
         action: 'reduce_quality',
         profile: this.performanceProfile,
@@ -240,16 +240,16 @@ export class DeviceCompatibility {
 
   private startPerformanceMonitoring() {
     let lastFrameTime = performance.now();
-    
+
     const monitor = () => {
       const currentTime = performance.now();
       const deltaTime = currentTime - lastFrameTime;
-      
+
       // Check for frame drops (more than 33ms for 30fps, 16ms for 60fps)
       const targetFrameTime = 1000 / this.performanceProfile.targetFPS;
       if (deltaTime > targetFrameTime * 1.5) {
         this.consecutiveFrameDrops++;
-        
+
         if (this.consecutiveFrameDrops >= this.frameDropThreshold) {
           this.adjustPerformanceProfile();
           this.consecutiveFrameDrops = 0;
@@ -257,11 +257,11 @@ export class DeviceCompatibility {
       } else {
         this.consecutiveFrameDrops = 0;
       }
-      
+
       lastFrameTime = currentTime;
       requestAnimationFrame(monitor);
     };
-    
+
     if (Platform.OS === 'web' || Platform.OS === 'ios' || Platform.OS === 'android') {
       requestAnimationFrame(monitor);
     }
@@ -269,24 +269,26 @@ export class DeviceCompatibility {
 
   private adjustPerformanceProfile() {
     console.log('Performance drop detected, adjusting profile...');
-    
+
     // Progressively reduce quality
     if (this.performanceProfile.particleLimit > 20) {
-      this.performanceProfile.particleLimit = Math.floor(this.performanceProfile.particleLimit * 0.7);
+      this.performanceProfile.particleLimit = Math.floor(
+        this.performanceProfile.particleLimit * 0.7
+      );
     }
-    
+
     if (this.performanceProfile.shadowsEnabled) {
       this.performanceProfile.shadowsEnabled = false;
     }
-    
+
     if (this.performanceProfile.postProcessingEnabled) {
       this.performanceProfile.postProcessingEnabled = false;
     }
-    
+
     if (this.performanceProfile.renderScale > 0.5) {
       this.performanceProfile.renderScale -= 0.1;
     }
-    
+
     eventBus.emit('device:performance:adjusted', {
       profile: this.performanceProfile,
     });
@@ -311,7 +313,7 @@ export class DeviceCompatibility {
         const iosVersion = Platform.Version ? Platform.Version.toString() : '14';
         features.ar = parseInt(iosVersion, 10) >= 11;
         break;
-      
+
       case 'android':
         features.hapticFeedback = true;
         features.notifications = true;
@@ -319,7 +321,7 @@ export class DeviceCompatibility {
         features.biometrics = androidVersion >= 23;
         features.nfc = true;
         break;
-      
+
       case 'web':
         features.notifications = 'Notification' in window;
         features.gamepad = 'getGamepads' in navigator;
@@ -332,25 +334,25 @@ export class DeviceCompatibility {
   getOptimalImageSize(baseSize: number): number {
     const pixelRatio = this.deviceInfo.pixelDensity;
     const renderScale = this.performanceProfile.renderScale;
-    
+
     // Adjust based on device capabilities
     if (this.deviceInfo.isLowEnd) {
       return Math.floor(baseSize * 0.75 * renderScale);
     }
-    
+
     return Math.floor(baseSize * pixelRatio * renderScale);
   }
 
   getOptimalFontSize(baseSize: number): number {
     const { width } = this.deviceInfo.screenSize;
     const scale = PixelRatio.getFontScale();
-    
+
     // Scale based on screen width
     const widthScale = width / 375; // iPhone 11 Pro as baseline
-    
+
     // Apply limits
     const scaledSize = baseSize * scale * Math.min(Math.max(widthScale, 0.85), 1.15);
-    
+
     return Math.round(scaledSize);
   }
 
@@ -365,7 +367,7 @@ export class DeviceCompatibility {
 
   getSafeAreaInsets() {
     const insets = { top: 0, bottom: 0, left: 0, right: 0 };
-    
+
     if (this.deviceInfo.hasNotch) {
       insets.top = 44;
       insets.bottom = 34;
@@ -374,7 +376,7 @@ export class DeviceCompatibility {
     } else if (this.deviceInfo.platform === 'android') {
       insets.top = 24;
     }
-    
+
     return insets;
   }
 
@@ -384,11 +386,11 @@ export class DeviceCompatibility {
     if (this.deviceInfo.isLowEnd) {
       return 50; // 50MB for low-end
     }
-    
+
     if (this.deviceInfo.deviceType === 'desktop') {
       return 500; // 500MB for desktop
     }
-    
+
     return 200; // 200MB default
   }
 
@@ -398,11 +400,11 @@ export class DeviceCompatibility {
     if (this.deviceInfo.networkType === '2g' || this.deviceInfo.networkType === '3g') {
       return 5;
     }
-    
+
     if (this.deviceInfo.isLowEnd) {
       return 10;
     }
-    
+
     return 20;
   }
 

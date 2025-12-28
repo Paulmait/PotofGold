@@ -118,9 +118,9 @@ export class PauseTriggerSystem {
         priority: 90,
         conditions: {
           gameState: ['playing', 'blocked'],
-          playerState: { 
+          playerState: {
             playerLives: { max: 1 },
-            blockagePercentage: { min: 75 }
+            blockagePercentage: { min: 75 },
           },
         },
         actions: {
@@ -173,9 +173,9 @@ export class PauseTriggerSystem {
         priority: 60,
         conditions: {
           gameState: ['playing'],
-          playerState: { 
+          playerState: {
             playerScore: { min: 1000 },
-            timeInLevel: { min: 30 }
+            timeInLevel: { min: 30 },
           },
         },
         actions: {
@@ -189,7 +189,7 @@ export class PauseTriggerSystem {
         monetizationOpportunity: {
           type: 'revive',
           urgency: 'medium',
-          message: 'Don\'t lose your high score!',
+          message: "Don't lose your high score!",
         },
       },
 
@@ -228,9 +228,9 @@ export class PauseTriggerSystem {
         priority: 80,
         conditions: {
           gameState: ['playing', 'failed'],
-          playerState: { 
+          playerState: {
             totalGamesPlayed: { max: 3 },
-            consecutiveFails: { min: 1 }
+            consecutiveFails: { min: 1 },
           },
         },
         actions: {
@@ -304,7 +304,7 @@ export class PauseTriggerSystem {
     // Check player state conditions
     for (const [key, condition] of Object.entries(trigger.conditions.playerState)) {
       const playerValue = (context as any)[key];
-      
+
       if (typeof condition === 'object') {
         if (condition.min !== undefined && playerValue < condition.min) {
           return false;
@@ -318,7 +318,10 @@ export class PauseTriggerSystem {
     }
 
     // Check time threshold
-    if (trigger.conditions.timeThreshold && context.timeInLevel < trigger.conditions.timeThreshold) {
+    if (
+      trigger.conditions.timeThreshold &&
+      context.timeInLevel < trigger.conditions.timeThreshold
+    ) {
       return false;
     }
 
@@ -333,7 +336,7 @@ export class PauseTriggerSystem {
     monetizationTips: string[];
   } {
     const pauseDecision = this.shouldShowPauseMenu(context);
-    
+
     const recommendedActions = [];
     const monetizationTips = [];
 
@@ -400,4 +403,4 @@ export class PauseTriggerSystem {
   }
 }
 
-export const pauseTriggerSystem = PauseTriggerSystem.getInstance(); 
+export const pauseTriggerSystem = PauseTriggerSystem.getInstance();

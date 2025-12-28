@@ -7,6 +7,7 @@ The Monthly Drops system provides exclusive cosmetic bundles to Gold Vault Club 
 ## Architecture
 
 ### Data Flow
+
 ```
 JSON Files (Static) → Drop Catalog → Firestore (Current ID) → Drop Service → UI
                                            ↓
@@ -92,6 +93,7 @@ const allDrops = [
 ### Step 4: Create Preview Assets
 
 Place preview images in `assets/previews/` with matching filenames:
+
 - `cart_summer_gold_v1.png`
 - `trail_sunburst_v1.png`
 - `badge_august_elite_v1.png`
@@ -100,6 +102,7 @@ Place preview images in `assets/previews/` with matching filenames:
 ### Step 5: Validate
 
 Run schema validation:
+
 ```bash
 npx ajv validate -s assets/drops/schema/monthly_drop.schema.json \
   -d assets/drops/month_2026_08.json
@@ -108,6 +111,7 @@ npx ajv validate -s assets/drops/schema/monthly_drop.schema.json \
 ## Claim Flow
 
 ### User Experience
+
 1. User opens Subscription Vault screen
 2. Current month's drop is displayed with 3D preview
 3. If subscribed and not claimed:
@@ -122,6 +126,7 @@ npx ajv validate -s assets/drops/schema/monthly_drop.schema.json \
 7. Items appear in Shop/Locker as "Owned"
 
 ### Technical Flow
+
 ```typescript
 // 1. Check entitlement
 const isSubscribed = await revenueCatService.getCustomerInfo();
@@ -133,16 +138,16 @@ await runTransaction(db, async (transaction) => {
     userId,
     dropId,
     claimedAt: Date.now(),
-    granularity: 'monthly'
+    granularity: 'monthly',
   });
-  
+
   // Update inventory
   inventory.skins.push(drop.cartSkinId);
   inventory.trails.push(drop.trailId);
   inventory.badges.push(drop.badgeId);
   inventory.frames.push(drop.frameId);
   inventory.coins += drop.bonusCoins;
-  
+
   transaction.set(inventoryRef, inventory);
 });
 ```
@@ -152,6 +157,7 @@ await runTransaction(db, async (transaction) => {
 ### Initial Setup
 
 1. **Deploy Cloud Functions**
+
 ```bash
 cd functions
 npm install
@@ -159,12 +165,14 @@ npm run deploy
 ```
 
 2. **Initialize Firestore**
+
 ```bash
 # Create initial config document
 firebase firestore:set config/current '{"currentDropId":"drop_2025_08","claimWindowDays":45}'
 ```
 
 3. **Deploy Security Rules**
+
 ```bash
 firebase deploy --only firestore:rules
 ```
@@ -176,6 +184,7 @@ The system automatically switches drops on the 1st of each month at 00:00 ET via
 ### Manual Override
 
 If needed, trigger manually:
+
 ```bash
 # Switch to specific drop
 curl -X GET "https://us-central1-potofgold.cloudfunctions.net/triggerMonthlyDropSwitch?dropId=drop_2025_09" \
@@ -189,6 +198,7 @@ curl -X GET "https://us-central1-potofgold.cloudfunctions.net/triggerMonthlyDrop
 ### Consistency Check
 
 Verify the current drop matches the current month:
+
 ```bash
 curl -X GET "https://us-central1-potofgold.cloudfunctions.net/checkMonthlyDropConsistency"
 ```
@@ -196,23 +206,23 @@ curl -X GET "https://us-central1-potofgold.cloudfunctions.net/checkMonthlyDropCo
 ## Testing
 
 ### Unit Tests
+
 ```typescript
 // Test claim logic
 describe('DropService', () => {
   it('should prevent duplicate claims', async () => {
     const result1 = await dropService.claimCurrentDrop();
     expect(result1.success).toBe(true);
-    
+
     const result2 = await dropService.claimCurrentDrop();
     expect(result2.success).toBe(false);
     expect(result2.error).toBe('Drop already claimed');
   });
-  
+
   it('should require subscription', async () => {
     // Mock non-subscriber
-    jest.spyOn(revenueCatService, 'getCustomerInfo')
-      .mockResolvedValue(null);
-    
+    jest.spyOn(revenueCatService, 'getCustomerInfo').mockResolvedValue(null);
+
     const result = await dropService.claimCurrentDrop();
     expect(result.success).toBe(false);
     expect(result.error).toBe('Subscription required');
@@ -221,20 +231,21 @@ describe('DropService', () => {
 ```
 
 ### E2E Tests (Detox)
+
 ```typescript
 describe('Subscription Vault', () => {
   it('should claim monthly drop', async () => {
     // Navigate to vault
     await element(by.id('settings-button')).tap();
     await element(by.id('gold-vault-button')).tap();
-    
+
     // Claim drop
     await expect(element(by.id('claim-button'))).toBeVisible();
     await element(by.id('claim-button')).tap();
-    
+
     // Verify claimed
     await expect(element(by.text('Claimed!'))).toBeVisible();
-    
+
     // Check inventory
     await element(by.id('back-button')).tap();
     await element(by.id('locker-button')).tap();
@@ -246,49 +257,55 @@ describe('Subscription Vault', () => {
 ## Monitoring
 
 ### Key Metrics
+
 - Monthly Active Claimers
 - Claim Rate (claims / eligible subscribers)
 - Time to Claim (from availability to claim)
 - Drop Engagement Rate
 
 ### Alerts
+
 - Set up Firebase alerts for:
   - Failed monthly switches
   - Claim transaction failures
   - Unusual claim patterns (potential exploits)
 
 ### Analytics Events
+
 ```typescript
 // Track in your analytics service
 analytics.track('monthly_drop_viewed', {
   dropId: currentDrop.id,
   isSubscribed: true,
-  isClaimed: false
+  isClaimed: false,
 });
 
 analytics.track('monthly_drop_claimed', {
   dropId: currentDrop.id,
   daysIntoMonth: daysRemaining,
   itemsGranted: 4,
-  coinsGranted: 1000
+  coinsGranted: 1000,
 });
 ```
 
 ## Troubleshooting
 
 ### Drop Not Switching
+
 1. Check Cloud Function logs
 2. Verify scheduler is running
 3. Run consistency check
 4. Manual override if needed
 
 ### Claim Failures
+
 1. Check user's subscription status
 2. Verify Firestore permissions
 3. Check for existing claim record
 4. Review transaction logs
 
 ### Missing Inventory
+
 1. Check offline cache
 2. Verify Firestore sync
 3. Force refresh inventory
@@ -297,12 +314,14 @@ analytics.track('monthly_drop_claimed', {
 ## Legal Compliance
 
 ### Required Disclosures
+
 - "Content is cosmetic only"
 - "Subscription required to claim"
 - "Available for limited time"
 - "No gameplay advantage provided"
 
 ### Store Compliance
+
 - No gambling mechanics
 - Clear value proposition
 - Transparent timing
@@ -311,6 +330,7 @@ analytics.track('monthly_drop_claimed', {
 ## Future Enhancements
 
 ### Planned Features
+
 - [ ] Preview animations in 3D
 - [ ] Trading between users
 - [ ] Seasonal mega-drops
@@ -318,6 +338,7 @@ analytics.track('monthly_drop_claimed', {
 - [ ] Drop voting system
 
 ### Technical Improvements
+
 - [ ] CDN for preview assets
 - [ ] Real-time claim notifications
 - [ ] Batch claim for multiple months

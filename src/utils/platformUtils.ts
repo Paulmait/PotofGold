@@ -129,9 +129,7 @@ export const PlatformUtils = {
 
   // Performance optimizations
   getOptimalSettings: () => {
-    const isLowEnd = PlatformUtils.isWeb 
-      ? navigator.hardwareConcurrency <= 2 
-      : false;
+    const isLowEnd = PlatformUtils.isWeb ? navigator.hardwareConcurrency <= 2 : false;
 
     return {
       particleEffects: !isLowEnd,
@@ -153,10 +151,10 @@ export const PlatformUtils = {
         (document as any).mozFullScreenElement
       );
     },
-    
+
     requestFullscreen: async () => {
       if (!PlatformUtils.isWeb) return;
-      
+
       const element = document.documentElement;
       try {
         if (element.requestFullscreen) {
@@ -173,7 +171,7 @@ export const PlatformUtils = {
 
     exitFullscreen: async () => {
       if (!PlatformUtils.isWeb) return;
-      
+
       try {
         if (document.exitFullscreen) {
           await document.exitFullscreen();
@@ -190,8 +188,10 @@ export const PlatformUtils = {
     // PWA installation
     isPWA: () => {
       if (!PlatformUtils.isWeb) return false;
-      return window.matchMedia('(display-mode: standalone)').matches ||
-             (window.navigator as any).standalone === true;
+      return (
+        window.matchMedia('(display-mode: standalone)').matches ||
+        (window.navigator as any).standalone === true
+      );
     },
 
     canInstallPWA: () => {

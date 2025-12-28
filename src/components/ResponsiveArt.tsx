@@ -20,21 +20,21 @@ interface ResponsiveArtProps {
   phoneAsset?: string | ImageSourcePropType;
   tabletAsset?: string | ImageSourcePropType;
   fallbackAsset: string | ImageSourcePropType;
-  
+
   // Display options
   aspectRatio?: number;
   fit?: 'contain' | 'cover' | 'stretch' | 'center';
   backgroundColor?: string;
-  
+
   // Styles
   containerStyle?: ViewStyle;
   imageStyle?: ImageStyle;
-  
+
   // Loading states
   onLoad?: () => void;
   onError?: () => void;
   placeholder?: React.ReactNode;
-  
+
   // Performance
   resizeMode?: 'cover' | 'contain' | 'stretch' | 'center';
   priority?: 'low' | 'normal' | 'high';
@@ -42,7 +42,7 @@ interface ResponsiveArtProps {
 
 /**
  * ResponsiveArt - Automatically selects and displays the right artwork for the device
- * 
+ *
  * Features:
  * - Automatic phone/tablet detection
  * - React Native's @1x/@2x/@3x resolution handling
@@ -54,7 +54,7 @@ export const ResponsiveArt: React.FC<ResponsiveArtProps> = ({
   phoneAsset,
   tabletAsset,
   fallbackAsset,
-  aspectRatio = 16/9,
+  aspectRatio = 16 / 9,
   fit = 'contain',
   backgroundColor = 'transparent',
   containerStyle,
@@ -98,7 +98,7 @@ export const ResponsiveArt: React.FC<ResponsiveArtProps> = ({
   const dimensions = useMemo(() => {
     const containerWidth = isTablet ? Math.min(screenWidth * 0.8, 600) : screenWidth - 40;
     const containerHeight = containerWidth / aspectRatio;
-    
+
     return {
       width: containerWidth,
       height: containerHeight,
@@ -120,48 +120,34 @@ export const ResponsiveArt: React.FC<ResponsiveArtProps> = ({
   };
 
   return (
-    <View 
+    <View
       style={[
         styles.container,
-        { 
+        {
           backgroundColor,
           ...dimensions,
         },
         containerStyle,
       ]}
     >
-      {isLoading && placeholder && (
-        <View style={styles.placeholderContainer}>
-          {placeholder}
-        </View>
-      )}
-      
+      {isLoading && placeholder && <View style={styles.placeholderContainer}>{placeholder}</View>}
+
       {!hasError && (
         <Image
           source={imageSource}
-          style={[
-            styles.image,
-            dimensions,
-            { resizeMode: resizeMode || fit },
-            imageStyle,
-          ]}
+          style={[styles.image, dimensions, { resizeMode: resizeMode || fit }, imageStyle]}
           onLoad={handleLoad}
           onError={handleError}
           // Performance optimizations
           {...(Platform.OS === 'ios' && priority === 'high' && { priority: 'high' })}
         />
       )}
-      
+
       {hasError && (
         <View style={[styles.errorContainer, dimensions]}>
           <Image
             source={typeof fallbackAsset === 'string' ? { uri: fallbackAsset } : fallbackAsset}
-            style={[
-              styles.image,
-              dimensions,
-              { resizeMode: resizeMode || fit },
-              imageStyle,
-            ]}
+            style={[styles.image, dimensions, { resizeMode: resizeMode || fit }, imageStyle]}
           />
         </View>
       )}
@@ -178,7 +164,7 @@ export function buildAssetPath(
   variant?: 'phone' | 'tablet' | 'tile' | 'banner'
 ): string {
   const basePath = `assets/skins/${skinId}`;
-  
+
   switch (type) {
     case 'hero':
       if (variant === 'phone') {
@@ -187,20 +173,20 @@ export function buildAssetPath(
         return `${basePath}/previews/hero_tablet_1536x2048.png`;
       }
       return `${basePath}/previews/tile_1024.png`;
-      
+
     case 'raster':
       // React Native will automatically add @2x/@3x
       return `${basePath}/raster/${skinId}.png`;
-      
+
     case 'thumbnail':
       return `${basePath}/thumbnails/thumb.png`;
-      
+
     case 'preview':
       if (variant === 'banner') {
         return `${basePath}/previews/banner_1600x900.png`;
       }
       return `${basePath}/previews/tile_1024.png`;
-      
+
     default:
       return `${basePath}/raster/${skinId}.png`;
   }
@@ -210,10 +196,10 @@ export function buildAssetPath(
  * Preload images for better performance
  */
 export async function preloadArtwork(paths: string[]): Promise<void> {
-  const promises = paths.map(path => {
+  const promises = paths.map((path) => {
     return Image.prefetch(path);
   });
-  
+
   try {
     await Promise.all(promises);
   } catch (error) {
@@ -232,23 +218,23 @@ export function getDeviceVariant(): 'phone' | 'tablet' {
  * Calculate optimal image dimensions for current device
  */
 export function getOptimalDimensions(
-  aspectRatio: number = 16/9,
+  aspectRatio: number = 16 / 9,
   maxWidth?: number,
   maxHeight?: number
 ): { width: number; height: number } {
   let width = isTablet ? screenWidth * 0.7 : screenWidth * 0.9;
   let height = width / aspectRatio;
-  
+
   if (maxWidth && width > maxWidth) {
     width = maxWidth;
     height = width / aspectRatio;
   }
-  
+
   if (maxHeight && height > maxHeight) {
     height = maxHeight;
     width = height * aspectRatio;
   }
-  
+
   return { width, height };
 }
 

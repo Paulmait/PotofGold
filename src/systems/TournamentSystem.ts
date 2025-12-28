@@ -176,18 +176,9 @@ export class TournamentSystem {
   }
 
   private initializeBracketGenerators() {
-    this.bracketGenerators.set(
-      TournamentType.SINGLE_ELIMINATION,
-      new SingleEliminationGenerator()
-    );
-    this.bracketGenerators.set(
-      TournamentType.DOUBLE_ELIMINATION,
-      new DoubleEliminationGenerator()
-    );
-    this.bracketGenerators.set(
-      TournamentType.ROUND_ROBIN,
-      new RoundRobinGenerator()
-    );
+    this.bracketGenerators.set(TournamentType.SINGLE_ELIMINATION, new SingleEliminationGenerator());
+    this.bracketGenerators.set(TournamentType.DOUBLE_ELIMINATION, new DoubleEliminationGenerator());
+    this.bracketGenerators.set(TournamentType.ROUND_ROBIN, new RoundRobinGenerator());
   }
 
   private setupEventListeners() {
@@ -249,9 +240,12 @@ export class TournamentSystem {
     // Schedule tournament start
     const timeUntilStart = tournament.startTime - Date.now();
     if (timeUntilStart > 0) {
-      setTimeout(() => {
-        this.startRegistration(tournament);
-      }, Math.max(0, timeUntilStart - 1800000)); // Open registration 30 min before
+      setTimeout(
+        () => {
+          this.startRegistration(tournament);
+        },
+        Math.max(0, timeUntilStart - 1800000)
+      ); // Open registration 30 min before
     }
 
     return tournament;
@@ -259,7 +253,7 @@ export class TournamentSystem {
 
   private startRegistration(tournament: Tournament) {
     tournament.status = TournamentStatus.REGISTRATION;
-    
+
     eventBus.emit('tournament:registration:open', {
       tournamentId: tournament.id,
       name: tournament.name,
@@ -295,7 +289,7 @@ export class TournamentSystem {
     }
 
     // Check if already registered
-    if (tournament.participants.find(p => p.id === playerId)) {
+    if (tournament.participants.find((p) => p.id === playerId)) {
       console.log('Already registered');
       return false;
     }
@@ -414,7 +408,7 @@ export class TournamentSystem {
     const matches = tournament.matchesPerRound.get(round);
     if (!matches) return;
 
-    matches.forEach(match => {
+    matches.forEach((match) => {
       if (match.player1 && match.player2) {
         match.status = 'ready';
         this.notifyMatchReady(match);
@@ -485,8 +479,8 @@ export class TournamentSystem {
     this.checkForHighlights(game, match);
 
     // Update match scores
-    match.score1 = match.games.filter(g => g.winner === match.player1).length;
-    match.score2 = match.games.filter(g => g.winner === match.player2).length;
+    match.score1 = match.games.filter((g) => g.winner === match.player1).length;
+    match.score2 = match.games.filter((g) => g.winner === match.player2).length;
 
     // Check if match is complete
     const winsNeeded = Math.ceil(match.bestOf / 2);
@@ -528,11 +522,11 @@ export class TournamentSystem {
   }
 
   private advancePlayer(tournament: Tournament, match: Match, playerId: string) {
-    const bracket = tournament.brackets.find(b => b.match?.id === match.id);
+    const bracket = tournament.brackets.find((b) => b.match?.id === match.id);
     if (!bracket || !bracket.nextMatchPosition) return;
 
     const nextBracket = tournament.brackets.find(
-      b => b.round === bracket.round + 1 && b.position === bracket.nextMatchPosition
+      (b) => b.round === bracket.round + 1 && b.position === bracket.nextMatchPosition
     );
 
     if (nextBracket && nextBracket.match) {
@@ -550,7 +544,7 @@ export class TournamentSystem {
   }
 
   private eliminatePlayer(tournament: Tournament, playerId: string) {
-    const participant = tournament.participants.find(p => p.id === playerId);
+    const participant = tournament.participants.find((p) => p.id === playerId);
     if (participant) {
       participant.eliminated = true;
       participant.placement = this.calculatePlacement(tournament);
@@ -567,7 +561,7 @@ export class TournamentSystem {
     const currentRoundMatches = tournament.matchesPerRound.get(tournament.currentRound);
     if (!currentRoundMatches) return;
 
-    const allComplete = currentRoundMatches.every(m => m.status === 'completed');
+    const allComplete = currentRoundMatches.every((m) => m.status === 'completed');
     if (allComplete) {
       tournament.currentRound++;
 
@@ -595,7 +589,7 @@ export class TournamentSystem {
 
     gameEvents.emit(GameEventType.TOURNAMENT_END, {
       tournamentId: tournament.id,
-      winner: tournament.participants.find(p => p.placement === 1)?.id,
+      winner: tournament.participants.find((p) => p.placement === 1)?.id,
     });
   }
 
@@ -617,7 +611,7 @@ export class TournamentSystem {
   }
 
   private awardPrizes(tournament: Tournament) {
-    tournament.participants.forEach(participant => {
+    tournament.participants.forEach((participant) => {
       const prizes = this.getPrizesForPlacement(participant.placement!, tournament.prizes);
       if (prizes) {
         participant.prizesWon = prizes;
@@ -712,7 +706,7 @@ export class TournamentSystem {
   }
 
   private calculatePlacement(tournament: Tournament): number {
-    const activePlayers = tournament.participants.filter(p => !p.eliminated).length;
+    const activePlayers = tournament.participants.filter((p) => !p.eliminated).length;
     return activePlayers + 1;
   }
 
@@ -732,14 +726,14 @@ export class TournamentSystem {
   }
 
   private updateParticipantStats(tournament: Tournament, match: Match) {
-    const p1 = tournament.participants.find(p => p.id === match.player1);
-    const p2 = tournament.participants.find(p => p.id === match.player2);
+    const p1 = tournament.participants.find((p) => p.id === match.player1);
+    const p2 = tournament.participants.find((p) => p.id === match.player2);
 
     if (p1) {
       p1.stats.gamesPlayed += match.games.length;
       p1.stats.wins += match.winner === match.player1 ? 1 : 0;
       p1.stats.losses += match.winner === match.player2 ? 1 : 0;
-      match.games.forEach(game => {
+      match.games.forEach((game) => {
         p1.stats.totalScore += game.player1Score;
         p1.stats.highestScore = Math.max(p1.stats.highestScore, game.player1Score);
       });
@@ -750,7 +744,7 @@ export class TournamentSystem {
       p2.stats.gamesPlayed += match.games.length;
       p2.stats.wins += match.winner === match.player2 ? 1 : 0;
       p2.stats.losses += match.winner === match.player1 ? 1 : 0;
-      match.games.forEach(game => {
+      match.games.forEach((game) => {
         p2.stats.totalScore += game.player2Score;
         p2.stats.highestScore = Math.max(p2.stats.highestScore, game.player2Score);
       });
@@ -768,7 +762,7 @@ export class TournamentSystem {
 
   private checkTournamentStarts() {
     const now = Date.now();
-    this.upcomingTournaments.forEach(tournament => {
+    this.upcomingTournaments.forEach((tournament) => {
       if (tournament.startTime <= now && tournament.status === TournamentStatus.UPCOMING) {
         this.startRegistration(tournament);
       }
@@ -776,9 +770,9 @@ export class TournamentSystem {
   }
 
   private updateMatchStatuses() {
-    this.activeTournaments.forEach(tournament => {
-      tournament.matchesPerRound.forEach(matches => {
-        matches.forEach(match => {
+    this.activeTournaments.forEach((tournament) => {
+      tournament.matchesPerRound.forEach((matches) => {
+        matches.forEach((match) => {
           if (match.status === 'in_progress') {
             // Check for timeouts, disconnections, etc.
           }
@@ -790,9 +784,7 @@ export class TournamentSystem {
   private processCompletedTournaments() {
     // Clean up old completed tournaments
     const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000; // 7 days
-    this.completedTournaments = this.completedTournaments.filter(
-      t => t.endTime > cutoff
-    );
+    this.completedTournaments = this.completedTournaments.filter((t) => t.endTime > cutoff);
   }
 
   private async checkEntryFee(playerId: string, fee: any): Promise<boolean> {
@@ -822,7 +814,7 @@ export class TournamentSystem {
   private findTournament(tournamentId: string): Tournament | null {
     return (
       this.activeTournaments.get(tournamentId) ||
-      this.upcomingTournaments.find(t => t.id === tournamentId) ||
+      this.upcomingTournaments.find((t) => t.id === tournamentId) ||
       null
     );
   }
@@ -830,7 +822,7 @@ export class TournamentSystem {
   private findTournamentByMatch(matchId: string): Tournament | null {
     for (const tournament of this.activeTournaments.values()) {
       for (const matches of tournament.matchesPerRound.values()) {
-        if (matches.find(m => m.id === matchId)) {
+        if (matches.find((m) => m.id === matchId)) {
           return tournament;
         }
       }
@@ -840,7 +832,7 @@ export class TournamentSystem {
 
   private findMatch(tournament: Tournament, matchId: string): Match | null {
     for (const matches of tournament.matchesPerRound.values()) {
-      const match = matches.find(m => m.id === matchId);
+      const match = matches.find((m) => m.id === matchId);
       if (match) return match;
     }
     return null;
@@ -896,15 +888,15 @@ export class TournamentSystem {
   getPlayerTournaments(playerId: string): Tournament[] {
     const tournamentIds = this.playerTournaments.get(playerId) || [];
     return tournamentIds
-      .map(id => this.findTournament(id))
-      .filter(t => t !== null) as Tournament[];
+      .map((id) => this.findTournament(id))
+      .filter((t) => t !== null) as Tournament[];
   }
 
   getCurrentMatch(playerId: string): Match | null {
     for (const tournament of this.activeTournaments.values()) {
       for (const matches of tournament.matchesPerRound.values()) {
         const match = matches.find(
-          m => (m.player1 === playerId || m.player2 === playerId) && m.status === 'ready'
+          (m) => (m.player1 === playerId || m.player2 === playerId) && m.status === 'ready'
         );
         if (match) return match;
       }
@@ -930,7 +922,7 @@ class SingleEliminationGenerator extends BracketGenerator {
   generate(participants: TournamentParticipant[]): Bracket[] {
     const brackets: Bracket[] = [];
     const rounds = Math.ceil(Math.log2(participants.length));
-    
+
     // Generate brackets for each round
     for (let round = 1; round <= rounds; round++) {
       const matchesInRound = Math.pow(2, rounds - round);
@@ -948,12 +940,12 @@ class SingleEliminationGenerator extends BracketGenerator {
 
   getMatchesPerRound(brackets: Bracket[]): Map<number, Match[]> {
     const matchesPerRound = new Map<number, Match[]>();
-    
-    brackets.forEach(bracket => {
+
+    brackets.forEach((bracket) => {
       if (!matchesPerRound.has(bracket.round)) {
         matchesPerRound.set(bracket.round, []);
       }
-      
+
       const match: Match = {
         id: `match_${bracket.round}_${bracket.position}`,
         round: bracket.round,
@@ -967,7 +959,7 @@ class SingleEliminationGenerator extends BracketGenerator {
         games: [],
         spectatorCount: 0,
       };
-      
+
       bracket.match = match;
       matchesPerRound.get(bracket.round)!.push(match);
     });

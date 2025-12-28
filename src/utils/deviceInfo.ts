@@ -21,13 +21,13 @@ export interface DeviceProfile {
   modelName: string | null;
   modelId: string | null;
   deviceYearClass: number | null;
-  
+
   // Platform Info
   platform: 'ios' | 'android' | 'web';
   osVersion: string | null;
   systemVersion: string;
   apiLevel: number | null;
-  
+
   // Display Characteristics
   screenWidth: number;
   screenHeight: number;
@@ -39,13 +39,13 @@ export interface DeviceProfile {
   isTablet: boolean;
   hasNotch: boolean;
   hasDynamicIsland: boolean;
-  
+
   // Performance Capabilities
   totalMemory: number | null;
   supportedCPUArchitectures: string[] | null;
   performanceTier: 'low' | 'medium' | 'high' | 'ultra';
   graphicsCapability: 'basic' | 'standard' | 'advanced';
-  
+
   // Network Information
   networkType: string | null;
   isConnected: boolean;
@@ -53,12 +53,12 @@ export interface DeviceProfile {
   isCellular: boolean;
   cellularGeneration: string | null;
   networkQuality: 'poor' | 'fair' | 'good' | 'excellent';
-  
+
   // Battery Status
   batteryLevel: number | null;
   batteryState: string | null;
   isLowPowerMode: boolean;
-  
+
   // Feature Support
   hasHaptics: boolean;
   hasAudioSupport: boolean;
@@ -66,12 +66,12 @@ export interface DeviceProfile {
   supportsHEIC: boolean;
   supportsP3ColorSpace: boolean;
   supportsHDR: boolean;
-  
+
   // User Preferences
   prefersReducedMotion: boolean;
   prefersHighContrast: boolean;
   textScaleFactor: number;
-  
+
   // App-Specific
   appVersion: string;
   buildNumber: string | number;
@@ -113,19 +113,19 @@ class DeviceInfoManager {
       const { width, height } = Dimensions.get('window');
       const screenScale = PixelRatio.get();
       const pixelDensity = PixelRatio.getFontScale();
-      
+
       // Get device info
       const deviceType = await this.detectDeviceType();
       const isTablet = deviceType === 'tablet';
-      
+
       // Get network info
       const networkState = await Network.getNetworkStateAsync();
-      
+
       // Battery APIs not available on web
       let batteryLevel = null;
       let batteryState = Battery.BatteryState.UNKNOWN;
       let powerState = { lowPowerMode: false };
-      
+
       if (Platform.OS !== 'web') {
         try {
           batteryLevel = await Battery.getBatteryLevelAsync();
@@ -135,7 +135,7 @@ class DeviceInfoManager {
           // Battery API not available
         }
       }
-      
+
       // Get cellular info (Android only)
       let cellularGeneration: string | null = null;
       if (Platform.OS === 'android') {
@@ -148,7 +148,7 @@ class DeviceInfoManager {
 
       // Calculate performance tier
       const performanceTier = this.calculatePerformanceTier();
-      
+
       // Build device profile
       this.deviceProfile = {
         // Device Identification
@@ -160,13 +160,13 @@ class DeviceInfoManager {
         modelName: Device.modelName,
         modelId: Device.modelId,
         deviceYearClass: Device.deviceYearClass,
-        
+
         // Platform Info
         platform: Platform.OS as 'ios' | 'android' | 'web',
         osVersion: Device.osVersion,
         systemVersion: Platform.Version.toString(),
         apiLevel: Platform.OS === 'android' ? Platform.Version : null,
-        
+
         // Display Characteristics
         screenWidth: width,
         screenHeight: height,
@@ -178,13 +178,13 @@ class DeviceInfoManager {
         isTablet,
         hasNotch: this.detectNotch(),
         hasDynamicIsland: this.detectDynamicIsland(),
-        
+
         // Performance Capabilities
         totalMemory: Device.totalMemory,
         supportedCPUArchitectures: Device.supportedCpuArchitectures,
         performanceTier,
         graphicsCapability: this.detectGraphicsCapability(),
-        
+
         // Network Information
         networkType: networkState.type,
         isConnected: networkState.isConnected || false,
@@ -192,12 +192,12 @@ class DeviceInfoManager {
         isCellular: networkState.type === Network.NetworkStateType.CELLULAR,
         cellularGeneration,
         networkQuality: this.calculateNetworkQuality(networkState),
-        
+
         // Battery Status
         batteryLevel,
         batteryState: this.getBatteryStateString(batteryState),
         isLowPowerMode: powerState.lowPowerMode || false,
-        
+
         // Feature Support
         hasHaptics: this.detectHapticSupport(),
         hasAudioSupport: true,
@@ -205,25 +205,28 @@ class DeviceInfoManager {
         supportsHEIC: this.detectHEICSupport(),
         supportsP3ColorSpace: this.detectP3Support(),
         supportsHDR: this.detectHDRSupport(),
-        
+
         // User Preferences
         prefersReducedMotion: false, // Would need to implement accessibility check
         prefersHighContrast: false,
         textScaleFactor: PixelRatio.getFontScale(),
-        
+
         // App-Specific
         appVersion: Constants.expoConfig?.version || '1.0.0',
-        buildNumber: Constants.expoConfig?.ios?.buildNumber || Constants.expoConfig?.android?.versionCode || '1',
+        buildNumber:
+          Constants.expoConfig?.ios?.buildNumber ||
+          Constants.expoConfig?.android?.versionCode ||
+          '1',
         isExpoGo: Constants.appOwnership === 'expo',
         isStandalone: Constants.appOwnership === 'standalone',
       };
 
       // Calculate quality settings based on device profile
       this.qualitySettings = this.calculateQualitySettings(this.deviceProfile);
-      
+
       // Save to storage for offline access
       await this.saveDeviceProfile();
-      
+
       // Notify listeners
       this.notifyListeners();
     } catch (error) {
@@ -245,7 +248,7 @@ class DeviceInfoManager {
 
   private async detectDeviceType(): Promise<'phone' | 'tablet' | 'tv' | 'desktop' | 'unknown'> {
     const deviceType = await Device.getDeviceTypeAsync();
-    
+
     switch (deviceType) {
       case Device.DeviceType.PHONE:
         return 'phone';
@@ -263,41 +266,49 @@ class DeviceInfoManager {
   }
 
   private calculateAspectRatio(width: number, height: number): string {
-    const gcd = (a: number, b: number): number => b === 0 ? a : gcd(b, a % b);
+    const gcd = (a: number, b: number): number => (b === 0 ? a : gcd(b, a % b));
     const divisor = gcd(width, height);
     return `${width / divisor}:${height / divisor}`;
   }
 
   private detectNotch(): boolean {
     if (Platform.OS !== 'ios') return false;
-    
+
     const model = Device.modelName?.toLowerCase() || '';
     const notchModels = [
-      'iphone x', 'iphone xs', 'iphone xr', 'iphone 11',
-      'iphone 12', 'iphone 13', 'iphone 14', 'iphone 15'
+      'iphone x',
+      'iphone xs',
+      'iphone xr',
+      'iphone 11',
+      'iphone 12',
+      'iphone 13',
+      'iphone 14',
+      'iphone 15',
     ];
-    
-    return notchModels.some(m => model.includes(m));
+
+    return notchModels.some((m) => model.includes(m));
   }
 
   private detectDynamicIsland(): boolean {
     if (Platform.OS !== 'ios') return false;
-    
+
     const model = Device.modelName?.toLowerCase() || '';
-    return model.includes('iphone 14 pro') || 
-           model.includes('iphone 15 pro') ||
-           model.includes('iphone 16');
+    return (
+      model.includes('iphone 14 pro') ||
+      model.includes('iphone 15 pro') ||
+      model.includes('iphone 16')
+    );
   }
 
   private calculatePerformanceTier(): 'low' | 'medium' | 'high' | 'ultra' {
     const yearClass = Device.deviceYearClass;
     const memory = Device.totalMemory;
-    
+
     if (!yearClass || !memory) return 'medium';
-    
+
     // RAM-based tiers
     const memoryGB = memory / (1024 * 1024 * 1024);
-    
+
     if (memoryGB >= 8 && yearClass >= 2022) return 'ultra';
     if (memoryGB >= 6 && yearClass >= 2020) return 'high';
     if (memoryGB >= 4 && yearClass >= 2018) return 'medium';
@@ -306,7 +317,7 @@ class DeviceInfoManager {
 
   private detectGraphicsCapability(): 'basic' | 'standard' | 'advanced' {
     const tier = this.calculatePerformanceTier();
-    
+
     switch (tier) {
       case 'ultra':
       case 'high':
@@ -318,18 +329,20 @@ class DeviceInfoManager {
     }
   }
 
-  private calculateNetworkQuality(networkState: Network.NetworkState): 'poor' | 'fair' | 'good' | 'excellent' {
+  private calculateNetworkQuality(
+    networkState: Network.NetworkState
+  ): 'poor' | 'fair' | 'good' | 'excellent' {
     if (!networkState.isConnected) return 'poor';
-    
+
     if (networkState.type === Network.NetworkStateType.WIFI) {
       return 'excellent';
     }
-    
+
     if (networkState.type === Network.NetworkStateType.CELLULAR) {
       // Would need actual speed test for accurate quality
       return 'good';
     }
-    
+
     return 'fair';
   }
 
@@ -393,14 +406,14 @@ class DeviceInfoManager {
 
   private calculateQualitySettings(profile: DeviceProfile): AssetQualitySettings {
     const { performanceTier, networkQuality, batteryLevel, isLowPowerMode } = profile;
-    
+
     // Adjust quality based on device capabilities
     let imageQuality: 'low' | 'medium' | 'high' | 'ultra' = 'medium';
     let maxTextureSize = 2048;
     let compressionLevel = 85;
     let cacheStrategy: 'aggressive' | 'balanced' | 'minimal' = 'balanced';
     let preloadStrategy: 'none' | 'next' | 'all' = 'next';
-    
+
     // Performance tier adjustments
     switch (performanceTier) {
       case 'ultra':
@@ -432,22 +445,20 @@ class DeviceInfoManager {
         preloadStrategy = 'none';
         break;
     }
-    
+
     // Network quality adjustments
     if (networkQuality === 'poor' || networkQuality === 'fair') {
-      imageQuality = imageQuality === 'ultra' ? 'high' : 
-                     imageQuality === 'high' ? 'medium' : 'low';
+      imageQuality = imageQuality === 'ultra' ? 'high' : imageQuality === 'high' ? 'medium' : 'low';
       preloadStrategy = 'none';
     }
-    
+
     // Battery adjustments
     if (isLowPowerMode || (batteryLevel && batteryLevel < 0.2)) {
-      imageQuality = imageQuality === 'ultra' ? 'high' : 
-                     imageQuality === 'high' ? 'medium' : 'low';
+      imageQuality = imageQuality === 'ultra' ? 'high' : imageQuality === 'high' ? 'medium' : 'low';
       cacheStrategy = 'minimal';
       preloadStrategy = 'none';
     }
-    
+
     return {
       imageQuality,
       maxTextureSize,
@@ -462,7 +473,7 @@ class DeviceInfoManager {
   private getFallbackProfile(): DeviceProfile {
     const { width, height } = Dimensions.get('window');
     const isTablet = width >= 768;
-    
+
     return {
       deviceId: 'unknown',
       deviceName: 'Unknown Device',
@@ -544,7 +555,7 @@ class DeviceInfoManager {
             this.deviceProfile.isWifi = state.type === Network.NetworkStateType.WIFI;
             this.deviceProfile.isCellular = state.type === Network.NetworkStateType.CELLULAR;
             this.deviceProfile.networkQuality = this.calculateNetworkQuality(state);
-            
+
             // Recalculate quality settings
             this.qualitySettings = this.calculateQualitySettings(this.deviceProfile);
             this.notifyListeners();
@@ -558,12 +569,12 @@ class DeviceInfoManager {
         batteryLevelListener(({ batteryLevel }: any) => {
           if (this.deviceProfile) {
             this.deviceProfile.batteryLevel = batteryLevel;
-            
+
             // Recalculate quality settings if battery is low
             if (batteryLevel < 0.2) {
               this.qualitySettings = this.calculateQualitySettings(this.deviceProfile);
             }
-            
+
             this.notifyListeners();
           }
         });
@@ -586,7 +597,7 @@ class DeviceInfoManager {
         powerModeListener(({ lowPowerMode }: any) => {
           if (this.deviceProfile) {
             this.deviceProfile.isLowPowerMode = lowPowerMode;
-            
+
             // Recalculate quality settings
             this.qualitySettings = this.calculateQualitySettings(this.deviceProfile);
             this.notifyListeners();
@@ -600,21 +611,15 @@ class DeviceInfoManager {
 
   private notifyListeners(): void {
     if (this.deviceProfile) {
-      this.listeners.forEach(listener => listener(this.deviceProfile!));
+      this.listeners.forEach((listener) => listener(this.deviceProfile!));
     }
   }
 
   private async saveDeviceProfile(): Promise<void> {
     if (this.deviceProfile) {
       try {
-        await AsyncStorage.setItem(
-          '@device_profile',
-          JSON.stringify(this.deviceProfile)
-        );
-        await AsyncStorage.setItem(
-          '@quality_settings',
-          JSON.stringify(this.qualitySettings)
-        );
+        await AsyncStorage.setItem('@device_profile', JSON.stringify(this.deviceProfile));
+        await AsyncStorage.setItem('@quality_settings', JSON.stringify(this.qualitySettings));
       } catch (error) {
         console.error('Error saving device profile:', error);
       }
@@ -634,21 +639,23 @@ class DeviceInfoManager {
   }
 
   // Public API
-  
+
   getDeviceProfile(): DeviceProfile {
     return this.deviceProfile || this.getFallbackProfile();
   }
 
   getQualitySettings(): AssetQualitySettings {
-    return this.qualitySettings || {
-      imageQuality: 'medium',
-      maxTextureSize: 2048,
-      enableBlurHash: true,
-      enableProgressive: true,
-      cacheStrategy: 'balanced',
-      preloadStrategy: 'next',
-      compressionLevel: 85,
-    };
+    return (
+      this.qualitySettings || {
+        imageQuality: 'medium',
+        maxTextureSize: 2048,
+        enableBlurHash: true,
+        enableProgressive: true,
+        cacheStrategy: 'balanced',
+        preloadStrategy: 'next',
+        compressionLevel: 85,
+      }
+    );
   }
 
   isHighEndDevice(): boolean {
@@ -663,19 +670,21 @@ class DeviceInfoManager {
 
   shouldReduceQuality(): boolean {
     const profile = this.getDeviceProfile();
-    return profile.isLowPowerMode || 
-           profile.networkQuality === 'poor' ||
-           (profile.batteryLevel !== null && profile.batteryLevel < 0.2) ||
-           profile.performanceTier === 'low';
+    return (
+      profile.isLowPowerMode ||
+      profile.networkQuality === 'poor' ||
+      (profile.batteryLevel !== null && profile.batteryLevel < 0.2) ||
+      profile.performanceTier === 'low'
+    );
   }
 
   getOptimalImageResolution(): '@1x' | '@2x' | '@3x' {
     const profile = this.getDeviceProfile();
     const settings = this.getQualitySettings();
-    
+
     if (settings.imageQuality === 'low') return '@1x';
     if (settings.imageQuality === 'ultra') return '@3x';
-    
+
     // Use pixel density for decision
     if (profile.screenScale >= 3) return '@3x';
     if (profile.screenScale >= 2) return '@2x';
@@ -684,7 +693,7 @@ class DeviceInfoManager {
 
   getRecommendedCachePolicy(): 'none' | 'disk' | 'memory' | 'memory-disk' {
     const settings = this.getQualitySettings();
-    
+
     switch (settings.cacheStrategy) {
       case 'aggressive':
         return 'memory-disk';
@@ -699,7 +708,7 @@ class DeviceInfoManager {
 
   subscribe(listener: (profile: DeviceProfile) => void): () => void {
     this.listeners.add(listener);
-    
+
     // Return unsubscribe function
     return () => {
       this.listeners.delete(listener);

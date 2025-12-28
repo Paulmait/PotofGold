@@ -6,7 +6,7 @@ const requiredAssets = [
   './assets/images/pot_of_gold_icon.png',
   './assets/images/pot_of_gold_splash.png',
   './assets/images/adaptive-icon.png',
-  './assets/images/favicon.png'
+  './assets/images/favicon.png',
 ];
 
 const requiredEnvVars = [
@@ -20,11 +20,13 @@ const requiredEnvVars = [
   'ADMIN_USERNAME',
   'ADMIN_PASSWORD',
   'ADMIN_PIN',
-  'ADMIN_RECOVERY_EMAIL'
+  'ADMIN_RECOVERY_EMAIL',
 ];
 
-let missingAssets = requiredAssets.filter(asset => !fs.existsSync(path.resolve(__dirname, '..', asset)));
-let missingEnv = requiredEnvVars.filter(key => !process.env[key]);
+let missingAssets = requiredAssets.filter(
+  (asset) => !fs.existsSync(path.resolve(__dirname, '..', asset))
+);
+let missingEnv = requiredEnvVars.filter((key) => !process.env[key]);
 
 if (missingAssets.length > 0) {
   console.error('Missing required assets:', missingAssets);

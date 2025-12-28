@@ -43,13 +43,13 @@ export class AutoRecoverySystem {
   private async initialize(): Promise<void> {
     // Load existing recovery points
     await this.loadRecoveryPoints();
-    
+
     // Start auto-save
     this.startAutoSave();
-    
+
     // Listen for critical events
     this.setupEventListeners();
-    
+
     // Check for crash recovery on startup
     await this.checkCrashRecovery();
   }
@@ -76,7 +76,7 @@ export class AutoRecoverySystem {
       if (now - this.lastSaveTime < 5000 && trigger === 'auto') {
         return;
       }
-      
+
       this.lastSaveTime = now;
 
       const gameState = await this.captureGameState();
@@ -93,7 +93,7 @@ export class AutoRecoverySystem {
 
       // Add to recovery points
       this.recoveryPoints.unshift(recoveryPoint);
-      
+
       // Keep only the latest N recovery points
       if (this.recoveryPoints.length > this.config.maxRecoveryPoints) {
         this.recoveryPoints = this.recoveryPoints.slice(0, this.config.maxRecoveryPoints);
@@ -101,7 +101,7 @@ export class AutoRecoverySystem {
 
       // Save locally
       await this.saveRecoveryPoints();
-      
+
       // Cloud backup if enabled
       if (this.config.enableCloudBackup) {
         await this.cloudBackup(recoveryPoint);
@@ -112,7 +112,6 @@ export class AutoRecoverySystem {
         timestamp: now,
         pointId: recoveryPoint.id,
       });
-
     } catch (error) {
       console.error('Failed to create recovery point:', error);
       eventBus.emit('recovery:failed', error);
@@ -148,7 +147,7 @@ export class AutoRecoverySystem {
       achievements: await AsyncStorage.getItem('user_achievements'),
       timestamp: Date.now(),
     };
-    
+
     return critical;
   }
 
@@ -163,10 +162,10 @@ export class AutoRecoverySystem {
 
     try {
       let recoveryPoint: RecoveryPoint | undefined;
-      
+
       if (pointId) {
         // Recover specific point
-        recoveryPoint = this.recoveryPoints.find(p => p.id === pointId);
+        recoveryPoint = this.recoveryPoints.find((p) => p.id === pointId);
       } else {
         // Recover latest point
         recoveryPoint = this.recoveryPoints[0];
@@ -178,10 +177,10 @@ export class AutoRecoverySystem {
 
       // Restore game state
       await this.restoreGameState(recoveryPoint.gameState);
-      
+
       // Restore user progress
       await this.restoreUserProgress(recoveryPoint.userProgress);
-      
+
       // Restore critical data
       await this.restoreCriticalData(recoveryPoint.criticalData);
 
@@ -191,7 +190,6 @@ export class AutoRecoverySystem {
       });
 
       return true;
-
     } catch (error) {
       console.error('Recovery failed:', error);
       eventBus.emit('recovery:failed', error);
@@ -218,7 +216,8 @@ export class AutoRecoverySystem {
       if (critical.coins) await AsyncStorage.setItem('user_coins', critical.coins);
       if (critical.level) await AsyncStorage.setItem('user_level', critical.level);
       if (critical.purchases) await AsyncStorage.setItem('user_purchases', critical.purchases);
-      if (critical.achievements) await AsyncStorage.setItem('user_achievements', critical.achievements);
+      if (critical.achievements)
+        await AsyncStorage.setItem('user_achievements', critical.achievements);
     }
   }
 
@@ -227,25 +226,24 @@ export class AutoRecoverySystem {
       // Check if app crashed last time
       const lastSession = await AsyncStorage.getItem('last_session');
       const crashDetected = await AsyncStorage.getItem('crash_detected');
-      
+
       if (crashDetected === 'true') {
         // Auto-recover from latest point
         const recovered = await this.recover();
-        
+
         if (recovered) {
           eventBus.emit('crash:recovered', {
             timestamp: Date.now(),
             lastSession,
           });
         }
-        
+
         // Clear crash flag
         await AsyncStorage.removeItem('crash_detected');
       }
-      
+
       // Set new session
       await AsyncStorage.setItem('last_session', Date.now().toString());
-      
     } catch (error) {
       console.error('Crash recovery check failed:', error);
     }
@@ -257,15 +255,12 @@ export class AutoRecoverySystem {
       const { doc, setDoc } = await import('firebase/firestore');
       const { db } = await import('../../firebase/firebase');
       const { auth } = await import('../../firebase/auth');
-      
+
       if (auth.currentUser) {
-        await setDoc(
-          doc(db, 'recovery_points', auth.currentUser.uid),
-          {
-            latest: point,
-            timestamp: Date.now(),
-          }
-        );
+        await setDoc(doc(db, 'recovery_points', auth.currentUser.uid), {
+          latest: point,
+          timestamp: Date.now(),
+        });
       }
     } catch (error) {
       console.warn('Cloud backup failed:', error);
@@ -303,7 +298,7 @@ export class AutoRecoverySystem {
 
   setAutoSaveInterval(interval: number): void {
     this.config.autoSaveInterval = interval;
-    
+
     // Restart auto-save with new interval
     if (this.autoSaveTimer) {
       clearInterval(this.autoSaveTimer);

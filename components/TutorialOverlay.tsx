@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Animated,
-  Dimensions,
-} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Animated, Dimensions } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
@@ -30,15 +23,11 @@ interface TutorialOverlayProps {
   onSkip?: () => void;
 }
 
-const TutorialOverlay: React.FC<TutorialOverlayProps> = ({
-  visible,
-  onComplete,
-  onSkip,
-}) => {
+const TutorialOverlay: React.FC<TutorialOverlayProps> = ({ visible, onComplete, onSkip }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const fadeAnim = new Animated.Value(0);
   const pulseAnim = new Animated.Value(1);
-  
+
   const tutorialSteps: TutorialStep[] = [
     {
       id: 0,
@@ -76,7 +65,7 @@ const TutorialOverlay: React.FC<TutorialOverlayProps> = ({
       description: 'Good luck collecting your fortune!',
     },
   ];
-  
+
   useEffect(() => {
     if (visible) {
       // Fade in animation
@@ -85,7 +74,7 @@ const TutorialOverlay: React.FC<TutorialOverlayProps> = ({
         duration: 500,
         useNativeDriver: true,
       }).start();
-      
+
       // Pulse animation for highlight
       Animated.loop(
         Animated.sequence([
@@ -103,7 +92,7 @@ const TutorialOverlay: React.FC<TutorialOverlayProps> = ({
       ).start();
     }
   }, [visible]);
-  
+
   const handleNext = () => {
     if (currentStep < tutorialSteps.length - 1) {
       setCurrentStep(currentStep + 1);
@@ -111,7 +100,7 @@ const TutorialOverlay: React.FC<TutorialOverlayProps> = ({
       onComplete();
     }
   };
-  
+
   const handleSkip = () => {
     if (onSkip) {
       onSkip();
@@ -119,11 +108,11 @@ const TutorialOverlay: React.FC<TutorialOverlayProps> = ({
       onComplete();
     }
   };
-  
+
   if (!visible) return null;
-  
+
   const step = tutorialSteps[currentStep];
-  
+
   return (
     <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
       {/* Overlay with cutout for highlight area */}
@@ -143,12 +132,12 @@ const TutorialOverlay: React.FC<TutorialOverlayProps> = ({
           />
         )}
       </View>
-      
+
       {/* Tutorial content */}
       <View style={styles.content}>
         <Text style={styles.title}>{step.title}</Text>
         <Text style={styles.description}>{step.description}</Text>
-        
+
         {/* Arrow indicator */}
         {step.showArrow && step.arrowDirection && (
           <View style={[styles.arrow, styles[`arrow${step.arrowDirection}`]]}>
@@ -160,26 +149,23 @@ const TutorialOverlay: React.FC<TutorialOverlayProps> = ({
             </Text>
           </View>
         )}
-        
+
         {/* Step indicators */}
         <View style={styles.stepIndicators}>
           {tutorialSteps.map((_, index) => (
             <View
               key={index}
-              style={[
-                styles.stepDot,
-                index === currentStep && styles.stepDotActive,
-              ]}
+              style={[styles.stepDot, index === currentStep && styles.stepDotActive]}
             />
           ))}
         </View>
-        
+
         {/* Buttons */}
         <View style={styles.buttons}>
           <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
             <Text style={styles.skipText}>Skip Tutorial</Text>
           </TouchableOpacity>
-          
+
           <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
             <Text style={styles.nextText}>
               {currentStep === tutorialSteps.length - 1 ? 'Start Game' : 'Next'}

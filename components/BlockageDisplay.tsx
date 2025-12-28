@@ -1,11 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Animated,
-  Dimensions,
-} from 'react-native';
+import { View, Text, StyleSheet, Animated, Dimensions } from 'react-native';
 import { Blockage } from '../utils/blockageManager';
 
 const { width } = Dimensions.get('window');
@@ -23,7 +17,7 @@ const BlockageDisplay: React.FC<BlockageDisplayProps> = ({
 }) => {
   const shakeAnim = useRef(new Animated.Value(0)).current;
   const warningPulse = useRef(new Animated.Value(1)).current;
-  
+
   // Warning animation based on level
   useEffect(() => {
     if (warningLevel === 'danger' || warningLevel === 'critical') {
@@ -46,14 +40,14 @@ const BlockageDisplay: React.FC<BlockageDisplayProps> = ({
       warningPulse.setValue(1);
     }
   }, [warningLevel]);
-  
+
   const getBlockageColor = (blockage: Blockage) => {
     const healthPercent = blockage.health / blockage.maxHealth;
-    
+
     if (blockage.isBreaking) {
       return '#FF6B6B'; // Red when breaking
     }
-    
+
     if (healthPercent > 0.66) {
       return '#8B4513'; // Brown for strong
     } else if (healthPercent > 0.33) {
@@ -62,7 +56,7 @@ const BlockageDisplay: React.FC<BlockageDisplayProps> = ({
       return '#DEB887'; // Beige for weak
     }
   };
-  
+
   const getWarningColor = () => {
     switch (warningLevel) {
       case 'safe':
@@ -75,7 +69,7 @@ const BlockageDisplay: React.FC<BlockageDisplayProps> = ({
         return 'rgba(255, 0, 0, 0.4)';
     }
   };
-  
+
   return (
     <View style={styles.container}>
       {/* Warning overlay */}
@@ -90,7 +84,7 @@ const BlockageDisplay: React.FC<BlockageDisplayProps> = ({
           ]}
         />
       )}
-      
+
       {/* Blockage indicator bar */}
       {blockages.length > 0 && (
         <View style={styles.indicatorBar}>
@@ -110,9 +104,9 @@ const BlockageDisplay: React.FC<BlockageDisplayProps> = ({
           </View>
         </View>
       )}
-      
+
       {/* Render individual blockages */}
-      {blockages.map(blockage => (
+      {blockages.map((blockage) => (
         <BlockageItem
           key={blockage.id}
           blockage={blockage}
@@ -120,7 +114,7 @@ const BlockageDisplay: React.FC<BlockageDisplayProps> = ({
           onHit={() => onBlockageHit?.(blockage.id)}
         />
       ))}
-      
+
       {/* Critical warning message */}
       {warningLevel === 'critical' && (
         <View style={styles.criticalWarning}>
@@ -138,7 +132,7 @@ const BlockageItem: React.FC<{
 }> = ({ blockage, color, onHit }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const crackAnim = useRef(new Animated.Value(0)).current;
-  
+
   useEffect(() => {
     // Fade in animation
     Animated.timing(fadeAnim, {
@@ -147,7 +141,7 @@ const BlockageItem: React.FC<{
       useNativeDriver: true,
     }).start();
   }, []);
-  
+
   useEffect(() => {
     if (blockage.isBreaking) {
       // Crack animation when breaking
@@ -165,9 +159,9 @@ const BlockageItem: React.FC<{
       ]).start();
     }
   }, [blockage.isBreaking]);
-  
+
   const healthPercent = blockage.health / blockage.maxHealth;
-  
+
   return (
     <Animated.View
       style={[
@@ -196,11 +190,9 @@ const BlockageItem: React.FC<{
           <Text style={styles.crackEmoji}>💥</Text>
         </View>
       )}
-      
+
       {/* Item type indicator */}
-      <Text style={styles.blockageEmoji}>
-        {blockage.type === 'bomb' ? '💣' : '📦'}
-      </Text>
+      <Text style={styles.blockageEmoji}>{blockage.type === 'bomb' ? '💣' : '📦'}</Text>
     </Animated.View>
   );
 };

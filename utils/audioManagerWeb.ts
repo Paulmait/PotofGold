@@ -48,10 +48,7 @@ class AudioManagerWeb {
     return audio;
   }
 
-  async playSound(
-    soundName: keyof SoundEffects,
-    options?: { volume?: number; pitch?: number }
-  ) {
+  async playSound(soundName: keyof SoundEffects, options?: { volume?: number; pitch?: number }) {
     if (!this.isEnabled) return;
 
     try {

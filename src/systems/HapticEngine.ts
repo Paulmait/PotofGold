@@ -14,48 +14,48 @@ export enum HapticPattern {
   COIN_COLLECT_MEDIUM = 'coin_collect_medium',
   COIN_COLLECT_LARGE = 'coin_collect_large',
   COIN_COLLECT_MEGA = 'coin_collect_mega',
-  
+
   // Power-ups
   POWERUP_ACTIVATE = 'powerup_activate',
   POWERUP_EXPIRE = 'powerup_expire',
   MAGNET_PULL = 'magnet_pull',
   SHIELD_HIT = 'shield_hit',
   SPEED_BOOST = 'speed_boost',
-  
+
   // Game Events
   LEVEL_UP = 'level_up',
   ACHIEVEMENT_UNLOCK = 'achievement_unlock',
   NEW_HIGH_SCORE = 'new_high_score',
   COMBO_BUILD = 'combo_build',
   COMBO_BREAK = 'combo_break',
-  
+
   // UI Interactions
   BUTTON_TAP = 'button_tap',
   BUTTON_HOLD = 'button_hold',
   SWIPE_ACTION = 'swipe_action',
   TOGGLE_SWITCH = 'toggle_switch',
   SLIDER_CHANGE = 'slider_change',
-  
+
   // Purchase/Rewards
   PURCHASE_SUCCESS = 'purchase_success',
   PURCHASE_FAIL = 'purchase_fail',
   REWARD_CLAIM = 'reward_claim',
   CHEST_OPEN = 'chest_open',
   ITEM_UNLOCK = 'item_unlock',
-  
+
   // Game State
   GAME_START = 'game_start',
   GAME_OVER = 'game_over',
   DANGER_WARNING = 'danger_warning',
   COLLISION = 'collision',
   NEAR_MISS = 'near_miss',
-  
+
   // Special Effects
   RAINBOW_TRAIL = 'rainbow_trail',
   GOLDEN_POT = 'golden_pot',
   MYSTERY_BOX = 'mystery_box',
   JACKPOT = 'jackpot',
-  EPIC_WIN = 'epic_win'
+  EPIC_WIN = 'epic_win',
 }
 
 interface HapticSequence {
@@ -102,59 +102,53 @@ class HapticEngine {
 
     // Coin Collection Patterns
     patterns.set(HapticPattern.COIN_COLLECT_SMALL, {
-      ios: [
-        { pattern: Haptics.ImpactFeedbackStyle.Light, delay: 0 }
-      ],
-      android: [
-        { pattern: Haptics.ImpactFeedbackStyle.Light, delay: 0 }
-      ],
+      ios: [{ pattern: Haptics.ImpactFeedbackStyle.Light, delay: 0 }],
+      android: [{ pattern: Haptics.ImpactFeedbackStyle.Light, delay: 0 }],
       intensity: 'light',
       priority: 'normal',
-      interruptible: true
+      interruptible: true,
     });
 
     patterns.set(HapticPattern.COIN_COLLECT_MEGA, {
       ios: [
         { pattern: Haptics.ImpactFeedbackStyle.Heavy, delay: 0 },
         { pattern: Haptics.ImpactFeedbackStyle.Medium, delay: 100 },
-        { pattern: Haptics.ImpactFeedbackStyle.Light, delay: 200 }
+        { pattern: Haptics.ImpactFeedbackStyle.Light, delay: 200 },
       ],
       android: [
         { pattern: Haptics.ImpactFeedbackStyle.Heavy, delay: 0 },
-        { pattern: Haptics.ImpactFeedbackStyle.Medium, delay: 150 }
+        { pattern: Haptics.ImpactFeedbackStyle.Medium, delay: 150 },
       ],
       intensity: 'heavy',
       priority: 'high',
-      interruptible: false
+      interruptible: false,
     });
 
     // Power-up Patterns
     patterns.set(HapticPattern.POWERUP_ACTIVATE, {
       ios: [
         { pattern: Haptics.NotificationFeedbackType.Success, delay: 0 },
-        { pattern: Haptics.ImpactFeedbackStyle.Medium, delay: 150 }
+        { pattern: Haptics.ImpactFeedbackStyle.Medium, delay: 150 },
       ],
-      android: [
-        { pattern: Haptics.NotificationFeedbackType.Success, delay: 0 }
-      ],
+      android: [{ pattern: Haptics.NotificationFeedbackType.Success, delay: 0 }],
       intensity: 'medium',
       priority: 'high',
-      interruptible: false
+      interruptible: false,
     });
 
     patterns.set(HapticPattern.MAGNET_PULL, {
       ios: [
         { pattern: Haptics.ImpactFeedbackStyle.Light, delay: 0 },
         { pattern: Haptics.ImpactFeedbackStyle.Light, delay: 50 },
-        { pattern: Haptics.ImpactFeedbackStyle.Light, delay: 100 }
+        { pattern: Haptics.ImpactFeedbackStyle.Light, delay: 100 },
       ],
       android: [
         { pattern: Haptics.ImpactFeedbackStyle.Light, delay: 0 },
-        { pattern: Haptics.ImpactFeedbackStyle.Light, delay: 100 }
+        { pattern: Haptics.ImpactFeedbackStyle.Light, delay: 100 },
       ],
       intensity: 'light',
       priority: 'low',
-      interruptible: true
+      interruptible: true,
     });
 
     // Achievement Patterns
@@ -163,15 +157,15 @@ class HapticEngine {
         { pattern: Haptics.NotificationFeedbackType.Success, delay: 0 },
         { pattern: Haptics.ImpactFeedbackStyle.Heavy, delay: 200 },
         { pattern: Haptics.ImpactFeedbackStyle.Light, delay: 400 },
-        { pattern: Haptics.ImpactFeedbackStyle.Light, delay: 500 }
+        { pattern: Haptics.ImpactFeedbackStyle.Light, delay: 500 },
       ],
       android: [
         { pattern: Haptics.NotificationFeedbackType.Success, delay: 0 },
-        { pattern: Haptics.ImpactFeedbackStyle.Heavy, delay: 300 }
+        { pattern: Haptics.ImpactFeedbackStyle.Heavy, delay: 300 },
       ],
       intensity: 'heavy',
       priority: 'high',
-      interruptible: false
+      interruptible: false,
     });
 
     patterns.set(HapticPattern.LEVEL_UP, {
@@ -179,40 +173,32 @@ class HapticEngine {
         { pattern: Haptics.ImpactFeedbackStyle.Light, delay: 0 },
         { pattern: Haptics.ImpactFeedbackStyle.Medium, delay: 100 },
         { pattern: Haptics.ImpactFeedbackStyle.Heavy, delay: 200 },
-        { pattern: Haptics.NotificationFeedbackType.Success, delay: 400 }
+        { pattern: Haptics.NotificationFeedbackType.Success, delay: 400 },
       ],
       android: [
         { pattern: Haptics.ImpactFeedbackStyle.Medium, delay: 0 },
-        { pattern: Haptics.NotificationFeedbackType.Success, delay: 200 }
+        { pattern: Haptics.NotificationFeedbackType.Success, delay: 200 },
       ],
       intensity: 'heavy',
       priority: 'high',
-      interruptible: false
+      interruptible: false,
     });
 
     // UI Interaction Patterns
     patterns.set(HapticPattern.BUTTON_TAP, {
-      ios: [
-        { pattern: Haptics.ImpactFeedbackStyle.Light, delay: 0 }
-      ],
-      android: [
-        { pattern: Haptics.ImpactFeedbackStyle.Light, delay: 0 }
-      ],
+      ios: [{ pattern: Haptics.ImpactFeedbackStyle.Light, delay: 0 }],
+      android: [{ pattern: Haptics.ImpactFeedbackStyle.Light, delay: 0 }],
       intensity: 'light',
       priority: 'normal',
-      interruptible: true
+      interruptible: true,
     });
 
     patterns.set(HapticPattern.TOGGLE_SWITCH, {
-      ios: [
-        { pattern: Haptics.ImpactFeedbackStyle.Medium, delay: 0 }
-      ],
-      android: [
-        { pattern: Haptics.ImpactFeedbackStyle.Medium, delay: 0 }
-      ],
+      ios: [{ pattern: Haptics.ImpactFeedbackStyle.Medium, delay: 0 }],
+      android: [{ pattern: Haptics.ImpactFeedbackStyle.Medium, delay: 0 }],
       intensity: 'medium',
       priority: 'normal',
-      interruptible: true
+      interruptible: true,
     });
 
     // Purchase/Reward Patterns
@@ -220,14 +206,12 @@ class HapticEngine {
       ios: [
         { pattern: Haptics.NotificationFeedbackType.Success, delay: 0 },
         { pattern: Haptics.ImpactFeedbackStyle.Light, delay: 300 },
-        { pattern: Haptics.ImpactFeedbackStyle.Light, delay: 400 }
+        { pattern: Haptics.ImpactFeedbackStyle.Light, delay: 400 },
       ],
-      android: [
-        { pattern: Haptics.NotificationFeedbackType.Success, delay: 0 }
-      ],
+      android: [{ pattern: Haptics.NotificationFeedbackType.Success, delay: 0 }],
       intensity: 'medium',
       priority: 'high',
-      interruptible: false
+      interruptible: false,
     });
 
     patterns.set(HapticPattern.CHEST_OPEN, {
@@ -236,15 +220,15 @@ class HapticEngine {
         { pattern: Haptics.ImpactFeedbackStyle.Light, delay: 200 },
         { pattern: Haptics.ImpactFeedbackStyle.Light, delay: 300 },
         { pattern: Haptics.ImpactFeedbackStyle.Medium, delay: 400 },
-        { pattern: Haptics.NotificationFeedbackType.Success, delay: 600 }
+        { pattern: Haptics.NotificationFeedbackType.Success, delay: 600 },
       ],
       android: [
         { pattern: Haptics.ImpactFeedbackStyle.Heavy, delay: 0 },
-        { pattern: Haptics.NotificationFeedbackType.Success, delay: 400 }
+        { pattern: Haptics.NotificationFeedbackType.Success, delay: 400 },
       ],
       intensity: 'heavy',
       priority: 'high',
-      interruptible: false
+      interruptible: false,
     });
 
     // Game State Patterns
@@ -253,30 +237,30 @@ class HapticEngine {
         { pattern: Haptics.NotificationFeedbackType.Error, delay: 0 },
         { pattern: Haptics.ImpactFeedbackStyle.Heavy, delay: 200 },
         { pattern: Haptics.ImpactFeedbackStyle.Medium, delay: 400 },
-        { pattern: Haptics.ImpactFeedbackStyle.Light, delay: 600 }
+        { pattern: Haptics.ImpactFeedbackStyle.Light, delay: 600 },
       ],
       android: [
         { pattern: Haptics.NotificationFeedbackType.Error, delay: 0 },
-        { pattern: Haptics.ImpactFeedbackStyle.Heavy, delay: 300 }
+        { pattern: Haptics.ImpactFeedbackStyle.Heavy, delay: 300 },
       ],
       intensity: 'heavy',
       priority: 'high',
-      interruptible: false
+      interruptible: false,
     });
 
     patterns.set(HapticPattern.DANGER_WARNING, {
       ios: [
         { pattern: Haptics.NotificationFeedbackType.Warning, delay: 0 },
         { pattern: Haptics.ImpactFeedbackStyle.Medium, delay: 200 },
-        { pattern: Haptics.NotificationFeedbackType.Warning, delay: 400 }
+        { pattern: Haptics.NotificationFeedbackType.Warning, delay: 400 },
       ],
       android: [
         { pattern: Haptics.NotificationFeedbackType.Warning, delay: 0 },
-        { pattern: Haptics.NotificationFeedbackType.Warning, delay: 400 }
+        { pattern: Haptics.NotificationFeedbackType.Warning, delay: 400 },
       ],
       intensity: 'medium',
       priority: 'high',
-      interruptible: true
+      interruptible: true,
     });
 
     // Special Effects
@@ -288,16 +272,16 @@ class HapticEngine {
         { pattern: Haptics.NotificationFeedbackType.Success, delay: 400 },
         { pattern: Haptics.ImpactFeedbackStyle.Light, delay: 600 },
         { pattern: Haptics.ImpactFeedbackStyle.Light, delay: 700 },
-        { pattern: Haptics.ImpactFeedbackStyle.Light, delay: 800 }
+        { pattern: Haptics.ImpactFeedbackStyle.Light, delay: 800 },
       ],
       android: [
         { pattern: Haptics.ImpactFeedbackStyle.Heavy, delay: 0 },
         { pattern: Haptics.ImpactFeedbackStyle.Heavy, delay: 200 },
-        { pattern: Haptics.NotificationFeedbackType.Success, delay: 400 }
+        { pattern: Haptics.NotificationFeedbackType.Success, delay: 400 },
       ],
       intensity: 'heavy',
       priority: 'high',
-      interruptible: false
+      interruptible: false,
     });
 
     return patterns;
@@ -306,7 +290,7 @@ class HapticEngine {
   private async checkHapticSupport(): Promise<void> {
     const deviceProfile = deviceInfoManager.getDeviceProfile();
     this.deviceSupportsHaptics = deviceProfile.hasHaptics;
-    
+
     // Additional platform-specific checks
     if (Platform.OS === 'ios') {
       // iOS 10+ supports haptics
@@ -333,10 +317,13 @@ class HapticEngine {
 
   private async saveSettings(): Promise<void> {
     try {
-      await AsyncStorage.setItem('@haptic_settings', JSON.stringify({
-        enabled: this.enabled,
-        intensity: this.intensity
-      }));
+      await AsyncStorage.setItem(
+        '@haptic_settings',
+        JSON.stringify({
+          enabled: this.enabled,
+          intensity: this.intensity,
+        })
+      );
     } catch (error) {
       console.error('Failed to save haptic settings:', error);
     }
@@ -344,11 +331,14 @@ class HapticEngine {
 
   // Public API
 
-  async play(pattern: HapticPattern, options?: { delay?: number; override?: boolean }): Promise<void> {
+  async play(
+    pattern: HapticPattern,
+    options?: { delay?: number; override?: boolean }
+  ): Promise<void> {
     if (!this.enabled || !this.deviceSupportsHaptics) return;
 
     const now = Date.now();
-    
+
     // Throttle haptics to prevent overwhelming the device
     if (now - this.lastHapticTime < this.minInterval && !options?.override) {
       // Queue the haptic for later
@@ -376,18 +366,18 @@ class HapticEngine {
     this.lastHapticTime = now;
 
     const sequences = Platform.OS === 'ios' ? definition.ios : definition.android;
-    
+
     // Apply intensity scaling
     const scaledSequences = this.applyIntensityScaling(sequences, definition.intensity);
 
     // Execute haptic sequence
     if (options?.delay) {
-      await new Promise(resolve => setTimeout(resolve, options.delay));
+      await new Promise((resolve) => setTimeout(resolve, options.delay));
     }
 
     for (const sequence of scaledSequences) {
       if (sequence.delay > 0) {
-        await new Promise(resolve => setTimeout(resolve, sequence.delay));
+        await new Promise((resolve) => setTimeout(resolve, sequence.delay));
       }
 
       try {
@@ -406,13 +396,13 @@ class HapticEngine {
   }
 
   private applyIntensityScaling(
-    sequences: HapticSequence[], 
+    sequences: HapticSequence[],
     baseIntensity: 'light' | 'medium' | 'heavy'
   ): HapticSequence[] {
     if (this.intensity === 1.0) return sequences;
 
     // Scale down intensity based on user preference
-    return sequences.map(seq => {
+    return sequences.map((seq) => {
       if (this.intensity < 0.5) {
         // Convert all to light
         if (seq.pattern === Haptics.ImpactFeedbackStyle.Heavy) {
@@ -432,9 +422,11 @@ class HapticEngine {
   }
 
   private isNotificationFeedback(pattern: any): boolean {
-    return pattern === Haptics.NotificationFeedbackType.Success ||
-           pattern === Haptics.NotificationFeedbackType.Warning ||
-           pattern === Haptics.NotificationFeedbackType.Error;
+    return (
+      pattern === Haptics.NotificationFeedbackType.Success ||
+      pattern === Haptics.NotificationFeedbackType.Warning ||
+      pattern === Haptics.NotificationFeedbackType.Error
+    );
   }
 
   private async processQueue(): Promise<void> {
@@ -442,7 +434,7 @@ class HapticEngine {
 
     const now = Date.now();
     const next = this.hapticQueue[0];
-    
+
     if (now - this.lastHapticTime >= this.minInterval) {
       this.hapticQueue.shift();
       await this.play(next.pattern);

@@ -52,7 +52,7 @@ export class GameSessionManager {
   // Start a new game session
   async startNewSession(userId: string, deviceInfo: any): Promise<GameSession> {
     const sessionId = `session_${userId}_${Date.now()}`;
-    
+
     const newSession: GameSession = {
       id: sessionId,
       userId,
@@ -86,10 +86,10 @@ export class GameSessionManager {
 
     this.currentSession = newSession;
     await this.saveSession();
-    
+
     // Also save to Firebase for cloud backup
     await this.saveToCloud();
-    
+
     return newSession;
   }
 
@@ -98,13 +98,13 @@ export class GameSessionManager {
     try {
       // First try local storage
       const localSession = await this.loadLocalSession();
-      
+
       if (localSession && this.isSessionValid(localSession)) {
         this.currentSession = localSession;
         this.currentSession.resumeTime = new Date();
         this.currentSession.isPaused = false;
         this.currentSession.isActive = true;
-        
+
         await this.saveSession();
         return this.currentSession;
       }
@@ -116,7 +116,7 @@ export class GameSessionManager {
         this.currentSession.resumeTime = new Date();
         this.currentSession.isPaused = false;
         this.currentSession.isActive = true;
-        
+
         await this.saveSession();
         return this.currentSession;
       }
@@ -150,7 +150,7 @@ export class GameSessionManager {
     };
 
     this.currentSession.lastSaveTime = new Date();
-    
+
     // Don't await to avoid blocking game loop
     this.saveSession();
   }
@@ -170,10 +170,7 @@ export class GameSessionManager {
     if (!this.currentSession) return;
 
     try {
-      await AsyncStorage.setItem(
-        this.SESSION_KEY,
-        JSON.stringify(this.currentSession)
-      );
+      await AsyncStorage.setItem(this.SESSION_KEY, JSON.stringify(this.currentSession));
     } catch (error) {
       console.error('Error saving session locally:', error);
     }
@@ -198,10 +195,10 @@ export class GameSessionManager {
 
     try {
       const sessionRef = doc(
-        db, 
-        'users', 
-        this.currentSession.userId, 
-        'sessions', 
+        db,
+        'users',
+        this.currentSession.userId,
+        'sessions',
         this.currentSession.id
       );
 
@@ -229,20 +226,20 @@ export class GameSessionManager {
       // Get user's last session ID
       const userRef = doc(db, 'users', this.currentSession.userId);
       const userDoc = await getDoc(userRef);
-      
+
       if (userDoc.exists()) {
         const lastSessionId = userDoc.data().lastSessionId;
-        
+
         if (lastSessionId) {
           const sessionRef = doc(
-            db, 
-            'users', 
-            this.currentSession.userId, 
-            'sessions', 
+            db,
+            'users',
+            this.currentSession.userId,
+            'sessions',
             lastSessionId
           );
           const sessionDoc = await getDoc(sessionRef);
-          
+
           if (sessionDoc.exists()) {
             return sessionDoc.data() as GameSession;
           }
@@ -258,7 +255,7 @@ export class GameSessionManager {
   private isSessionValid(session: GameSession): boolean {
     const MAX_SESSION_AGE = 24 * 60 * 60 * 1000; // 24 hours
     const sessionAge = Date.now() - new Date(session.lastSaveTime).getTime();
-    
+
     return sessionAge < MAX_SESSION_AGE && !session.isActive;
   }
 
@@ -281,13 +278,13 @@ export class GameSessionManager {
 
     this.currentSession.isActive = false;
     this.currentSession.state.score = finalScore;
-    
+
     await this.saveSession();
     await this.saveToCloud();
-    
+
     // Clear local session
     await AsyncStorage.removeItem(this.SESSION_KEY);
-    
+
     this.currentSession = null;
   }
 
@@ -302,7 +299,7 @@ export class GameSessionManager {
 
     const start = new Date(this.currentSession.startTime).getTime();
     const now = Date.now();
-    
+
     return Math.floor((now - start) / 1000); // Return in seconds
   }
 

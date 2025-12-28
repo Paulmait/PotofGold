@@ -18,7 +18,12 @@ import { telemetrySystem, trackEvent, EventType } from '../src/systems/Telemetry
 import { hapticEngine, HapticPattern } from '../src/systems/HapticEngine';
 import { crashReporting, setCurrentScreen } from '../src/systems/CrashReporting';
 import { SHOP_PRICING, formatPrice, getCurrencyEmoji } from '../src/constants/pricing';
-import { SCREEN_TITLES, ACTION_NAMES, getRarityInfo, formatItemName } from '../src/constants/naming';
+import {
+  SCREEN_TITLES,
+  ACTION_NAMES,
+  getRarityInfo,
+  formatItemName,
+} from '../src/constants/naming';
 import LegalDisclaimer from '../components/LegalDisclaimer';
 import LegalAuditService from '../src/services/LegalAuditService';
 
@@ -42,10 +47,10 @@ export default function ShopScreen({ navigation }: ShopScreenProps) {
   useEffect(() => {
     // Set current screen for crash reporting
     setCurrentScreen('Shop');
-    
+
     // Track screen view
     telemetrySystem.trackScreenView('Shop');
-    
+
     loadShopData();
   }, []);
 
@@ -70,9 +75,9 @@ export default function ShopScreen({ navigation }: ShopScreenProps) {
       trackEvent(EventType.PURCHASE_INITIATED, {
         itemId,
         itemType: 'shop_item',
-        screen: 'Shop'
+        screen: 'Shop',
       });
-      
+
       const result = await metaGameSystem.purchaseShopItem(itemId);
       if (result.success) {
         // Track successful purchase
@@ -80,31 +85,29 @@ export default function ShopScreen({ navigation }: ShopScreenProps) {
           itemId,
           itemName: result.item?.name,
           currency: result.item?.currency || 'coins',
-          amount: result.item?.price || 0
+          amount: result.item?.price || 0,
         });
-        
+
         // Play success haptic
         hapticEngine.play(HapticPattern.PURCHASE_SUCCESS);
-        
-        Alert.alert(
-          'Purchase Successful!',
-          `You bought ${result.item?.name}`,
-          [{ text: 'OK', onPress: loadShopData }]
-        );
+
+        Alert.alert('Purchase Successful!', `You bought ${result.item?.name}`, [
+          { text: 'OK', onPress: loadShopData },
+        ]);
       } else {
         // Track failed purchase
         trackEvent(EventType.PURCHASE_FAILED, {
           itemId,
-          reason: 'insufficient_currency'
+          reason: 'insufficient_currency',
         });
-        
+
         Alert.alert('Purchase Failed', 'Not enough currency or item unavailable');
       }
     } catch (error) {
       console.log('Error purchasing item:', error);
       crashReporting.handleError(error as Error, 'network_error' as any, {
         action: 'purchase_item',
-        itemId
+        itemId,
       });
     }
   };
@@ -146,12 +149,18 @@ export default function ShopScreen({ navigation }: ShopScreenProps) {
     const baseColor = getRarityColor(rarity);
     // Create gradient variations based on base color
     switch (rarity) {
-      case 'legendary': return ['#FFD700', '#FFA500'];
-      case 'epic': return ['#9C27B0', '#E91E63'];
-      case 'rare': return ['#2196F3', '#00BCD4'];
-      case 'uncommon': return ['#4CAF50', '#8BC34A'];
-      case 'seasonal': return ['#FF6B6B', '#FF8E53'];
-      default: return [baseColor, baseColor];
+      case 'legendary':
+        return ['#FFD700', '#FFA500'];
+      case 'epic':
+        return ['#9C27B0', '#E91E63'];
+      case 'rare':
+        return ['#2196F3', '#00BCD4'];
+      case 'uncommon':
+        return ['#4CAF50', '#8BC34A'];
+      case 'seasonal':
+        return ['#FF6B6B', '#FF8E53'];
+      default:
+        return [baseColor, baseColor];
     }
   };
 
@@ -161,16 +170,16 @@ export default function ShopScreen({ navigation }: ShopScreenProps) {
       action: 'view_item',
       itemId: item.id,
       itemType: item.type,
-      screen: 'Shop'
+      screen: 'Shop',
     });
-    
+
     setSelectedItem(item);
     setPreviewMode(true);
     hapticEngine.play(HapticPattern.BUTTON_TAP);
   };
 
   const handlePurchase = async (item: any) => {
-    // Check if this is a real money purchase (gems) 
+    // Check if this is a real money purchase (gems)
     if (item.price?.gems > 0 || item.price?.realMoney) {
       // Show disclaimer for gem/real money purchases
       setPendingPurchase(item);
@@ -183,7 +192,7 @@ export default function ShopScreen({ navigation }: ShopScreenProps) {
 
   const processPurchase = async (item: any) => {
     setIsLoading(true);
-    
+
     try {
       await purchaseItem(item.id);
       setPreviewMode(false);
@@ -197,12 +206,12 @@ export default function ShopScreen({ navigation }: ShopScreenProps) {
 
   const handleDisclaimerAccept = async () => {
     setShowDisclaimer(false);
-    
+
     // Log the disclaimer acceptance
-    const purchaseAmount = pendingPurchase?.price?.realMoney || 
-                          `${pendingPurchase?.price?.gems} gems`;
+    const purchaseAmount =
+      pendingPurchase?.price?.realMoney || `${pendingPurchase?.price?.gems} gems`;
     await LegalAuditService.recordPurchaseDisclaimer(true, purchaseAmount, pendingPurchase);
-    
+
     // Process the purchase
     await processPurchase(pendingPurchase);
     setPendingPurchase(null);
@@ -210,28 +219,29 @@ export default function ShopScreen({ navigation }: ShopScreenProps) {
 
   const handleDisclaimerDecline = async () => {
     setShowDisclaimer(false);
-    
+
     // Log the disclaimer decline
-    const purchaseAmount = pendingPurchase?.price?.realMoney || 
-                          `${pendingPurchase?.price?.gems} gems`;
+    const purchaseAmount =
+      pendingPurchase?.price?.realMoney || `${pendingPurchase?.price?.gems} gems`;
     await LegalAuditService.recordPurchaseDisclaimer(false, purchaseAmount, pendingPurchase);
-    
+
     setPendingPurchase(null);
     Alert.alert('Purchase Cancelled', 'You have cancelled the purchase.');
   };
 
   const renderShopItems = () => {
     const categoryMap: Record<string, string> = {
-      'carts': 'cart',
-      'trails': 'trail',
-      'badges': 'badge',
-      'frames': 'frame'
+      carts: 'cart',
+      trails: 'trail',
+      badges: 'badge',
+      frames: 'frame',
     };
 
     const currentType = categoryMap[selectedCategory] || 'cart';
-    
+
     // Get shop items from pricing constants
-    const categoryPricing = SHOP_PRICING[currentType.toUpperCase() as keyof typeof SHOP_PRICING] || {};
+    const categoryPricing =
+      SHOP_PRICING[currentType.toUpperCase() as keyof typeof SHOP_PRICING] || {};
     const shopItems = Object.entries(categoryPricing).map(([itemId, config]) => ({
       id: itemId,
       type: currentType,
@@ -239,7 +249,7 @@ export default function ShopScreen({ navigation }: ShopScreenProps) {
       price: config.price,
       currency: config.currency,
       rarity: config.rarity,
-      owned: false // Would come from user data in production
+      owned: false, // Would come from user data in production
     }));
 
     return (
@@ -251,10 +261,7 @@ export default function ShopScreen({ navigation }: ShopScreenProps) {
             onPress={() => handleItemPress(item)}
             activeOpacity={0.9}
           >
-            <LinearGradient
-              colors={getRarityGradient(item.rarity)}
-              style={styles.rarityBorder}
-            >
+            <LinearGradient colors={getRarityGradient(item.rarity)} style={styles.rarityBorder}>
               <View style={styles.shopItemInner}>
                 {/* Item Preview */}
                 <View style={styles.itemPreview}>
@@ -284,9 +291,7 @@ export default function ShopScreen({ navigation }: ShopScreenProps) {
                 {!item.owned && (
                   <View style={styles.priceContainer}>
                     <Text style={styles.priceAmount}>{item.price.toLocaleString()}</Text>
-                    <Text style={styles.priceCurrency}>
-                      {getCurrencyEmoji(item.currency)}
-                    </Text>
+                    <Text style={styles.priceCurrency}>{getCurrencyEmoji(item.currency)}</Text>
                   </View>
                 )}
                 {item.owned && (
@@ -307,21 +312,15 @@ export default function ShopScreen({ navigation }: ShopScreenProps) {
 
     return (
       <View style={styles.previewModal}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.previewBackdrop}
           onPress={() => setPreviewMode(false)}
           activeOpacity={1}
         >
           <View style={styles.previewContainer}>
-            <LinearGradient
-              colors={['#2a2a2a', '#1a1a1a']}
-              style={styles.previewContent}
-            >
+            <LinearGradient colors={['#2a2a2a', '#1a1a1a']} style={styles.previewContent}>
               {/* Close button */}
-              <TouchableOpacity
-                style={styles.closeButton}
-                onPress={() => setPreviewMode(false)}
-              >
+              <TouchableOpacity style={styles.closeButton} onPress={() => setPreviewMode(false)}>
                 <Ionicons name="close" size={24} color="#fff" />
               </TouchableOpacity>
 
@@ -359,7 +358,8 @@ export default function ShopScreen({ navigation }: ShopScreenProps) {
                   ) : (
                     <>
                       <Text style={styles.purchaseButtonText}>
-                        BUY FOR {selectedItem.price} {selectedItem.currency === 'gems' ? '💎' : '🪙'}
+                        BUY FOR {selectedItem.price}{' '}
+                        {selectedItem.currency === 'gems' ? '💎' : '🪙'}
                       </Text>
                     </>
                   )}
@@ -398,8 +398,7 @@ export default function ShopScreen({ navigation }: ShopScreenProps) {
         onAccept={handleDisclaimerAccept}
         onDecline={handleDisclaimerDecline}
         type="purchase"
-        purchaseAmount={pendingPurchase?.price?.realMoney || 
-                       `${pendingPurchase?.price?.gems} gems`}
+        purchaseAmount={pendingPurchase?.price?.realMoney || `${pendingPurchase?.price?.gems} gems`}
       />
       {/* Header */}
       <View style={styles.header}>
@@ -425,7 +424,9 @@ export default function ShopScreen({ navigation }: ShopScreenProps) {
           style={[styles.categoryTab, selectedCategory === 'carts' && styles.categoryTabActive]}
           onPress={() => setSelectedCategory('carts')}
         >
-          <Text style={[styles.categoryText, selectedCategory === 'carts' && styles.categoryTextActive]}>
+          <Text
+            style={[styles.categoryText, selectedCategory === 'carts' && styles.categoryTextActive]}
+          >
             Carts
           </Text>
         </TouchableOpacity>
@@ -433,7 +434,12 @@ export default function ShopScreen({ navigation }: ShopScreenProps) {
           style={[styles.categoryTab, selectedCategory === 'trails' && styles.categoryTabActive]}
           onPress={() => setSelectedCategory('trails')}
         >
-          <Text style={[styles.categoryText, selectedCategory === 'trails' && styles.categoryTextActive]}>
+          <Text
+            style={[
+              styles.categoryText,
+              selectedCategory === 'trails' && styles.categoryTextActive,
+            ]}
+          >
             Trails
           </Text>
         </TouchableOpacity>
@@ -441,7 +447,12 @@ export default function ShopScreen({ navigation }: ShopScreenProps) {
           style={[styles.categoryTab, selectedCategory === 'badges' && styles.categoryTabActive]}
           onPress={() => setSelectedCategory('badges')}
         >
-          <Text style={[styles.categoryText, selectedCategory === 'badges' && styles.categoryTextActive]}>
+          <Text
+            style={[
+              styles.categoryText,
+              selectedCategory === 'badges' && styles.categoryTextActive,
+            ]}
+          >
             Badges
           </Text>
         </TouchableOpacity>
@@ -449,7 +460,12 @@ export default function ShopScreen({ navigation }: ShopScreenProps) {
           style={[styles.categoryTab, selectedCategory === 'frames' && styles.categoryTabActive]}
           onPress={() => setSelectedCategory('frames')}
         >
-          <Text style={[styles.categoryText, selectedCategory === 'frames' && styles.categoryTextActive]}>
+          <Text
+            style={[
+              styles.categoryText,
+              selectedCategory === 'frames' && styles.categoryTextActive,
+            ]}
+          >
             Frames
           </Text>
         </TouchableOpacity>
@@ -469,7 +485,7 @@ export default function ShopScreen({ navigation }: ShopScreenProps) {
           <Text style={styles.navButtonText}>Play Game</Text>
         </TouchableOpacity>
       </View>
-      
+
       {/* Preview Modal */}
       {renderPreviewModal()}
     </View>
@@ -788,4 +804,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-}); 
+});

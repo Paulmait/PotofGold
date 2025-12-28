@@ -5,6 +5,7 @@
 **⚠️ SAVE THESE IN A PASSWORD MANAGER IMMEDIATELY**
 
 ### Production Admin Access
+
 ```
 URL: https://pofgold.com/admin
 Username: admin@pofgold.com
@@ -14,6 +15,7 @@ Recovery Email: guampaul@gmail.com
 ```
 
 ### API Keys (For Vercel Environment Variables)
+
 ```bash
 ADMIN_JWT_SECRET=59d0a85c8b964b34c06edc9af4325745113c711221a2430c9c776dd2258dab38
 ADMIN_API_KEY=d017de46589c6c48338d5dc2c4c99ef3
@@ -100,12 +102,15 @@ MAINTENANCE_MODE=false
 ## Emergency Access
 
 If locked out:
+
 1. Use recovery email: guampaul@gmail.com
 2. Reset via Vercel environment variables
 3. Check Firebase Auth for admin user status
 
 ---
-**SECURITY WARNING**: 
+
+**SECURITY WARNING**:
+
 - Delete this file after saving credentials
 - Never commit this file to Git
 - These are one-time generated credentials

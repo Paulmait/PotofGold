@@ -29,7 +29,7 @@ export enum SecurityCategory {
   STORAGE_SECURITY = 'storage_security',
   CODE_INJECTION = 'code_injection',
   PRIVACY = 'privacy',
-  COMPLIANCE = 'compliance'
+  COMPLIANCE = 'compliance',
 }
 
 export interface SecurityConfig {
@@ -48,7 +48,7 @@ class SecurityAuditor {
   private issues: SecurityIssue[] = [];
   private config: SecurityConfig;
   private encryptionKey: string;
-  
+
   private constructor() {
     this.config = {
       enableEncryption: true,
@@ -58,30 +58,30 @@ class SecurityAuditor {
       maxRetryAttempts: 3,
       sessionTimeout: 30 * 60 * 1000, // 30 minutes
       enforceHTTPS: true,
-      enableCSP: true
+      enableCSP: true,
     };
-    
+
     this.encryptionKey = this.generateEncryptionKey();
   }
-  
+
   static getInstance(): SecurityAuditor {
     if (!SecurityAuditor.instance) {
       SecurityAuditor.instance = new SecurityAuditor();
     }
     return SecurityAuditor.instance;
   }
-  
+
   private generateEncryptionKey(): string {
     // In production, this should be derived from a secure source
     return CryptoJS.lib.WordArray.random(32).toString();
   }
-  
+
   // Input Validation & Sanitization
   sanitizeInput(input: string, context: 'username' | 'email' | 'score' | 'general'): string {
     if (!this.config.enableInputValidation) return input;
-    
+
     let sanitized = input.trim();
-    
+
     switch (context) {
       case 'username':
         // Remove potential script tags and dangerous characters
@@ -89,7 +89,7 @@ class SecurityAuditor {
         sanitized = sanitized.replace(/[<>\"'%;()&+]/g, '');
         sanitized = sanitized.substring(0, 50); // Max length
         break;
-        
+
       case 'email':
         // Basic email validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -97,7 +97,7 @@ class SecurityAuditor {
           throw new Error('Invalid email format');
         }
         break;
-        
+
       case 'score':
         // Ensure score is numeric and within reasonable bounds
         const score = parseInt(sanitized, 10);
@@ -106,7 +106,7 @@ class SecurityAuditor {
         }
         sanitized = score.toString();
         break;
-        
+
       case 'general':
         // Remove potential XSS vectors
         sanitized = sanitized.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
@@ -114,78 +114,79 @@ class SecurityAuditor {
         sanitized = sanitized.replace(/on\w+\s*=/gi, '');
         break;
     }
-    
+
     return sanitized;
   }
-  
+
   validateNumericInput(value: any, min: number = 0, max: number = Number.MAX_SAFE_INTEGER): number {
     const num = Number(value);
-    
+
     if (isNaN(num)) {
       throw new Error('Invalid numeric value');
     }
-    
+
     if (num < min || num > max) {
       throw new Error(`Value must be between ${min} and ${max}`);
     }
-    
+
     return num;
   }
-  
+
   // Secure Storage
   async secureStore(key: string, value: any): Promise<void> {
     if (!this.config.enableStorageProtection) {
       await AsyncStorage.setItem(key, JSON.stringify(value));
       return;
     }
-    
+
     try {
       const serialized = JSON.stringify(value);
       const encrypted = CryptoJS.AES.encrypt(serialized, this.encryptionKey).toString();
       const hmac = CryptoJS.HmacSHA256(encrypted, this.encryptionKey).toString();
-      
+
       const secureData = {
         data: encrypted,
         hmac: hmac,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       };
-      
+
       await AsyncStorage.setItem(`secure_${key}`, JSON.stringify(secureData));
     } catch (error) {
       console.error('Secure storage failed:', error);
       throw new Error('Failed to store data securely');
     }
   }
-  
+
   async secureRetrieve(key: string): Promise<any> {
     if (!this.config.enableStorageProtection) {
       const data = await AsyncStorage.getItem(key);
       return data ? JSON.parse(data) : null;
     }
-    
+
     try {
       const storedData = await AsyncStorage.getItem(`secure_${key}`);
       if (!storedData) return null;
-      
+
       const secureData = JSON.parse(storedData);
-      
+
       // Verify HMAC
       const expectedHmac = CryptoJS.HmacSHA256(secureData.data, this.encryptionKey).toString();
       if (expectedHmac !== secureData.hmac) {
         throw new Error('Data integrity check failed');
       }
-      
+
       // Check timestamp (optional expiration)
       const maxAge = 7 * 24 * 60 * 60 * 1000; // 7 days
       if (Date.now() - secureData.timestamp > maxAge) {
         await AsyncStorage.removeItem(`secure_${key}`);
         return null;
       }
-      
+
       // Decrypt data
-      const decrypted = CryptoJS.AES.decrypt(secureData.data, this.encryptionKey).toString(CryptoJS.enc.Utf8);
+      const decrypted = CryptoJS.AES.decrypt(secureData.data, this.encryptionKey).toString(
+        CryptoJS.enc.Utf8
+      );
       return JSON.parse(decrypted);
-      
     } catch (error) {
       console.error('Secure retrieval failed:', error);
       // Remove corrupted data
@@ -193,14 +194,14 @@ class SecurityAuditor {
       return null;
     }
   }
-  
+
   // Network Security
   validateURL(url: string): boolean {
     if (!this.config.enableNetworkValidation) return true;
-    
+
     try {
       const urlObj = new URL(url);
-      
+
       // Enforce HTTPS in production
       if (this.config.enforceHTTPS && urlObj.protocol !== 'https:') {
         this.addIssue({
@@ -211,11 +212,11 @@ class SecurityAuditor {
           recommendation: 'Use HTTPS for all network communications',
           affectedComponents: ['NetworkLayer'],
           exploitability: 'medium',
-          impact: 'medium'
+          impact: 'medium',
         });
         return false;
       }
-      
+
       // Block local/private network access
       const hostname = urlObj.hostname;
       if (this.isPrivateIP(hostname)) {
@@ -227,103 +228,111 @@ class SecurityAuditor {
           recommendation: 'Block access to private network ranges',
           affectedComponents: ['NetworkLayer'],
           exploitability: 'high',
-          impact: 'high'
+          impact: 'high',
         });
         return false;
       }
-      
+
       return true;
     } catch (error) {
       return false;
     }
   }
-  
+
   private isPrivateIP(hostname: string): boolean {
     // Check for localhost
     if (hostname === 'localhost' || hostname === '127.0.0.1') {
       return true;
     }
-    
+
     // Check for private IP ranges
     const privateRanges = [
       /^10\./,
       /^172\.(1[6-9]|2[0-9]|3[0-1])\./,
       /^192\.168\./,
-      /^169\.254\./ // Link-local
+      /^169\.254\./, // Link-local
     ];
-    
-    return privateRanges.some(range => range.test(hostname));
+
+    return privateRanges.some((range) => range.test(hostname));
   }
-  
+
   // Authentication Security
   validatePassword(password: string): { isValid: boolean; issues: string[] } {
     const issues: string[] = [];
-    
+
     if (password.length < 8) {
       issues.push('Password must be at least 8 characters long');
     }
-    
+
     if (!/[A-Z]/.test(password)) {
       issues.push('Password must contain at least one uppercase letter');
     }
-    
+
     if (!/[a-z]/.test(password)) {
       issues.push('Password must contain at least one lowercase letter');
     }
-    
+
     if (!/[0-9]/.test(password)) {
       issues.push('Password must contain at least one number');
     }
-    
+
     if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
       issues.push('Password must contain at least one special character');
     }
-    
+
     // Check against common passwords
     const commonPasswords = [
-      'password', '123456', 'password123', 'admin', 'letmein',
-      'welcome', 'monkey', '1234567890', 'qwerty', 'abc123'
+      'password',
+      '123456',
+      'password123',
+      'admin',
+      'letmein',
+      'welcome',
+      'monkey',
+      '1234567890',
+      'qwerty',
+      'abc123',
     ];
-    
+
     if (commonPasswords.includes(password.toLowerCase())) {
       issues.push('Password is too common');
     }
-    
+
     return {
       isValid: issues.length === 0,
-      issues
+      issues,
     };
   }
-  
+
   // Session Management
   generateSecureToken(): string {
     const array = new Uint8Array(32);
     crypto.getRandomValues(array);
-    return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+    return Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join('');
   }
-  
+
   validateSession(sessionData: any): boolean {
     if (!sessionData || !sessionData.token || !sessionData.timestamp) {
       return false;
     }
-    
+
     // Check session timeout
     if (Date.now() - sessionData.timestamp > this.config.sessionTimeout) {
       return false;
     }
-    
+
     // Validate token format
     if (typeof sessionData.token !== 'string' || sessionData.token.length !== 64) {
       return false;
     }
-    
+
     return true;
   }
-  
+
   // Security Audit Functions
   async runComprehensiveAudit(): Promise<SecurityIssue[]> {
     this.issues = [];
-    
+
     // Audit different security aspects
     await this.auditStorageSecurity();
     await this.auditNetworkSecurity();
@@ -331,28 +340,29 @@ class SecurityAuditor {
     await this.auditCryptography();
     await this.auditPrivacy();
     await this.auditCompliance();
-    
+
     // Sort by severity
     this.issues.sort((a, b) => {
       const severityOrder = { critical: 4, high: 3, medium: 2, low: 1 };
       return severityOrder[b.severity] - severityOrder[a.severity];
     });
-    
+
     return this.issues;
   }
-  
+
   private async auditStorageSecurity(): Promise<void> {
     // Check for unencrypted sensitive data
     try {
       const keys = await AsyncStorage.getAllKeys();
-      const sensitiveKeys = keys.filter(key => 
-        key.includes('password') ||
-        key.includes('token') ||
-        key.includes('credit') ||
-        key.includes('payment') ||
-        key.includes('personal')
+      const sensitiveKeys = keys.filter(
+        (key) =>
+          key.includes('password') ||
+          key.includes('token') ||
+          key.includes('credit') ||
+          key.includes('payment') ||
+          key.includes('personal')
       );
-      
+
       for (const key of sensitiveKeys) {
         if (!key.startsWith('secure_')) {
           this.addIssue({
@@ -363,7 +373,7 @@ class SecurityAuditor {
             recommendation: 'Use secure storage for sensitive data',
             affectedComponents: ['AsyncStorage'],
             exploitability: 'medium',
-            impact: 'high'
+            impact: 'high',
           });
         }
       }
@@ -371,7 +381,7 @@ class SecurityAuditor {
       console.error('Storage audit failed:', error);
     }
   }
-  
+
   private async auditNetworkSecurity(): Promise<void> {
     // Check network configuration
     if (!this.config.enforceHTTPS) {
@@ -383,11 +393,11 @@ class SecurityAuditor {
         recommendation: 'Enable HTTPS enforcement in security config',
         affectedComponents: ['NetworkLayer'],
         exploitability: 'medium',
-        impact: 'medium'
+        impact: 'medium',
       });
     }
   }
-  
+
   private async auditInputValidation(): Promise<void> {
     if (!this.config.enableInputValidation) {
       this.addIssue({
@@ -398,11 +408,11 @@ class SecurityAuditor {
         recommendation: 'Enable input validation to prevent injection attacks',
         affectedComponents: ['InputHandlers', 'FormComponents'],
         exploitability: 'high',
-        impact: 'high'
+        impact: 'high',
       });
     }
   }
-  
+
   private async auditCryptography(): Promise<void> {
     // Check encryption key strength
     if (this.encryptionKey.length < 32) {
@@ -414,23 +424,24 @@ class SecurityAuditor {
         recommendation: 'Use at least 256-bit encryption keys',
         affectedComponents: ['SecurityAuditor'],
         exploitability: 'high',
-        impact: 'high'
+        impact: 'high',
       });
     }
   }
-  
+
   private async auditPrivacy(): Promise<void> {
     // Check for PII collection
     try {
       const keys = await AsyncStorage.getAllKeys();
-      const piiKeys = keys.filter(key => 
-        key.includes('email') ||
-        key.includes('phone') ||
-        key.includes('address') ||
-        key.includes('name') ||
-        key.includes('birthday')
+      const piiKeys = keys.filter(
+        (key) =>
+          key.includes('email') ||
+          key.includes('phone') ||
+          key.includes('address') ||
+          key.includes('name') ||
+          key.includes('birthday')
       );
-      
+
       if (piiKeys.length > 0) {
         this.addIssue({
           id: 'pii_collection_detected',
@@ -440,14 +451,14 @@ class SecurityAuditor {
           recommendation: 'Ensure proper consent and data protection measures',
           affectedComponents: ['DataCollection'],
           exploitability: 'low',
-          impact: 'medium'
+          impact: 'medium',
         });
       }
     } catch (error) {
       console.error('Privacy audit failed:', error);
     }
   }
-  
+
   private async auditCompliance(): Promise<void> {
     // Check for GDPR compliance requirements
     const hasPrivacyPolicy = await AsyncStorage.getItem('privacy_policy_accepted');
@@ -460,33 +471,33 @@ class SecurityAuditor {
         recommendation: 'Implement privacy policy acceptance tracking',
         affectedComponents: ['LegalCompliance'],
         exploitability: 'low',
-        impact: 'high'
+        impact: 'high',
       });
     }
   }
-  
+
   private addIssue(issue: SecurityIssue): void {
     this.issues.push(issue);
   }
-  
+
   // Security Utilities
   hashSensitiveData(data: string): string {
     return CryptoJS.SHA256(data + this.encryptionKey).toString();
   }
-  
+
   generateNonce(): string {
     return CryptoJS.lib.WordArray.random(16).toString();
   }
-  
+
   rateLimitCheck(identifier: string, maxRequests: number = 100, windowMs: number = 60000): boolean {
     // Implement rate limiting logic
     const key = `rate_limit_${identifier}`;
     const now = Date.now();
-    
+
     // This would typically use Redis or similar in production
     // For now, we'll use memory storage
     const requests = this.getRateLimitData(key, now, windowMs);
-    
+
     if (requests >= maxRequests) {
       this.addIssue({
         id: `rate_limit_exceeded_${identifier}`,
@@ -496,43 +507,43 @@ class SecurityAuditor {
         recommendation: 'Implement proper rate limiting',
         affectedComponents: ['RateLimiter'],
         exploitability: 'medium',
-        impact: 'low'
+        impact: 'low',
       });
       return false;
     }
-    
+
     return true;
   }
-  
+
   private rateLimitStore = new Map<string, number[]>();
-  
+
   private getRateLimitData(key: string, now: number, windowMs: number): number {
     const requests = this.rateLimitStore.get(key) || [];
-    
+
     // Remove old requests outside the window
-    const validRequests = requests.filter(timestamp => now - timestamp < windowMs);
-    
+    const validRequests = requests.filter((timestamp) => now - timestamp < windowMs);
+
     // Add current request
     validRequests.push(now);
-    
+
     // Store updated requests
     this.rateLimitStore.set(key, validRequests);
-    
+
     return validRequests.length;
   }
-  
+
   // Secure random number generation
   secureRandom(min: number = 0, max: number = 1): number {
     const range = max - min;
     const array = new Uint32Array(1);
     crypto.getRandomValues(array);
-    return min + (array[0] / (0xFFFFFFFF + 1)) * range;
+    return min + (array[0] / (0xffffffff + 1)) * range;
   }
-  
+
   // Content Security Policy
   generateCSPHeader(): string {
     if (!this.config.enableCSP) return '';
-    
+
     return [
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline'",
@@ -542,10 +553,10 @@ class SecurityAuditor {
       "font-src 'self'",
       "object-src 'none'",
       "media-src 'self'",
-      "frame-src 'none'"
+      "frame-src 'none'",
     ].join('; ');
   }
-  
+
   // Get security report
   getSecurityReport(): {
     totalIssues: number;
@@ -557,18 +568,21 @@ class SecurityAuditor {
     overallRating: 'excellent' | 'good' | 'fair' | 'poor' | 'critical';
   } {
     const totalIssues = this.issues.length;
-    const criticalIssues = this.issues.filter(i => i.severity === 'critical').length;
-    const highIssues = this.issues.filter(i => i.severity === 'high').length;
-    const mediumIssues = this.issues.filter(i => i.severity === 'medium').length;
-    const lowIssues = this.issues.filter(i => i.severity === 'low').length;
-    
-    const categories = Object.values(SecurityCategory).reduce((acc, category) => {
-      acc[category] = this.issues.filter(i => i.category === category).length;
-      return acc;
-    }, {} as Record<SecurityCategory, number>);
-    
+    const criticalIssues = this.issues.filter((i) => i.severity === 'critical').length;
+    const highIssues = this.issues.filter((i) => i.severity === 'high').length;
+    const mediumIssues = this.issues.filter((i) => i.severity === 'medium').length;
+    const lowIssues = this.issues.filter((i) => i.severity === 'low').length;
+
+    const categories = Object.values(SecurityCategory).reduce(
+      (acc, category) => {
+        acc[category] = this.issues.filter((i) => i.category === category).length;
+        return acc;
+      },
+      {} as Record<SecurityCategory, number>
+    );
+
     let overallRating: 'excellent' | 'good' | 'fair' | 'poor' | 'critical' = 'excellent';
-    
+
     if (criticalIssues > 0) {
       overallRating = 'critical';
     } else if (highIssues > 2) {
@@ -578,7 +592,7 @@ class SecurityAuditor {
     } else if (mediumIssues > 0 || lowIssues > 10) {
       overallRating = 'good';
     }
-    
+
     return {
       totalIssues,
       criticalIssues,
@@ -586,7 +600,7 @@ class SecurityAuditor {
       mediumIssues,
       lowIssues,
       categories,
-      overallRating
+      overallRating,
     };
   }
 }
@@ -595,7 +609,10 @@ class SecurityAuditor {
 export const securityAuditor = SecurityAuditor.getInstance();
 
 // Convenience functions
-export function sanitizeInput(input: string, context: 'username' | 'email' | 'score' | 'general' = 'general'): string {
+export function sanitizeInput(
+  input: string,
+  context: 'username' | 'email' | 'score' | 'general' = 'general'
+): string {
   return securityAuditor.sanitizeInput(input, context);
 }
 

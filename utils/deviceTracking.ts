@@ -25,7 +25,7 @@ class DeviceTracker {
       const newId = await this.generateDeviceId();
       await AsyncStorage.setItem('device_id', newId);
       await AsyncStorage.setItem('device_first_seen', new Date().toISOString());
-      
+
       this.deviceId = newId;
       return newId;
     } catch (error) {
@@ -64,7 +64,7 @@ class DeviceTracker {
       const deviceId = await this.getDeviceId();
       const onboardingStatus = await AsyncStorage.getItem('hasSeenOnboarding');
       const onboardingDeviceId = await AsyncStorage.getItem('onboarding_device_id');
-      
+
       // Check if onboarding was completed and it was on this device
       return onboardingStatus === 'true' && onboardingDeviceId === deviceId;
     } catch (error) {
@@ -102,15 +102,15 @@ class DeviceTracker {
       const deviceId = await this.getDeviceId();
       const firstSeen = await AsyncStorage.getItem('device_first_seen');
       const lastSeen = new Date().toISOString();
-      
+
       // Update last seen
       await AsyncStorage.setItem('device_last_seen', lastSeen);
-      
+
       // Get session count
       const sessionCountStr = await AsyncStorage.getItem('device_session_count');
       const sessionCount = sessionCountStr ? parseInt(sessionCountStr, 10) + 1 : 1;
       await AsyncStorage.setItem('device_session_count', sessionCount.toString());
-      
+
       return {
         deviceId,
         platform: Platform.OS,

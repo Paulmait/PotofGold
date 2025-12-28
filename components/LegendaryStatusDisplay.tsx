@@ -1,12 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Animated,
-  Dimensions,
-  Image,
-} from 'react-native';
+import { View, Text, StyleSheet, Animated, Dimensions, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
@@ -45,11 +38,13 @@ export default function LegendaryStatusDisplay({
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const shimmerAnim = useRef(new Animated.Value(0)).current;
   const particleAnims = useRef(
-    Array(20).fill(0).map(() => ({
-      x: new Animated.Value(0),
-      y: new Animated.Value(0),
-      opacity: new Animated.Value(0),
-    }))
+    Array(20)
+      .fill(0)
+      .map(() => ({
+        x: new Animated.Value(0),
+        y: new Animated.Value(0),
+        opacity: new Animated.Value(0),
+      }))
   ).current;
 
   useEffect(() => {
@@ -109,7 +104,7 @@ export default function LegendaryStatusDisplay({
   const startParticleAnimation = () => {
     particleAnims.forEach((anim, index) => {
       const delay = index * 100;
-      
+
       Animated.loop(
         Animated.sequence([
           Animated.delay(delay),
@@ -261,22 +256,22 @@ export default function LegendaryStatusDisplay({
             </Text>
             {status.prestige > 0 && (
               <View style={styles.prestigeStars}>
-                {Array(Math.min(status.prestige, 5)).fill(0).map((_, i) => (
-                  <Text key={i} style={styles.prestigeStar}>⭐</Text>
-                ))}
+                {Array(Math.min(status.prestige, 5))
+                  .fill(0)
+                  .map((_, i) => (
+                    <Text key={i} style={styles.prestigeStar}>
+                      ⭐
+                    </Text>
+                  ))}
               </View>
             )}
           </View>
 
           {/* Player Name */}
-          <Text style={[styles.playerName, { color: config.textColor }]}>
-            {playerName}
-          </Text>
+          <Text style={[styles.playerName, { color: config.textColor }]}>{playerName}</Text>
 
           {/* Title */}
-          <Text style={[styles.title, { color: config.textColor }]}>
-            {status.title}
-          </Text>
+          <Text style={[styles.title, { color: config.textColor }]}>{status.title}</Text>
 
           {/* Level */}
           <View style={styles.levelContainer}>
@@ -324,17 +319,12 @@ export default function LegendaryStatusDisplay({
               style={[
                 styles.particle,
                 {
-                  transform: [
-                    { translateX: anim.x },
-                    { translateY: anim.y },
-                  ],
+                  transform: [{ translateX: anim.x }, { translateY: anim.y }],
                   opacity: anim.opacity,
                 },
               ]}
             >
-              <Text style={styles.particleEmoji}>
-                {['✨', '⭐', '💫', '🌟'][index % 4]}
-              </Text>
+              <Text style={styles.particleEmoji}>{['✨', '⭐', '💫', '🌟'][index % 4]}</Text>
             </Animated.View>
           ))}
         </View>
@@ -343,9 +333,7 @@ export default function LegendaryStatusDisplay({
       {/* Comparison text for non-owners */}
       {!isOwner && (
         <View style={styles.comparisonContainer}>
-          <Text style={styles.comparisonText}>
-            Tap to see how to achieve this status!
-          </Text>
+          <Text style={styles.comparisonText}>Tap to see how to achieve this status!</Text>
         </View>
       )}
     </Animated.View>

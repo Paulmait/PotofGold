@@ -34,11 +34,7 @@ export class EventBus {
     return EventBus.instance;
   }
 
-  on<T = any>(
-    event: string,
-    callback: EventCallback<T>,
-    priority = 0
-  ): UnsubscribeFn {
+  on<T = any>(event: string, callback: EventCallback<T>, priority = 0): UnsubscribeFn {
     const id = `sub_${++this.subscriptionId}`;
     const subscription: EventSubscription = {
       id,
@@ -52,11 +48,7 @@ export class EventBus {
     return () => this.off(event, id);
   }
 
-  once<T = any>(
-    event: string,
-    callback: EventCallback<T>,
-    priority = 0
-  ): UnsubscribeFn {
+  once<T = any>(event: string, callback: EventCallback<T>, priority = 0): UnsubscribeFn {
     const id = `sub_${++this.subscriptionId}`;
     const subscription: EventSubscription = {
       id,
@@ -123,7 +115,7 @@ export class EventBus {
     for (const subscription of [...subscribers]) {
       try {
         subscription.callback(processedData);
-        
+
         if (subscription.once) {
           toRemove.push(subscription.id);
         }
@@ -145,7 +137,7 @@ export class EventBus {
 
     while (this.eventQueue.length > 0) {
       const { event, data } = this.eventQueue.shift()!;
-      
+
       await new Promise((resolve) => {
         setTimeout(() => {
           this.processEvent(event, data);
@@ -190,19 +182,20 @@ export class EventBus {
     metrics.count++;
     metrics.lastEmitted = Date.now();
     metrics.averageHandlerTime =
-      (metrics.averageHandlerTime * (metrics.count - 1) + handlerTime) /
-      metrics.count;
+      (metrics.averageHandlerTime * (metrics.count - 1) + handlerTime) / metrics.count;
   }
 
   getMetrics(event?: string): EventMetrics | EventMetrics[] {
     if (event) {
-      return this.eventMetrics.get(event) || {
-        eventName: event,
-        count: 0,
-        lastEmitted: 0,
-        averageHandlerTime: 0,
-        handlers: 0,
-      };
+      return (
+        this.eventMetrics.get(event) || {
+          eventName: event,
+          count: 0,
+          lastEmitted: 0,
+          averageHandlerTime: 0,
+          handlers: 0,
+        }
+      );
     }
 
     return Array.from(this.eventMetrics.values());

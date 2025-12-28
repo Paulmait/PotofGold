@@ -53,13 +53,13 @@ export default function AuthScreen({ navigation }: AuthScreenProps) {
     try {
       // Load user data from offline storage
       const userData = await offlineManager.getOfflineData(userId);
-      
+
       // Initialize skin collection
       await skinSystem.initializeCollection(userId);
-      
+
       // Initialize game manager
       await masterGameManager.initializeGame(userId);
-      
+
       console.log('✅ User data loaded successfully');
     } catch (error) {
       console.log('❌ Error loading user data:', error);
@@ -91,17 +91,13 @@ export default function AuthScreen({ navigation }: AuthScreenProps) {
       if (result.success && result.user) {
         // Load user data
         await loadUserData(result.user.userId);
-        
-        Alert.alert(
-          'Success!',
-          isLogin ? 'Welcome back!' : 'Account created successfully!',
-          [
-            {
-              text: 'Continue',
-              onPress: () => navigation.replace('Game'),
-            },
-          ]
-        );
+
+        Alert.alert('Success!', isLogin ? 'Welcome back!' : 'Account created successfully!', [
+          {
+            text: 'Continue',
+            onPress: () => navigation.replace('Game'),
+          },
+        ]);
       } else {
         Alert.alert('Error', result.message);
       }
@@ -114,10 +110,10 @@ export default function AuthScreen({ navigation }: AuthScreenProps) {
 
   const handleDemoLogin = async () => {
     setIsLoading(true);
-    
+
     try {
       const result = await authSystem.signIn('demo@example.com', 'demo123');
-      
+
       if (result.success && result.user) {
         await loadUserData(result.user.userId);
         navigation.replace('Game');
@@ -139,7 +135,7 @@ export default function AuthScreen({ navigation }: AuthScreenProps) {
   };
 
   return (
-    <KeyboardAvoidingView 
+    <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
@@ -148,9 +144,7 @@ export default function AuthScreen({ navigation }: AuthScreenProps) {
         <View style={styles.header}>
           <Text style={styles.logo}>🏆</Text>
           <Text style={styles.title}>Pot of Gold</Text>
-          <Text style={styles.subtitle}>
-            {isLogin ? 'Welcome back!' : 'Start your adventure!'}
-          </Text>
+          <Text style={styles.subtitle}>{isLogin ? 'Welcome back!' : 'Start your adventure!'}</Text>
         </View>
 
         {/* Auth Form */}
@@ -212,9 +206,7 @@ export default function AuthScreen({ navigation }: AuthScreenProps) {
             {isLoading ? (
               <ActivityIndicator color="#1a1a1a" />
             ) : (
-              <Text style={styles.authButtonText}>
-                {isLogin ? 'Sign In' : 'Create Account'}
-              </Text>
+              <Text style={styles.authButtonText}>{isLogin ? 'Sign In' : 'Create Account'}</Text>
             )}
           </TouchableOpacity>
 
@@ -389,4 +381,4 @@ const styles = StyleSheet.create({
     color: '#fff',
     flex: 1,
   },
-}); 
+});

@@ -56,7 +56,7 @@ export class SeasonPassSystem {
   async initializeSeasonPass(userId: string): Promise<SeasonPassProgress> {
     try {
       const offlineData = await offlineManager.getOfflineData(userId);
-      
+
       if (offlineData.seasonPass) {
         this.progress = offlineData.seasonPass;
         return this.progress;
@@ -103,10 +103,10 @@ export class SeasonPassSystem {
   // Generate season tiers
   private generateSeasonTiers(): SeasonPassTier[] {
     const tiers: SeasonPassTier[] = [];
-    
+
     for (let level = 1; level <= 50; level++) {
       const experienceRequired = level * 100;
-      
+
       tiers.push({
         level,
         freeRewards: this.generateFreeRewards(level),
@@ -116,18 +116,18 @@ export class SeasonPassSystem {
         claimed: false,
       });
     }
-    
+
     return tiers;
   }
 
   // Generate free rewards
   private generateFreeRewards(level: number): SeasonPassReward[] {
     const rewards: SeasonPassReward[] = [];
-    
+
     // Every level gives coins
     rewards.push({
       type: 'coins',
-      amount: 10 + (level * 2),
+      amount: 10 + level * 2,
       rarity: 'common',
       claimed: false,
     });
@@ -158,11 +158,11 @@ export class SeasonPassSystem {
   // Generate premium rewards
   private generatePremiumRewards(level: number): SeasonPassReward[] {
     const rewards: SeasonPassReward[] = [];
-    
+
     // Premium gets more coins
     rewards.push({
       type: 'coins',
-      amount: 25 + (level * 5),
+      amount: 25 + level * 5,
       rarity: 'rare',
       claimed: false,
     });
@@ -236,17 +236,17 @@ export class SeasonPassSystem {
       if (!tier.unlocked) {
         tier.unlocked = true;
         tierUnlocked = true;
-        
+
         // Collect rewards
         rewards.push(...tier.freeRewards);
         if (season.premium) {
           rewards.push(...tier.premiumRewards);
         }
       }
-      
+
       newTier++;
       season.currentTier = newTier;
-      
+
       if (newTier < season.tiers.length) {
         season.experienceToNext = season.tiers[newTier].experienceRequired;
       }
@@ -270,14 +270,14 @@ export class SeasonPassSystem {
       return { success: false, rewards: [] };
     }
 
-    const tier = this.progress.currentSeason.tiers.find(t => t.level === tierLevel);
+    const tier = this.progress.currentSeason.tiers.find((t) => t.level === tierLevel);
     if (!tier || !tier.unlocked || tier.claimed) {
       return { success: false, rewards: [] };
     }
 
     tier.claimed = true;
     const rewards = [...tier.freeRewards];
-    
+
     if (this.progress.currentSeason.premium) {
       rewards.push(...tier.premiumRewards);
     }
@@ -296,7 +296,7 @@ export class SeasonPassSystem {
 
     this.progress.currentSeason.premium = true;
     this.progress.premiumSeasons.push(this.progress.currentSeason.id);
-    
+
     await this.saveSeasonPassProgress();
     return true;
   }
@@ -312,17 +312,17 @@ export class SeasonPassSystem {
 
     const season = this.progress.currentSeason;
     const now = new Date();
-    
+
     if (now > season.endDate) {
       // Season completed
       this.progress.completedSeasons.push(season.id);
-      
+
       // Create next season
       const nextSeason = this.createNextSeason();
       this.progress.currentSeason = nextSeason;
-      
+
       await this.saveSeasonPassProgress();
-      
+
       return {
         completed: true,
         nextSeason,
@@ -334,7 +334,13 @@ export class SeasonPassSystem {
 
   // Create next season
   private createNextSeason(): SeasonPass {
-    const seasonNames = ['Gold Rush', 'Volcano Fury', 'Rainbow Storm', 'Crystal Quest', 'Cosmic Chaos'];
+    const seasonNames = [
+      'Gold Rush',
+      'Volcano Fury',
+      'Rainbow Storm',
+      'Crystal Quest',
+      'Cosmic Chaos',
+    ];
     const seasonId = this.progress!.completedSeasons.length + 1;
     const startDate = new Date();
     const endDate = new Date(startDate.getTime() + 14 * 24 * 60 * 60 * 1000);
@@ -367,7 +373,7 @@ export class SeasonPassSystem {
     const rewards: SeasonPassReward[] = [];
     const season = this.progress.currentSeason;
 
-    season.tiers.forEach(tier => {
+    season.tiers.forEach((tier) => {
       if (tier.unlocked && !tier.claimed) {
         rewards.push(...tier.freeRewards);
         if (season.premium) {
@@ -428,4 +434,4 @@ export class SeasonPassSystem {
   }
 }
 
-export const seasonPassSystem = SeasonPassSystem.getInstance(); 
+export const seasonPassSystem = SeasonPassSystem.getInstance();

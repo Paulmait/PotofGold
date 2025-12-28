@@ -1,9 +1,5 @@
 import React from 'react';
-import {
-  View,
-  StyleSheet,
-  Dimensions,
-} from 'react-native';
+import { View, StyleSheet, Dimensions } from 'react-native';
 
 const { width } = Dimensions.get('window');
 
@@ -19,19 +15,13 @@ export default function RailTrack({ showDust = false, isMoving = false }: RailTr
       <View style={styles.railTrack}>
         {/* Top rail */}
         <View style={styles.railTop} />
-        
+
         {/* Bottom rail */}
         <View style={styles.railBottom} />
-        
+
         {/* Rail ties */}
         {Array.from({ length: Math.floor(width / 30) }).map((_, index) => (
-          <View
-            key={index}
-            style={[
-              styles.railTie,
-              { left: index * 30 },
-            ]}
-          />
+          <View key={index} style={[styles.railTie, { left: index * 30 }]} />
         ))}
       </View>
 
@@ -112,4 +102,4 @@ const styles = StyleSheet.create({
     borderRadius: 1,
     opacity: 0.6,
   },
-}); 
+});

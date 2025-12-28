@@ -14,8 +14,8 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { 
-  createUserWithEmailAndPassword, 
+import {
+  createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   updateProfile,
   signInAnonymously,
@@ -58,7 +58,7 @@ export default function AuthScreenFixed({ navigation }: AuthScreenFixedProps) {
       // Create user account
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-      
+
       console.log('User created:', user.uid);
 
       // Update display name
@@ -97,7 +97,7 @@ export default function AuthScreenFixed({ navigation }: AuthScreenFixedProps) {
     } catch (error: any) {
       console.error('Sign up error:', error);
       let errorMessage = 'Sign up failed. Please try again.';
-      
+
       if (error.code === 'auth/email-already-in-use') {
         errorMessage = 'This email is already registered.';
       } else if (error.code === 'auth/weak-password') {
@@ -132,7 +132,7 @@ export default function AuthScreenFixed({ navigation }: AuthScreenFixedProps) {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-      
+
       console.log('User signed in:', user.uid);
 
       // Get user profile from Firestore
@@ -158,7 +158,7 @@ export default function AuthScreenFixed({ navigation }: AuthScreenFixedProps) {
     } catch (error: any) {
       console.error('Sign in error:', error);
       let errorMessage = 'Sign in failed. Please try again.';
-      
+
       if (error.code === 'auth/user-not-found') {
         errorMessage = 'No account found with this email.';
       } else if (error.code === 'auth/wrong-password') {
@@ -185,9 +185,9 @@ export default function AuthScreenFixed({ navigation }: AuthScreenFixedProps) {
       // Mark as guest in AsyncStorage
       await AsyncStorage.setItem('is_guest', 'true');
       await AsyncStorage.setItem('guest_started_at', new Date().toISOString());
-      
+
       console.log('Guest mode activated');
-      
+
       // Navigate directly to Home
       navigation.replace('Home');
     } catch (error) {
@@ -218,15 +218,12 @@ export default function AuthScreenFixed({ navigation }: AuthScreenFixedProps) {
   };
 
   return (
-    <LinearGradient
-      colors={['#1a1a2e', '#16213e', '#0f3460']}
-      style={styles.container}
-    >
-      <KeyboardAvoidingView 
+    <LinearGradient colors={['#1a1a2e', '#16213e', '#0f3460']} style={styles.container}>
+      <KeyboardAvoidingView
         style={styles.keyboardView}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <ScrollView 
+        <ScrollView
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
@@ -234,16 +231,19 @@ export default function AuthScreenFixed({ navigation }: AuthScreenFixedProps) {
           <View style={styles.header}>
             <Text style={styles.logo}>💰</Text>
             <Text style={styles.title}>Pot of Gold</Text>
-            <Text style={styles.subtitle}>
-              {isLogin ? 'Welcome Back!' : 'Create Your Account'}
-            </Text>
+            <Text style={styles.subtitle}>{isLogin ? 'Welcome Back!' : 'Create Your Account'}</Text>
           </View>
 
           {/* Form */}
           <View style={styles.form}>
             {!isLogin && (
               <View style={styles.inputContainer}>
-                <Ionicons name="person-outline" size={scale(20)} color="#888" style={styles.inputIcon} />
+                <Ionicons
+                  name="person-outline"
+                  size={scale(20)}
+                  color="#888"
+                  style={styles.inputIcon}
+                />
                 <TextInput
                   style={styles.input}
                   placeholder="Display Name"
@@ -256,7 +256,12 @@ export default function AuthScreenFixed({ navigation }: AuthScreenFixedProps) {
             )}
 
             <View style={styles.inputContainer}>
-              <Ionicons name="mail-outline" size={scale(20)} color="#888" style={styles.inputIcon} />
+              <Ionicons
+                name="mail-outline"
+                size={scale(20)}
+                color="#888"
+                style={styles.inputIcon}
+              />
               <TextInput
                 style={styles.input}
                 placeholder="Email"
@@ -269,7 +274,12 @@ export default function AuthScreenFixed({ navigation }: AuthScreenFixedProps) {
             </View>
 
             <View style={styles.inputContainer}>
-              <Ionicons name="lock-closed-outline" size={scale(20)} color="#888" style={styles.inputIcon} />
+              <Ionicons
+                name="lock-closed-outline"
+                size={scale(20)}
+                color="#888"
+                style={styles.inputIcon}
+              />
               <TextInput
                 style={styles.input}
                 placeholder="Password"
@@ -282,10 +292,10 @@ export default function AuthScreenFixed({ navigation }: AuthScreenFixedProps) {
                 onPress={() => setShowPassword(!showPassword)}
                 style={styles.eyeIcon}
               >
-                <Ionicons 
-                  name={showPassword ? "eye-outline" : "eye-off-outline"} 
-                  size={scale(20)} 
-                  color="#888" 
+                <Ionicons
+                  name={showPassword ? 'eye-outline' : 'eye-off-outline'}
+                  size={scale(20)}
+                  color="#888"
                 />
               </TouchableOpacity>
             </View>
@@ -314,9 +324,7 @@ export default function AuthScreenFixed({ navigation }: AuthScreenFixedProps) {
             <TouchableOpacity onPress={toggleAuthMode} style={styles.toggleButton}>
               <Text style={styles.toggleText}>
                 {isLogin ? "Don't have an account? " : 'Already have an account? '}
-                <Text style={styles.toggleTextBold}>
-                  {isLogin ? 'Sign Up' : 'Sign In'}
-                </Text>
+                <Text style={styles.toggleTextBold}>{isLogin ? 'Sign Up' : 'Sign In'}</Text>
               </Text>
             </TouchableOpacity>
 
@@ -339,9 +347,7 @@ export default function AuthScreenFixed({ navigation }: AuthScreenFixedProps) {
 
             {/* Guest Info */}
             <View style={styles.guestInfo}>
-              <Text style={styles.guestInfoText}>
-                🎮 Playing as guest allows full game access
-              </Text>
+              <Text style={styles.guestInfoText}>🎮 Playing as guest allows full game access</Text>
               <Text style={styles.guestInfoText}>
                 ⚠️ Progress won't be saved without an account
               </Text>

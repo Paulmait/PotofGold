@@ -27,7 +27,19 @@ export interface GameState {
 }
 
 export interface GameAction {
-  type: 'START_GAME' | 'PAUSE_GAME' | 'RESUME_GAME' | 'END_GAME' | 'COLLECT_COIN' | 'ACTIVATE_TURBO' | 'UPDATE_POT_POSITION' | 'TRIGGER_GOLD_RUSH' | 'UPDATE_BLOCKAGE' | 'INCREMENT_TIME' | 'RESET_COMBO' | 'INCREMENT_COMBO';
+  type:
+    | 'START_GAME'
+    | 'PAUSE_GAME'
+    | 'RESUME_GAME'
+    | 'END_GAME'
+    | 'COLLECT_COIN'
+    | 'ACTIVATE_TURBO'
+    | 'UPDATE_POT_POSITION'
+    | 'TRIGGER_GOLD_RUSH'
+    | 'UPDATE_BLOCKAGE'
+    | 'INCREMENT_TIME'
+    | 'RESET_COMBO'
+    | 'INCREMENT_COMBO';
   payload?: any;
 }
 
@@ -105,11 +117,11 @@ export const useGameEngine = () => {
         const coinValue = state.turboBoost ? 2 : 1;
         const newCombo = state.combo + 1;
         const comboBonus = Math.floor(newCombo / 10) * 5; // Bonus every 10 combo
-        
+
         return {
           ...state,
           coins: state.coins + coinValue,
-          score: state.score + (10 * coinValue) + comboBonus,
+          score: state.score + 10 * coinValue + comboBonus,
           combo: newCombo,
         };
 
@@ -162,9 +174,12 @@ export const useGameEngine = () => {
   }, []);
 
   // Dispatch game actions
-  const dispatch = useCallback((action: GameAction) => {
-    setGameState(prevState => gameReducer(prevState, action));
-  }, [gameReducer]);
+  const dispatch = useCallback(
+    (action: GameAction) => {
+      setGameState((prevState) => gameReducer(prevState, action));
+    },
+    [gameReducer]
+  );
 
   // Start game timers
   const startGameTimers = useCallback(() => {
@@ -177,8 +192,8 @@ export const useGameEngine = () => {
     coinSpawnTimer.current = setInterval(() => {
       // Spawn coins based on difficulty
       const difficulty = gameState.potLevel || 1;
-      const spawnRate = Math.max(1000 - (difficulty * 100), 300);
-      
+      const spawnRate = Math.max(1000 - difficulty * 100, 300);
+
       // This would spawn visual coin objects
       // For now, just track time
     }, 1000);
@@ -187,8 +202,8 @@ export const useGameEngine = () => {
     obstacleTimer.current = setInterval(() => {
       // Spawn obstacles based on level
       const difficulty = gameState.potLevel || 1;
-      const spawnRate = Math.max(2000 - (difficulty * 200), 800);
-      
+      const spawnRate = Math.max(2000 - difficulty * 200, 800);
+
       // This would spawn visual obstacle objects
     }, 2000);
 
@@ -214,7 +229,7 @@ export const useGameEngine = () => {
   const startGame = useCallback(async () => {
     dispatch({ type: 'START_GAME' });
     startGameTimers();
-    
+
     // Play background music
     await soundSystem.playMusic('cave_ambient');
   }, [dispatch, startGameTimers]);
@@ -235,13 +250,13 @@ export const useGameEngine = () => {
   const endGame = useCallback(async () => {
     dispatch({ type: 'END_GAME' });
     stopGameTimers();
-    
+
     // Stop background music
     await soundSystem.stopMusic();
-    
+
     // Play game over sound
     await soundSystem.playSound('game_over');
-    
+
     // Complete game session
     const gameData = {
       score: gameState.score,
@@ -266,10 +281,10 @@ export const useGameEngine = () => {
     if (!gameState.isActive || gameState.isPaused) return;
 
     dispatch({ type: 'COLLECT_COIN' });
-    
+
     // Play coin sound
     await soundSystem.playSound('coin_catch');
-    
+
     // Play combo sound if combo milestone
     if (gameState.combo > 0 && gameState.combo % 10 === 0) {
       await soundSystem.playSound('combo_multiplier');
@@ -281,46 +296,55 @@ export const useGameEngine = () => {
     if (gameState.boostBar < 20) return;
 
     dispatch({ type: 'ACTIVATE_TURBO' });
-    
+
     // Play power-up sound
     await soundSystem.playSound('powerup_activate');
-    
+
     // Turbo boost duration
     boostTimer.current = setTimeout(() => {
-      setGameState(prev => ({ ...prev, turboBoost: false }));
+      setGameState((prev) => ({ ...prev, turboBoost: false }));
     }, 5000);
   }, [dispatch, gameState.boostBar]);
 
   // Update pot position
-  const updatePotPosition = useCallback((newPosition: number) => {
-    // Keep pot within screen bounds
-    const clampedPosition = Math.max(gameState.potSize / 2, Math.min(width - gameState.potSize / 2, newPosition));
-    dispatch({ type: 'UPDATE_POT_POSITION', payload: clampedPosition });
-  }, [dispatch, gameState.potSize]);
+  const updatePotPosition = useCallback(
+    (newPosition: number) => {
+      // Keep pot within screen bounds
+      const clampedPosition = Math.max(
+        gameState.potSize / 2,
+        Math.min(width - gameState.potSize / 2, newPosition)
+      );
+      dispatch({ type: 'UPDATE_POT_POSITION', payload: clampedPosition });
+    },
+    [dispatch, gameState.potSize]
+  );
 
   // Trigger gold rush
   const triggerGoldRush = useCallback(async () => {
     dispatch({ type: 'TRIGGER_GOLD_RUSH' });
-    
+
     // Play gold rush music
     await soundSystem.playMusic('gold_rush_theme');
-    
+
     // Gold rush duration
     goldRushTimer.current = setTimeout(() => {
-      setGameState(prev => ({ ...prev, goldRushActive: false }));
+      setGameState((prev) => ({ ...prev, goldRushActive: false }));
       soundSystem.playMusic('cave_ambient');
     }, 10000);
   }, [dispatch]);
 
   // Update blockage percentage
-  const updateBlockage = useCallback((percentage: number) => {
-    dispatch({ type: 'UPDATE_BLOCKAGE', payload: percentage });
-    
-    // Check for game over condition
-    if (percentage >= 100) {
-      endGame();
-    }
-  }, [dispatch, endGame]);
+  const updateBlockage = useCallback(
+    (percentage: number) => {
+      dispatch({ type: 'UPDATE_BLOCKAGE', payload: percentage });
+
+      // Check for game over condition
+      if (percentage >= 100) {
+        endGame();
+      }
+    },
+    [dispatch, endGame]
+  );
 
   // Cleanup on unmount
   useEffect(() => {
@@ -341,4 +365,4 @@ export const useGameEngine = () => {
     triggerGoldRush,
     updateBlockage,
   };
-}; 
+};

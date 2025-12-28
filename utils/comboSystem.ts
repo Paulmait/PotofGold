@@ -22,7 +22,11 @@ export class ComboSystem {
   /**
    * Process an item collection and update combo state
    */
-  processItemCollection(itemType: string, rarity: string, baseScore: number): {
+  processItemCollection(
+    itemType: string,
+    rarity: string,
+    baseScore: number
+  ): {
     finalScore: number;
     comboMultiplier: number;
     comboBonus: number;
@@ -30,7 +34,7 @@ export class ComboSystem {
   } {
     const now = Date.now();
     const timeSinceLastItem = now - this.comboState.streakStartTime;
-    
+
     // Check if combo should continue or reset
     if (timeSinceLastItem > this.COMBO_TIMEOUT || this.comboState.lastItemType !== itemType) {
       // Reset combo
@@ -51,7 +55,7 @@ export class ComboSystem {
     // Calculate combo multiplier
     const comboMultiplier = this.calculateComboMultiplier(this.comboState.count);
     const rarityMultiplier = RARITY_MULTIPLIERS[rarity as keyof typeof RARITY_MULTIPLIERS] || 1;
-    
+
     // Apply multipliers
     const finalScore = Math.floor(baseScore * comboMultiplier * rarityMultiplier);
     const comboBonus = finalScore - baseScore;
@@ -115,7 +119,7 @@ export class ComboSystem {
    */
   getComboDisplayText(): string {
     if (this.comboState.count <= 1) return '';
-    
+
     const multiplier = this.calculateComboMultiplier(this.comboState.count);
     return `${this.comboState.count}x COMBO! (${multiplier.toFixed(1)}x)`;
   }
@@ -142,4 +146,4 @@ export class ComboSystem {
 
     return achievements;
   }
-} 
+}

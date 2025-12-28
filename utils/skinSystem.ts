@@ -328,7 +328,7 @@ export class SkinSystem {
   async initializeCollection(userId: string): Promise<SkinCollection> {
     try {
       const offlineData = await offlineManager.getOfflineData(userId);
-      
+
       if (offlineData.skinCollection) {
         this.collection = offlineData.skinCollection;
         return this.collection;
@@ -361,7 +361,7 @@ export class SkinSystem {
       return { success: false, skin: null, message: 'No collection available' };
     }
 
-    const skin = this.skins.find(s => s.id === skinId);
+    const skin = this.skins.find((s) => s.id === skinId);
     if (!skin) {
       return { success: false, skin: null, message: 'Skin not found' };
     }
@@ -372,7 +372,8 @@ export class SkinSystem {
 
     // Add to owned skins
     this.collection.ownedSkins.push(skinId);
-    this.collection.collectionProgress = (this.collection.ownedSkins.length / this.collection.totalSkins) * 100;
+    this.collection.collectionProgress =
+      (this.collection.ownedSkins.length / this.collection.totalSkins) * 100;
 
     await this.saveCollection();
 
@@ -393,7 +394,7 @@ export class SkinSystem {
       return { success: false, skin: null, message: 'No collection available' };
     }
 
-    const skin = this.skins.find(s => s.id === skinId);
+    const skin = this.skins.find((s) => s.id === skinId);
     if (!skin || !this.collection.ownedSkins.includes(skinId)) {
       return { success: false, skin: null, message: 'Skin not owned' };
     }
@@ -416,29 +417,29 @@ export class SkinSystem {
   // Get owned skins
   getOwnedSkins(): Skin[] {
     if (!this.collection) return [];
-    return this.skins.filter(skin => this.collection!.ownedSkins.includes(skin.id));
+    return this.skins.filter((skin) => this.collection!.ownedSkins.includes(skin.id));
   }
 
   // Get available skins (not owned)
   getAvailableSkins(): Skin[] {
     if (!this.collection) return this.skins;
-    return this.skins.filter(skin => !this.collection!.ownedSkins.includes(skin.id));
+    return this.skins.filter((skin) => !this.collection!.ownedSkins.includes(skin.id));
   }
 
   // Get skins by theme
   getSkinsByTheme(theme: string): Skin[] {
-    return this.skins.filter(skin => skin.theme === theme);
+    return this.skins.filter((skin) => skin.theme === theme);
   }
 
   // Get skins by rarity
   getSkinsByRarity(rarity: string): Skin[] {
-    return this.skins.filter(skin => skin.rarity === rarity);
+    return this.skins.filter((skin) => skin.rarity === rarity);
   }
 
   // Get equipped skin
   getEquippedSkin(): Skin | null {
     if (!this.collection) return null;
-    return this.skins.find(skin => skin.id === this.collection!.equippedSkin) || null;
+    return this.skins.find((skin) => skin.id === this.collection!.equippedSkin) || null;
   }
 
   // Get collection statistics
@@ -468,12 +469,18 @@ export class SkinSystem {
   // Get rarity color
   getRarityColor(rarity: string): string {
     switch (rarity) {
-      case 'common': return '#ccc';
-      case 'rare': return '#4CAF50';
-      case 'epic': return '#9C27B0';
-      case 'legendary': return '#FFD700';
-      case 'secret': return '#FF6B6B';
-      default: return '#ccc';
+      case 'common':
+        return '#ccc';
+      case 'rare':
+        return '#4CAF50';
+      case 'epic':
+        return '#9C27B0';
+      case 'legendary':
+        return '#FFD700';
+      case 'secret':
+        return '#FF6B6B';
+      default:
+        return '#ccc';
     }
   }
 
@@ -496,4 +503,4 @@ export class SkinSystem {
   }
 }
 
-export const skinSystem = SkinSystem.getInstance(); 
+export const skinSystem = SkinSystem.getInstance();

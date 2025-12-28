@@ -187,74 +187,164 @@ export class PrestigeSystem {
         name: 'Novice',
         icon: '🌟',
         color: '#808080',
-        multipliers: { gold: 1, xp: 1, score: 1, itemDropRate: 1, rarityChance: 1, speed: 1, powerupDuration: 1, offlineEarnings: 1 },
+        multipliers: {
+          gold: 1,
+          xp: 1,
+          score: 1,
+          itemDropRate: 1,
+          rarityChance: 1,
+          speed: 1,
+          powerupDuration: 1,
+          offlineEarnings: 1,
+        },
       },
       {
         level: 1,
         name: 'Bronze',
         icon: '🥉',
         color: '#CD7F32',
-        multipliers: { gold: 1.5, xp: 1.5, score: 1.2, itemDropRate: 1.1, rarityChance: 1.05, speed: 1.05, powerupDuration: 1.1, offlineEarnings: 1.2 },
+        multipliers: {
+          gold: 1.5,
+          xp: 1.5,
+          score: 1.2,
+          itemDropRate: 1.1,
+          rarityChance: 1.05,
+          speed: 1.05,
+          powerupDuration: 1.1,
+          offlineEarnings: 1.2,
+        },
       },
       {
         level: 2,
         name: 'Silver',
         icon: '🥈',
         color: '#C0C0C0',
-        multipliers: { gold: 2, xp: 2, score: 1.5, itemDropRate: 1.2, rarityChance: 1.1, speed: 1.1, powerupDuration: 1.2, offlineEarnings: 1.5 },
+        multipliers: {
+          gold: 2,
+          xp: 2,
+          score: 1.5,
+          itemDropRate: 1.2,
+          rarityChance: 1.1,
+          speed: 1.1,
+          powerupDuration: 1.2,
+          offlineEarnings: 1.5,
+        },
       },
       {
         level: 3,
         name: 'Gold',
         icon: '🥇',
         color: '#FFD700',
-        multipliers: { gold: 3, xp: 3, score: 2, itemDropRate: 1.3, rarityChance: 1.15, speed: 1.15, powerupDuration: 1.3, offlineEarnings: 2 },
+        multipliers: {
+          gold: 3,
+          xp: 3,
+          score: 2,
+          itemDropRate: 1.3,
+          rarityChance: 1.15,
+          speed: 1.15,
+          powerupDuration: 1.3,
+          offlineEarnings: 2,
+        },
       },
       {
         level: 4,
         name: 'Platinum',
         icon: '💎',
         color: '#E5E4E2',
-        multipliers: { gold: 4, xp: 4, score: 2.5, itemDropRate: 1.5, rarityChance: 1.2, speed: 1.2, powerupDuration: 1.5, offlineEarnings: 2.5 },
+        multipliers: {
+          gold: 4,
+          xp: 4,
+          score: 2.5,
+          itemDropRate: 1.5,
+          rarityChance: 1.2,
+          speed: 1.2,
+          powerupDuration: 1.5,
+          offlineEarnings: 2.5,
+        },
       },
       {
         level: 5,
         name: 'Diamond',
         icon: '💠',
         color: '#B9F2FF',
-        multipliers: { gold: 5, xp: 5, score: 3, itemDropRate: 1.7, rarityChance: 1.3, speed: 1.25, powerupDuration: 1.7, offlineEarnings: 3 },
+        multipliers: {
+          gold: 5,
+          xp: 5,
+          score: 3,
+          itemDropRate: 1.7,
+          rarityChance: 1.3,
+          speed: 1.25,
+          powerupDuration: 1.7,
+          offlineEarnings: 3,
+        },
       },
       {
         level: 10,
         name: 'Master',
         icon: '👑',
         color: '#FFD700',
-        multipliers: { gold: 10, xp: 10, score: 5, itemDropRate: 2, rarityChance: 1.5, speed: 1.5, powerupDuration: 2, offlineEarnings: 5 },
+        multipliers: {
+          gold: 10,
+          xp: 10,
+          score: 5,
+          itemDropRate: 2,
+          rarityChance: 1.5,
+          speed: 1.5,
+          powerupDuration: 2,
+          offlineEarnings: 5,
+        },
       },
       {
         level: 20,
         name: 'Grandmaster',
         icon: '🌟',
         color: '#FF6B6B',
-        multipliers: { gold: 20, xp: 20, score: 10, itemDropRate: 3, rarityChance: 2, speed: 2, powerupDuration: 3, offlineEarnings: 10 },
+        multipliers: {
+          gold: 20,
+          xp: 20,
+          score: 10,
+          itemDropRate: 3,
+          rarityChance: 2,
+          speed: 2,
+          powerupDuration: 3,
+          offlineEarnings: 10,
+        },
       },
       {
         level: 50,
         name: 'Legend',
         icon: '🔥',
         color: '#FF0000',
-        multipliers: { gold: 50, xp: 50, score: 25, itemDropRate: 5, rarityChance: 3, speed: 3, powerupDuration: 5, offlineEarnings: 25 },
+        multipliers: {
+          gold: 50,
+          xp: 50,
+          score: 25,
+          itemDropRate: 5,
+          rarityChance: 3,
+          speed: 3,
+          powerupDuration: 5,
+          offlineEarnings: 25,
+        },
       },
       {
         level: 100,
         name: 'Mythic',
         icon: '⚡',
         color: '#9400D3',
-        multipliers: { gold: 100, xp: 100, score: 50, itemDropRate: 10, rarityChance: 5, speed: 5, powerupDuration: 10, offlineEarnings: 50 },
+        multipliers: {
+          gold: 100,
+          xp: 100,
+          score: 50,
+          itemDropRate: 10,
+          rarityChance: 5,
+          speed: 5,
+          powerupDuration: 10,
+          offlineEarnings: 50,
+        },
       },
     ];
 
-    prestigeConfigs.forEach(config => {
+    prestigeConfigs.forEach((config) => {
       this.prestigeLevels.push({
         level: config.level,
         name: config.name,
@@ -425,12 +515,14 @@ export class PrestigeSystem {
         maxLevel: 20,
         currentLevel: 0,
         cost: [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10],
-        effects: [{
-          type: 'gold_multiplier',
-          value: 5,
-          scaling: 5,
-          isPercentage: true,
-        }],
+        effects: [
+          {
+            type: 'gold_multiplier',
+            value: 5,
+            scaling: 5,
+            isPercentage: true,
+          },
+        ],
         prerequisites: [],
         unlocked: true,
       },
@@ -441,12 +533,14 @@ export class PrestigeSystem {
         maxLevel: 10,
         currentLevel: 0,
         cost: [2, 2, 3, 3, 4, 4, 5, 5, 6, 6],
-        effects: [{
-          type: 'item_value',
-          value: 10,
-          scaling: 10,
-          isPercentage: true,
-        }],
+        effects: [
+          {
+            type: 'item_value',
+            value: 10,
+            scaling: 10,
+            isPercentage: true,
+          },
+        ],
         prerequisites: ['golden_touch'],
         unlocked: false,
       },
@@ -457,12 +551,14 @@ export class PrestigeSystem {
         maxLevel: 5,
         currentLevel: 0,
         cost: [5, 10, 15, 20, 25],
-        effects: [{
-          type: 'gold_conversion',
-          value: 1,
-          scaling: 1,
-          isPercentage: true,
-        }],
+        effects: [
+          {
+            type: 'gold_conversion',
+            value: 1,
+            scaling: 1,
+            isPercentage: true,
+          },
+        ],
         prerequisites: ['treasure_hunter'],
         unlocked: false,
       },
@@ -477,13 +573,17 @@ export class PrestigeSystem {
         description: 'Increase powerup duration',
         maxLevel: 15,
         currentLevel: 0,
-        cost: Array(15).fill(0).map((_, i) => i + 1),
-        effects: [{
-          type: 'powerup_duration',
-          value: 5,
-          scaling: 5,
-          isPercentage: true,
-        }],
+        cost: Array(15)
+          .fill(0)
+          .map((_, i) => i + 1),
+        effects: [
+          {
+            type: 'powerup_duration',
+            value: 5,
+            scaling: 5,
+            isPercentage: true,
+          },
+        ],
         prerequisites: [],
         unlocked: true,
       },
@@ -493,13 +593,17 @@ export class PrestigeSystem {
         description: 'Chance to get double powerups',
         maxLevel: 10,
         currentLevel: 0,
-        cost: Array(10).fill(0).map((_, i) => (i + 1) * 2),
-        effects: [{
-          type: 'double_powerup_chance',
-          value: 2,
-          scaling: 2,
-          isPercentage: true,
-        }],
+        cost: Array(10)
+          .fill(0)
+          .map((_, i) => (i + 1) * 2),
+        effects: [
+          {
+            type: 'double_powerup_chance',
+            value: 2,
+            scaling: 2,
+            isPercentage: true,
+          },
+        ],
         prerequisites: ['power_surge'],
         unlocked: false,
       },
@@ -514,13 +618,17 @@ export class PrestigeSystem {
         description: 'Increase rare item chance',
         maxLevel: 20,
         currentLevel: 0,
-        cost: Array(20).fill(0).map((_, i) => Math.floor((i + 1) * 1.5)),
-        effects: [{
-          type: 'rare_item_chance',
-          value: 2,
-          scaling: 2,
-          isPercentage: true,
-        }],
+        cost: Array(20)
+          .fill(0)
+          .map((_, i) => Math.floor((i + 1) * 1.5)),
+        effects: [
+          {
+            type: 'rare_item_chance',
+            value: 2,
+            scaling: 2,
+            isPercentage: true,
+          },
+        ],
         prerequisites: [],
         unlocked: true,
       },
@@ -530,13 +638,17 @@ export class PrestigeSystem {
         description: 'Chance for critical rewards',
         maxLevel: 10,
         currentLevel: 0,
-        cost: Array(10).fill(0).map((_, i) => (i + 1) * 3),
-        effects: [{
-          type: 'critical_chance',
-          value: 1,
-          scaling: 1,
-          isPercentage: true,
-        }],
+        cost: Array(10)
+          .fill(0)
+          .map((_, i) => (i + 1) * 3),
+        effects: [
+          {
+            type: 'critical_chance',
+            value: 1,
+            scaling: 1,
+            isPercentage: true,
+          },
+        ],
         prerequisites: ['fortunate_one'],
         unlocked: false,
       },
@@ -551,13 +663,17 @@ export class PrestigeSystem {
         description: 'Reduce prestige requirements',
         maxLevel: 10,
         currentLevel: 0,
-        cost: Array(10).fill(0).map((_, i) => (i + 1) * 5),
-        effects: [{
-          type: 'prestige_requirement_reduction',
-          value: 2,
-          scaling: 2,
-          isPercentage: true,
-        }],
+        cost: Array(10)
+          .fill(0)
+          .map((_, i) => (i + 1) * 5),
+        effects: [
+          {
+            type: 'prestige_requirement_reduction',
+            value: 2,
+            scaling: 2,
+            isPercentage: true,
+          },
+        ],
         prerequisites: [],
         unlocked: true,
       },
@@ -568,12 +684,14 @@ export class PrestigeSystem {
         maxLevel: 5,
         currentLevel: 0,
         cost: [10, 20, 30, 40, 50],
-        effects: [{
-          type: 'progress_retention',
-          value: 5,
-          scaling: 5,
-          isPercentage: true,
-        }],
+        effects: [
+          {
+            type: 'progress_retention',
+            value: 5,
+            scaling: 5,
+            isPercentage: true,
+          },
+        ],
         prerequisites: ['prestige_mastery'],
         unlocked: false,
       },
@@ -713,7 +831,7 @@ export class PrestigeSystem {
     await this.grantPrestigeRewards(nextLevel.rewards);
 
     // Activate perks
-    nextLevel.perks.forEach(perk => {
+    nextLevel.perks.forEach((perk) => {
       this.activePerks.set(perk.id, perk);
     });
 
@@ -753,12 +871,12 @@ export class PrestigeSystem {
     this.skillTree.totalPoints += rewards.immediate.prestigePoints;
 
     // Grant exclusive items
-    rewards.immediate.exclusiveItems.forEach(item => {
+    rewards.immediate.exclusiveItems.forEach((item) => {
       eventBus.emit('item:unlock:exclusive', { itemId: item });
     });
 
     // Grant titles
-    rewards.immediate.titles.forEach(title => {
+    rewards.immediate.titles.forEach((title) => {
       eventBus.emit('title:grant', { title });
     });
   }
@@ -786,7 +904,7 @@ export class PrestigeSystem {
   }
 
   private applyStartingPerks() {
-    this.activePerks.forEach(perk => {
+    this.activePerks.forEach((perk) => {
       switch (perk.type) {
         case PerkType.STARTING_GOLD:
           gameEvents.emit(GameEventType.CURRENCY_EARNED, {
@@ -856,7 +974,7 @@ export class PrestigeSystem {
 
   private findSkill(skillId: string): Skill | null {
     for (const branch of this.skillTree.branches) {
-      const skill = branch.skills.find(s => s.id === skillId);
+      const skill = branch.skills.find((s) => s.id === skillId);
       if (skill) return skill;
     }
     return null;
@@ -871,18 +989,18 @@ export class PrestigeSystem {
   }
 
   private applySkillEffects(skill: Skill) {
-    skill.effects.forEach(effect => {
-      const value = effect.value + (effect.scaling * (skill.currentLevel - 1));
-      
+    skill.effects.forEach((effect) => {
+      const value = effect.value + effect.scaling * (skill.currentLevel - 1);
+
       switch (effect.type) {
         case 'gold_multiplier':
-          this.currentMultipliers.gold *= (1 + value / 100);
+          this.currentMultipliers.gold *= 1 + value / 100;
           break;
         case 'powerup_duration':
-          this.currentMultipliers.powerupDuration *= (1 + value / 100);
+          this.currentMultipliers.powerupDuration *= 1 + value / 100;
           break;
         case 'rare_item_chance':
-          this.currentMultipliers.rarityChance *= (1 + value / 100);
+          this.currentMultipliers.rarityChance *= 1 + value / 100;
           break;
       }
     });
@@ -891,8 +1009,8 @@ export class PrestigeSystem {
   }
 
   private checkSkillUnlocks() {
-    this.skillTree.branches.forEach(branch => {
-      branch.skills.forEach(skill => {
+    this.skillTree.branches.forEach((branch) => {
+      branch.skills.forEach((skill) => {
         if (!skill.unlocked) {
           skill.unlocked = this.checkPrerequisites(skill);
         }
@@ -914,15 +1032,15 @@ export class PrestigeSystem {
     this.skillTree.spentPoints = 0;
 
     // Reset all skills
-    this.skillTree.branches.forEach(branch => {
-      branch.skills.forEach(skill => {
+    this.skillTree.branches.forEach((branch) => {
+      branch.skills.forEach((skill) => {
         skill.currentLevel = 0;
       });
     });
 
     // Pay reset cost
     this.stats.prestigePoints -= this.skillTree.resetCost;
-    
+
     // Increase reset cost
     this.skillTree.resetCost = Math.floor(this.skillTree.resetCost * 1.5);
 
@@ -940,7 +1058,7 @@ export class PrestigeSystem {
   private calculateTotalMultipliers(): PrestigeMultipliers {
     const base = this.getBaseMultipliers();
     const prestigeLevel = this.prestigeLevels[this.currentPrestige] || this.prestigeLevels[0];
-    
+
     // Combine base, prestige level, and skill multipliers
     const combined: PrestigeMultipliers = {
       gold: base.gold * prestigeLevel.multipliers.gold,
@@ -954,11 +1072,11 @@ export class PrestigeSystem {
     };
 
     // Apply skill bonuses
-    this.skillTree.branches.forEach(branch => {
-      branch.skills.forEach(skill => {
+    this.skillTree.branches.forEach((branch) => {
+      branch.skills.forEach((skill) => {
         if (skill.currentLevel > 0) {
-          skill.effects.forEach(effect => {
-            const value = effect.value + (effect.scaling * (skill.currentLevel - 1));
+          skill.effects.forEach((effect) => {
+            const value = effect.value + effect.scaling * (skill.currentLevel - 1);
             this.applyMultiplierBonus(combined, effect.type, value, effect.isPercentage);
           });
         }
@@ -974,8 +1092,8 @@ export class PrestigeSystem {
     value: number,
     isPercentage: boolean
   ) {
-    const bonus = isPercentage ? (1 + value / 100) : value;
-    
+    const bonus = isPercentage ? 1 + value / 100 : value;
+
     switch (type) {
       case 'gold_multiplier':
         multipliers.gold *= bonus;
@@ -1008,8 +1126,10 @@ export class PrestigeSystem {
   }
 
   private updateMultipliers() {
-    this.stats.multiplierTotal = Object.values(this.currentMultipliers)
-      .reduce((sum, mult) => sum + mult, 0);
+    this.stats.multiplierTotal = Object.values(this.currentMultipliers).reduce(
+      (sum, mult) => sum + mult,
+      0
+    );
   }
 
   private getPlayerLevel(): number {
@@ -1018,7 +1138,7 @@ export class PrestigeSystem {
   }
 
   private getNextPrestigeLevel(): PrestigeLevel | null {
-    return this.prestigeLevels.find(p => p.level === this.currentPrestige + 1) || null;
+    return this.prestigeLevels.find((p) => p.level === this.currentPrestige + 1) || null;
   }
 
   private getStartingBonuses(): any {
@@ -1028,7 +1148,7 @@ export class PrestigeSystem {
       powerups: [],
     };
 
-    this.activePerks.forEach(perk => {
+    this.activePerks.forEach((perk) => {
       if (perk.type === PerkType.STARTING_GOLD) {
         bonuses.gold += perk.value * perk.currentStacks;
       }

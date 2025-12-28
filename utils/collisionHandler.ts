@@ -77,7 +77,7 @@ export class CollisionHandler {
   private handleCoinCollision(config: any): void {
     const baseScore = config.scoreValue;
     const baseCoins = config.coinValue;
-    
+
     // Apply power-up multipliers
     const multiplier = this.getActiveMultiplier();
     const finalScore = Math.floor(baseScore * multiplier);
@@ -93,7 +93,7 @@ export class CollisionHandler {
   private handleMoneyBagCollision(config: any): void {
     const baseScore = config.scoreValue;
     const baseCoins = config.coinValue;
-    
+
     const multiplier = this.getActiveMultiplier();
     const finalScore = Math.floor(baseScore * multiplier);
     const finalCoins = Math.floor(baseCoins * multiplier);
@@ -108,14 +108,14 @@ export class CollisionHandler {
   private handleGemstoneCollision(config: any): void {
     const baseScore = config.scoreValue;
     const baseCoins = config.coinValue;
-    
+
     const multiplier = this.getActiveMultiplier();
     const finalScore = Math.floor(baseScore * multiplier);
     const finalCoins = Math.floor(baseCoins * multiplier);
 
     this.callbacks.onScoreChange(finalScore);
     this.callbacks.onCoinChange(finalCoins);
-    
+
     // Gemstone achievement
     this.callbacks.onAchievement('Gem Collector!');
   }
@@ -158,14 +158,14 @@ export class CollisionHandler {
   private handleLuckyStarCollision(config: any): void {
     const baseScore = config.scoreValue;
     const baseCoins = config.coinValue;
-    
+
     const multiplier = this.getActiveMultiplier();
     const finalScore = Math.floor(baseScore * multiplier);
     const finalCoins = Math.floor(baseCoins * multiplier);
 
     this.callbacks.onScoreChange(finalScore);
     this.callbacks.onCoinChange(finalCoins);
-    
+
     // Activate frenzy mode
     this.callbacks.onPowerUpActivate('frenzyMode', 10000); // 10 seconds
     this.callbacks.onAchievement('Lucky Star!');
@@ -176,7 +176,7 @@ export class CollisionHandler {
    */
   private updateCombo(itemType: string, timeSinceLastCollision: number): void {
     const comboTimeout = 3000; // 3 seconds
-    
+
     if (timeSinceLastCollision > comboTimeout) {
       // Reset combo
       this.comboCount = 1;
@@ -187,7 +187,7 @@ export class CollisionHandler {
 
     // Calculate combo multiplier
     const comboMultiplier = this.calculateComboMultiplier(this.comboCount);
-    
+
     this.callbacks.onComboUpdate(this.comboCount, comboMultiplier);
   }
 
@@ -207,15 +207,15 @@ export class CollisionHandler {
    */
   private getActiveMultiplier(): number {
     let multiplier = 1;
-    
+
     if (this.activePowerUps.has('frenzyMode')) {
       multiplier *= 2; // Double score in frenzy mode
     }
-    
+
     if (this.activePowerUps.has('speedBoost')) {
       multiplier *= 1.2; // 20% bonus with speed boost
     }
-    
+
     return multiplier;
   }
 
@@ -232,7 +232,7 @@ export class CollisionHandler {
    */
   updatePowerUps(deltaTime: number): void {
     const now = Date.now();
-    
+
     for (const [powerUp, endTime] of this.activePowerUps.entries()) {
       if (now >= endTime) {
         this.activePowerUps.delete(powerUp);
@@ -253,4 +253,4 @@ export class CollisionHandler {
   isPowerUpActive(type: string): boolean {
     return this.activePowerUps.has(type);
   }
-} 
+}

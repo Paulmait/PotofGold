@@ -1,4 +1,13 @@
-import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import {
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+} from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 import { auth } from '../firebase/auth';
 
@@ -72,7 +81,7 @@ export class FirebaseUnlockSystem {
       // Fallback to subcollection
       const unlocksQuery = query(collection(db, 'users', user.uid, 'unlocks'));
       const unlocksSnapshot = await getDocs(unlocksQuery);
-      
+
       const unlocks: UserUnlocks = {};
       unlocksSnapshot.forEach((doc) => {
         const data = doc.data() as UnlockData;
@@ -185,7 +194,7 @@ export class FirebaseUnlockSystem {
     try {
       const unlocks = await this.getUnlocks();
       const unlockedOfType = Object.values(unlocks).filter(
-        unlock => unlock.type === skinType
+        (unlock) => unlock.type === skinType
       ).length;
 
       // In a real app, you'd get the total from state_skins.json
@@ -219,13 +228,13 @@ export class FirebaseUnlockSystem {
 
       // Get unlocks from Firebase
       const firebaseUnlocks = await this.getUnlocks();
-      
+
       // Get local unlocks (if any)
       const localUnlocks = await this.getLocalUnlocks();
-      
+
       // Merge and sync
       const allUnlocks = { ...localUnlocks, ...firebaseUnlocks };
-      
+
       // Save merged unlocks back to Firebase
       await updateDoc(doc(db, 'users', user.uid), {
         unlocks: allUnlocks,
@@ -251,4 +260,4 @@ export class FirebaseUnlockSystem {
       return {};
     }
   }
-} 
+}

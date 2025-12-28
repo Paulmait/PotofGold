@@ -20,171 +20,159 @@ interface BlockageVisualProps {
   clearCost?: number;
 }
 
-const BlockageVisual: React.FC<BlockageVisualProps> = memo(({
-  blockageCount,
-  maxBlockages,
-  onClearPress,
-  canAffordClear = false,
-  clearCost = 50,
-}) => {
-  const shakeAnim = useRef(new Animated.Value(0)).current;
-  const pulseAnim = useRef(new Animated.Value(1)).current;
-  
-  // Shake animation when near max blockages
-  useEffect(() => {
-    if (blockageCount >= maxBlockages - 1) {
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(shakeAnim, {
-            toValue: 10,
-            duration: 100,
-            useNativeDriver: true,
-          }),
-          Animated.timing(shakeAnim, {
-            toValue: -10,
-            duration: 100,
-            useNativeDriver: true,
-          }),
-          Animated.timing(shakeAnim, {
-            toValue: 0,
-            duration: 100,
-            useNativeDriver: true,
-          }),
-        ])
-      ).start();
-    } else {
-      shakeAnim.setValue(0);
-    }
-  }, [blockageCount, maxBlockages]);
-  
-  // Pulse animation for critical state
-  useEffect(() => {
-    if (blockageCount >= maxBlockages) {
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(pulseAnim, {
-            toValue: 1.1,
-            duration: 500,
-            useNativeDriver: true,
-          }),
-          Animated.timing(pulseAnim, {
-            toValue: 1,
-            duration: 500,
-            useNativeDriver: true,
-          }),
-        ])
-      ).start();
-    }
-  }, [blockageCount, maxBlockages]);
-  
-  if (blockageCount === 0) return null;
-  
-  const blockagePercentage = (blockageCount / maxBlockages) * 100;
-  const isWarning = blockageCount >= maxBlockages * 0.6;
-  const isCritical = blockageCount >= maxBlockages * 0.8;
-  const isFull = blockageCount >= maxBlockages;
-  
-  const getBlockageColor = () => {
-    if (isFull) return ['#FF0000', '#CC0000'];
-    if (isCritical) return ['#FF6B6B', '#FF4444'];
-    if (isWarning) return ['#FFA500', '#FF8C00'];
-    return ['#FFD700', '#FFA500'];
-  };
-  
-  const getMissedItems = () => {
-    const items = [];
-    for (let i = 0; i < blockageCount; i++) {
-      const itemTypes = ['💎', '🪙', '💰', '⭐', '🏆'];
-      const randomItem = itemTypes[Math.floor(Math.random() * itemTypes.length)];
-      items.push(
-        <View 
-          key={i} 
+const BlockageVisual: React.FC<BlockageVisualProps> = memo(
+  ({ blockageCount, maxBlockages, onClearPress, canAffordClear = false, clearCost = 50 }) => {
+    const shakeAnim = useRef(new Animated.Value(0)).current;
+    const pulseAnim = useRef(new Animated.Value(1)).current;
+
+    // Shake animation when near max blockages
+    useEffect(() => {
+      if (blockageCount >= maxBlockages - 1) {
+        Animated.loop(
+          Animated.sequence([
+            Animated.timing(shakeAnim, {
+              toValue: 10,
+              duration: 100,
+              useNativeDriver: true,
+            }),
+            Animated.timing(shakeAnim, {
+              toValue: -10,
+              duration: 100,
+              useNativeDriver: true,
+            }),
+            Animated.timing(shakeAnim, {
+              toValue: 0,
+              duration: 100,
+              useNativeDriver: true,
+            }),
+          ])
+        ).start();
+      } else {
+        shakeAnim.setValue(0);
+      }
+    }, [blockageCount, maxBlockages]);
+
+    // Pulse animation for critical state
+    useEffect(() => {
+      if (blockageCount >= maxBlockages) {
+        Animated.loop(
+          Animated.sequence([
+            Animated.timing(pulseAnim, {
+              toValue: 1.1,
+              duration: 500,
+              useNativeDriver: true,
+            }),
+            Animated.timing(pulseAnim, {
+              toValue: 1,
+              duration: 500,
+              useNativeDriver: true,
+            }),
+          ])
+        ).start();
+      }
+    }, [blockageCount, maxBlockages]);
+
+    if (blockageCount === 0) return null;
+
+    const blockagePercentage = (blockageCount / maxBlockages) * 100;
+    const isWarning = blockageCount >= maxBlockages * 0.6;
+    const isCritical = blockageCount >= maxBlockages * 0.8;
+    const isFull = blockageCount >= maxBlockages;
+
+    const getBlockageColor = () => {
+      if (isFull) return ['#FF0000', '#CC0000'];
+      if (isCritical) return ['#FF6B6B', '#FF4444'];
+      if (isWarning) return ['#FFA500', '#FF8C00'];
+      return ['#FFD700', '#FFA500'];
+    };
+
+    const getMissedItems = () => {
+      const items = [];
+      for (let i = 0; i < blockageCount; i++) {
+        const itemTypes = ['💎', '🪙', '💰', '⭐', '🏆'];
+        const randomItem = itemTypes[Math.floor(Math.random() * itemTypes.length)];
+        items.push(
+          <View
+            key={i}
+            style={[
+              styles.missedItem,
+              {
+                left: Math.random() * (width - 40),
+                bottom: Math.random() * 30 + i * 10,
+                transform: [{ rotate: `${Math.random() * 30 - 15}deg` }],
+              },
+            ]}
+          >
+            <Text style={styles.missedItemEmoji}>{randomItem}</Text>
+          </View>
+        );
+      }
+      return items;
+    };
+
+    return (
+      <View style={styles.container} pointerEvents="box-none">
+        {/* Missed items visual */}
+        <View style={styles.missedItemsContainer}>{getMissedItems()}</View>
+
+        {/* Blockage bar */}
+        <Animated.View
           style={[
-            styles.missedItem,
+            styles.blockageBar,
             {
-              left: Math.random() * (width - 40),
-              bottom: Math.random() * 30 + (i * 10),
-              transform: [{ rotate: `${Math.random() * 30 - 15}deg` }],
-            }
+              transform: [{ translateX: shakeAnim }, { scale: pulseAnim }],
+            },
           ]}
         >
-          <Text style={styles.missedItemEmoji}>{randomItem}</Text>
-        </View>
-      );
-    }
-    return items;
-  };
-  
-  return (
-    <View style={styles.container} pointerEvents="box-none">
-      {/* Missed items visual */}
-      <View style={styles.missedItemsContainer}>
-        {getMissedItems()}
-      </View>
-      
-      {/* Blockage bar */}
-      <Animated.View 
-        style={[
-          styles.blockageBar,
-          {
-            transform: [
-              { translateX: shakeAnim },
-              { scale: pulseAnim }
-            ],
-          }
-        ]}
-      >
-        <LinearGradient
-          colors={getBlockageColor()}
-          style={[styles.blockageFill, { height: `${blockagePercentage}%` }]}
-        />
-        
-        {/* Warning text */}
-        {isWarning && (
-          <View style={styles.warningContainer}>
-            <Text style={styles.warningText}>
-              {isFull ? '⚠️ PATH BLOCKED!' : isCritical ? '⚠️ DANGER!' : '⚠️ WARNING'}
-            </Text>
-            <Text style={styles.blockageStatus}>
-              {blockageCount}/{maxBlockages} Blockages
-            </Text>
-          </View>
-        )}
-        
-        {/* Clear button */}
-        {blockageCount > 0 && onClearPress && (
-          <TouchableOpacity
-            style={[
-              styles.clearButton,
-              !canAffordClear && styles.clearButtonDisabled
-            ]}
-            onPress={canAffordClear ? onClearPress : undefined}
-            activeOpacity={canAffordClear ? 0.7 : 1}
-          >
-            <LinearGradient
-              colors={canAffordClear ? ['#4CAF50', '#45a049'] : ['#666', '#444']}
-              style={styles.clearButtonGradient}
+          <LinearGradient
+            colors={getBlockageColor()}
+            style={[styles.blockageFill, { height: `${blockagePercentage}%` }]}
+          />
+
+          {/* Warning text */}
+          {isWarning && (
+            <View style={styles.warningContainer}>
+              <Text style={styles.warningText}>
+                {isFull ? '⚠️ PATH BLOCKED!' : isCritical ? '⚠️ DANGER!' : '⚠️ WARNING'}
+              </Text>
+              <Text style={styles.blockageStatus}>
+                {blockageCount}/{maxBlockages} Blockages
+              </Text>
+            </View>
+          )}
+
+          {/* Clear button */}
+          {blockageCount > 0 && onClearPress && (
+            <TouchableOpacity
+              style={[styles.clearButton, !canAffordClear && styles.clearButtonDisabled]}
+              onPress={canAffordClear ? onClearPress : undefined}
+              activeOpacity={canAffordClear ? 0.7 : 1}
             >
-              <Text style={styles.clearButtonText}>Clear Path</Text>
-              <View style={styles.costBadge}>
-                <Text style={styles.costEmoji}>🪙</Text>
-                <Text style={styles.costText}>{clearCost}</Text>
-              </View>
-            </LinearGradient>
-          </TouchableOpacity>
-        )}
-      </Animated.View>
-      
-      {/* Visual debris effect at bottom */}
-      <View style={[styles.debrisLayer, { opacity: blockagePercentage / 100 }]}>
-        <LinearGradient
-          colors={['transparent', 'rgba(139, 69, 19, 0.3)', 'rgba(139, 69, 19, 0.6)']}
-          style={styles.debrisGradient}
-        />
+              <LinearGradient
+                colors={canAffordClear ? ['#4CAF50', '#45a049'] : ['#666', '#444']}
+                style={styles.clearButtonGradient}
+              >
+                <Text style={styles.clearButtonText}>Clear Path</Text>
+                <View style={styles.costBadge}>
+                  <Text style={styles.costEmoji}>🪙</Text>
+                  <Text style={styles.costText}>{clearCost}</Text>
+                </View>
+              </LinearGradient>
+            </TouchableOpacity>
+          )}
+        </Animated.View>
+
+        {/* Visual debris effect at bottom */}
+        <View style={[styles.debrisLayer, { opacity: blockagePercentage / 100 }]}>
+          <LinearGradient
+            colors={['transparent', 'rgba(139, 69, 19, 0.3)', 'rgba(139, 69, 19, 0.6)']}
+            style={styles.debrisGradient}
+          />
+        </View>
       </View>
-    </View>
-  );
-});
+    );
+  }
+);
 
 const styles = StyleSheet.create({
   container: {

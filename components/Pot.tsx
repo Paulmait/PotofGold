@@ -108,10 +108,7 @@ const Pot: React.FC<PotProps> = ({ size, skin, magnetActive }) => {
       style={[
         styles.container,
         {
-          transform: [
-            { scale: bounceAnim },
-            { scaleX: magnetActive ? magnetScale : 1 },
-          ],
+          transform: [{ scale: bounceAnim }, { scaleX: magnetActive ? magnetScale : 1 }],
         },
       ]}
     >
@@ -131,10 +128,7 @@ const Pot: React.FC<PotProps> = ({ size, skin, magnetActive }) => {
       )}
 
       {/* Main pot */}
-      <LinearGradient
-        colors={getPotColors()}
-        style={[styles.pot, getPotStyle()]}
-      >
+      <LinearGradient colors={getPotColors()} style={[styles.pot, getPotStyle()]}>
         {/* Pot rim */}
         <View
           style={[
@@ -147,7 +141,7 @@ const Pot: React.FC<PotProps> = ({ size, skin, magnetActive }) => {
             },
           ]}
         />
-        
+
         {/* Pot handle */}
         <View
           style={[
@@ -174,7 +168,7 @@ const Pot: React.FC<PotProps> = ({ size, skin, magnetActive }) => {
           ]}
         >
           <Ionicons
-            name={"sparkles" as keyof typeof Ionicons.glyphMap}
+            name={'sparkles' as keyof typeof Ionicons.glyphMap}
             size={size * 0.3}
             color="rgba(255, 255, 255, 0.3)"
           />
@@ -191,7 +185,7 @@ const Pot: React.FC<PotProps> = ({ size, skin, magnetActive }) => {
             },
           ]}
         >
-          <Ionicons name={"magnet" as keyof typeof Ionicons.glyphMap} size={20} color="#FFD700" />
+          <Ionicons name={'magnet' as keyof typeof Ionicons.glyphMap} size={20} color="#FFD700" />
         </Animated.View>
       )}
     </Animated.View>
@@ -240,4 +234,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Pot; 
+export default Pot;

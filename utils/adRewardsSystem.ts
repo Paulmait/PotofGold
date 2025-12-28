@@ -60,7 +60,7 @@ export class AdRewardsSystem {
   async initializeAdRewards(userId: string): Promise<AdRewardsProgress> {
     try {
       const offlineData = await offlineManager.getOfflineData(userId);
-      
+
       if (offlineData.adRewards) {
         this.progress = offlineData.adRewards;
         return this.progress;
@@ -204,7 +204,10 @@ export class AdRewardsSystem {
   }
 
   // Watch ad and earn reward
-  async watchAd(campaignId: string, rewardId: string): Promise<{
+  async watchAd(
+    campaignId: string,
+    rewardId: string
+  ): Promise<{
     success: boolean;
     reward: AdReward | null;
     rewards: any;
@@ -213,12 +216,12 @@ export class AdRewardsSystem {
       return { success: false, reward: null, rewards: {} };
     }
 
-    const campaign = this.progress.activeCampaigns.find(c => c.id === campaignId);
+    const campaign = this.progress.activeCampaigns.find((c) => c.id === campaignId);
     if (!campaign || !campaign.active) {
       return { success: false, reward: null, rewards: {} };
     }
 
-    const reward = campaign.rewards.find(r => r.id === rewardId);
+    const reward = campaign.rewards.find((r) => r.id === rewardId);
     if (!reward || !reward.available) {
       return { success: false, reward: null, rewards: {} };
     }
@@ -281,26 +284,26 @@ export class AdRewardsSystem {
     if (!this.progress) return [];
 
     return this.progress.activeCampaigns
-      .filter(campaign => campaign.active)
-      .map(campaign => ({
+      .filter((campaign) => campaign.active)
+      .map((campaign) => ({
         campaign,
-        rewards: campaign.rewards.filter(reward => {
+        rewards: campaign.rewards.filter((reward) => {
           if (!reward.available) return false;
-          
+
           // Check cooldown
           if (reward.lastWatched) {
             const timeSinceLastWatch = Date.now() - reward.lastWatched.getTime();
             const cooldownMs = reward.cooldown * 60 * 1000;
             if (timeSinceLastWatch < cooldownMs) return false;
           }
-          
+
           // Check daily limit
           if (this.progress!.adsWatchedToday >= this.progress!.dailyAdLimit) return false;
-          
+
           return true;
         }),
       }))
-      .filter(result => result.rewards.length > 0);
+      .filter((result) => result.rewards.length > 0);
   }
 
   // Get ad statistics
@@ -367,4 +370,4 @@ export class AdRewardsSystem {
   }
 }
 
-export const adRewardsSystem = AdRewardsSystem.getInstance(); 
+export const adRewardsSystem = AdRewardsSystem.getInstance();

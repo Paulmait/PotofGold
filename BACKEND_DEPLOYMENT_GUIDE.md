@@ -3,6 +3,7 @@
 ## 📋 PREREQUISITES
 
 1. **Firebase Project**
+
    ```bash
    npm install -g firebase-tools
    firebase login
@@ -26,18 +27,21 @@
 ## 🔧 SETUP INSTRUCTIONS
 
 ### 1. Clone and Install
+
 ```bash
 cd backend
 npm install
 ```
 
 ### 2. Configure Environment
+
 ```bash
 cp .env.example .env
 # Edit .env with your credentials
 ```
 
 ### 3. Initialize Firebase
+
 ```bash
 firebase init
 # Select: Functions, Firestore, Realtime Database, Storage
@@ -46,6 +50,7 @@ firebase init
 ```
 
 ### 4. Deploy Security Rules
+
 ```bash
 firebase deploy --only firestore:rules
 firebase deploy --only database:rules
@@ -53,20 +58,23 @@ firebase deploy --only storage:rules
 ```
 
 ### 5. Deploy Cloud Functions
+
 ```bash
 npm run build
 firebase deploy --only functions
 ```
 
 ### 6. Set Up Redis
+
 ```javascript
 // Update Redis credentials in .env
-REDIS_HOST=your-redis-endpoint.redis.cache.amazonaws.com
-REDIS_PORT=6379
-REDIS_PASSWORD=your-password
+REDIS_HOST = your - redis - endpoint.redis.cache.amazonaws.com;
+REDIS_PORT = 6379;
+REDIS_PASSWORD = your - password;
 ```
 
 ### 7. Configure Monitoring
+
 ```bash
 # Install Sentry
 npm install @sentry/node
@@ -77,24 +85,28 @@ SENTRY_DSN=your-sentry-dsn
 ## 🔐 SECURITY CHECKLIST
 
 ✅ **Authentication**
+
 - [x] Firebase Auth with MFA enabled
 - [x] JWT tokens with 1-hour expiry
 - [x] Refresh token rotation
 - [x] Session management
 
 ✅ **Data Protection**
+
 - [x] AES-256 encryption for sensitive data
 - [x] Hashed user identifiers
 - [x] Encrypted payment information
 - [x] Secure API keys in environment variables
 
 ✅ **Input Validation**
+
 - [x] Server-side validation for all inputs
 - [x] SQL injection prevention
 - [x] XSS protection
 - [x] Rate limiting per user and IP
 
 ✅ **Anti-Cheat**
+
 - [x] Speed hack detection
 - [x] Memory manipulation detection
 - [x] Pattern anomaly detection
@@ -103,6 +115,7 @@ SENTRY_DSN=your-sentry-dsn
 - [x] Time travel detection
 
 ✅ **Network Security**
+
 - [x] HTTPS only
 - [x] CORS configuration
 - [x] DDoS protection via Cloudflare
@@ -111,6 +124,7 @@ SENTRY_DSN=your-sentry-dsn
 ## 📊 PERFORMANCE OPTIMIZATIONS
 
 ### **Caching Strategy**
+
 ```
 L1: Device Memory (1 min)
 L2: Redis Cache (5 min - 24h)
@@ -118,15 +132,17 @@ L3: Firestore (Persistent)
 ```
 
 ### **Database Indexes**
+
 ```javascript
 // Firestore Indexes
-games: [userId, startTime]
-leaderboards: [score, timestamp]
-transactions: [userId, timestamp]
-users: [email, username]
+games: [userId, startTime];
+leaderboards: [score, timestamp];
+transactions: [userId, timestamp];
+users: [email, username];
 ```
 
 ### **Redis Keys**
+
 ```
 user:{userId}:profile - 24h TTL
 leaderboard:daily:{date} - 25h TTL
@@ -138,6 +154,7 @@ session:{sessionId} - 1h TTL
 ## 🎮 GAME OPERATIONS
 
 ### **Start Game Session**
+
 ```javascript
 POST /startGameSession
 Headers: Authorization: Bearer {token}
@@ -146,6 +163,7 @@ Response: { sessionId, serverTime, config }
 ```
 
 ### **Update Progress**
+
 ```javascript
 POST /updateGameProgress
 Headers: Authorization: Bearer {token}
@@ -154,6 +172,7 @@ Response: { success: true, validated: true }
 ```
 
 ### **End Game Session**
+
 ```javascript
 POST /endGameSession
 Headers: Authorization: Bearer {token}
@@ -164,6 +183,7 @@ Response: { rewards, newHighScore }
 ## 📈 MONITORING
 
 ### **Key Metrics to Track**
+
 - API response time (target: <200ms)
 - Error rate (target: <0.1%)
 - Cache hit rate (target: >90%)
@@ -172,6 +192,7 @@ Response: { rewards, newHighScore }
 - Cheat detection rate
 
 ### **Alerts to Configure**
+
 ```javascript
 // Sentry Alerts
 - Error rate > 1%
@@ -184,11 +205,13 @@ Response: { rewards, newHighScore }
 ## 🔄 SCALING STRATEGY
 
 ### **Phase 1: 0-100K Users**
+
 - Single Firebase project
 - Basic Redis instance (1GB)
 - Standard Firestore limits
 
 ### **Phase 2: 100K-1M Users**
+
 ```bash
 # Enable sharding
 firebase functions:config:set scaling.shards=3
@@ -200,6 +223,7 @@ firebase functions:config:set scaling.shards=3
 ```
 
 ### **Phase 3: 1M+ Users**
+
 ```bash
 # Multi-region deployment
 firebase functions:config:set regions=["us-central1","europe-west1","asia-northeast1"]
@@ -212,6 +236,7 @@ firebase functions:config:set regions=["us-central1","europe-west1","asia-northe
 ## 💰 COST ESTIMATES
 
 ### **Monthly Costs by User Count**
+
 ```
 10K Users: ~$100/month
 - Firebase: $50
@@ -237,16 +262,19 @@ firebase functions:config:set regions=["us-central1","europe-west1","asia-northe
 ## 🚨 INCIDENT RESPONSE
 
 ### **Cheating Detection**
+
 1. Auto-ban for confidence > 90%
 2. Manual review queue for 70-90%
 3. Log all detections for analysis
 
 ### **Server Overload**
+
 1. Auto-scaling triggers at 80% CPU
 2. Rate limiting increases
 3. Non-critical features disabled
 
 ### **Data Breach**
+
 1. Immediate token revocation
 2. Password reset for affected users
 3. Incident report to authorities
@@ -254,16 +282,19 @@ firebase functions:config:set regions=["us-central1","europe-west1","asia-northe
 ## 📝 MAINTENANCE
 
 ### **Daily Tasks**
+
 - Monitor error logs
 - Check cheat detection queue
 - Review performance metrics
 
 ### **Weekly Tasks**
+
 - Database backup verification
 - Security audit logs review
 - Cost analysis
 
 ### **Monthly Tasks**
+
 - Update dependencies
 - Rotate API keys
 - Performance optimization
@@ -294,6 +325,7 @@ firebase functions:config:set regions=["us-central1","europe-west1","asia-northe
 ## ✅ BACKEND IS PRODUCTION-READY!
 
 The backend is now:
+
 - **Secure**: Multi-layer security with anti-cheat
 - **Scalable**: Can handle millions of users
 - **Fast**: Sub-200ms response times

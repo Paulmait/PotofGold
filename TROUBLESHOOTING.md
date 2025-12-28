@@ -5,6 +5,7 @@
 ### ❌ "Unable to resolve module" Error
 
 **Solution:**
+
 ```bash
 # Clear all caches
 npx expo start --clear
@@ -34,6 +35,7 @@ npm install
 ### ❌ "Metro bundler crashed"
 
 **Solution:**
+
 ```bash
 # Kill all Node processes
 taskkill /f /im node.exe
@@ -55,6 +57,7 @@ npm start
    - Update Expo SDK: `expo upgrade`
 
 2. **Missing dependencies**
+
    ```bash
    npm install
    npx expo install --fix
@@ -73,6 +76,7 @@ npm start
    - Check device logs: `adb logcat` (Android)
 
 2. **Verify assets loading**
+
    ```bash
    # Check if assets exist
    dir assets\images
@@ -91,6 +95,7 @@ npm start
 3. No login required for testing
 
 **To use Firebase:**
+
 1. Create Firebase project
 2. Update `firebase/firebase.ts` with your config
 3. Enable Authentication and Firestore
@@ -100,6 +105,7 @@ npm start
 **Solutions:**
 
 1. **Check gesture handler**
+
    ```bash
    npm install react-native-gesture-handler
    npx expo install react-native-gesture-handler
@@ -114,6 +120,7 @@ npm start
 **Optimizations:**
 
 1. **Enable production mode**
+
    ```bash
    npx expo start --no-dev --minify
    ```
@@ -149,11 +156,13 @@ The app includes a test mode that works without Firebase:
 ## Device-Specific Issues
 
 ### Android
+
 - Enable USB Debugging
 - Install Expo Go from Play Store
 - Allow "Install Unknown Apps" for APK testing
 
 ### iOS
+
 - Install Expo Go from App Store
 - Trust computer when prompted
 - Allow local network access
@@ -179,6 +188,7 @@ The app includes a test mode that works without Firebase:
 ## Getting Help
 
 1. **Check logs**
+
    ```bash
    # See all output
    npx expo start --verbose

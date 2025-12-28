@@ -51,7 +51,7 @@ describe('Comprehensive System Integration Tests', () => {
       { name: 'Web Mobile', width: 375, height: 812, platform: 'web' },
     ];
 
-    devices.forEach(device => {
+    devices.forEach((device) => {
       describe(`${device.name} (${device.width}x${device.height})`, () => {
         beforeEach(() => {
           Platform.OS = device.platform as any;
@@ -120,10 +120,12 @@ describe('Comprehensive System Integration Tests', () => {
       const events: Promise<void>[] = [];
 
       for (let i = 0; i < eventCount; i++) {
-        events.push(new Promise(resolve => {
-          eventBus.emit('test:event', { index: i });
-          resolve();
-        }));
+        events.push(
+          new Promise((resolve) => {
+            eventBus.emit('test:event', { index: i });
+            resolve();
+          })
+        );
       }
 
       await Promise.all(events);
@@ -133,17 +135,29 @@ describe('Comprehensive System Integration Tests', () => {
     test('should maintain event order with priority system', async () => {
       const receivedEvents: number[] = [];
 
-      eventBus.on('priority:test', (data) => {
-        receivedEvents.push(data.priority);
-      }, 10); // High priority
+      eventBus.on(
+        'priority:test',
+        (data) => {
+          receivedEvents.push(data.priority);
+        },
+        10
+      ); // High priority
 
-      eventBus.on('priority:test', (data) => {
-        receivedEvents.push(data.priority);
-      }, 5); // Medium priority
+      eventBus.on(
+        'priority:test',
+        (data) => {
+          receivedEvents.push(data.priority);
+        },
+        5
+      ); // Medium priority
 
-      eventBus.on('priority:test', (data) => {
-        receivedEvents.push(data.priority);
-      }, 1); // Low priority
+      eventBus.on(
+        'priority:test',
+        (data) => {
+          receivedEvents.push(data.priority);
+        },
+        1
+      ); // Low priority
 
       eventBus.emit('priority:test', { priority: 1 });
 
@@ -174,7 +188,7 @@ describe('Comprehensive System Integration Tests', () => {
       const offlineMinutes = 120; // 2 hours
       const baseRate = 100; // gold per minute
       const prestige = prestigeSystem.getMultipliers();
-      
+
       const expectedEarnings = offlineMinutes * baseRate * prestige.offlineEarnings;
 
       // Simulate offline period
@@ -202,13 +216,15 @@ describe('Comprehensive System Integration Tests', () => {
     test('should handle memory efficiently with asset preloading', async () => {
       const manifest = {
         version: '1.0.0',
-        assets: Array(100).fill(null).map((_, i) => ({
-          id: `asset_${i}`,
-          url: `https://example.com/asset_${i}`,
-          type: 'IMAGE' as any,
-          size: 100000, // 100KB each
-          priority: i < 10 ? 0 : 4, // First 10 critical
-        })),
+        assets: Array(100)
+          .fill(null)
+          .map((_, i) => ({
+            id: `asset_${i}`,
+            url: `https://example.com/asset_${i}`,
+            type: 'IMAGE' as any,
+            size: 100000, // 100KB each
+            priority: i < 10 ? 0 : 4, // First 10 critical
+          })),
         bundles: [],
       };
 
@@ -290,12 +306,12 @@ describe('Comprehensive System Integration Tests', () => {
       expect(guild.name).toBe('Test Guild');
 
       // Join multiple players concurrently
-      const joinPromises = Array(20).fill(null).map((_, i) => 
-        guildSystem.joinGuild(guild.id, `player_${i}`)
-      );
+      const joinPromises = Array(20)
+        .fill(null)
+        .map((_, i) => guildSystem.joinGuild(guild.id, `player_${i}`));
 
       const results = await Promise.all(joinPromises);
-      const successCount = results.filter(r => r).length;
+      const successCount = results.filter((r) => r).length;
       expect(successCount).toBeGreaterThan(0);
     });
 
@@ -351,7 +367,7 @@ describe('Comprehensive System Integration Tests', () => {
   describe('Prestige System Tests', () => {
     test('should calculate multipliers correctly', () => {
       const multipliers = prestigeSystem.getMultipliers();
-      
+
       expect(multipliers.gold).toBeGreaterThanOrEqual(1);
       expect(multipliers.xp).toBeGreaterThanOrEqual(1);
       expect(multipliers.offlineEarnings).toBeGreaterThanOrEqual(1);
@@ -359,7 +375,7 @@ describe('Comprehensive System Integration Tests', () => {
 
     test('should handle prestige reset properly', async () => {
       const canPrestige = prestigeSystem.canPrestige();
-      
+
       if (canPrestige) {
         const success = await prestigeSystem.attemptPrestige();
         expect(success).toBeDefined();
@@ -371,10 +387,10 @@ describe('Comprehensive System Integration Tests', () => {
 
     test('should persist skill tree upgrades', () => {
       const skillTree = prestigeSystem.getSkillTree();
-      
+
       // Upgrade a skill
       const upgraded = prestigeSystem.upgradeSkill('golden_touch');
-      
+
       // Check if upgrade persisted
       const updatedTree = prestigeSystem.getSkillTree();
       expect(updatedTree.spentPoints).toBeGreaterThanOrEqual(0);
@@ -397,7 +413,7 @@ describe('Comprehensive System Integration Tests', () => {
     test('should handle A/B testing', () => {
       const config = liveOpsManagement.getRemoteConfig();
       expect(config).toBeDefined();
-      
+
       const featureEnabled = liveOpsManagement.getFeatureFlag('multiplayer');
       expect(typeof featureEnabled).toBe('boolean');
     });
@@ -426,7 +442,7 @@ describe('Comprehensive System Integration Tests', () => {
     test('should handle gift sending and receiving', async () => {
       // Send friend request
       await friendGiftingSystem.sendFriendRequest('friend1', 'Hi!');
-      
+
       // Accept request
       const requests = friendGiftingSystem.getFriendRequests();
       if (requests.length > 0) {
@@ -447,7 +463,7 @@ describe('Comprehensive System Integration Tests', () => {
   describe('Plugin System Tests', () => {
     test('should load and execute plugins safely', async () => {
       const pluginUrl = 'https://example.com/plugin.js';
-      
+
       // Install plugin
       const installed = await pluginSystem.installPlugin(pluginUrl);
       expect(installed).toBeDefined();
@@ -468,13 +484,13 @@ describe('Comprehensive System Integration Tests', () => {
   describe('Memory Leak Tests', () => {
     test('should clean up event listeners properly', () => {
       const initialListeners = eventBus.getEvents().length;
-      
+
       // Add listener
       const unsubscribe = eventBus.on('test:event', () => {});
-      
+
       // Remove listener
       unsubscribe();
-      
+
       const finalListeners = eventBus.getEvents().length;
       expect(finalListeners).toBe(initialListeners);
     });
@@ -544,8 +560,8 @@ describe('Comprehensive System Integration Tests', () => {
     test('should handle font scaling', () => {
       // Simulate font scaling
       const scales = [0.85, 1.0, 1.15, 1.3, 1.5];
-      
-      scales.forEach(scale => {
+
+      scales.forEach((scale) => {
         // Test UI with different font scales
         expect(scale).toBeGreaterThan(0);
       });
@@ -578,7 +594,7 @@ describe('Device-Specific Tests', () => {
 
     test('should handle Android back button', () => {
       let backPressed = false;
-      
+
       // Simulate back button press
       act(() => {
         eventBus.emit('hardware:back', {});
@@ -618,23 +634,25 @@ describe('Device-Specific Tests', () => {
 describe('Performance Benchmarks', () => {
   test('should load game in under 3 seconds', async () => {
     const start = Date.now();
-    
+
     // Simulate game load
     await assetPreloader.preloadCriticalAssets();
-    
+
     const loadTime = Date.now() - start;
     expect(loadTime).toBeLessThan(3000);
   });
 
   test('should handle 100+ simultaneous players', () => {
-    const players = Array(100).fill(null).map((_, i) => ({
-      id: `player_${i}`,
-      position: { x: Math.random() * 1000, y: Math.random() * 1000 },
-      score: Math.floor(Math.random() * 10000),
-    }));
+    const players = Array(100)
+      .fill(null)
+      .map((_, i) => ({
+        id: `player_${i}`,
+        position: { x: Math.random() * 1000, y: Math.random() * 1000 },
+        score: Math.floor(Math.random() * 10000),
+      }));
 
     // Process all players
-    players.forEach(player => {
+    players.forEach((player) => {
       eventBus.emit('player:update', player);
     });
 
@@ -642,11 +660,13 @@ describe('Performance Benchmarks', () => {
   });
 
   test('should maintain smooth scrolling with 10000+ items', () => {
-    const items = Array(10000).fill(null).map((_, i) => ({
-      id: `item_${i}`,
-      name: `Item ${i}`,
-      value: i,
-    }));
+    const items = Array(10000)
+      .fill(null)
+      .map((_, i) => ({
+        id: `item_${i}`,
+        name: `Item ${i}`,
+        value: i,
+      }));
 
     // Virtual list should handle this efficiently
     const visibleItems = items.slice(0, 20); // Only render visible

@@ -46,7 +46,7 @@ export class BlockageSystem {
   async initializeBlockage(userId: string): Promise<BlockageState> {
     try {
       const offlineData = await offlineManager.getOfflineData(userId);
-      
+
       if (offlineData.blockageState) {
         this.state = offlineData.blockageState;
         return this.state;
@@ -74,7 +74,7 @@ export class BlockageSystem {
   private initializeBlockageZones(): BlockageZone[] {
     const zones: BlockageZone[] = [];
     const zoneCount = Math.floor(this.SCREEN_WIDTH / this.ZONE_WIDTH);
-    
+
     for (let i = 0; i < zoneCount; i++) {
       zones.push({
         id: `zone_${i}`,
@@ -85,12 +85,16 @@ export class BlockageSystem {
         blockageLevel: 0,
       });
     }
-    
+
     return zones;
   }
 
   // Add a missed coin
-  async addMissedCoin(x: number, y: number, value: number = 1): Promise<{
+  async addMissedCoin(
+    x: number,
+    y: number,
+    value: number = 1
+  ): Promise<{
     success: boolean;
     warningTriggered: boolean;
     gameOverTriggered: boolean;
@@ -108,10 +112,10 @@ export class BlockageSystem {
     };
 
     this.state.missedCoins.push(missedCoin);
-    
+
     // Update blockage zones
     this.updateBlockageZones();
-    
+
     // Check for warnings and game over
     const warningTriggered = this.checkWarningThreshold();
     const gameOverTriggered = this.checkGameOverThreshold();
@@ -130,13 +134,13 @@ export class BlockageSystem {
     if (!this.state) return;
 
     // Reset zone counts
-    this.state.blockageZones.forEach(zone => {
+    this.state.blockageZones.forEach((zone) => {
       zone.coinCount = 0;
       zone.blockageLevel = 0;
     });
 
     // Count coins in each zone
-    this.state.missedCoins.forEach(coin => {
+    this.state.missedCoins.forEach((coin) => {
       const zoneIndex = Math.floor(coin.x / this.ZONE_WIDTH);
       if (zoneIndex >= 0 && zoneIndex < this.state!.blockageZones.length) {
         this.state!.blockageZones[zoneIndex].coinCount++;
@@ -144,15 +148,16 @@ export class BlockageSystem {
     });
 
     // Calculate blockage levels
-    this.state.blockageZones.forEach(zone => {
+    this.state.blockageZones.forEach((zone) => {
       // Each coin adds 0.1 to blockage level, max 1.0
       zone.blockageLevel = Math.min(zone.coinCount * 0.1, 1.0);
     });
 
     // Calculate total blockage
-    const totalBlockage = this.state.blockageZones.reduce((sum, zone) => {
-      return sum + zone.blockageLevel;
-    }, 0) / this.state.blockageZones.length;
+    const totalBlockage =
+      this.state.blockageZones.reduce((sum, zone) => {
+        return sum + zone.blockageLevel;
+      }, 0) / this.state.blockageZones.length;
 
     this.state.totalBlockage = totalBlockage;
   }
@@ -160,19 +165,19 @@ export class BlockageSystem {
   // Check if warning should be shown
   private checkWarningThreshold(): boolean {
     if (!this.state || this.state.warningShown) return false;
-    
+
     if (this.state.totalBlockage >= this.WARNING_THRESHOLD) {
       this.state.warningShown = true;
       return true;
     }
-    
+
     return false;
   }
 
   // Check if game over should be triggered
   private checkGameOverThreshold(): boolean {
     if (!this.state) return false;
-    
+
     return this.state.totalBlockage >= this.state.gameOverThreshold;
   }
 
@@ -188,10 +193,10 @@ export class BlockageSystem {
     const coinsCleared = this.state.missedCoins.length;
     this.state.missedCoins = [];
     this.state.warningShown = false;
-    
+
     // Reset blockage zones
     this.updateBlockageZones();
-    
+
     await this.saveBlockageState();
 
     return {
@@ -201,7 +206,10 @@ export class BlockageSystem {
   }
 
   // Vacuum power-up: suck up missed coins in range
-  async vacuumCoinsInRange(centerX: number, range: number): Promise<{
+  async vacuumCoinsInRange(
+    centerX: number,
+    range: number
+  ): Promise<{
     success: boolean;
     coinsVacuumed: number;
     totalValue: number;
@@ -210,22 +218,22 @@ export class BlockageSystem {
       return { success: false, coinsVacuumed: 0, totalValue: 0 };
     }
 
-    const coinsInRange = this.state.missedCoins.filter(coin => {
+    const coinsInRange = this.state.missedCoins.filter((coin) => {
       const distance = Math.abs(coin.x - centerX);
       return distance <= range;
     });
 
     const totalValue = coinsInRange.reduce((sum, coin) => sum + coin.value, 0);
-    
+
     // Remove vacuumed coins
-    this.state.missedCoins = this.state.missedCoins.filter(coin => {
+    this.state.missedCoins = this.state.missedCoins.filter((coin) => {
       const distance = Math.abs(coin.x - centerX);
       return distance > range;
     });
 
     // Update blockage zones
     this.updateBlockageZones();
-    
+
     await this.saveBlockageState();
 
     return {
@@ -253,7 +261,7 @@ export class BlockageSystem {
       };
     }
 
-    const zonesBlocked = this.state.blockageZones.filter(zone => zone.blockageLevel > 0).length;
+    const zonesBlocked = this.state.blockageZones.filter((zone) => zone.blockageLevel > 0).length;
 
     return {
       totalMissedCoins: this.state.missedCoins.length,
@@ -286,7 +294,7 @@ export class BlockageSystem {
       // Pot can't move if zone is more than 80% blocked
       return zone.blockageLevel < 0.8;
     }
-    
+
     return true;
   }
 
@@ -297,7 +305,7 @@ export class BlockageSystem {
     this.state.missedCoins = [];
     this.state.warningShown = false;
     this.updateBlockageZones();
-    
+
     await this.saveBlockageState();
   }
 
@@ -320,4 +328,4 @@ export class BlockageSystem {
   }
 }
 
-export const blockageSystem = BlockageSystem.getInstance(); 
+export const blockageSystem = BlockageSystem.getInstance();

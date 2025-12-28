@@ -24,7 +24,7 @@ export class DailyRewardsSystem {
   private static instance: DailyRewardsSystem;
   private progress: DailyRewardProgress;
   private readonly STORAGE_KEY = 'daily_rewards_progress';
-  
+
   // Escalating rewards that reset every 30 days
   private readonly rewards: DailyReward[] = [
     { day: 1, coins: 50 },
@@ -105,24 +105,26 @@ export class DailyRewardsSystem {
 
   canClaimReward(): boolean {
     if (!this.progress.lastClaimDate) return true;
-    
+
     const lastClaim = new Date(this.progress.lastClaimDate);
     const now = new Date();
-    
+
     // Reset to beginning of day for comparison
     lastClaim.setHours(0, 0, 0, 0);
     now.setHours(0, 0, 0, 0);
-    
+
     return now.getTime() > lastClaim.getTime();
   }
 
   getStreakStatus(): 'active' | 'broken' | 'recoverable' {
     if (!this.progress.lastClaimDate) return 'active';
-    
+
     const lastClaim = new Date(this.progress.lastClaimDate);
     const now = new Date();
-    const daysSinceLastClaim = Math.floor((now.getTime() - lastClaim.getTime()) / (1000 * 60 * 60 * 24));
-    
+    const daysSinceLastClaim = Math.floor(
+      (now.getTime() - lastClaim.getTime()) / (1000 * 60 * 60 * 24)
+    );
+
     if (daysSinceLastClaim === 1) return 'active';
     if (daysSinceLastClaim === 2) return 'recoverable'; // Missed one day, can recover
     return 'broken'; // Missed more than one day
@@ -130,10 +132,10 @@ export class DailyRewardsSystem {
 
   async claimReward(): Promise<DailyReward | null> {
     if (!this.canClaimReward()) return null;
-    
+
     const status = this.getStreakStatus();
     const now = new Date();
-    
+
     // Handle streak logic
     if (status === 'active') {
       this.progress.currentStreak++;
@@ -147,54 +149,54 @@ export class DailyRewardsSystem {
       this.progress.nextRewardDay = 1;
       this.progress.missedYesterday = false;
     }
-    
+
     // Update longest streak
     if (this.progress.currentStreak > this.progress.longestStreak) {
       this.progress.longestStreak = this.progress.currentStreak;
     }
-    
+
     // Get current reward
     const rewardIndex = (this.progress.nextRewardDay - 1) % this.rewards.length;
     const reward = { ...this.rewards[rewardIndex] };
-    
+
     // Apply streak multipliers for long streaks
     if (this.progress.currentStreak > 30) {
       const streakMultiplier = Math.floor(this.progress.currentStreak / 30) + 1;
       reward.coins = Math.floor(reward.coins * streakMultiplier);
     }
-    
+
     // Update progress
     this.progress.lastClaimDate = now.toISOString();
     this.progress.totalDaysClaimed++;
     this.progress.nextRewardDay++;
-    
+
     // Check for cycle completion
     if (this.progress.nextRewardDay > 30) {
       this.progress.nextRewardDay = 1;
       this.progress.currentCycle++;
     }
-    
+
     await this.saveProgress();
     await this.scheduleNotification();
-    
+
     return reward;
   }
 
   async recoverStreak(useGems: boolean = false): Promise<boolean> {
     if (this.getStreakStatus() !== 'recoverable') return false;
-    
+
     if (useGems) {
       // Deduct gems/coins for streak recovery (implement gem cost logic)
       const cost = Math.min(100 * Math.ceil(this.progress.currentStreak / 7), 500);
       // Deduct cost from user's gems
     }
-    
+
     // Recover the streak
     this.progress.missedYesterday = false;
     const now = new Date();
     now.setDate(now.getDate() - 1); // Set as if claimed yesterday
     this.progress.lastClaimDate = now.toISOString();
-    
+
     await this.saveProgress();
     return true;
   }
@@ -225,15 +227,15 @@ export class DailyRewardsSystem {
     try {
       // Cancel existing notifications
       await Notifications.cancelAllScheduledNotificationsAsync();
-      
+
       // Schedule for tomorrow at 9 AM
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
       tomorrow.setHours(9, 0, 0, 0);
-      
+
       await Notifications.scheduleNotificationAsync({
         content: {
-          title: "Daily Reward Available! 🎁",
+          title: 'Daily Reward Available! 🎁',
           body: `Day ${this.progress.nextRewardDay} reward is waiting! Don't break your ${this.progress.currentStreak} day streak!`,
           sound: true,
           priority: Notifications.AndroidNotificationPriority.HIGH,
@@ -242,12 +244,12 @@ export class DailyRewardsSystem {
           date: tomorrow,
         },
       });
-      
+
       // Schedule a reminder if streak is at risk (evening notification)
       if (this.progress.currentStreak >= 3) {
         const today = new Date();
         today.setHours(20, 0, 0, 0); // 8 PM today
-        
+
         if (today.getTime() > Date.now()) {
           await Notifications.scheduleNotificationAsync({
             content: {
@@ -272,22 +274,22 @@ export class DailyRewardsSystem {
     const now = new Date();
     const day = now.getDay();
     const date = now.getDate();
-    
+
     // Weekend bonus
     if (day === 0 || day === 6) {
       return { active: true, multiplier: 1.5, name: 'Weekend Bonus' };
     }
-    
+
     // First day of month mega bonus
     if (date === 1) {
       return { active: true, multiplier: 3, name: 'Monthly Mega Day' };
     }
-    
+
     // Friday the 13th special
     if (date === 13 && day === 5) {
       return { active: true, multiplier: 13, name: 'Lucky 13' };
     }
-    
+
     return { active: false, multiplier: 1, name: '' };
   }
 }

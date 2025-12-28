@@ -1,21 +1,6 @@
 import React, { useEffect, useRef } from 'react';
-import {
-  View,
-  StyleSheet,
-  Animated,
-  Dimensions,
-  ImageBackground,
-} from 'react-native';
-import Svg, {
-  Path,
-  Rect,
-  Circle,
-  G,
-  Defs,
-  LinearGradient,
-  Stop,
-  Polygon,
-} from 'react-native-svg';
+import { View, StyleSheet, Animated, Dimensions, ImageBackground } from 'react-native';
+import Svg, { Path, Rect, Circle, G, Defs, LinearGradient, Stop, Polygon } from 'react-native-svg';
 
 const { width, height } = Dimensions.get('window');
 
@@ -25,10 +10,10 @@ interface MineBackgroundProps {
   level?: number;
 }
 
-export default function MineBackground({ 
-  speed = 1, 
+export default function MineBackground({
+  speed = 1,
   isPaused = false,
-  level = 1 
+  level = 1,
 }: MineBackgroundProps) {
   // Parallax layers animations
   const bgLayer1 = useRef(new Animated.Value(0)).current;
@@ -96,10 +81,7 @@ export default function MineBackground({
     <View style={styles.container}>
       {/* Gradient background */}
       <View style={styles.gradientContainer}>
-        <LinearGradient
-          colors={getBackgroundColor()}
-          style={StyleSheet.absoluteFillObject}
-        />
+        <LinearGradient colors={getBackgroundColor()} style={StyleSheet.absoluteFillObject} />
       </View>
 
       {/* Layer 1: Far background - Cave walls */}
@@ -181,13 +163,7 @@ export default function MineBackground({
                 fill="url(#woodGrad)"
               />
               {/* Horizontal beam */}
-              <Rect
-                x={i * 200 + 30}
-                y={150}
-                width={60}
-                height={15}
-                fill="url(#woodGrad)"
-              />
+              <Rect x={i * 200 + 30} y={150} width={60} height={15} fill="url(#woodGrad)" />
               {/* Diagonal support */}
               <Path
                 d={`M ${i * 200 + 70} 165 L ${i * 200 + 90} 200 L ${i * 200 + 85} 205 L ${i * 200 + 65} 170 Z`}
@@ -200,20 +176,8 @@ export default function MineBackground({
           {[...Array(4)].map((_, i) => (
             <G key={`equip-${i}`}>
               {/* Lantern */}
-              <Circle
-                cx={i * 500 + 200}
-                cy={180}
-                r={8}
-                fill="#FFD700"
-                opacity="0.6"
-              />
-              <Rect
-                x={i * 500 + 195}
-                y={170}
-                width={10}
-                height={15}
-                fill="#8B4513"
-              />
+              <Circle cx={i * 500 + 200} cy={180} r={8} fill="#FFD700" opacity="0.6" />
+              <Rect x={i * 500 + 195} y={170} width={10} height={15} fill="#8B4513" />
             </G>
           ))}
         </Svg>

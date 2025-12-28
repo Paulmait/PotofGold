@@ -3,11 +3,14 @@
 ## 🚨 CRITICAL SECURITY ISSUES TO FIX IMMEDIATELY
 
 ### 1. **EXPOSED CREDENTIALS IN .env FILE**
+
 **SEVERITY: CRITICAL**
+
 - Your `.env` file contains hardcoded admin credentials and Firebase API keys
 - These are currently tracked in git (very dangerous!)
 
 **Actions Required:**
+
 ```bash
 # Remove .env from git history
 git rm --cached .env
@@ -18,22 +21,28 @@ echo ".env" >> .gitignore
 ```
 
 ### 2. **Firebase API Keys Exposed**
+
 **SEVERITY: HIGH**
+
 - Firebase API keys are hardcoded in `firebase.ts`
 - Need to rotate these keys immediately
 
 **Actions Required:**
+
 1. Go to Firebase Console > Project Settings
 2. Generate new API keys
 3. Update Firebase Security Rules
 4. Use environment variables properly
 
 ### 3. **NPM Vulnerabilities (34 total)**
+
 **SEVERITY: HIGH**
+
 - 13 high severity vulnerabilities
 - 19 moderate severity vulnerabilities
 
 **Actions Required:**
+
 ```bash
 # Update critical packages
 npm update firebase@latest
@@ -44,6 +53,7 @@ npm update react-native@latest
 ## 📋 PRE-LAUNCH CHECKLIST
 
 ### Security & Authentication
+
 - [ ] Remove ALL hardcoded credentials
 - [ ] Rotate Firebase API keys
 - [ ] Set up proper Firebase Security Rules
@@ -54,6 +64,7 @@ npm update react-native@latest
 - [ ] Set up proper CORS policies
 
 ### Firebase Security Rules
+
 ```javascript
 // Add to Firebase Console > Firestore > Rules
 rules_version = '2';
@@ -63,13 +74,13 @@ service cloud.firestore {
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
-    
+
     // Admin access
     match /admins/{adminId} {
       allow read: if request.auth != null && request.auth.uid == adminId;
       allow write: if false; // Admin writes should be done server-side only
     }
-    
+
     // Leaderboard - public read, authenticated write
     match /leaderboard/{document} {
       allow read: if true;
@@ -80,18 +91,21 @@ service cloud.firestore {
 ```
 
 ### Environment Variables
+
 - [ ] Create `.env.production` with production values
-- [ ] Use proper environment variable prefixes (EXPO_PUBLIC_ for client-side)
+- [ ] Use proper environment variable prefixes (EXPO*PUBLIC* for client-side)
 - [ ] Remove default fallback values from code
 - [ ] Set up Vercel environment variables
 
 ### Data Validation
+
 - [ ] Add input validation for all user inputs
 - [ ] Sanitize data before storing in Firestore
 - [ ] Implement proper error boundaries
 - [ ] Add request size limits
 
 ### Performance & Optimization
+
 - [ ] Enable code splitting
 - [ ] Implement lazy loading for screens
 - [ ] Optimize image assets
@@ -99,6 +113,7 @@ service cloud.firestore {
 - [ ] Minimize bundle size
 
 ### Testing
+
 - [ ] Run comprehensive test suite
 - [ ] Test offline functionality
 - [ ] Test on multiple devices/browsers
@@ -106,6 +121,7 @@ service cloud.firestore {
 - [ ] Security penetration testing
 
 ### Legal & Compliance
+
 - [ ] Privacy Policy is accessible
 - [ ] Terms of Service is accessible
 - [ ] GDPR compliance (if applicable)
@@ -114,12 +130,14 @@ service cloud.firestore {
 - [ ] Cookie consent banner
 
 ### Monitoring & Analytics
+
 - [ ] Set up Sentry error tracking properly
 - [ ] Configure Firebase Analytics
 - [ ] Set up performance monitoring
 - [ ] Create admin dashboard for monitoring
 
 ### Deployment Configuration
+
 - [ ] Set up proper build configurations
 - [ ] Configure CDN for assets
 - [ ] Set up SSL certificates
@@ -129,6 +147,7 @@ service cloud.firestore {
 ## 🔐 IMMEDIATE SECURITY FIXES
 
 ### 1. Create Secure Environment Configuration
+
 ```typescript
 // utils/config.ts
 const getConfig = () => {
@@ -156,6 +175,7 @@ const getConfig = () => {
 ```
 
 ### 2. Input Validation Helper
+
 ```typescript
 // utils/validation.ts
 export const validateEmail = (email: string): boolean => {
@@ -175,6 +195,7 @@ export const sanitizeInput = (input: string): string => {
 ```
 
 ### 3. Rate Limiting Implementation
+
 ```typescript
 // utils/rateLimiter.ts
 class RateLimiter {
@@ -190,16 +211,14 @@ class RateLimiter {
   isAllowed(identifier: string): boolean {
     const now = Date.now();
     const attempts = this.attempts.get(identifier) || [];
-    
+
     // Filter out old attempts
-    const recentAttempts = attempts.filter(
-      time => now - time < this.windowMs
-    );
-    
+    const recentAttempts = attempts.filter((time) => now - time < this.windowMs);
+
     if (recentAttempts.length >= this.maxAttempts) {
       return false;
     }
-    
+
     recentAttempts.push(now);
     this.attempts.set(identifier, recentAttempts);
     return true;

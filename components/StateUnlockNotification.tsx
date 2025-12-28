@@ -1,11 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Animated,
-  Dimensions,
-} from 'react-native';
+import { View, Text, StyleSheet, Animated, Dimensions } from 'react-native';
 
 const { width } = Dimensions.get('window');
 
@@ -90,9 +84,7 @@ export const StateUnlockNotification: React.FC<StateUnlockNotificationProps> = (
           <Text style={[styles.icon, { color: unlock.theme.accentColor }]}>🏆</Text>
         </View>
         <View style={styles.content}>
-          <Text style={[styles.title, { color: unlock.theme.accentColor }]}>
-            State Unlocked!
-          </Text>
+          <Text style={[styles.title, { color: unlock.theme.accentColor }]}>State Unlocked!</Text>
           <Text style={[styles.stateName, { color: unlock.theme.accentColor }]}>
             {unlock.stateName}
           </Text>
@@ -166,4 +158,4 @@ const styles = StyleSheet.create({
     height: '50%',
     width: '100%',
   },
-}); 
+});

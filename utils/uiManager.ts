@@ -84,7 +84,7 @@ export class UIManager {
   // Update layout based on current settings
   private updateLayout(): void {
     const { handPreference, isOneHandMode, safeAreaInsets } = this.layout;
-    
+
     if (isOneHandMode) {
       this.applyOneHandLayout(handPreference);
     } else {
@@ -94,9 +94,9 @@ export class UIManager {
 
   // Apply one-hand mode layout
   private applyOneHandLayout(handPreference: HandPreference): void {
-    const isLeftHand = handPreference === 'left' || 
-                      (handPreference === 'auto' && this.detectLeftHandedUser());
-    
+    const isLeftHand =
+      handPreference === 'left' || (handPreference === 'auto' && this.detectLeftHandedUser());
+
     if (isLeftHand) {
       // Left-hand layout
       this.layout.buttonPositions = {
@@ -179,12 +179,15 @@ export class UIManager {
   getButtonSize(): number {
     const screenArea = width * height;
     const baseSize = 44; // Minimum touch target size
-    
-    if (screenArea < 2000000) { // Small screen
+
+    if (screenArea < 2000000) {
+      // Small screen
       return baseSize;
-    } else if (screenArea < 4000000) { // Medium screen
+    } else if (screenArea < 4000000) {
+      // Medium screen
       return baseSize + 8;
-    } else { // Large screen
+    } else {
+      // Large screen
       return baseSize + 16;
     }
   }
@@ -193,12 +196,15 @@ export class UIManager {
   getPotSize(): number {
     const screenArea = width * height;
     const baseSize = 80;
-    
-    if (screenArea < 2000000) { // Small screen
+
+    if (screenArea < 2000000) {
+      // Small screen
       return baseSize;
-    } else if (screenArea < 4000000) { // Medium screen
+    } else if (screenArea < 4000000) {
+      // Medium screen
       return baseSize + 20;
-    } else { // Large screen
+    } else {
+      // Large screen
       return baseSize + 40;
     }
   }
@@ -207,12 +213,15 @@ export class UIManager {
   getCoinSize(): number {
     const screenArea = width * height;
     const baseSize = 30;
-    
-    if (screenArea < 2000000) { // Small screen
+
+    if (screenArea < 2000000) {
+      // Small screen
       return baseSize;
-    } else if (screenArea < 4000000) { // Medium screen
+    } else if (screenArea < 4000000) {
+      // Medium screen
       return baseSize + 5;
-    } else { // Large screen
+    } else {
+      // Large screen
       return baseSize + 10;
     }
   }
@@ -230,14 +239,17 @@ export class UIManager {
       medium: 16,
       large: 20,
     };
-    
+
     const baseSize = baseSizes[size];
-    
-    if (screenArea < 2000000) { // Small screen
+
+    if (screenArea < 2000000) {
+      // Small screen
       return baseSize - 2;
-    } else if (screenArea < 4000000) { // Medium screen
+    } else if (screenArea < 4000000) {
+      // Medium screen
       return baseSize;
-    } else { // Large screen
+    } else {
+      // Large screen
       return baseSize + 2;
     }
   }
@@ -246,12 +258,15 @@ export class UIManager {
   getSpacing(): number {
     const screenArea = width * height;
     const baseSpacing = 16;
-    
-    if (screenArea < 2000000) { // Small screen
+
+    if (screenArea < 2000000) {
+      // Small screen
       return baseSpacing - 4;
-    } else if (screenArea < 4000000) { // Medium screen
+    } else if (screenArea < 4000000) {
+      // Medium screen
       return baseSpacing;
-    } else { // Large screen
+    } else {
+      // Large screen
       return baseSpacing + 4;
     }
   }
@@ -276,4 +291,4 @@ export class UIManager {
   }
 }
 
-export const uiManager = UIManager.getInstance(); 
+export const uiManager = UIManager.getInstance();

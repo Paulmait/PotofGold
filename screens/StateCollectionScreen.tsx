@@ -67,24 +67,37 @@ export default function StateCollectionScreen({ navigation }: StateCollectionScr
 
   const getRarityColor = (rarity: string) => {
     switch (rarity) {
-      case 'common': return '#ccc';
-      case 'rare': return '#4CAF50';
-      case 'epic': return '#9C27B0';
-      case 'legendary': return '#FFD700';
-      case 'secret': return '#FF6B6B';
-      default: return '#ccc';
+      case 'common':
+        return '#ccc';
+      case 'rare':
+        return '#4CAF50';
+      case 'epic':
+        return '#9C27B0';
+      case 'legendary':
+        return '#FFD700';
+      case 'secret':
+        return '#FF6B6B';
+      default:
+        return '#ccc';
     }
   };
 
   const getUnlockMethodText = (method: string, requirement: number) => {
     switch (method) {
-      case 'free': return 'Free';
-      case 'coins': return `${requirement} coins`;
-      case 'achievement': return `Achievement (${requirement})`;
-      case 'purchase': return '$0.99';
-      case 'streak': return `${requirement}-day streak`;
-      case 'special': return 'Special event';
-      default: return 'Unknown';
+      case 'free':
+        return 'Free';
+      case 'coins':
+        return `${requirement} coins`;
+      case 'achievement':
+        return `Achievement (${requirement})`;
+      case 'purchase':
+        return '$0.99';
+      case 'streak':
+        return `${requirement}-day streak`;
+      case 'special':
+        return 'Special event';
+      default:
+        return 'Unknown';
     }
   };
 
@@ -119,7 +132,9 @@ export default function StateCollectionScreen({ navigation }: StateCollectionScr
       <View style={styles.statsContainer}>
         <View style={styles.statItem}>
           <Text style={styles.statLabel}>Unlocked</Text>
-          <Text style={styles.statValue}>{stats.unlocked}/{stats.total}</Text>
+          <Text style={styles.statValue}>
+            {stats.unlocked}/{stats.total}
+          </Text>
         </View>
         <View style={styles.statItem}>
           <Text style={styles.statLabel}>Progress</Text>
@@ -169,7 +184,12 @@ export default function StateCollectionScreen({ navigation }: StateCollectionScr
                 <View style={styles.stateInfo}>
                   <View style={styles.stateHeader}>
                     <Text style={styles.stateName}>{state.name}</Text>
-                    <View style={[styles.rarityBadge, { backgroundColor: getRarityColor(state.rarity) }]}>
+                    <View
+                      style={[
+                        styles.rarityBadge,
+                        { backgroundColor: getRarityColor(state.rarity) },
+                      ]}
+                    >
                       <Text style={styles.rarityText}>{state.rarity.toUpperCase()}</Text>
                     </View>
                   </View>
@@ -204,7 +224,12 @@ export default function StateCollectionScreen({ navigation }: StateCollectionScr
                 <View style={styles.stateInfo}>
                   <View style={styles.stateHeader}>
                     <Text style={styles.stateName}>{state.name}</Text>
-                    <View style={[styles.rarityBadge, { backgroundColor: getRarityColor(state.rarity) }]}>
+                    <View
+                      style={[
+                        styles.rarityBadge,
+                        { backgroundColor: getRarityColor(state.rarity) },
+                      ]}
+                    >
                       <Text style={styles.rarityText}>{state.rarity.toUpperCase()}</Text>
                     </View>
                   </View>
@@ -258,12 +283,14 @@ export default function StateCollectionScreen({ navigation }: StateCollectionScr
             <Text style={styles.modalEmoji}>{specialShopData.emoji}</Text>
             <Text style={styles.modalEffect}>{specialShopData.effect}</Text>
             <Text style={styles.modalMessage}>{specialShopData.unlockData.message}</Text>
-            
+
             {specialShopData.unlockType === 'shop' && (
               <View style={styles.shopItems}>
                 <Text style={styles.shopTitle}>Available Items:</Text>
                 {specialShopData.unlockData.items.map((itemId: string) => (
-                  <Text key={itemId} style={styles.shopItem}>{itemId}</Text>
+                  <Text key={itemId} style={styles.shopItem}>
+                    {itemId}
+                  </Text>
                 ))}
               </View>
             )}
@@ -279,10 +306,7 @@ export default function StateCollectionScreen({ navigation }: StateCollectionScr
               </View>
             )}
 
-            <TouchableOpacity
-              style={styles.modalButton}
-              onPress={() => setShowSpecialShop(false)}
-            >
+            <TouchableOpacity style={styles.modalButton} onPress={() => setShowSpecialShop(false)}>
               <Text style={styles.modalButtonText}>Close</Text>
             </TouchableOpacity>
           </View>
@@ -607,4 +631,4 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 50,
   },
-}); 
+});

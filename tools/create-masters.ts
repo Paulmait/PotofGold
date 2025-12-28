@@ -27,10 +27,10 @@ const TEMPLATES: Record<string, ArtworkTemplate> = {
       'Main pot/cart centered',
       'Keep wheels/base in bottom 30%',
       'Gold elements should shine',
-      'Add depth with shadows'
+      'Add depth with shadows',
     ],
     safeArea: { x: 256, y: 256, width: 1536, height: 1536 },
-    colors: ['#FFD700', '#FFA500', '#B8860B', '#DAA520']
+    colors: ['#FFD700', '#FFA500', '#B8860B', '#DAA520'],
   },
   trail: {
     type: 'trail',
@@ -40,10 +40,10 @@ const TEMPLATES: Record<string, ArtworkTemplate> = {
       'Seamless vertical pattern',
       'Particle effects work best',
       'Consider motion blur',
-      'Keep it semi-transparent'
+      'Keep it semi-transparent',
     ],
     safeArea: { x: 128, y: 0, width: 768, height: 2048 },
-    colors: ['#FFD700', '#87CEEB', '#FF69B4', '#98FB98']
+    colors: ['#FFD700', '#87CEEB', '#FF69B4', '#98FB98'],
   },
   badge: {
     type: 'badge',
@@ -53,10 +53,10 @@ const TEMPLATES: Record<string, ArtworkTemplate> = {
       'Circular or shield shape',
       'Clear iconography',
       'Readable at small sizes',
-      'Metallic finish recommended'
+      'Metallic finish recommended',
     ],
     safeArea: { x: 64, y: 64, width: 384, height: 384 },
-    colors: ['#FFD700', '#C0C0C0', '#B87333', '#4169E1']
+    colors: ['#FFD700', '#C0C0C0', '#B87333', '#4169E1'],
   },
   frame: {
     type: 'frame',
@@ -66,11 +66,11 @@ const TEMPLATES: Record<string, ArtworkTemplate> = {
       'Border/frame design',
       'Center area transparent',
       'Decorative corners',
-      'Consistent thickness'
+      'Consistent thickness',
     ],
     safeArea: { x: 128, y: 128, width: 1792, height: 1792 },
-    colors: ['#FFD700', '#8B4513', '#228B22', '#4B0082']
-  }
+    colors: ['#FFD700', '#8B4513', '#228B22', '#4B0082'],
+  },
 };
 
 class MasterTemplateGenerator {
@@ -86,7 +86,7 @@ class MasterTemplateGenerator {
       fs.mkdirSync(this.outputDir, { recursive: true });
     }
 
-    ['svg', 'png', 'psd', 'guidelines'].forEach(subdir => {
+    ['svg', 'png', 'psd', 'guidelines'].forEach((subdir) => {
       const dir = path.join(this.outputDir, subdir);
       if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
@@ -104,7 +104,7 @@ class MasterTemplateGenerator {
 
     await this.generateColorPalette();
     await this.generateDesignSystem();
-    
+
     console.log('\n✅ All templates generated successfully!');
   }
 
@@ -128,7 +128,7 @@ class MasterTemplateGenerator {
 
   private createSVGTemplate(template: ArtworkTemplate): string {
     const { width, height, safeArea, colors } = template;
-    
+
     return `<?xml version="1.0" encoding="UTF-8"?>
 <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" 
      xmlns="http://www.w3.org/2000/svg">
@@ -150,9 +150,9 @@ class MasterTemplateGenerator {
         fill="none" stroke="#00FF00" stroke-width="4" stroke-dasharray="20,10" opacity="0.8"/>
   
   <!-- Center Guides -->
-  <line x1="${width/2}" y1="0" x2="${width/2}" y2="${height}" 
+  <line x1="${width / 2}" y1="0" x2="${width / 2}" y2="${height}" 
         stroke="#FF00FF" stroke-width="2" stroke-dasharray="10,5" opacity="0.5"/>
-  <line x1="0" y1="${height/2}" x2="${width}" y2="${height/2}" 
+  <line x1="0" y1="${height / 2}" x2="${width}" y2="${height / 2}" 
         stroke="#FF00FF" stroke-width="2" stroke-dasharray="10,5" opacity="0.5"/>
   
   <!-- Golden Ratio Guides -->
@@ -163,14 +163,18 @@ class MasterTemplateGenerator {
   
   <!-- Color Palette -->
   <g id="palette" transform="translate(50, 50)">
-    ${colors.map((color, i) => `
+    ${colors
+      .map(
+        (color, i) => `
     <rect x="${i * 80}" y="0" width="70" height="70" fill="${color}" stroke="#000" stroke-width="2"/>
     <text x="${i * 80 + 35}" y="90" text-anchor="middle" font-family="Arial" font-size="12">${color}</text>
-    `).join('')}
+    `
+      )
+      .join('')}
   </g>
   
   <!-- Labels -->
-  <text x="${width/2}" y="30" text-anchor="middle" font-family="Arial" font-size="24" font-weight="bold">
+  <text x="${width / 2}" y="30" text-anchor="middle" font-family="Arial" font-size="24" font-weight="bold">
     ${template.type.toUpperCase()} TEMPLATE - ${width}x${height}
   </text>
   
@@ -208,13 +212,13 @@ class MasterTemplateGenerator {
               fill="none" stroke="#00FF00" stroke-width="4" opacity="0.8"/>
         
         <!-- Rule of thirds -->
-        <line x1="${width/3}" y1="0" x2="${width/3}" y2="${height}" stroke="#FFF" stroke-width="1" opacity="0.2"/>
-        <line x1="${width*2/3}" y1="0" x2="${width*2/3}" y2="${height}" stroke="#FFF" stroke-width="1" opacity="0.2"/>
-        <line x1="0" y1="${height/3}" x2="${width}" y2="${height/3}" stroke="#FFF" stroke-width="1" opacity="0.2"/>
-        <line x1="0" y1="${height*2/3}" x2="${width}" y2="${height*2/3}" stroke="#FFF" stroke-width="1" opacity="0.2"/>
+        <line x1="${width / 3}" y1="0" x2="${width / 3}" y2="${height}" stroke="#FFF" stroke-width="1" opacity="0.2"/>
+        <line x1="${(width * 2) / 3}" y1="0" x2="${(width * 2) / 3}" y2="${height}" stroke="#FFF" stroke-width="1" opacity="0.2"/>
+        <line x1="0" y1="${height / 3}" x2="${width}" y2="${height / 3}" stroke="#FFF" stroke-width="1" opacity="0.2"/>
+        <line x1="0" y1="${(height * 2) / 3}" x2="${width}" y2="${(height * 2) / 3}" stroke="#FFF" stroke-width="1" opacity="0.2"/>
         
         <!-- Type label -->
-        <text x="${width/2}" y="${height/2}" text-anchor="middle" 
+        <text x="${width / 2}" y="${height / 2}" text-anchor="middle" 
               font-family="Arial" font-size="${Math.min(width, height) / 10}" 
               fill="#FFD700" opacity="0.3">
           ${template.type.toUpperCase()}
@@ -222,14 +226,12 @@ class MasterTemplateGenerator {
       </svg>
     `);
 
-    await sharp(svg)
-      .png()
-      .toFile(outputPath);
+    await sharp(svg).png().toFile(outputPath);
   }
 
   private async createPSDStructure(name: string, template: ArtworkTemplate): Promise<void> {
     const structureFile = path.join(this.outputDir, 'psd', `${name}_structure.json`);
-    
+
     const psdStructure = {
       name: `${name}_template.psd`,
       width: template.width,
@@ -245,8 +247,8 @@ class MasterTemplateGenerator {
           layers: [
             { name: 'Safe Area', type: 'shape', color: '#00FF00' },
             { name: 'Grid', type: 'pattern', visible: false },
-            { name: 'Center Guides', type: 'guides' }
-          ]
+            { name: 'Center Guides', type: 'guides' },
+          ],
         },
         {
           name: 'Artwork',
@@ -254,8 +256,8 @@ class MasterTemplateGenerator {
           layers: [
             { name: 'Effects', type: 'normal', blendMode: 'screen' },
             { name: 'Main Design', type: 'normal' },
-            { name: 'Background', type: 'normal' }
-          ]
+            { name: 'Background', type: 'normal' },
+          ],
         },
         {
           name: 'Color Swatches',
@@ -264,10 +266,10 @@ class MasterTemplateGenerator {
           layers: template.colors.map((color, i) => ({
             name: `Color ${i + 1}`,
             type: 'fill',
-            color: color
-          }))
-        }
-      ]
+            color: color,
+          })),
+        },
+      ],
     };
 
     fs.writeFileSync(structureFile, JSON.stringify(psdStructure, null, 2));
@@ -275,7 +277,7 @@ class MasterTemplateGenerator {
 
   private async generateGuidelines(name: string, template: ArtworkTemplate): Promise<void> {
     const guidelinesPath = path.join(this.outputDir, 'guidelines', `${name}_guidelines.md`);
-    
+
     const content = `# ${template.type.toUpperCase()} Artwork Guidelines
 
 ## Specifications
@@ -290,11 +292,11 @@ class MasterTemplateGenerator {
 - Keep all important elements within this area
 
 ## Design Guidelines
-${template.guidelines.map(g => `- ${g}`).join('\n')}
+${template.guidelines.map((g) => `- ${g}`).join('\n')}
 
 ## Color Palette
 Recommended colors for this asset type:
-${template.colors.map(c => `- \`${c}\` - ${this.getColorName(c)}`).join('\n')}
+${template.colors.map((c) => `- \`${c}\` - ${this.getColorName(c)}`).join('\n')}
 
 ## Export Settings
 1. **Master File**: Save as PSD/AI at 2x template size
@@ -333,39 +335,39 @@ ${template.colors.map(c => `- \`${c}\` - ${this.getColorName(c)}`).join('\n')}
 
   private async generateColorPalette(): Promise<void> {
     const palettePath = path.join(this.outputDir, 'color_palette.json');
-    
+
     const palette = {
       primary: {
         gold: '#FFD700',
         goldDark: '#B8860B',
         goldLight: '#FFED4E',
-        goldMuted: '#DAA520'
+        goldMuted: '#DAA520',
       },
       secondary: {
         bronze: '#CD7F32',
         silver: '#C0C0C0',
         copper: '#B87333',
-        platinum: '#E5E4E2'
+        platinum: '#E5E4E2',
       },
       seasonal: {
         spring: '#98FB98',
         summer: '#87CEEB',
         autumn: '#FF8C00',
-        winter: '#B0E0E6'
+        winter: '#B0E0E6',
       },
       ui: {
         success: '#4CAF50',
         warning: '#FFA500',
         error: '#F44336',
-        info: '#2196F3'
+        info: '#2196F3',
       },
       neutrals: {
         black: '#1a1a1a',
         darkGray: '#2a2a2a',
         gray: '#666666',
         lightGray: '#CCCCCC',
-        white: '#FFFFFF'
-      }
+        white: '#FFFFFF',
+      },
     };
 
     fs.writeFileSync(palettePath, JSON.stringify(palette, null, 2));
@@ -373,7 +375,7 @@ ${template.colors.map(c => `- \`${c}\` - ${this.getColorName(c)}`).join('\n')}
 
   private async generateDesignSystem(): Promise<void> {
     const designSystemPath = path.join(this.outputDir, 'design_system.md');
-    
+
     const content = `# Pot of Gold - Visual Design System
 
 ## Art Direction
@@ -531,9 +533,9 @@ Each month should have a dominant color:
       '#4169E1': 'Royal Blue',
       '#8B4513': 'Saddle Brown',
       '#228B22': 'Forest Green',
-      '#4B0082': 'Indigo'
+      '#4B0082': 'Indigo',
     };
-    
+
     return colorNames[hex] || 'Custom Color';
   }
 }
@@ -544,7 +546,7 @@ async function main() {
   await generator.generateAll();
 }
 
-main().catch(error => {
+main().catch((error) => {
   console.error('Failed to generate templates:', error);
   process.exit(1);
 });

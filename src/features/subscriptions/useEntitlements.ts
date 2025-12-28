@@ -31,10 +31,10 @@ export const useEntitlements = (userId?: string) => {
       if (cached) {
         const parsed = JSON.parse(cached);
         const now = Date.now();
-        
+
         // Check if cache is still valid (within expiry or 7 days for offline)
-        if (parsed.expiresAt > now || (now - parsed.cachedAt < 7 * 24 * 60 * 60 * 1000)) {
-          setState(prev => ({
+        if (parsed.expiresAt > now || now - parsed.cachedAt < 7 * 24 * 60 * 60 * 1000) {
+          setState((prev) => ({
             ...prev,
             isSubscriber: true,
             entitlements: parsed.entitlements || [GOLD_VAULT_ID],
@@ -50,7 +50,7 @@ export const useEntitlements = (userId?: string) => {
 
   // Fetch fresh entitlement data from RevenueCat
   const fetchEntitlements = useCallback(async () => {
-    setState(prev => ({ ...prev, isLoading: true, error: null }));
+    setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
     try {
       // Initialize RevenueCat if needed
@@ -58,9 +58,9 @@ export const useEntitlements = (userId?: string) => {
 
       // Get customer info
       const customerInfo = await revenueCatService.getCustomerInfo();
-      
+
       if (!customerInfo) {
-        setState(prev => ({
+        setState((prev) => ({
           ...prev,
           isSubscriber: false,
           entitlements: [],
@@ -72,10 +72,11 @@ export const useEntitlements = (userId?: string) => {
       // Check Gold Vault entitlement
       const goldVault = customerInfo.entitlements.active[GOLD_VAULT_ID];
       const isSubscriber = goldVault?.isActive === true;
-      
+
       // Get all active entitlements
-      const activeEntitlements = Object.keys(customerInfo.entitlements.active)
-        .filter(key => customerInfo.entitlements.active[key].isActive);
+      const activeEntitlements = Object.keys(customerInfo.entitlements.active).filter(
+        (key) => customerInfo.entitlements.active[key].isActive
+      );
 
       // Parse expiration date
       let expiresAt: number | undefined;
@@ -95,12 +96,15 @@ export const useEntitlements = (userId?: string) => {
 
       // Cache the entitlement
       if (isSubscriber) {
-        await AsyncStorage.setItem(ENTITLEMENT_CACHE_KEY, JSON.stringify({
-          entitlements: activeEntitlements,
-          expiresAt,
-          willRenew: goldVault?.willRenew,
-          cachedAt: Date.now(),
-        }));
+        await AsyncStorage.setItem(
+          ENTITLEMENT_CACHE_KEY,
+          JSON.stringify({
+            entitlements: activeEntitlements,
+            expiresAt,
+            willRenew: goldVault?.willRenew,
+            cachedAt: Date.now(),
+          })
+        );
       } else {
         // Clear cache if not subscriber
         await AsyncStorage.removeItem(ENTITLEMENT_CACHE_KEY);
@@ -114,15 +118,14 @@ export const useEntitlements = (userId?: string) => {
           entitlementIds: activeEntitlements,
         });
       }
-
     } catch (error) {
       console.error('Error fetching entitlements:', error);
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         isLoading: false,
         error: error as Error,
       }));
-      
+
       // Fall back to cached data on error
       await loadCachedEntitlement();
     }
@@ -130,13 +133,13 @@ export const useEntitlements = (userId?: string) => {
 
   // Sync entitlement to Firebase
   const syncToFirebase = async (
-    uid: string, 
+    uid: string,
     subscription: { active: boolean; expiresAt?: number; entitlementIds: string[] }
   ) => {
     try {
       const userRef = doc(db, 'users', uid);
       const userDoc = await getDoc(userRef);
-      
+
       if (userDoc.exists()) {
         await updateDoc(userRef, {
           subscription,
@@ -155,9 +158,12 @@ export const useEntitlements = (userId?: string) => {
   }, [fetchEntitlements]);
 
   // Check if user has specific entitlement
-  const hasEntitlement = useCallback((entitlementId: string): boolean => {
-    return state.entitlements.includes(entitlementId);
-  }, [state.entitlements]);
+  const hasEntitlement = useCallback(
+    (entitlementId: string): boolean => {
+      return state.entitlements.includes(entitlementId);
+    },
+    [state.entitlements]
+  );
 
   // Check if subscription is expired
   const isExpired = useCallback((): boolean => {
@@ -191,7 +197,7 @@ export const useEntitlements = (userId?: string) => {
 
     // This would be set up in the RevenueCat service
     // For now, we'll rely on manual refresh after purchase
-    
+
     return () => {
       // Cleanup listener if implemented
     };
@@ -214,7 +220,7 @@ export const useEntitlements = (userId?: string) => {
 // Helper hook for Gold Vault specific checks
 export const useGoldVaultSubscription = (userId?: string) => {
   const entitlements = useEntitlements(userId);
-  
+
   return {
     ...entitlements,
     isGoldVaultMember: entitlements.isSubscriber && entitlements.hasEntitlement(GOLD_VAULT_ID),

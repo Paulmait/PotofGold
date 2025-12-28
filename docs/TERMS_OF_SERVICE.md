@@ -128,8 +128,7 @@ Continued use after changes constitutes acceptance.
 
 17. Contact
 
-Legal Contact: 
+Legal Contact:
 legal@cienriosapp.com
 Support Contact: support@cienriosapp.com
 Business Entity: Cien Rios LLC, DBA Pot of Gold
-

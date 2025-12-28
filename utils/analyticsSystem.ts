@@ -79,7 +79,8 @@ export class AnalyticsSystem {
   private readonly BATCH_SIZE = 50;
   private readonly BATCH_INTERVAL = 30000; // 30 seconds
   private readonly STORAGE_KEY = 'analytics_queue';
-  private readonly ENDPOINT = process.env.ANALYTICS_ENDPOINT || 'https://api.cienrios.com/analytics';
+  private readonly ENDPOINT =
+    process.env.ANALYTICS_ENDPOINT || 'https://api.cienrios.com/analytics';
 
   static getInstance(): AnalyticsSystem {
     if (!AnalyticsSystem.instance) {
@@ -161,7 +162,7 @@ export class AnalyticsSystem {
       sessionId: this.currentSession?.sessionId || 'unknown',
       userId: properties.userId,
       properties,
-      context: this.deviceContext || {} as DeviceContext,
+      context: this.deviceContext || ({} as DeviceContext),
     };
 
     this.events.push(event);
@@ -180,7 +181,7 @@ export class AnalyticsSystem {
 
   trackGameEnd(score: number, duration: number, coinsEarned: number) {
     this.track('game_end', { score, duration, coinsEarned });
-    
+
     if (this.currentSession) {
       this.currentSession.gamesPlayed++;
       this.currentSession.coinsEarned += coinsEarned;
@@ -209,7 +210,7 @@ export class AnalyticsSystem {
 
   trackPurchaseCompleted(productId: string, price: number, currency: string) {
     this.track('purchase_completed', { productId, price, currency });
-    
+
     if (this.currentSession) {
       this.currentSession.purchasesMade++;
       this.currentSession.purchaseValue += price;
@@ -222,7 +223,7 @@ export class AnalyticsSystem {
 
   trackAdWatched(adType: string, placement: string, reward?: any) {
     this.track('ad_watched', { adType, placement, reward });
-    
+
     if (this.currentSession) {
       this.currentSession.adsWatched++;
     }
@@ -328,26 +329,26 @@ export class AnalyticsSystem {
   // Player Metrics Calculation
   async calculatePlayerMetrics(userId: string): Promise<UserMetrics> {
     const events = await this.getEventsForUser(userId);
-    
+
     const firstSeen = events[0]?.timestamp || new Date().toISOString();
     const lastSeen = events[events.length - 1]?.timestamp || new Date().toISOString();
-    
-    const sessions = events.filter(e => e.eventType === 'session_start').length;
+
+    const sessions = events.filter((e) => e.eventType === 'session_start').length;
     const playTime = events
-      .filter(e => e.eventType === 'session_end')
+      .filter((e) => e.eventType === 'session_end')
       .reduce((sum, e) => sum + (e.properties.metrics?.duration || 0), 0);
-    
+
     const coinsEarned = events
-      .filter(e => e.eventType === 'coin_catch')
+      .filter((e) => e.eventType === 'coin_catch')
       .reduce((sum, e) => sum + (e.properties.value || 0), 0);
-    
-    const purchases = events.filter(e => e.eventType === 'purchase_completed');
+
+    const purchases = events.filter((e) => e.eventType === 'purchase_completed');
     const purchaseValue = purchases.reduce((sum, e) => sum + (e.properties.price || 0), 0);
-    
+
     const daysPlayed = this.calculateUniqueDays(events);
     const retentionCohort = this.calculateRetentionCohort(firstSeen);
     const churnRisk = this.calculateChurnRisk(lastSeen, sessions, daysPlayed);
-    
+
     return {
       userId,
       firstSeen,
@@ -363,20 +364,28 @@ export class AnalyticsSystem {
       currentStreak: 0, // Calculate from daily login events
       longestStreak: 0,
       retentionCohort,
-      ltv: purchaseValue + (coinsEarned * 0.001), // Estimated LTV
+      ltv: purchaseValue + coinsEarned * 0.001, // Estimated LTV
       churnRisk,
     };
   }
 
   // Helper Methods
   private categorizeEvent(eventType: string): AnalyticsEvent['category'] {
-    if (eventType.includes('game_') || eventType.includes('coin_') || eventType.includes('powerup_')) {
+    if (
+      eventType.includes('game_') ||
+      eventType.includes('coin_') ||
+      eventType.includes('powerup_')
+    ) {
       return 'gameplay';
     }
     if (eventType.includes('purchase_') || eventType.includes('ad_')) {
       return 'monetization';
     }
-    if (eventType.includes('session_') || eventType.includes('screen_') || eventType.includes('tutorial_')) {
+    if (
+      eventType.includes('session_') ||
+      eventType.includes('screen_') ||
+      eventType.includes('tutorial_')
+    ) {
       return 'engagement';
     }
     if (eventType.includes('error') || eventType.includes('crash')) {
@@ -413,15 +422,15 @@ export class AnalyticsSystem {
   }
 
   private calculateUniqueDays(events: AnalyticsEvent[]): number {
-    const days = new Set(
-      events.map(e => new Date(e.timestamp).toDateString())
-    );
+    const days = new Set(events.map((e) => new Date(e.timestamp).toDateString()));
     return days.size;
   }
 
   private calculateRetentionCohort(firstSeen: string): string {
-    const daysAgo = Math.floor((Date.now() - new Date(firstSeen).getTime()) / (1000 * 60 * 60 * 24));
-    
+    const daysAgo = Math.floor(
+      (Date.now() - new Date(firstSeen).getTime()) / (1000 * 60 * 60 * 24)
+    );
+
     if (daysAgo === 0) return 'D0';
     if (daysAgo === 1) return 'D1';
     if (daysAgo <= 7) return 'D7';
@@ -429,9 +438,15 @@ export class AnalyticsSystem {
     return 'D30+';
   }
 
-  private calculateChurnRisk(lastSeen: string, sessions: number, daysPlayed: number): 'low' | 'medium' | 'high' {
-    const daysSinceLastSeen = Math.floor((Date.now() - new Date(lastSeen).getTime()) / (1000 * 60 * 60 * 24));
-    
+  private calculateChurnRisk(
+    lastSeen: string,
+    sessions: number,
+    daysPlayed: number
+  ): 'low' | 'medium' | 'high' {
+    const daysSinceLastSeen = Math.floor(
+      (Date.now() - new Date(lastSeen).getTime()) / (1000 * 60 * 60 * 24)
+    );
+
     if (daysSinceLastSeen > 7) return 'high';
     if (daysSinceLastSeen > 3) return 'medium';
     if (sessions < 3) return 'medium';
@@ -516,7 +531,7 @@ export class AnalyticsSystem {
 
   private async getEventsForUser(userId: string): Promise<AnalyticsEvent[]> {
     // In production, fetch from backend
-    return this.events.filter(e => e.userId === userId);
+    return this.events.filter((e) => e.userId === userId);
   }
 
   // Public API for Admin Dashboard
@@ -532,11 +547,11 @@ export class AnalyticsSystem {
 
   private async getActiveUserCount(): Promise<number> {
     // Count unique users in last 5 minutes
-    const fiveMinutesAgo = Date.now() - (5 * 60 * 1000);
+    const fiveMinutesAgo = Date.now() - 5 * 60 * 1000;
     const activeUsers = new Set(
       this.events
-        .filter(e => new Date(e.timestamp).getTime() > fiveMinutesAgo)
-        .map(e => e.userId)
+        .filter((e) => new Date(e.timestamp).getTime() > fiveMinutesAgo)
+        .map((e) => e.userId)
         .filter(Boolean)
     );
     return activeUsers.size;
@@ -545,29 +560,32 @@ export class AnalyticsSystem {
   private async getTodayRevenue(): Promise<number> {
     const today = new Date().toDateString();
     return this.events
-      .filter(e => e.eventType === 'purchase_completed' && new Date(e.timestamp).toDateString() === today)
+      .filter(
+        (e) =>
+          e.eventType === 'purchase_completed' && new Date(e.timestamp).toDateString() === today
+      )
       .reduce((sum, e) => sum + (e.properties.price || 0), 0);
   }
 
   private async getTodaySessions(): Promise<number> {
     const today = new Date().toDateString();
-    return this.events
-      .filter(e => e.eventType === 'session_start' && new Date(e.timestamp).toDateString() === today)
-      .length;
+    return this.events.filter(
+      (e) => e.eventType === 'session_start' && new Date(e.timestamp).toDateString() === today
+    ).length;
   }
 
   private async getCrashRate(): Promise<number> {
-    const sessions = this.events.filter(e => e.eventType === 'session_start').length;
-    const crashes = this.events.filter(e => e.eventType === 'crash').length;
+    const sessions = this.events.filter((e) => e.eventType === 'session_start').length;
+    const crashes = this.events.filter((e) => e.eventType === 'crash').length;
     return sessions > 0 ? (crashes / sessions) * 100 : 0;
   }
 
   private async getTopEvents(): Promise<{ event: string; count: number }[]> {
     const eventCounts: Record<string, number> = {};
-    this.events.forEach(e => {
+    this.events.forEach((e) => {
       eventCounts[e.eventType] = (eventCounts[e.eventType] || 0) + 1;
     });
-    
+
     return Object.entries(eventCounts)
       .map(([event, count]) => ({ event, count }))
       .sort((a, b) => b.count - a.count)

@@ -32,14 +32,14 @@ export class AdManager {
 
   async initialize(config: AdConfig): Promise<void> {
     this.config = config;
-    
+
     if (this.isInitialized) return;
 
     try {
       // Initialize AdMob SDK
       // In real implementation, you'd use react-native-google-mobile-ads
       // await mobileAds().initialize();
-      
+
       this.isInitialized = true;
       this.loadRewardedAd();
       this.loadInterstitialAd();
@@ -58,7 +58,7 @@ export class AdManager {
       // In real implementation:
       // this.rewardedAd = RewardedAd.createForAdRequest(this.config.rewardedAdUnitId);
       // await this.rewardedAd.load();
-      
+
       // Mock implementation for demo
       this.rewardedAd = { loaded: true, show: this.mockShowRewardedAd };
       this.adLoadAttempts = 0;
@@ -74,7 +74,7 @@ export class AdManager {
       // In real implementation:
       // this.interstitialAd = InterstitialAd.createForAdRequest(this.config.interstitialAdUnitId);
       // await this.interstitialAd.load();
-      
+
       // Mock implementation for demo
       this.interstitialAd = { loaded: true, show: this.mockShowInterstitialAd };
     } catch (error) {
@@ -82,7 +82,9 @@ export class AdManager {
     }
   }
 
-  async showRewardedAd(rewardType: 'coins' | 'powerup' | 'doubleReward'): Promise<RewardItem | null> {
+  async showRewardedAd(
+    rewardType: 'coins' | 'powerup' | 'doubleReward'
+  ): Promise<RewardItem | null> {
     if (!this.isInitialized) {
       console.log('AdMob not initialized');
       return null;
@@ -134,7 +136,7 @@ export class AdManager {
 
       // In real implementation:
       // await this.interstitialAd.show();
-      
+
       // Mock implementation
       return true;
     } catch (error) {
@@ -149,25 +151,25 @@ export class AdManager {
         return {
           type: 'coins',
           amount: 25,
-          description: '25 coins earned!'
+          description: '25 coins earned!',
         };
       case 'powerup':
         return {
           type: 'powerup',
           amount: 1,
-          description: 'Free power-up earned!'
+          description: 'Free power-up earned!',
         };
       case 'doubleReward':
         return {
           type: 'doubleReward',
           amount: 2,
-          description: 'Double rewards activated!'
+          description: 'Double rewards activated!',
         };
       default:
         return {
           type: 'coins',
           amount: 25,
-          description: '25 coins earned!'
+          description: '25 coins earned!',
         };
     }
   }
@@ -213,4 +215,4 @@ export class AdManager {
   }
 }
 
-export const adManager = AdManager.getInstance(); 
+export const adManager = AdManager.getInstance();

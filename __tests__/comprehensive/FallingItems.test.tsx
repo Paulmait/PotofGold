@@ -3,7 +3,6 @@
  * Ensures gameplay is fun, balanced, and bug-free
  */
 
-
 import React from 'react';
 import { render, fireEvent, waitFor, cleanup } from '@testing-library/react-native';
 import EnhancedFallingItems from '../../components/EnhancedFallingItems';
@@ -46,10 +45,10 @@ describe('Falling Items Configuration Tests', () => {
         rare: 0,
         epic: 0,
         legendary: 0,
-        ultraRare: 0
+        ultraRare: 0,
       };
 
-      Object.values(ITEM_CONFIGS).forEach(config => {
+      Object.values(ITEM_CONFIGS).forEach((config) => {
         if (config.rarity in rarityCount) {
           rarityCount[config.rarity as keyof typeof rarityCount]++;
         }
@@ -57,10 +56,11 @@ describe('Falling Items Configuration Tests', () => {
 
       expect(rarityCount.common).toBeGreaterThanOrEqual(2);
 
-      const ultraRareItems = Object.values(ITEM_CONFIGS)
-        .filter(config => config.rarity === 'ultraRare');
+      const ultraRareItems = Object.values(ITEM_CONFIGS).filter(
+        (config) => config.rarity === 'ultraRare'
+      );
 
-      ultraRareItems.forEach(item => {
+      ultraRareItems.forEach((item) => {
         expect(item.scoreValue).toBeGreaterThanOrEqual(100);
         expect(item.spawnWeight).toBeLessThan(5);
         expect(item.fallSpeed).toBeLessThan(1.0); // Slow fall for collection
@@ -71,10 +71,12 @@ describe('Falling Items Configuration Tests', () => {
   // ========== COMBO SYSTEM TESTS ==========
   describe('Combo System', () => {
     test('Combo bonuses scale appropriately', () => {
-      const comboLevels = Object.keys(COMBO_BONUSES).map(Number).sort((a, b) => a - b);
+      const comboLevels = Object.keys(COMBO_BONUSES)
+        .map(Number)
+        .sort((a, b) => a - b);
       let prevBonus = 1;
 
-      comboLevels.forEach(level => {
+      comboLevels.forEach((level) => {
         const bonus = COMBO_BONUSES[level as keyof typeof COMBO_BONUSES];
         expect(bonus).toBeGreaterThan(prevBonus);
         prevBonus = bonus;
@@ -92,14 +94,14 @@ describe('Falling Items Configuration Tests', () => {
   describe('Visual Feedback', () => {
     test('All items have distinct visuals', () => {
       const visuals = new Set();
-      Object.values(ITEM_CONFIGS).forEach(config => {
+      Object.values(ITEM_CONFIGS).forEach((config) => {
         expect(visuals.has(config.visual)).toBe(false);
         visuals.add(config.visual);
       });
     });
 
     test('Items have appropriate size multipliers', () => {
-      Object.values(ITEM_CONFIGS).forEach(config => {
+      Object.values(ITEM_CONFIGS).forEach((config) => {
         if (config.size) {
           expect(config.size).toBeGreaterThan(0.5);
           expect(config.size).toBeLessThan(2.0);
@@ -108,7 +110,7 @@ describe('Falling Items Configuration Tests', () => {
     });
 
     test('Rotation speeds are reasonable', () => {
-      Object.values(ITEM_CONFIGS).forEach(config => {
+      Object.values(ITEM_CONFIGS).forEach((config) => {
         if (config.rotationSpeed) {
           expect(config.rotationSpeed).toBeGreaterThanOrEqual(0);
           expect(config.rotationSpeed).toBeLessThanOrEqual(10);
@@ -120,15 +122,17 @@ describe('Falling Items Configuration Tests', () => {
   // ========== PLAYER ENJOYMENT TESTS ==========
   describe('Player Enjoyment Factors', () => {
     test('Reward frequency is satisfying', () => {
-      const goodItems = Object.values(ITEM_CONFIGS)
-        .filter(config => config.scoreValue > 0 || config.coinValue > 0);
-      
-      const totalGoodWeight = goodItems.reduce((sum, item) => 
-        sum + item.spawnWeight, 0);
-      
-      const totalWeight = Object.values(ITEM_CONFIGS)
-        .reduce((sum, item) => sum + item.spawnWeight, 0);
-      
+      const goodItems = Object.values(ITEM_CONFIGS).filter(
+        (config) => config.scoreValue > 0 || config.coinValue > 0
+      );
+
+      const totalGoodWeight = goodItems.reduce((sum, item) => sum + item.spawnWeight, 0);
+
+      const totalWeight = Object.values(ITEM_CONFIGS).reduce(
+        (sum, item) => sum + item.spawnWeight,
+        0
+      );
+
       const goodItemPercentage = (totalGoodWeight / totalWeight) * 100;
       expect(goodItemPercentage).toBeGreaterThan(60); // Mostly positive
     });
@@ -136,18 +140,19 @@ describe('Falling Items Configuration Tests', () => {
     test('Variety keeps gameplay interesting', () => {
       const uniqueEffects = new Set(
         Object.values(ITEM_CONFIGS)
-          .map(config => config.specialEffect)
+          .map((config) => config.specialEffect)
           .filter(Boolean)
       );
-      
+
       expect(uniqueEffects.size).toBeGreaterThanOrEqual(6); // Good variety
     });
 
     test('Risk vs reward is balanced', () => {
-      const highValueItems = Object.values(ITEM_CONFIGS)
-        .filter(config => config.scoreValue >= 25);
-      
-      highValueItems.forEach(item => {
+      const highValueItems = Object.values(ITEM_CONFIGS).filter(
+        (config) => config.scoreValue >= 25
+      );
+
+      highValueItems.forEach((item) => {
         // High value items should be rarer or have slower fall
         expect(item.spawnWeight).toBeLessThan(10);
         expect(item.fallSpeed).toBeLessThan(1.0);
@@ -156,12 +161,14 @@ describe('Falling Items Configuration Tests', () => {
 
     test('Progression feels rewarding', () => {
       // Check that there are items for all skill levels
-      const easyItems = Object.values(ITEM_CONFIGS)
-        .filter(config => config.fallSpeed <= 1.0 && config.scoreValue > 0);
-      
-      const hardItems = Object.values(ITEM_CONFIGS)
-        .filter(config => config.fallSpeed > 1.5 || config.scoreValue < 0);
-      
+      const easyItems = Object.values(ITEM_CONFIGS).filter(
+        (config) => config.fallSpeed <= 1.0 && config.scoreValue > 0
+      );
+
+      const hardItems = Object.values(ITEM_CONFIGS).filter(
+        (config) => config.fallSpeed > 1.5 || config.scoreValue < 0
+      );
+
       expect(easyItems.length).toBeGreaterThan(0);
       expect(hardItems.length).toBeGreaterThan(0);
       expect(easyItems.length).toBeGreaterThan(hardItems.length); // More rewards than punishments
@@ -177,7 +184,7 @@ describe('Falling Items Configuration Tests', () => {
     });
 
     test('Animation values are optimized', () => {
-      Object.values(ITEM_CONFIGS).forEach(config => {
+      Object.values(ITEM_CONFIGS).forEach((config) => {
         // Check that animation effects don't cause performance issues
         expect(config.animationEffect).toBeDefined();
         expect(config.animationEffect.length).toBeLessThan(50); // Short string

@@ -119,7 +119,9 @@ export class GameController {
     } else if (random < 0.6) {
       // Lucky items (20%)
       if (level >= 3) {
-        return ['horseshoe', 'fourLeafClover', 'shamrock'][Math.floor(Math.random() * 3)] as ItemType;
+        return ['horseshoe', 'fourLeafClover', 'shamrock'][
+          Math.floor(Math.random() * 3)
+        ] as ItemType;
       }
       return 'goldCoin';
     } else if (random < 0.75) {
@@ -131,7 +133,11 @@ export class GameController {
     } else if (random < 0.85) {
       // Mystery crates (10%)
       if (level >= 7) {
-        const crateTypes: ItemType[] = ['mysteryCrateOrange', 'mysteryCrateBrown', 'mysteryCratePurple'];
+        const crateTypes: ItemType[] = [
+          'mysteryCrateOrange',
+          'mysteryCrateBrown',
+          'mysteryCratePurple',
+        ];
         return crateTypes[Math.min(Math.floor(level / 5), 2)];
       }
       return 'goldCoin';
@@ -144,7 +150,13 @@ export class GameController {
     } else {
       // Special mine carts (7%)
       if (level >= 15) {
-        const cartTypes: ItemType[] = ['cartTexas', 'cartCalifornia', 'cartFlorida', 'cartNewYork', 'cartArizona'];
+        const cartTypes: ItemType[] = [
+          'cartTexas',
+          'cartCalifornia',
+          'cartFlorida',
+          'cartNewYork',
+          'cartArizona',
+        ];
         return cartTypes[Math.floor(Math.random() * cartTypes.length)];
       }
       return 'goldCoin';
@@ -152,11 +164,11 @@ export class GameController {
   }
 
   private calculateItemSpeed(itemType: ItemType): number {
-    const baseSpeed = 100 + (this.state.level * 10);
-    
+    const baseSpeed = 100 + this.state.level * 10;
+
     // Apply slow time power-up
     const slowMultiplier = this.state.powerUps.slowTime ? 0.5 : 1;
-    
+
     // Different speeds for different items
     switch (itemType) {
       case 'goldCoin':
@@ -166,16 +178,16 @@ export class GameController {
       case 'horseshoe':
       case 'fourLeafClover':
       case 'shamrock':
-        return (baseSpeed * 0.8) * slowMultiplier;
+        return baseSpeed * 0.8 * slowMultiplier;
       case 'mysteryCrateOrange':
       case 'mysteryCrateBrown':
       case 'mysteryCratePurple':
-        return (baseSpeed * 0.7) * slowMultiplier;
+        return baseSpeed * 0.7 * slowMultiplier;
       case 'giftBoxRed':
       case 'giftBoxOrange':
-        return (baseSpeed * 0.75) * slowMultiplier;
+        return baseSpeed * 0.75 * slowMultiplier;
       default:
-        return (baseSpeed * 0.9) * slowMultiplier;
+        return baseSpeed * 0.9 * slowMultiplier;
     }
   }
 
@@ -206,32 +218,34 @@ export class GameController {
   }
 
   private isSpecialItem(itemType: ItemType): boolean {
-    return itemType.includes('mystery') || 
-           itemType.includes('gift') || 
-           itemType.includes('cart') ||
-           itemType === 'fourLeafClover';
+    return (
+      itemType.includes('mystery') ||
+      itemType.includes('gift') ||
+      itemType.includes('cart') ||
+      itemType === 'fourLeafClover'
+    );
   }
 
   collectItem(item: GameItem): void {
     if (item.collected || this.isPaused) return;
 
     item.collected = true;
-    
+
     // Update game state
     this.state.score += item.value;
-    
+
     // Handle specific item types
     this.handleItemCollection(item);
-    
+
     // Update combo
     this.updateCombo();
-    
+
     // Play sound effect
     gameSounds.playItemCollectionSound(item.type, this.state.combo);
-    
+
     // Create particle effects
     this.createCollectionParticles(item);
-    
+
     // Haptic feedback
     if (item.special) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
@@ -248,7 +262,7 @@ export class GameController {
         this.state.coins += item.value;
         this.state.statistics.totalCoinsCollected++;
         break;
-        
+
       case 'horseshoe':
       case 'fourLeafClover':
       case 'shamrock':
@@ -258,34 +272,34 @@ export class GameController {
           this.state.multiplier = Math.max(this.state.multiplier - 1, 1);
         }, 10000);
         break;
-        
+
       case 'stopwatch':
         this.activatePowerUp('slowTime', 10000);
         break;
-        
+
       case 'magnet':
         this.activatePowerUp('magnet', 15000);
         break;
-        
+
       case 'multiplier':
         this.state.multiplier = Math.min(this.state.multiplier * 2, 10);
         setTimeout(() => {
           this.state.multiplier = Math.max(this.state.multiplier / 2, 1);
         }, 8000);
         break;
-        
+
       case 'mysteryCrateOrange':
       case 'mysteryCrateBrown':
       case 'mysteryCratePurple':
         this.state.statistics.mysteryCratesOpened++;
         this.openMysteryCrate(item.type);
         break;
-        
+
       case 'giftBoxRed':
       case 'giftBoxOrange':
         this.openGiftBox(item.type);
         break;
-        
+
       default:
         if (item.type.startsWith('cart')) {
           // Special cart collection - big bonus
@@ -299,7 +313,7 @@ export class GameController {
     this.state.powerUps[type] = true;
     this.state.statistics.powerUpsCollected++;
     gameSounds.playPowerUpSequence(type);
-    
+
     setTimeout(() => {
       this.state.powerUps[type] = false;
     }, duration);
@@ -311,7 +325,7 @@ export class GameController {
       mysteryCrateBrown: { coins: 100, particles: 8 },
       mysteryCratePurple: { coins: 200, particles: 12 },
     };
-    
+
     const reward = rewards[crateType as keyof typeof rewards];
     if (reward) {
       this.state.coins += reward.coins;
@@ -340,16 +354,16 @@ export class GameController {
 
   private updateCombo() {
     this.state.combo++;
-    
+
     if (this.state.combo > this.state.statistics.highestCombo) {
       this.state.statistics.highestCombo = this.state.combo;
     }
-    
+
     // Reset combo timer
     if (this.comboTimer) {
       clearTimeout(this.comboTimer);
     }
-    
+
     this.comboTimer = setTimeout(() => {
       this.state.combo = 0;
     }, 2000);
@@ -357,12 +371,14 @@ export class GameController {
 
   private createCollectionParticles(item: GameItem) {
     const particleCount = item.special ? 8 : 4;
-    const particleTypes: Array<Particle['type']> = 
-      item.type.includes('coin') ? ['coin', 'star'] :
-      item.type.includes('lucky') ? ['shamrock', 'star'] :
-      item.type.includes('gift') ? ['heart', 'confetti'] :
-      ['sparkle', 'star'];
-    
+    const particleTypes: Array<Particle['type']> = item.type.includes('coin')
+      ? ['coin', 'star']
+      : item.type.includes('lucky')
+        ? ['shamrock', 'star']
+        : item.type.includes('gift')
+          ? ['heart', 'confetti']
+          : ['sparkle', 'star'];
+
     for (let i = 0; i < particleCount; i++) {
       const type = particleTypes[Math.floor(Math.random() * particleTypes.length)];
       this.createParticle(type, item.x, item.y);
@@ -377,7 +393,7 @@ export class GameController {
       y,
       size: type === 'confetti' ? 20 : 30,
     };
-    
+
     this.particles.push(particle);
     return particle;
   }
@@ -404,7 +420,7 @@ export class GameController {
   }
 
   getItems(): GameItem[] {
-    return this.items.filter(item => !item.collected);
+    return this.items.filter((item) => !item.collected);
   }
 
   getParticles(): Particle[] {
@@ -412,7 +428,7 @@ export class GameController {
   }
 
   removeParticle(id: string) {
-    this.particles = this.particles.filter(p => p.id !== id);
+    this.particles = this.particles.filter((p) => p.id !== id);
   }
 
   cleanup() {

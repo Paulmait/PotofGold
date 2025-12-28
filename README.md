@@ -10,28 +10,34 @@
 ## 📱 Screenshots
 
 ### 🏠 Home Screen
+
 ![Home Screen](screenshots/home-screen.png)
-*Beautiful gradient background with game stats and navigation*
+_Beautiful gradient background with game stats and navigation_
 
 ### 🎮 Game Screen
+
 ![Game Screen](screenshots/game-screen.png)
-*Smooth gameplay with falling coins and power-ups*
+_Smooth gameplay with falling coins and power-ups_
 
 ### 🏪 Store Screen
+
 ![Store Screen](screenshots/store-screen.png)
-*Purchase upgrades and power-ups with in-game coins*
+_Purchase upgrades and power-ups with in-game coins_
 
 ### 🤝 Challenge Friends
+
 ![Challenge Screen](screenshots/challenge-screen.png)
-*Challenge friends to 60-second competitive matches*
+_Challenge friends to 60-second competitive matches_
 
 ### 📊 Leaderboard
+
 ![Leaderboard](screenshots/leaderboard-screen.png)
-*Global and friends leaderboards with real-time updates*
+_Global and friends leaderboards with real-time updates_
 
 ## ✨ Features
 
 ### 🎯 Core Gameplay
+
 - **Touch Controls**: Smooth pan gesture handling for pot movement
 - **Falling Coins**: Physics-based coin spawning with varying values
 - **Power-ups**: Magnet, Double Points, Slow Motion, Gold Rush
@@ -39,24 +45,28 @@
 - **Progressive Difficulty**: Speed increases over time
 
 ### 🎵 Audio & Visual
+
 - **Sound Effects**: Coin collection, power-up activation, button clicks
 - **Haptic Feedback**: Tactile response on interactions
 - **Animations**: Smooth 60fps animations with native driver
 - **Visual Effects**: Glowing backgrounds, particle effects, power-up indicators
 
 ### 💰 Monetization
+
 - **RevenueCat Integration**: Cross-platform in-app purchases
 - **Coin Packages**: Various coin amounts for purchase
 - **Remove Ads**: One-time purchase to disable ads
 - **Premium Power-ups**: Special power-up bundles
 
 ### 🤝 Multiplayer Features
+
 - **Challenge Friends**: Send 60-second challenges
 - **Real-time Leaderboards**: Global and friends rankings
 - **Challenge History**: Track win/loss results
 - **Firebase Integration**: Real-time data synchronization
 
 ### 🔧 Technical Excellence
+
 - **Performance Optimized**: React.memo, useCallback, native animations
 - **Modular Architecture**: Custom hooks for game logic
 - **TypeScript**: Full type safety and better development experience
@@ -65,7 +75,8 @@
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18+ 
+
+- Node.js 18+
 - npm or yarn
 - Expo CLI
 - iOS Simulator or Android Emulator
@@ -73,22 +84,26 @@
 ### Installation
 
 1. **Clone the repository**
+
 ```bash
 git clone https://github.com/yourusername/pot-of-gold.git
 cd pot-of-gold
 ```
 
 2. **Install dependencies**
+
 ```bash
 npm install
 ```
 
 3. **Start the development server**
+
 ```bash
 npm start
 ```
 
 4. **Run on device/simulator**
+
 ```bash
 # iOS
 npm run ios
@@ -138,16 +153,19 @@ pot-of-gold/
 ## 🎮 Game Modes
 
 ### Single Player
+
 - **Classic Mode**: Endless gameplay with increasing difficulty
 - **Score Tracking**: Persistent high scores and statistics
 - **Achievements**: Unlock achievements through gameplay
 
 ### Challenge Mode
+
 - **60-Second Rounds**: Quick competitive matches
 - **Friend Challenges**: Challenge specific friends
 - **Real-time Results**: Compare scores instantly
 
 ### Multiplayer Features
+
 - **Global Leaderboards**: Compete worldwide
 - **Friends Rankings**: Compare with friends
 - **Challenge History**: Track past matches
@@ -155,11 +173,13 @@ pot-of-gold/
 ## 💰 In-App Purchases
 
 ### RevenueCat Integration
+
 - **Cross-platform**: Works on iOS and Android
 - **Secure**: Automatic receipt validation
 - **Analytics**: Purchase tracking and insights
 
 ### Available Products
+
 - **Coin Packages**: 100 to 10,000 coins
 - **Remove Ads**: One-time purchase
 - **Premium Power-ups**: Special bundles
@@ -168,17 +188,21 @@ pot-of-gold/
 ## 🔧 Configuration
 
 ### Firebase Setup
+
 1. Create a Firebase project
 2. Enable Authentication, Firestore, and Analytics
 3. Update `firebase/config.ts` with your credentials
 
 ### RevenueCat Setup
+
 1. Create a RevenueCat account
 2. Configure products in RevenueCat dashboard
 3. Update API key in `screens/BuyGoldScreen.tsx`
 
 ### Sound Effects
+
 Place your sound files in `assets/sfx/`:
+
 - `coin.wav` - Coin collection sound
 - `powerup.wav` - Power-up activation sound
 - `goldrush.wav` - Gold rush event sound
@@ -187,16 +211,19 @@ Place your sound files in `assets/sfx/`:
 ## 📊 Performance Optimizations
 
 ### React.memo Components
+
 - All game components optimized for re-rendering
 - Stable function references with useCallback
 - Efficient state management
 
 ### Animation Performance
+
 - Native driver for 60fps animations
 - Optimized collision detection
 - Efficient object pooling
 
 ### Memory Management
+
 - Proper cleanup of timers and animations
 - Efficient sound loading and unloading
 - Optimized game loop
@@ -204,6 +231,7 @@ Place your sound files in `assets/sfx/`:
 ## 🚀 Deployment
 
 ### Expo EAS Build
+
 ```bash
 # Build for iOS
 eas build --platform ios
@@ -213,6 +241,7 @@ eas build --platform android
 ```
 
 ### App Store Submission
+
 ```bash
 # Submit to App Store
 eas submit --platform ios
@@ -224,6 +253,7 @@ eas submit --platform android
 ## 🛠️ Development
 
 ### Available Scripts
+
 ```bash
 npm start          # Start Expo development server
 npm run ios        # Run on iOS simulator
@@ -234,6 +264,7 @@ npm run build:android # Build for Android
 ```
 
 ### Code Quality
+
 - **TypeScript**: Full type safety
 - **ESLint**: Code linting and formatting
 - **Prettier**: Consistent code formatting
@@ -265,4 +296,4 @@ For support, email support@potofgold.com or join our Discord community.
 
 ---
 
-**Made with ❤️ by the Pot of Gold team** 
+**Made with ❤️ by the Pot of Gold team**

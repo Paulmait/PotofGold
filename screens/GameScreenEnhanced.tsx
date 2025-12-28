@@ -58,37 +58,43 @@ export default function GameScreenEnhanced({ navigation }: GameScreenEnhancedPro
   const [showTutorial, setShowTutorial] = useState(false);
   const [isFirstTime, setIsFirstTime] = useState(true);
   const [showLoadingSplash, setShowLoadingSplash] = useState(true);
-  
+
   // Cart state with momentum
-  const { position: cartPosition, moveTo, isMoving } = useMomentumMovement({
+  const {
+    position: cartPosition,
+    moveTo,
+    isMoving,
+  } = useMomentumMovement({
     friction: 0.92,
     acceleration: 3,
     maxSpeed: 20,
   });
   const cartSize = 100; // Larger for mobile
   const [isCartMoving, setIsCartMoving] = useState(false);
-  
+
   // Visual effects
   const [tapIndicators, setTapIndicators] = useState<any[]>([]);
   const [particles, setParticles] = useState<any[]>([]);
   const [magnetEffects, setMagnetEffects] = useState<any[]>([]);
   const { shake, shakeTransform } = useScreenShake();
-  
+
   // Falling items & blockages
   const [fallingItems, setFallingItems] = useState<any[]>([]);
   const [blockages, setBlockages] = useState<any[]>([]);
-  const [blockageWarning, setBlockageWarning] = useState<'safe' | 'warning' | 'danger' | 'critical'>('safe');
-  
+  const [blockageWarning, setBlockageWarning] = useState<
+    'safe' | 'warning' | 'danger' | 'critical'
+  >('safe');
+
   // Boost state
   const [boostAvailable, setBoostAvailable] = useState(true);
   const [boostCooldown, setBoostCooldown] = useState(0);
   const [magnetActive, setMagnetActive] = useState(false);
-  
+
   // Systems
   const collisionHandler = useRef<CollisionHandler | null>(null);
   const comboSystem = useRef(new ComboSystem()).current;
   const appState = useRef(AppState.currentState);
-  
+
   // Timers
   const gameTimer = useRef<NodeJS.Timeout | null>(null);
   const spawnTimer = useRef<NodeJS.Timeout | null>(null);
@@ -126,11 +132,11 @@ export default function GameScreenEnhanced({ navigation }: GameScreenEnhancedPro
   useEffect(() => {
     // Initialize difficulty
     difficultyManager.initialize(isFirstTime);
-    
+
     // Initialize collision handler
     collisionHandler.current = new CollisionHandler({
-      onScoreChange: (change) => setScore(prev => prev + change),
-      onCoinChange: (change) => setCoins(prev => prev + change),
+      onScoreChange: (change) => setScore((prev) => prev + change),
+      onCoinChange: (change) => setCoins((prev) => prev + change),
       onLifeChange: (change) => {
         const newLives = Math.max(0, lives + change);
         setLives(newLives);
@@ -146,15 +152,15 @@ export default function GameScreenEnhanced({ navigation }: GameScreenEnhancedPro
         }
       },
       onItemCollect: (itemId) => {
-        const item = fallingItems.find(i => i.id === itemId);
+        const item = fallingItems.find((i) => i.id === itemId);
         if (item) {
           // Play sound based on item type
           gameSoundManager.playSound(`${item.type}Collect`, { haptic: true });
-          
+
           // Create particle effect
           addParticleEffect(item.x, item.y, 'collect');
         }
-        setFallingItems(prev => prev.filter(i => i.id !== itemId));
+        setFallingItems((prev) => prev.filter((i) => i.id !== itemId));
       },
       onComboUpdate: (newCombo) => {
         setCombo(newCombo);
@@ -169,10 +175,10 @@ export default function GameScreenEnhanced({ navigation }: GameScreenEnhancedPro
         gameSoundManager.playSound(sound);
       },
     });
-    
+
     // Start background music
     gameSoundManager.startBackgroundMusic();
-    
+
     return () => {
       gameSoundManager.cleanup();
       blockageManager.reset();
@@ -180,60 +186,70 @@ export default function GameScreenEnhanced({ navigation }: GameScreenEnhancedPro
   }, []);
 
   // Handle touch movement with momentum and blockage checking
-  const handleTouchMove = useCallback((touchX: number) => {
-    if (!isGameActive || isPaused) return;
-    
-    // Check if cart can move to this position
-    const blockageCheck = blockageManager.checkCartPassage(touchX - cartSize/2, cartSize);
-    if (blockageCheck.canPass) {
-      moveTo(touchX);
-      setIsCartMoving(true);
-    } else {
-      // Cart is blocked - show visual feedback
-      shake({ intensity: 5, duration: 100 });
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-    }
-  }, [isGameActive, isPaused, moveTo, cartSize, shake]);
+  const handleTouchMove = useCallback(
+    (touchX: number) => {
+      if (!isGameActive || isPaused) return;
+
+      // Check if cart can move to this position
+      const blockageCheck = blockageManager.checkCartPassage(touchX - cartSize / 2, cartSize);
+      if (blockageCheck.canPass) {
+        moveTo(touchX);
+        setIsCartMoving(true);
+      } else {
+        // Cart is blocked - show visual feedback
+        shake({ intensity: 5, duration: 100 });
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+      }
+    },
+    [isGameActive, isPaused, moveTo, cartSize, shake]
+  );
 
   // Handle tap with visual feedback and blockage checking
-  const handleTap = useCallback((touchX: number) => {
-    if (!isGameActive || isPaused) return;
-    
-    // Add tap indicator
-    addTapIndicator(touchX, height - 150);
-    
-    // Check if cart can move to this position
-    const blockageCheck = blockageManager.checkCartPassage(touchX - cartSize/2, cartSize);
-    if (blockageCheck.canPass) {
-      // Move cart with momentum
-      moveTo(touchX);
-      setIsCartMoving(true);
-      
-      // Haptic feedback
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      gameSoundManager.playSound('buttonTap');
-    } else {
-      // Cart is blocked - show visual feedback
-      shake({ intensity: 10, duration: 200 });
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-      gameSoundManager.playSound('bombHit');
-    }
-  }, [isGameActive, isPaused, moveTo, cartSize, shake]);
+  const handleTap = useCallback(
+    (touchX: number) => {
+      if (!isGameActive || isPaused) return;
+
+      // Add tap indicator
+      addTapIndicator(touchX, height - 150);
+
+      // Check if cart can move to this position
+      const blockageCheck = blockageManager.checkCartPassage(touchX - cartSize / 2, cartSize);
+      if (blockageCheck.canPass) {
+        // Move cart with momentum
+        moveTo(touchX);
+        setIsCartMoving(true);
+
+        // Haptic feedback
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        gameSoundManager.playSound('buttonTap');
+      } else {
+        // Cart is blocked - show visual feedback
+        shake({ intensity: 10, duration: 200 });
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+        gameSoundManager.playSound('bombHit');
+      }
+    },
+    [isGameActive, isPaused, moveTo, cartSize, shake]
+  );
 
   // Visual effect helpers
   const addTapIndicator = (x: number, y: number) => {
     const indicator = { id: Date.now(), x, y };
-    setTapIndicators(prev => [...prev, indicator]);
+    setTapIndicators((prev) => [...prev, indicator]);
   };
 
-  const addParticleEffect = (x: number, y: number, type: 'collect' | 'explosion' | 'sparkle' | 'damage') => {
+  const addParticleEffect = (
+    x: number,
+    y: number,
+    type: 'collect' | 'explosion' | 'sparkle' | 'damage'
+  ) => {
     const particle = { id: Date.now(), x, y, type };
-    setParticles(prev => [...prev, particle]);
+    setParticles((prev) => [...prev, particle]);
   };
 
   const addMagnetEffect = (itemX: number, itemY: number) => {
     const effect = { id: Date.now(), itemX, itemY };
-    setMagnetEffects(prev => [...prev, effect]);
+    setMagnetEffects((prev) => [...prev, effect]);
   };
 
   // Start game
@@ -251,15 +267,15 @@ export default function GameScreenEnhanced({ navigation }: GameScreenEnhancedPro
     setBlockages([]);
     blockageManager.reset();
     difficultyManager.resetProgression();
-    
+
     // Save that player has played
     await AsyncStorage.setItem('has_played_before', 'true');
-    
+
     // Start timers
     gameTimer.current = setInterval(() => {
-      setTimeSurvived(prev => prev + 1);
+      setTimeSurvived((prev) => prev + 1);
     }, 1000);
-    
+
     startItemSpawning();
   }, []);
 
@@ -269,7 +285,7 @@ export default function GameScreenEnhanced({ navigation }: GameScreenEnhancedPro
       if (!isPaused && isGameActive) {
         spawnItem();
       }
-      
+
       const settings = difficultyManager.getCurrentSettings();
       spawnTimer.current = setTimeout(spawn, settings.itemSpawnRate);
     };
@@ -280,7 +296,7 @@ export default function GameScreenEnhanced({ navigation }: GameScreenEnhancedPro
   const spawnItem = () => {
     const config = difficultyManager.getSpawnConfig();
     const settings = difficultyManager.getCurrentSettings();
-    
+
     const newItem = {
       id: Date.now() + Math.random(),
       x: Math.random() * (width - 40) + 20,
@@ -289,14 +305,14 @@ export default function GameScreenEnhanced({ navigation }: GameScreenEnhancedPro
       speed: settings.itemFallSpeed,
       scale: config.rarity === 'rare' ? 1.2 : 1,
     };
-    
-    setFallingItems(prev => [...prev, newItem]);
+
+    setFallingItems((prev) => [...prev, newItem]);
   };
 
   // Check collisions with magnetism
   useEffect(() => {
     if (!isGameActive) return; // Continue checking collisions even when paused
-    
+
     const checkInterval = setInterval(() => {
       const cartX = (cartPosition as any)._value;
       const cart = {
@@ -305,86 +321,88 @@ export default function GameScreenEnhanced({ navigation }: GameScreenEnhancedPro
         width: cartSize,
         height: cartSize * 0.7,
       };
-      
+
       // Check blockage collision
-      const blockageCheck = blockageManager.checkCartPassage(cartX - cartSize/2, cartSize);
+      const blockageCheck = blockageManager.checkCartPassage(cartX - cartSize / 2, cartSize);
       if (!blockageCheck.canPass) {
         // Cart hit blockage - damage it
-        blockageCheck.collidingBlockages.forEach(blockage => {
+        blockageCheck.collidingBlockages.forEach((blockage) => {
           const result = blockageManager.damageBlockage(blockage.id, 1);
           if (result.destroyed) {
-            addParticleEffect(blockage.x + blockage.width/2, blockage.y, 'explosion');
+            addParticleEffect(blockage.x + blockage.width / 2, blockage.y, 'explosion');
             gameSoundManager.playSound('bombHit');
           }
         });
       }
-      
+
       // Only process item interactions when not paused
       if (!isPaused) {
-        fallingItems.forEach(item => {
+        fallingItems.forEach((item) => {
           // Magnetism effect
           if (magnetActive) {
-          const distance = Math.abs(item.x - cartX);
-          if (distance < 150 && item.type !== 'bomb') {
-            // Pull item towards cart
-            item.x += (cartX - item.x) * 0.1;
-            addMagnetEffect(item.x, item.y);
-          }
-        }
-        
-        // Regular collision
-        if (CollisionDetection.checkItemCollision(item, cart)) {
-          collisionHandler.current?.handleItemCollision(item.type, item.id);
-          
-          // Update combo
-          if (item.type !== 'bomb') {
-            const newCombo = comboSystem.addHit();
-            setCombo(newCombo.count);
-          } else {
-            comboSystem.reset();
-            setCombo(0);
-            shake({ intensity: 20, duration: 400 });
-          }
-        }
-          
-          // Check if item hit ground (missed)
-          if (item.y > height - 100) {
-          if (item.type !== 'bomb' && difficultyManager.shouldCreateBlockage()) {
-            const result = blockageManager.addMissedItem({
-              x: item.x,
-              type: item.type,
-              size: 40,
-            });
-            
-            if (result.gameOver) {
-              endGame();
-            } else if (result.blockage) {
-              setBlockages(blockageManager.getAllBlockages());
-              setBlockageWarning(blockageManager.getWarningLevel());
+            const distance = Math.abs(item.x - cartX);
+            if (distance < 150 && item.type !== 'bomb') {
+              // Pull item towards cart
+              item.x += (cartX - item.x) * 0.1;
+              addMagnetEffect(item.x, item.y);
             }
           }
-          
+
+          // Regular collision
+          if (CollisionDetection.checkItemCollision(item, cart)) {
+            collisionHandler.current?.handleItemCollision(item.type, item.id);
+
+            // Update combo
+            if (item.type !== 'bomb') {
+              const newCombo = comboSystem.addHit();
+              setCombo(newCombo.count);
+            } else {
+              comboSystem.reset();
+              setCombo(0);
+              shake({ intensity: 20, duration: 400 });
+            }
+          }
+
+          // Check if item hit ground (missed)
+          if (item.y > height - 100) {
+            if (item.type !== 'bomb' && difficultyManager.shouldCreateBlockage()) {
+              const result = blockageManager.addMissedItem({
+                x: item.x,
+                type: item.type,
+                size: 40,
+              });
+
+              if (result.gameOver) {
+                endGame();
+              } else if (result.blockage) {
+                setBlockages(blockageManager.getAllBlockages());
+                setBlockageWarning(blockageManager.getWarningLevel());
+              }
+            }
+
             // Remove missed item
-            setFallingItems(prev => prev.filter(i => i.id !== item.id));
+            setFallingItems((prev) => prev.filter((i) => i.id !== item.id));
           }
         });
       }
     }, 16);
-    
+
     return () => clearInterval(checkInterval);
   }, [isGameActive, isPaused, cartPosition, fallingItems, cartSize, magnetActive]);
 
   // Update falling items position
   useEffect(() => {
     if (!isGameActive || isPaused) return;
-    
+
     const moveInterval = setInterval(() => {
-      setFallingItems(prev => prev.map(item => ({
-        ...item,
-        y: item.y + item.speed,
-      })));
+      setFallingItems((prev) =>
+        prev.map((item) => ({
+          ...item,
+          y: item.y + item.speed,
+        }))
+      );
     }, 16);
-    
+
     return () => clearInterval(moveInterval);
   }, [isGameActive, isPaused]);
 
@@ -396,7 +414,7 @@ export default function GameScreenEnhanced({ navigation }: GameScreenEnhancedPro
       itemsCollected: coins,
       level,
     });
-    
+
     if (result.levelChanged) {
       gameSoundManager.playSound('levelUp', { haptic: true });
       addParticleEffect(width / 2, height / 2, 'sparkle');
@@ -424,12 +442,12 @@ export default function GameScreenEnhanced({ navigation }: GameScreenEnhancedPro
     setIsGameActive(false);
     gameSoundManager.playSound('gameOver', { haptic: true });
     gameSoundManager.stopBackgroundMusic();
-    
+
     // Clear timers
     if (gameTimer.current) clearInterval(gameTimer.current);
     if (spawnTimer.current) clearTimeout(spawnTimer.current);
     if (boostTimer.current) clearTimeout(boostTimer.current);
-    
+
     // Navigate to game over
     navigation.navigate('GameOver', {
       score,
@@ -462,10 +480,10 @@ export default function GameScreenEnhanced({ navigation }: GameScreenEnhancedPro
   // Boost function
   const activateBoost = () => {
     if (!boostAvailable) return;
-    
+
     setBoostAvailable(false);
     setBoostCooldown(10);
-    
+
     // Clear some blockages
     const cleared = blockageManager.clearBlockages(0.5);
     if (cleared > 0) {
@@ -473,23 +491,23 @@ export default function GameScreenEnhanced({ navigation }: GameScreenEnhancedPro
       setBlockageWarning(blockageManager.getWarningLevel());
       addParticleEffect(width / 2, height - 100, 'explosion');
     }
-    
+
     // Activate magnet
     setMagnetActive(true);
     setTimeout(() => setMagnetActive(false), 5000);
-    
+
     // Cooldown
     let cooldown = 10;
     boostTimer.current = setInterval(() => {
       cooldown--;
       setBoostCooldown(cooldown);
-      
+
       if (cooldown <= 0) {
         setBoostAvailable(true);
         if (boostTimer.current) clearInterval(boostTimer.current);
       }
     }, 1000);
-    
+
     gameSoundManager.playSound('powerupCollect', { haptic: true });
   };
 
@@ -511,12 +529,7 @@ export default function GameScreenEnhanced({ navigation }: GameScreenEnhancedPro
 
   // Show loading splash first
   if (showLoadingSplash) {
-    return (
-      <GameLoadingSplash
-        onComplete={() => setShowLoadingSplash(false)}
-        duration={2000}
-      />
-    );
+    return <GameLoadingSplash onComplete={() => setShowLoadingSplash(false)} duration={2000} />;
   }
 
   // Start screen with quick start
@@ -540,30 +553,19 @@ export default function GameScreenEnhanced({ navigation }: GameScreenEnhancedPro
             }
           }}
         >
-          <Text style={styles.startButtonText}>
-            {isFirstTime ? 'Start Tutorial' : 'Play Now'}
-          </Text>
+          <Text style={styles.startButtonText}>{isFirstTime ? 'Start Tutorial' : 'Play Now'}</Text>
         </TouchableOpacity>
-        {!isFirstTime && (
-          <Text style={styles.autoStartText}>Auto-starting...</Text>
-        )}
+        {!isFirstTime && <Text style={styles.autoStartText}>Auto-starting...</Text>}
       </View>
     );
   }
 
   return (
-    <TouchHandler
-      onMove={handleTouchMove}
-      onTap={handleTap}
-      enabled={isGameActive && !isPaused}
-    >
+    <TouchHandler onMove={handleTouchMove} onTap={handleTap} enabled={isGameActive && !isPaused}>
       <Animated.View style={[styles.container, shakeTransform]}>
         {/* Tutorial */}
-        <TutorialOverlay
-          visible={showTutorial}
-          onComplete={handleTutorialComplete}
-        />
-        
+        <TutorialOverlay visible={showTutorial} onComplete={handleTutorialComplete} />
+
         {/* Game HUD */}
         <GameHUD
           score={score}
@@ -578,12 +580,12 @@ export default function GameScreenEnhanced({ navigation }: GameScreenEnhancedPro
           boostAvailable={boostAvailable}
           boostCooldown={boostCooldown}
         />
-        
+
         {/* Game Area */}
         <View style={styles.gameArea}>
           {/* Rail Track */}
           <RailTrack showDust={isCartMoving} isMoving={isCartMoving} />
-          
+
           {/* Cart Trail */}
           <CartTrail
             cartX={(cartPosition as any)._value}
@@ -591,7 +593,7 @@ export default function GameScreenEnhanced({ navigation }: GameScreenEnhancedPro
             isMoving={isCartMoving}
             color={magnetActive ? '#00FF00' : '#FFD700'}
           />
-          
+
           {/* Blockages */}
           <BlockageDisplay
             blockages={blockages}
@@ -603,38 +605,35 @@ export default function GameScreenEnhanced({ navigation }: GameScreenEnhancedPro
               }
             }}
           />
-          
+
           {/* Falling Items */}
-          <FallingItemsImproved
-            items={fallingItems}
-            isPaused={isPaused}
-          />
-          
+          <FallingItemsImproved items={fallingItems} isPaused={isPaused} />
+
           {/* Visual Effects */}
-          {tapIndicators.map(indicator => (
+          {tapIndicators.map((indicator) => (
             <TapIndicator
               key={indicator.id}
               x={indicator.x}
               y={indicator.y}
               onComplete={() => {
-                setTapIndicators(prev => prev.filter(i => i.id !== indicator.id));
+                setTapIndicators((prev) => prev.filter((i) => i.id !== indicator.id));
               }}
             />
           ))}
-          
-          {particles.map(particle => (
+
+          {particles.map((particle) => (
             <ParticleEffect
               key={particle.id}
               x={particle.x}
               y={particle.y}
               type={particle.type}
               onComplete={() => {
-                setParticles(prev => prev.filter(p => p.id !== particle.id));
+                setParticles((prev) => prev.filter((p) => p.id !== particle.id));
               }}
             />
           ))}
-          
-          {magnetEffects.map(effect => (
+
+          {magnetEffects.map((effect) => (
             <MagnetEffect
               key={effect.id}
               cartX={(cartPosition as any)._value}
@@ -643,19 +642,17 @@ export default function GameScreenEnhanced({ navigation }: GameScreenEnhancedPro
               itemY={effect.itemY}
               isActive={true}
               onComplete={() => {
-                setMagnetEffects(prev => prev.filter(e => e.id !== effect.id));
+                setMagnetEffects((prev) => prev.filter((e) => e.id !== effect.id));
               }}
             />
           ))}
-          
+
           {/* Mine Cart */}
           <Animated.View
             style={[
               styles.cartContainer,
               {
-                transform: [
-                  { translateX: Animated.subtract(cartPosition, cartSize / 2) },
-                ],
+                transform: [{ translateX: Animated.subtract(cartPosition, cartSize / 2) }],
               },
             ]}
           >
@@ -666,12 +663,10 @@ export default function GameScreenEnhanced({ navigation }: GameScreenEnhancedPro
               onWheelSpin={() => {}}
               activeSkin={null}
             />
-            {magnetActive && (
-              <View style={styles.magnetField} />
-            )}
+            {magnetActive && <View style={styles.magnetField} />}
           </Animated.View>
         </View>
-        
+
         {/* Pause Overlay */}
         {isPaused && (
           <View style={styles.pauseOverlay}>
@@ -679,10 +674,7 @@ export default function GameScreenEnhanced({ navigation }: GameScreenEnhancedPro
             <Text style={styles.difficultyText}>
               Difficulty: {difficultyManager.getDifficultyDescription()}
             </Text>
-            <TouchableOpacity
-              style={styles.resumeButton}
-              onPress={togglePause}
-            >
+            <TouchableOpacity style={styles.resumeButton} onPress={togglePause}>
               <Text style={styles.resumeButtonText}>Resume</Text>
             </TouchableOpacity>
           </View>

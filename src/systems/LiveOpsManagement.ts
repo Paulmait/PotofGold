@@ -371,7 +371,7 @@ export class LiveOpsManagement {
 
     // Enable special items
     if (config.specialItems) {
-      config.specialItems.forEach(itemId => {
+      config.specialItems.forEach((itemId) => {
         eventBus.emit('item:enable:special', { itemId });
       });
     }
@@ -387,14 +387,14 @@ export class LiveOpsManagement {
 
     // Remove multipliers
     if (config.multipliers) {
-      Object.keys(config.multipliers).forEach(type => {
+      Object.keys(config.multipliers).forEach((type) => {
         eventBus.emit('multiplier:remove', { type });
       });
     }
 
     // Disable special items
     if (config.specialItems) {
-      config.specialItems.forEach(itemId => {
+      config.specialItems.forEach((itemId) => {
         eventBus.emit('item:disable:special', { itemId });
       });
     }
@@ -408,7 +408,7 @@ export class LiveOpsManagement {
   private checkEventSchedule() {
     const now = Date.now();
 
-    this.scheduledEvents.forEach(event => {
+    this.scheduledEvents.forEach((event) => {
       if (event.status === 'scheduled' && event.startTime <= now) {
         this.activateEvent(event);
       }
@@ -418,7 +418,7 @@ export class LiveOpsManagement {
   private updateActiveEvents() {
     const now = Date.now();
 
-    this.activeEvents.forEach(event => {
+    this.activeEvents.forEach((event) => {
       if (event.endTime <= now) {
         this.endEvent(event);
       } else {
@@ -429,7 +429,7 @@ export class LiveOpsManagement {
   }
 
   private updateLeaderboards() {
-    this.activeEvents.forEach(event => {
+    this.activeEvents.forEach((event) => {
       if (event.leaderboard) {
         this.updateLeaderboard(event);
       }
@@ -458,7 +458,7 @@ export class LiveOpsManagement {
   private cleanupEndedEvents() {
     const cutoffTime = Date.now() - 24 * 60 * 60 * 1000; // 24 hours ago
 
-    this.scheduledEvents = this.scheduledEvents.filter(event => {
+    this.scheduledEvents = this.scheduledEvents.filter((event) => {
       return event.status !== 'ended' || event.endTime > cutoffTime;
     });
   }
@@ -503,7 +503,7 @@ export class LiveOpsManagement {
   }
 
   private assignPlayerToABTests(playerId: string) {
-    this.abTests.forEach(test => {
+    this.abTests.forEach((test) => {
       if (test.status === 'running') {
         const variant = this.selectVariant(test, playerId);
         this.applyVariantConfig(playerId, variant);
@@ -514,8 +514,8 @@ export class LiveOpsManagement {
   private selectVariant(test: ABTestConfig, playerId: string): ABVariant {
     // Use consistent hashing for assignment
     const hash = this.hashPlayerId(playerId);
-    const normalized = hash / 0xFFFFFFFF;
-    
+    const normalized = hash / 0xffffffff;
+
     let accumulated = 0;
     for (const variant of test.variants) {
       accumulated += variant.weight / 100;
@@ -531,7 +531,7 @@ export class LiveOpsManagement {
     let hash = 0;
     for (let i = 0; i < playerId.length; i++) {
       const char = playerId.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
+      hash = (hash << 5) - hash + char;
       hash = hash & hash; // Convert to 32bit integer
     }
     return Math.abs(hash);
@@ -547,7 +547,7 @@ export class LiveOpsManagement {
 
   private trackPlayerAction(data: any) {
     // Update event progression
-    this.activeEvents.forEach(event => {
+    this.activeEvents.forEach((event) => {
       if (event.progression && this.actionContributesToEvent(data.action, event.type)) {
         event.progression.currentProgress += data.value || 1;
         this.checkProgressionMilestones(event, data.playerId);
@@ -560,9 +560,9 @@ export class LiveOpsManagement {
 
   private trackPurchase(data: any) {
     // Update event analytics
-    this.activeEvents.forEach(event => {
+    this.activeEvents.forEach((event) => {
       event.analytics.revenue += data.amount;
-      
+
       if (!event.analytics.topSpenders.includes(data.playerId)) {
         event.analytics.topSpenders.push(data.playerId);
       }
@@ -573,7 +573,7 @@ export class LiveOpsManagement {
   }
 
   private trackABTestConversion(playerId: string, amount: number) {
-    this.abTests.forEach(test => {
+    this.abTests.forEach((test) => {
       const variant = this.getPlayerVariant(test, playerId);
       if (variant) {
         variant.performance.conversion++;
@@ -590,7 +590,7 @@ export class LiveOpsManagement {
   private checkProgressionMilestones(event: LiveEvent, playerId: string) {
     if (!event.progression) return;
 
-    event.progression.checkpoints.forEach(checkpoint => {
+    event.progression.checkpoints.forEach((checkpoint) => {
       if (!checkpoint.reached && event.progression!.currentProgress >= checkpoint.value) {
         checkpoint.reached = true;
         this.awardCheckpointReward(playerId, checkpoint.reward);
@@ -635,9 +635,9 @@ export class LiveOpsManagement {
   }
 
   private updatePlayerLeaderboardScore(playerId: string, score: number) {
-    this.activeEvents.forEach(event => {
+    this.activeEvents.forEach((event) => {
       if (event.leaderboard) {
-        const entry = event.leaderboard.entries.find(e => e.playerId === playerId);
+        const entry = event.leaderboard.entries.find((e) => e.playerId === playerId);
         if (entry) {
           entry.score += score;
         } else {
@@ -662,7 +662,7 @@ export class LiveOpsManagement {
   private processFinalRewards(event: LiveEvent) {
     if (event.leaderboard) {
       // Award leaderboard rewards
-      event.leaderboard.entries.forEach(entry => {
+      event.leaderboard.entries.forEach((entry) => {
         const rewards = this.getLeaderboardRewards(entry.rank, event.rewards.leaderboard);
         if (rewards) {
           this.awardLeaderboardRewards(entry.playerId, rewards);
@@ -714,7 +714,7 @@ export class LiveOpsManagement {
     const events = Array.from(this.activeEvents.values());
     eventBus.emit('events:show', {
       playerId,
-      events: events.map(e => ({
+      events: events.map((e) => ({
         id: e.id,
         name: e.name,
         type: e.type,
@@ -839,7 +839,10 @@ export class LiveOpsManagement {
         specialItems: ['snowflake', 'gift_box'],
       },
       [EventType.FLASH_SALE]: {
-        discounts: new Map([['starter_pack', 50], ['gem_bundle', 30]]),
+        discounts: new Map([
+          ['starter_pack', 50],
+          ['gem_bundle', 30],
+        ]),
       },
       [EventType.TOURNAMENT]: {
         rules: ['Best of 3 rounds', 'No powerups'],

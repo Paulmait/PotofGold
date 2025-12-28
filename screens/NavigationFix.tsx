@@ -7,27 +7,27 @@ export const NAVIGATION_ROUTES = {
   GAME: 'Game',
   GAME_OVER: 'GameOver',
   AUTH: 'Auth',
-  
+
   // Onboarding Flow
   LEGAL_AGREEMENT: 'LegalAgreement',
   ONBOARDING: 'Onboarding',
-  
+
   // Shop & Customization
   SHOP: 'Shop',
   SKIN_SHOP: 'SkinShop',
   LOCKER: 'Locker',
-  
+
   // Stats & Social
   LEADERBOARD: 'Leaderboard',
   STATS: 'Stats',
-  
+
   // Settings & Info
   SETTINGS: 'Settings',
   HOW_TO_PLAY: 'HowToPlay',
-  
+
   // Admin
   ADMIN_PANEL: 'AdminPanel',
-  
+
   // Screens that need to be implemented or mapped
   // These are referenced in code but not yet available:
   STORE: 'Shop', // Maps to Shop
@@ -47,21 +47,21 @@ export const NAVIGATION_ROUTES = {
 export const safeNavigate = (navigation: any, routeName: string) => {
   // Map old route names to new ones
   const routeMap: Record<string, string> = {
-    'Store': 'Shop',
-    'BuyGold': 'Shop',
-    'Upgrade': 'Shop',
-    'ChallengeFriends': 'Leaderboard',
-    'Missions': 'Home',
-    'SeasonPass': 'Shop',
-    'SubscriptionVault': 'Shop',
-    'Camp': 'Home',
-    'DataRequest': 'Settings',
-    'DeleteAccount': 'Settings',
-    'ManageConsent': 'Settings',
+    Store: 'Shop',
+    BuyGold: 'Shop',
+    Upgrade: 'Shop',
+    ChallengeFriends: 'Leaderboard',
+    Missions: 'Home',
+    SeasonPass: 'Shop',
+    SubscriptionVault: 'Shop',
+    Camp: 'Home',
+    DataRequest: 'Settings',
+    DeleteAccount: 'Settings',
+    ManageConsent: 'Settings',
   };
-  
+
   const actualRoute = routeMap[routeName] || routeName;
-  
+
   try {
     navigation.navigate(actualRoute);
   } catch (error) {

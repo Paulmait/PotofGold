@@ -1,13 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import {
-  View,
-  StyleSheet,
-  Animated,
-  Dimensions,
-  Image,
-  Text,
-  StatusBar,
-} from 'react-native';
+import { View, StyleSheet, Animated, Dimensions, Image, Text, StatusBar } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Font from 'expo-font';
 
@@ -51,7 +43,7 @@ export default function SplashScreenEnhanced({ onComplete, duration = 3500 }: Sp
 
     // Animate dots
     const dotsInterval = setInterval(() => {
-      setDots(prev => prev.length >= 3 ? '' : prev + '.');
+      setDots((prev) => (prev.length >= 3 ? '' : prev + '.'));
     }, 300);
 
     // Start all animations
@@ -127,7 +119,7 @@ export default function SplashScreenEnhanced({ onComplete, duration = 3500 }: Sp
     const timer = setTimeout(() => {
       clearInterval(messageInterval);
       clearInterval(dotsInterval);
-      
+
       Animated.timing(fadeAnim, {
         toValue: 0,
         duration: 400,
@@ -163,13 +155,10 @@ export default function SplashScreenEnhanced({ onComplete, duration = 3500 }: Sp
               style={[
                 styles.fallingCoin,
                 {
-                  left: 50 + (index * 70),
+                  left: 50 + index * 70,
                   transform: [
                     {
-                      translateY: Animated.add(
-                        coinFall,
-                        index * -200
-                      ),
+                      translateY: Animated.add(coinFall, index * -200),
                     },
                   ],
                   opacity: shimmerAnim,
@@ -212,14 +201,14 @@ export default function SplashScreenEnhanced({ onComplete, duration = 3500 }: Sp
                 },
               ]}
             />
-            
+
             {/* Main splash image */}
             <Image
               source={require('../assets/images/pot_of_gold_splash.png')}
               style={styles.splashImage}
               resizeMode="contain"
             />
-            
+
             {/* Sparkle overlay */}
             <Animated.View
               style={[
@@ -292,7 +281,8 @@ export default function SplashScreenEnhanced({ onComplete, duration = 3500 }: Sp
               </Animated.View>
             </View>
             <Text style={styles.loadingText}>
-              {loadingText}{dots}
+              {loadingText}
+              {dots}
             </Text>
           </View>
 

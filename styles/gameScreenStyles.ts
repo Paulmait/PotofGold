@@ -7,7 +7,7 @@ export const gameScreenStyles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#87CEEB', // Sky blue gradient base
   },
-  
+
   // Background layers
   backgroundGradient: {
     position: 'absolute',
@@ -16,7 +16,7 @@ export const gameScreenStyles = StyleSheet.create({
     right: 0,
     bottom: 0,
   },
-  
+
   skyBackground: {
     position: 'absolute',
     top: 0,
@@ -25,7 +25,7 @@ export const gameScreenStyles = StyleSheet.create({
     height: height * 0.75,
     backgroundColor: '#87CEEB',
   },
-  
+
   landscapeBackground: {
     position: 'absolute',
     bottom: height * 0.15,
@@ -33,7 +33,7 @@ export const gameScreenStyles = StyleSheet.create({
     right: 0,
     height: height * 0.25,
   },
-  
+
   hillLeft: {
     position: 'absolute',
     bottom: 0,
@@ -44,7 +44,7 @@ export const gameScreenStyles = StyleSheet.create({
     borderTopRightRadius: 200,
     transform: [{ skewX: '-15deg' }],
   },
-  
+
   hillRight: {
     position: 'absolute',
     bottom: 0,
@@ -55,7 +55,7 @@ export const gameScreenStyles = StyleSheet.create({
     borderTopLeftRadius: 200,
     transform: [{ skewX: '15deg' }],
   },
-  
+
   // Railroad track styles
   trackContainer: {
     position: 'absolute',
@@ -65,7 +65,7 @@ export const gameScreenStyles = StyleSheet.create({
     height: height * 0.15,
     backgroundColor: '#8B6332', // Brown ground color
   },
-  
+
   railroadTrack: {
     position: 'absolute',
     bottom: height * 0.08,
@@ -75,14 +75,14 @@ export const gameScreenStyles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  
+
   railTie: {
     width: 8,
     height: 60,
     backgroundColor: '#654321',
     marginHorizontal: 30,
   },
-  
+
   railLine: {
     position: 'absolute',
     height: 4,
@@ -90,15 +90,15 @@ export const gameScreenStyles = StyleSheet.create({
     left: 0,
     right: 0,
   },
-  
+
   railLineTop: {
     top: 10,
   },
-  
+
   railLineBottom: {
     bottom: 10,
   },
-  
+
   // HUD styles
   hudContainer: {
     position: 'absolute',
@@ -107,14 +107,14 @@ export const gameScreenStyles = StyleSheet.create({
     right: 0,
     zIndex: 1000,
   },
-  
+
   hudTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 15,
     marginBottom: 10,
   },
-  
+
   hudItem: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -124,13 +124,13 @@ export const gameScreenStyles = StyleSheet.create({
     paddingVertical: 6,
     minWidth: 60,
   },
-  
+
   hudIcon: {
     width: 24,
     height: 24,
     marginRight: 6,
   },
-  
+
   hudText: {
     color: '#FFFFFF',
     fontSize: 18,
@@ -139,7 +139,7 @@ export const gameScreenStyles = StyleSheet.create({
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
   },
-  
+
   pauseButton: {
     width: 50,
     height: 50,
@@ -150,7 +150,7 @@ export const gameScreenStyles = StyleSheet.create({
     borderWidth: 3,
     borderColor: '#FFD700',
   },
-  
+
   // Power-up indicators
   powerUpContainer: {
     flexDirection: 'row',
@@ -158,7 +158,7 @@ export const gameScreenStyles = StyleSheet.create({
     paddingHorizontal: 15,
     gap: 10,
   },
-  
+
   powerUpItem: {
     width: 60,
     height: 60,
@@ -170,17 +170,17 @@ export const gameScreenStyles = StyleSheet.create({
     alignItems: 'center',
     opacity: 0.8,
   },
-  
+
   powerUpActive: {
     backgroundColor: '#FFD700',
     opacity: 1,
   },
-  
+
   powerUpIcon: {
     width: 40,
     height: 40,
   },
-  
+
   powerUpCount: {
     position: 'absolute',
     bottom: 2,
@@ -190,13 +190,13 @@ export const gameScreenStyles = StyleSheet.create({
     paddingHorizontal: 6,
     paddingVertical: 2,
   },
-  
+
   powerUpCountText: {
     color: '#FFFFFF',
     fontSize: 12,
     fontWeight: 'bold',
   },
-  
+
   // Bottom action buttons
   bottomButtonContainer: {
     position: 'absolute',
@@ -210,7 +210,7 @@ export const gameScreenStyles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 10,
   },
-  
+
   actionButton: {
     width: width / 7,
     height: 60,
@@ -221,20 +221,20 @@ export const gameScreenStyles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  
+
   actionButtonIcon: {
     width: 30,
     height: 30,
     marginBottom: 2,
   },
-  
+
   actionButtonText: {
     color: '#FFFFFF',
     fontSize: 10,
     fontWeight: '600',
     textAlign: 'center',
   },
-  
+
   actionButtonBadge: {
     position: 'absolute',
     top: -5,
@@ -244,7 +244,7 @@ export const gameScreenStyles = StyleSheet.create({
     paddingHorizontal: 6,
     paddingVertical: 2,
   },
-  
+
   // Cart styles (keeping existing design)
   cartContainer: {
     position: 'absolute',
@@ -254,7 +254,7 @@ export const gameScreenStyles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  
+
   cart: {
     width: 80,
     height: 60,
@@ -270,7 +270,7 @@ export const gameScreenStyles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
   },
-  
+
   cartWheels: {
     position: 'absolute',
     bottom: -10,
@@ -279,7 +279,7 @@ export const gameScreenStyles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 10,
   },
-  
+
   wheel: {
     width: 20,
     height: 20,
@@ -288,7 +288,7 @@ export const gameScreenStyles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#666',
   },
-  
+
   cartGold: {
     position: 'absolute',
     top: -10,
@@ -299,14 +299,14 @@ export const gameScreenStyles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  
+
   // Falling items styles
   fallingItem: {
     position: 'absolute',
     width: 40,
     height: 40,
   },
-  
+
   coinItem: {
     width: 40,
     height: 40,
@@ -317,7 +317,7 @@ export const gameScreenStyles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  
+
   diamondItem: {
     width: 35,
     height: 35,
@@ -326,19 +326,19 @@ export const gameScreenStyles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#4682B4',
   },
-  
+
   starItem: {
     width: 40,
     height: 40,
     backgroundColor: '#FFD700',
   },
-  
+
   cloverItem: {
     width: 35,
     height: 35,
     backgroundColor: '#228B22',
   },
-  
+
   bombItem: {
     width: 40,
     height: 40,
@@ -347,7 +347,7 @@ export const gameScreenStyles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  
+
   // Game over overlay
   gameOverOverlay: {
     position: 'absolute',
@@ -360,7 +360,7 @@ export const gameScreenStyles = StyleSheet.create({
     alignItems: 'center',
     zIndex: 9999,
   },
-  
+
   gameOverContainer: {
     width: width * 0.8,
     backgroundColor: '#FFFFFF',
@@ -368,20 +368,20 @@ export const gameScreenStyles = StyleSheet.create({
     padding: 20,
     alignItems: 'center',
   },
-  
+
   gameOverTitle: {
     fontSize: 32,
     fontWeight: 'bold',
     color: '#333',
     marginBottom: 20,
   },
-  
+
   gameOverScore: {
     fontSize: 24,
     color: '#666',
     marginBottom: 10,
   },
-  
+
   gameOverButton: {
     backgroundColor: '#FFD700',
     paddingHorizontal: 30,
@@ -389,7 +389,7 @@ export const gameScreenStyles = StyleSheet.create({
     borderRadius: 25,
     marginTop: 20,
   },
-  
+
   gameOverButtonText: {
     fontSize: 18,
     fontWeight: 'bold',

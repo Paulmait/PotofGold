@@ -51,7 +51,7 @@ class DropCatalog {
       drop_2026_07,
     ] as MonthlyDrop[];
 
-    allDrops.forEach(drop => {
+    allDrops.forEach((drop) => {
       this.drops.set(drop.id, drop);
     });
   }
@@ -80,8 +80,8 @@ class DropCatalog {
     const currentDropId = `drop_${currentYear}_${String(currentMonth).padStart(2, '0')}`;
 
     const allDrops = this.getAllDrops();
-    const currentIndex = allDrops.findIndex(d => d.id === currentDropId);
-    
+    const currentIndex = allDrops.findIndex((d) => d.id === currentDropId);
+
     if (currentIndex === -1) {
       return [];
     }
@@ -100,8 +100,8 @@ class DropCatalog {
     const currentDropId = `drop_${currentYear}_${String(currentMonth).padStart(2, '0')}`;
 
     const allDrops = this.getAllDrops();
-    const currentIndex = allDrops.findIndex(d => d.id === currentDropId);
-    
+    const currentIndex = allDrops.findIndex((d) => d.id === currentDropId);
+
     if (currentIndex === -1) {
       return allDrops; // All drops are in the past
     }
@@ -117,7 +117,7 @@ class DropCatalog {
     const currentYear = now.getFullYear();
     const currentMonth = now.getMonth() + 1;
     const currentDropId = `drop_${currentYear}_${String(currentMonth).padStart(2, '0')}`;
-    
+
     return this.getDropById(currentDropId);
   }
 
@@ -130,13 +130,13 @@ class DropCatalog {
 
     const now = Date.now();
     const [year, month] = dropId.replace('drop_', '').split('_').map(Number);
-    
+
     // First day of the drop month
     const dropStart = new Date(year, month - 1, 1).getTime();
-    
+
     // Calculate end of claim window
     const claimWindowDays = drop.claimWindowDays || this.calendar.defaultClaimWindowDays;
-    const claimWindowEnd = dropStart + (claimWindowDays * 24 * 60 * 60 * 1000);
+    const claimWindowEnd = dropStart + claimWindowDays * 24 * 60 * 60 * 1000;
 
     return now >= dropStart && now <= claimWindowEnd;
   }
@@ -150,16 +150,16 @@ class DropCatalog {
 
     const now = Date.now();
     const [year, month] = dropId.replace('drop_', '').split('_').map(Number);
-    
+
     // First day of the drop month
     const dropStart = new Date(year, month - 1, 1).getTime();
-    
+
     // Calculate end of claim window
     const claimWindowDays = drop.claimWindowDays || this.calendar.defaultClaimWindowDays;
-    const claimWindowEnd = dropStart + (claimWindowDays * 24 * 60 * 60 * 1000);
+    const claimWindowEnd = dropStart + claimWindowDays * 24 * 60 * 60 * 1000;
 
     if (now > claimWindowEnd) return 0;
-    
+
     const daysRemaining = Math.ceil((claimWindowEnd - now) / (24 * 60 * 60 * 1000));
     return Math.max(0, daysRemaining);
   }

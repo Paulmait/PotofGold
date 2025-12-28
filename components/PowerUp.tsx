@@ -134,11 +134,7 @@ const PowerUp: React.FC<PowerUpProps> = ({ type }) => {
       style={[
         styles.container,
         {
-          transform: [
-            { rotate: spin },
-            { scale: pulseAnim },
-            { translateY: floatY },
-          ],
+          transform: [{ rotate: spin }, { scale: pulseAnim }, { translateY: floatY }],
         },
       ]}
     >
@@ -185,7 +181,11 @@ const PowerUp: React.FC<PowerUpProps> = ({ type }) => {
           },
         ]}
       >
-        <Ionicons name={"sparkles" as keyof typeof Ionicons.glyphMap} size={12} color={config.glowColor} />
+        <Ionicons
+          name={'sparkles' as keyof typeof Ionicons.glyphMap}
+          size={12}
+          color={config.glowColor}
+        />
       </Animated.View>
     </Animated.View>
   );
@@ -216,4 +216,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PowerUp; 
+export default PowerUp;

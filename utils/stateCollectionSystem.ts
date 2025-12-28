@@ -261,7 +261,7 @@ export class StateCollectionSystem {
   async initializeCollection(userId: string): Promise<StateCollectionProgress> {
     try {
       const offlineData = await offlineManager.getOfflineData(userId);
-      
+
       if (offlineData.stateCollection) {
         this.progress = offlineData.stateCollection;
         return this.progress;
@@ -295,7 +295,7 @@ export class StateCollectionSystem {
       return { success: false, item: null, effect: null };
     }
 
-    const item = this.specialItems.find(i => i.id === itemId);
+    const item = this.specialItems.find((i) => i.id === itemId);
     if (!item) {
       return { success: false, item: null, effect: null };
     }
@@ -324,7 +324,7 @@ export class StateCollectionSystem {
       return { success: false, state: null, message: '' };
     }
 
-    const state = this.states.find(s => s.id === stateId);
+    const state = this.states.find((s) => s.id === stateId);
     if (!state || this.progress.unlockedStates.includes(stateId)) {
       return { success: false, state: null, message: 'State already unlocked or invalid' };
     }
@@ -337,7 +337,8 @@ export class StateCollectionSystem {
 
     // Unlock the state
     this.progress.unlockedStates.push(stateId);
-    this.progress.collectionProgress = (this.progress.unlockedStates.length / this.progress.totalStates) * 100;
+    this.progress.collectionProgress =
+      (this.progress.unlockedStates.length / this.progress.totalStates) * 100;
 
     await this.saveCollection();
 
@@ -362,7 +363,7 @@ export class StateCollectionSystem {
   async equipState(stateId: string): Promise<boolean> {
     if (!this.progress) return false;
 
-    const state = this.states.find(s => s.id === stateId);
+    const state = this.states.find((s) => s.id === stateId);
     if (!state || !this.progress.unlockedStates.includes(stateId)) {
       return false;
     }
@@ -375,17 +376,13 @@ export class StateCollectionSystem {
   // Get available states
   getAvailableStates(): StateSkin[] {
     if (!this.progress) return [];
-    return this.states.filter(state => 
-      this.progress!.unlockedStates.includes(state.id)
-    );
+    return this.states.filter((state) => this.progress!.unlockedStates.includes(state.id));
   }
 
   // Get unlockable states
   getUnlockableStates(): StateSkin[] {
     if (!this.progress) return [];
-    return this.states.filter(state => 
-      !this.progress!.unlockedStates.includes(state.id)
-    );
+    return this.states.filter((state) => !this.progress!.unlockedStates.includes(state.id));
   }
 
   // Get special items
@@ -415,7 +412,7 @@ export class StateCollectionSystem {
   // Get current equipped state
   getEquippedState(): StateSkin | null {
     if (!this.progress) return null;
-    return this.states.find(s => s.id === this.progress!.equippedState) || null;
+    return this.states.find((s) => s.id === this.progress!.equippedState) || null;
   }
 
   // Save collection
@@ -437,4 +434,4 @@ export class StateCollectionSystem {
   }
 }
 
-export const stateCollectionSystem = StateCollectionSystem.getInstance(); 
+export const stateCollectionSystem = StateCollectionSystem.getInstance();

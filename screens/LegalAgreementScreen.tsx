@@ -22,10 +22,7 @@ interface LegalAgreementScreenProps {
   onDecline?: () => void;
 }
 
-const LegalAgreementScreen: React.FC<LegalAgreementScreenProps> = ({
-  navigation,
-  route,
-}) => {
+const LegalAgreementScreen: React.FC<LegalAgreementScreenProps> = ({ navigation, route }) => {
   // Get callbacks from route params
   const onAccept = route?.params?.onAccept;
   const onDecline = route?.params?.onDecline;
@@ -47,13 +44,13 @@ const LegalAgreementScreen: React.FC<LegalAgreementScreenProps> = ({
 
     setLoading(true);
     console.log('Accepting legal agreements...');
-    
+
     try {
       await AsyncStorage.setItem('legal_accepted', 'true');
       await AsyncStorage.setItem('legal_version_accepted', '2.0');
-      
+
       const timeSpentReading = Math.floor((Date.now() - startTime) / 1000);
-      
+
       await LegalAuditService.recordInitialAcceptance(
         {
           termsOfService: acceptedTerms,
@@ -64,12 +61,12 @@ const LegalAgreementScreen: React.FC<LegalAgreementScreenProps> = ({
       );
 
       console.log('Legal agreements accepted, calling onAccept callback...');
-      
+
       // Call the onAccept callback first to update state
       if (onAccept) {
         await onAccept();
       }
-      
+
       // Always navigate after accepting, regardless of callback
       console.log('Navigating to Onboarding screen...');
       if (navigation) {
@@ -139,10 +136,8 @@ const LegalAgreementScreen: React.FC<LegalAgreementScreenProps> = ({
         <View style={styles.warningBox}>
           <Text style={styles.warningTitle}>⚠️ IMPORTANT</Text>
           <Text style={styles.warningText}>
-            • Virtual items have NO real money value{'\n'}
-            • This is NOT a gambling game{'\n'}
-            • All purchases are FINAL{'\n'}
-            • You must be 13+ years old
+            • Virtual items have NO real money value{'\n'}• This is NOT a gambling game{'\n'}• All
+            purchases are FINAL{'\n'}• You must be 13+ years old
           </Text>
         </View>
 
@@ -157,9 +152,9 @@ const LegalAgreementScreen: React.FC<LegalAgreementScreenProps> = ({
 
           <TouchableOpacity
             style={[
-              styles.button, 
+              styles.button,
               styles.acceptButton,
-              (!acceptedTerms || !acceptedPrivacy || !acceptedEULA) && styles.disabledButton
+              (!acceptedTerms || !acceptedPrivacy || !acceptedEULA) && styles.disabledButton,
             ]}
             onPress={handleAccept}
             disabled={loading || !acceptedTerms || !acceptedPrivacy || !acceptedEULA}

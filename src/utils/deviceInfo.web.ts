@@ -89,11 +89,11 @@ class DeviceInfoManager {
       const { width, height } = Dimensions.get('window');
       const screenScale = PixelRatio.get();
       const pixelDensity = PixelRatio.getFontScale();
-      
+
       // Web defaults
       const deviceType = width >= 768 ? 'tablet' : 'phone';
       const isTablet = deviceType === 'tablet';
-      
+
       this.deviceProfile = {
         deviceId: Constants.sessionId,
         deviceName: 'Web Browser',
@@ -155,7 +155,7 @@ class DeviceInfoManager {
   }
 
   private calculateAspectRatio(width: number, height: number): string {
-    const gcd = (a: number, b: number): number => b === 0 ? a : gcd(b, a % b);
+    const gcd = (a: number, b: number): number => (b === 0 ? a : gcd(b, a % b));
     const divisor = gcd(width, height);
     return `${width / divisor}:${height / divisor}`;
   }
@@ -176,7 +176,7 @@ class DeviceInfoManager {
   private getFallbackProfile(): DeviceProfile {
     const { width, height } = Dimensions.get('window');
     const isTablet = width >= 768;
-    
+
     return {
       deviceId: 'unknown',
       deviceName: 'Unknown Device',
@@ -243,21 +243,15 @@ class DeviceInfoManager {
 
   private notifyListeners(): void {
     if (this.deviceProfile) {
-      this.listeners.forEach(listener => listener(this.deviceProfile!));
+      this.listeners.forEach((listener) => listener(this.deviceProfile!));
     }
   }
 
   private async saveDeviceProfile(): Promise<void> {
     if (this.deviceProfile) {
       try {
-        await AsyncStorage.setItem(
-          '@device_profile',
-          JSON.stringify(this.deviceProfile)
-        );
-        await AsyncStorage.setItem(
-          '@quality_settings',
-          JSON.stringify(this.qualitySettings)
-        );
+        await AsyncStorage.setItem('@device_profile', JSON.stringify(this.deviceProfile));
+        await AsyncStorage.setItem('@quality_settings', JSON.stringify(this.qualitySettings));
       } catch (error) {
         console.error('Error saving device profile:', error);
       }
@@ -282,15 +276,17 @@ class DeviceInfoManager {
   }
 
   getQualitySettings(): AssetQualitySettings {
-    return this.qualitySettings || {
-      imageQuality: 'medium',
-      maxTextureSize: 2048,
-      enableBlurHash: true,
-      enableProgressive: true,
-      cacheStrategy: 'balanced',
-      preloadStrategy: 'next',
-      compressionLevel: 85,
-    };
+    return (
+      this.qualitySettings || {
+        imageQuality: 'medium',
+        maxTextureSize: 2048,
+        enableBlurHash: true,
+        enableProgressive: true,
+        cacheStrategy: 'balanced',
+        preloadStrategy: 'next',
+        compressionLevel: 85,
+      }
+    );
   }
 
   isHighEndDevice(): boolean {

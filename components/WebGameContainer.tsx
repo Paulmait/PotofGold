@@ -1,12 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  View,
-  StyleSheet,
-  Dimensions,
-  TouchableOpacity,
-  Text,
-  Platform,
-} from 'react-native';
+import { View, StyleSheet, Dimensions, TouchableOpacity, Text, Platform } from 'react-native';
 import { PlatformUtils } from '../src/utils/platformUtils';
 import Icon from 'react-native-vector-icons/Ionicons';
 
@@ -15,10 +8,7 @@ interface WebGameContainerProps {
   onOrientationChange?: (orientation: string) => void;
 }
 
-const WebGameContainer: React.FC<WebGameContainerProps> = ({
-  children,
-  onOrientationChange,
-}) => {
+const WebGameContainer: React.FC<WebGameContainerProps> = ({ children, onOrientationChange }) => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [dimensions, setDimensions] = useState(() => {
     const { width, height } = Dimensions.get('window');
@@ -34,7 +24,7 @@ const WebGameContainer: React.FC<WebGameContainerProps> = ({
     const handleResize = () => {
       const { width, height } = Dimensions.get('window');
       setDimensions({ width, height });
-      
+
       if (onOrientationChange) {
         onOrientationChange(width > height ? 'landscape' : 'portrait');
       }
@@ -83,11 +73,11 @@ const WebGameContainer: React.FC<WebGameContainerProps> = ({
 
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
-    
+
     if (outcome === 'accepted') {
       console.log('PWA installed');
     }
-    
+
     setDeferredPrompt(null);
     setShowInstallPrompt(false);
   };
@@ -98,14 +88,14 @@ const WebGameContainer: React.FC<WebGameContainerProps> = ({
   }
 
   const isDesktop = dimensions.width >= 1024;
-  
+
   // Game dimensions configuration
-  const MAX_GAME_WIDTH = 900;  // Maximum width constraint as requested
+  const MAX_GAME_WIDTH = 900; // Maximum width constraint as requested
   const MAX_GAME_HEIGHT = dimensions.height * 0.95; // Use most of screen height
-  
+
   let gameWidth: number;
   let gameHeight: number;
-  
+
   if (dimensions.width < 768) {
     // Mobile devices - use full width
     gameWidth = dimensions.width;
@@ -116,8 +106,8 @@ const WebGameContainer: React.FC<WebGameContainerProps> = ({
     gameHeight = Math.min(dimensions.height * 0.95, MAX_GAME_HEIGHT);
   } else {
     // Desktop/Laptop - use full width up to max
-    gameWidth = Math.min(dimensions.width * 0.90, MAX_GAME_WIDTH);
-    gameHeight = Math.min(dimensions.height * 0.90, MAX_GAME_HEIGHT);
+    gameWidth = Math.min(dimensions.width * 0.9, MAX_GAME_WIDTH);
+    gameHeight = Math.min(dimensions.height * 0.9, MAX_GAME_HEIGHT);
   }
 
   return (
@@ -143,25 +133,17 @@ const WebGameContainer: React.FC<WebGameContainerProps> = ({
               },
             ]}
           >
-            <View style={styles.gameContent}>
-              {children}
-            </View>
-            
+            <View style={styles.gameContent}>{children}</View>
+
             {/* Floating controls in top-right corner */}
             <View style={styles.floatingControls}>
               {showInstallPrompt && (
-                <TouchableOpacity
-                  style={styles.installButton}
-                  onPress={handleInstallPWA}
-                >
+                <TouchableOpacity style={styles.installButton} onPress={handleInstallPWA}>
                   <Icon name="download-outline" size={20} color="#fff" />
                   <Text style={styles.installText}>Install</Text>
                 </TouchableOpacity>
               )}
-              <TouchableOpacity
-                style={styles.controlButton}
-                onPress={toggleFullscreen}
-              >
+              <TouchableOpacity style={styles.controlButton} onPress={toggleFullscreen}>
                 <Icon
                   name={isFullscreen ? 'contract-outline' : 'expand-outline'}
                   size={24}
@@ -177,7 +159,7 @@ const WebGameContainer: React.FC<WebGameContainerProps> = ({
       {!isDesktop && (
         <View style={styles.mobileContainer}>
           {children}
-          
+
           {/* PWA install banner for mobile */}
           {showInstallPrompt && !PlatformUtils.webFeatures.isPWA() && (
             <View style={styles.installBanner}>
@@ -197,10 +179,7 @@ const WebGameContainer: React.FC<WebGameContainerProps> = ({
                 >
                   <Text style={styles.dismissText}>Not now</Text>
                 </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.installActionButton}
-                  onPress={handleInstallPWA}
-                >
+                <TouchableOpacity style={styles.installActionButton} onPress={handleInstallPWA}>
                   <Text style={styles.installActionText}>Install</Text>
                 </TouchableOpacity>
               </View>

@@ -1,17 +1,19 @@
 import React, { useEffect, useRef } from 'react';
-import {
-  View,
-  StyleSheet,
-  Animated,
-  Dimensions,
-  Text,
-} from 'react-native';
+import { View, StyleSheet, Animated, Dimensions, Text } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
 interface FallingItem {
   id: string;
-  type: 'coin' | 'moneyBag' | 'lightning' | 'magnet' | 'gemstone' | 'dynamite' | 'blackRock' | 'luckyStar';
+  type:
+    | 'coin'
+    | 'moneyBag'
+    | 'lightning'
+    | 'magnet'
+    | 'gemstone'
+    | 'dynamite'
+    | 'blackRock'
+    | 'luckyStar';
   x: number;
   y: number;
   speed: number;
@@ -30,17 +32,17 @@ export default function FallingItems({ items, onItemCollect }: FallingItemsProps
 
   // Initialize animations for new items
   useEffect(() => {
-    items.forEach(item => {
+    items.forEach((item) => {
       if (!itemAnimations[item.id]) {
         itemAnimations[item.id] = new Animated.Value(0);
         sparkleAnimations[item.id] = new Animated.Value(0);
-        
+
         // Start falling animation
         const itemAnim = itemAnimations[item.id];
         if (itemAnim) {
           Animated.timing(itemAnim, {
             toValue: height,
-            duration: (height - item.y) / item.speed * 1000,
+            duration: ((height - item.y) / item.speed) * 1000,
             useNativeDriver: true,
           }).start();
         }
@@ -178,55 +180,55 @@ export default function FallingItems({ items, onItemCollect }: FallingItemsProps
           <View style={styles.coinDetails}>
             <View style={styles.coinInner} />
             {sparkleAnimation && (
-              <Animated.View 
+              <Animated.View
                 style={[
                   styles.coinShine,
                   {
                     opacity: sparkleAnimation,
                     transform: [{ scale: sparkleAnimation }],
-                  }
-                ]} 
+                  },
+                ]}
               />
             )}
           </View>
         )}
-        
+
         {item.type === 'moneyBag' && (
           <View style={styles.moneyBagDetails}>
             <Text style={styles.moneyBagText}>$</Text>
             <View style={styles.moneyBagStrap} />
           </View>
         )}
-        
+
         {item.type === 'lightning' && (
           <View style={styles.lightningDetails}>
             <View style={styles.lightningBolt} />
             {sparkleAnimation && (
-              <Animated.View 
+              <Animated.View
                 style={[
                   styles.lightningTrail,
                   {
                     opacity: sparkleAnimation,
-                  }
-                ]} 
+                  },
+                ]}
               />
             )}
           </View>
         )}
-        
+
         {item.type === 'magnet' && (
           <View style={styles.magnetDetails}>
             <View style={styles.magnetPole1} />
             <View style={styles.magnetPole2} />
             {sparkleAnimation && (
-              <Animated.View 
+              <Animated.View
                 style={[
                   styles.magnetField,
                   {
                     opacity: sparkleAnimation,
                     transform: [{ scale: sparkleAnimation }],
-                  }
-                ]} 
+                  },
+                ]}
               />
             )}
           </View>
@@ -237,13 +239,13 @@ export default function FallingItems({ items, onItemCollect }: FallingItemsProps
             <View style={styles.gemstoneFacet1} />
             <View style={styles.gemstoneFacet2} />
             {sparkleAnimation && (
-              <Animated.View 
+              <Animated.View
                 style={[
                   styles.gemstoneGlow,
                   {
                     opacity: sparkleAnimation,
-                  }
-                ]} 
+                  },
+                ]}
               />
             )}
           </View>
@@ -268,17 +270,21 @@ export default function FallingItems({ items, onItemCollect }: FallingItemsProps
           <View style={styles.luckyStarDetails}>
             <View style={styles.luckyStarCenter} />
             {sparkleAnimation && (
-              <Animated.View 
+              <Animated.View
                 style={[
                   styles.luckyStarTrail,
                   {
                     opacity: sparkleAnimation,
-                    transform: [{ rotate: sparkleAnimation.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: ['0deg', '360deg'],
-                    }) }],
-                  }
-                ]} 
+                    transform: [
+                      {
+                        rotate: sparkleAnimation.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: ['0deg', '360deg'],
+                        }),
+                      },
+                    ],
+                  },
+                ]}
               />
             )}
           </View>
@@ -290,11 +296,7 @@ export default function FallingItems({ items, onItemCollect }: FallingItemsProps
     );
   };
 
-  return (
-    <View style={styles.container}>
-      {items.map(renderItem)}
-    </View>
-  );
+  return <View style={styles.container}>{items.map(renderItem)}</View>;
 }
 
 const styles = StyleSheet.create({
@@ -552,4 +554,4 @@ const styles = StyleSheet.create({
   rarity_ultraRare: {
     backgroundColor: '#FFD700',
   },
-}); 
+});

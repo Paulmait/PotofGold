@@ -19,18 +19,22 @@
 ## App Store Description
 
 ### Short Description (30 characters max)
+
 Catch gold coins and win big!
 
 ### Promotional Text (170 characters max)
+
 NEW: Winter Season Pass with exclusive skins! Compete in daily tournaments and climb the global leaderboard. Free to play with premium upgrades available.
 
 ### Full Description (4000 characters max)
+
 **Pot of Gold** - The addictive coin-catching arcade game that will keep you coming back for more!
 
 **CATCH COINS, UNLOCK TREASURES**
 Swipe to move your pot and catch falling gold coins! Simple controls make it easy to pick up, but mastering the game takes skill. How high can you score?
 
 **FEATURES:**
+
 - Intuitive one-finger controls perfect for all ages
 - Endless gameplay with increasing difficulty
 - Multiple power-ups: Magnet, Speed Boost, Score Multiplier, Slow Motion
@@ -41,24 +45,28 @@ Swipe to move your pot and catch falling gold coins! Simple controls make it eas
 - Weekly tournaments with exclusive prizes
 
 **POWER-UPS:**
+
 - Magnet: Attract coins automatically
 - Double Points: 2x your score
 - Slow Motion: More time to catch coins
 - Gold Rush: Bonus coin shower
 
 **UNLOCK & COLLECT:**
+
 - Rare and legendary pot skins
 - Seasonal event rewards
 - Achievement badges
 - Daily login bonuses
 
 **COMPETE:**
+
 - Challenge friends directly
 - Climb the weekly leaderboard
 - Participate in special events
 - Share your high scores
 
 **GOLD VAULT MEMBERSHIP (Optional):**
+
 - Ad-free experience
 - Exclusive member-only skins
 - Daily bonus coins
@@ -69,11 +77,13 @@ Download now and start your gold-catching adventure!
 ---
 
 ## Keywords (100 characters max)
+
 coin,gold,arcade,casual,catch,coins,pot,treasure,game,fun,easy,simple,addictive,challenge,score
 
 ---
 
 ## What's New (4000 characters max)
+
 Version 1.0.0 - Initial Release
 
 - Addictive coin-catching gameplay
@@ -91,6 +101,7 @@ Version 1.0.0 - Initial Release
 ## Screenshots Required
 
 ### iPhone 6.7" (1290x2796)
+
 1. Gameplay - Catching coins with high score
 2. Shop - Browsing pot skins
 3. Power-ups - Magnet in action
@@ -98,12 +109,15 @@ Version 1.0.0 - Initial Release
 5. Achievement unlocked moment
 
 ### iPhone 6.5" (1284x2778)
+
 Same as 6.7" scaled
 
 ### iPhone 5.5" (1242x2208)
+
 Same as 6.7" scaled
 
 ### iPad Pro 12.9" (2048x2732)
+
 Same as 6.7" with tablet layout
 
 ---
@@ -113,15 +127,18 @@ Same as 6.7" with tablet layout
 ### Data Collected
 
 **Data Linked to You:**
+
 - Identifiers (User ID, Device ID) - For app functionality
 - Usage Data (Game progress, scores) - For app functionality
 - Purchases (Transaction history) - For app functionality
 
 **Data Not Linked to You:**
+
 - Diagnostics (Crash data, Performance data) - For app improvement
 - Usage Data (Analytics - if opted in) - For app improvement
 
 ### Data Not Collected
+
 - Health & Fitness
 - Financial Info
 - Location
@@ -132,6 +149,7 @@ Same as 6.7" with tablet layout
 - Sensitive Info
 
 ### Privacy Practices
+
 - Data is encrypted in transit
 - Data can be deleted upon request
 - Users can opt out of data collection
@@ -143,6 +161,7 @@ Same as 6.7" with tablet layout
 
 **Demo Account:** Not required (guest play available)
 **Notes for Reviewer:**
+
 - This is an arcade-style coin-catching game
 - Guest mode allows full gameplay without account creation
 - Optional account creation for cloud saves and leaderboard
@@ -151,6 +170,7 @@ Same as 6.7" with tablet layout
 - Privacy consent is required before any data collection
 
 **Contact Information:**
+
 - Name: Support Team
 - Phone: (Available in App Store Connect)
 - Email: support@pofgold.com
@@ -197,6 +217,7 @@ Same as 6.7" with tablet layout
 
 **Price Tier:** Free
 **In-App Purchases:**
+
 - Gold Vault Monthly ($4.99/month)
 - Gold Vault Yearly ($29.99/year)
 - Coin Pack Small ($0.99)

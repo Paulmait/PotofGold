@@ -41,7 +41,7 @@ const UpgradeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
       basePrice: 100,
       icon: 'resize',
       color: '#4CAF50',
-      effect: `Current: +${Math.floor((gameState.potSize - 1) * 100)}% size`
+      effect: `Current: +${Math.floor((gameState.potSize - 1) * 100)}% size`,
     },
     {
       id: 'pot_speed',
@@ -52,7 +52,7 @@ const UpgradeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
       basePrice: 150,
       icon: 'speedometer',
       color: '#2196F3',
-      effect: `Current: +${Math.floor((gameState.potSpeed - 1) * 100)}% speed`
+      effect: `Current: +${Math.floor((gameState.potSpeed - 1) * 100)}% speed`,
     },
     {
       id: 'magnet_power',
@@ -63,7 +63,7 @@ const UpgradeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
       basePrice: 200,
       icon: 'magnet',
       color: '#FFD700',
-      effect: `Current: Level ${gameState.potLevel} magnet`
+      effect: `Current: Level ${gameState.potLevel} magnet`,
     },
     // Power-up Upgrades
     {
@@ -75,7 +75,7 @@ const UpgradeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
       basePrice: 300,
       icon: 'time',
       color: '#FF6B6B',
-      effect: 'Current: 10 seconds'
+      effect: 'Current: 10 seconds',
     },
     {
       id: 'double_points_duration',
@@ -86,7 +86,7 @@ const UpgradeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
       basePrice: 400,
       icon: 'flash',
       color: '#FF8E53',
-      effect: 'Current: 10 seconds'
+      effect: 'Current: 10 seconds',
     },
     {
       id: 'slow_motion_duration',
@@ -97,7 +97,7 @@ const UpgradeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
       basePrice: 350,
       icon: 'time-outline',
       color: '#4ECDC4',
-      effect: 'Current: 10 seconds'
+      effect: 'Current: 10 seconds',
     },
     // Bonus Upgrades
     {
@@ -109,7 +109,7 @@ const UpgradeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
       basePrice: 500,
       icon: 'coin',
       color: '#FFD700',
-      effect: 'Current: 1x multiplier'
+      effect: 'Current: 1x multiplier',
     },
     {
       id: 'bonus_coin_chance',
@@ -120,16 +120,18 @@ const UpgradeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
       basePrice: 600,
       icon: 'star',
       color: '#FF6B6B',
-      effect: 'Current: 20% chance'
-    }
+      effect: 'Current: 20% chance',
+    },
   ];
 
   const getFilteredItems = () => {
-    return upgradeItems.filter(item => {
+    return upgradeItems.filter((item) => {
       if (selectedCategory === 'pot') {
         return ['pot_size', 'pot_speed', 'magnet_power'].includes(item.id);
       } else if (selectedCategory === 'powerups') {
-        return ['magnet_duration', 'double_points_duration', 'slow_motion_duration'].includes(item.id);
+        return ['magnet_duration', 'double_points_duration', 'slow_motion_duration'].includes(
+          item.id
+        );
       } else if (selectedCategory === 'bonuses') {
         return ['coin_multiplier', 'bonus_coin_chance'].includes(item.id);
       }
@@ -143,7 +145,7 @@ const UpgradeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
 
   const handleUpgrade = (item: UpgradeItem) => {
     const price = calculateUpgradePrice(item);
-    
+
     if (gameState.coins < price) {
       Alert.alert('Insufficient Coins', 'You need more coins to purchase this upgrade!');
       return;
@@ -184,38 +186,32 @@ const UpgradeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
     return (
       <TouchableOpacity
         key={item.id}
-        style={[
-          styles.upgradeItem,
-          { opacity: canAfford && !isMaxLevel ? 1 : 0.6 }
-        ]}
+        style={[styles.upgradeItem, { opacity: canAfford && !isMaxLevel ? 1 : 0.6 }]}
         onPress={() => canAfford && !isMaxLevel && handleUpgrade(item)}
         disabled={!canAfford || isMaxLevel}
       >
-        <LinearGradient
-          colors={[item.color, item.color + '80']}
-          style={styles.upgradeIcon}
-        >
+        <LinearGradient colors={[item.color, item.color + '80']} style={styles.upgradeIcon}>
           <Ionicons name={item.icon as any} size={24} color="white" />
         </LinearGradient>
-        
+
         <View style={styles.upgradeInfo}>
           <Text style={styles.upgradeName}>{item.name}</Text>
           <Text style={styles.upgradeDescription}>{item.description}</Text>
           <Text style={styles.upgradeEffect}>{item.effect}</Text>
-          
+
           <View style={styles.upgradeLevel}>
             <Text style={styles.levelText}>
               Level {item.currentLevel}/{item.maxLevel}
             </Text>
             <View style={styles.progressBar}>
-              <View 
+              <View
                 style={[
-                  styles.progressFill, 
-                  { 
+                  styles.progressFill,
+                  {
                     width: `${(item.currentLevel / item.maxLevel) * 100}%`,
-                    backgroundColor: item.color
-                  }
-                ]} 
+                    backgroundColor: item.color,
+                  },
+                ]}
               />
             </View>
           </View>
@@ -236,23 +232,17 @@ const UpgradeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   };
 
   return (
-    <LinearGradient
-      colors={['#FFD700', '#FFA500', '#FF8C00']}
-      style={styles.container}
-    >
+    <LinearGradient colors={['#FFD700', '#FFA500', '#FF8C00']} style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
-      
+
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color="white" />
         </TouchableOpacity>
-        
+
         <Text style={styles.title}>Upgrades</Text>
-        
+
         <View style={styles.coinsContainer}>
           <Ionicons name="coin" size={20} color="#FFD700" />
           <Text style={styles.coinsText}>{gameState.coins.toLocaleString()}</Text>
@@ -451,4 +441,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default UpgradeScreen; 
+export default UpgradeScreen;

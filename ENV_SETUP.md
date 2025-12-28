@@ -3,6 +3,7 @@
 ## Required Before App Store Submission
 
 ### Firebase Configuration (Required)
+
 ```bash
 eas secret:create --scope project --name EXPO_PUBLIC_FIREBASE_API_KEY --value "your_key"
 eas secret:create --scope project --name EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN --value "your_domain"
@@ -14,15 +15,18 @@ eas secret:create --scope project --name EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID --v
 ```
 
 ### RevenueCat (Required for In-App Purchases)
+
 ```bash
 eas secret:create --scope project --name REVENUECAT_API_KEY_IOS --value "your_ios_key"
 eas secret:create --scope project --name REVENUECAT_API_KEY_ANDROID --value "your_android_key"
 ```
 
 ### Sentry (Recommended for Crash Reporting)
+
 Update `services/crashReporting.ts` line 18 with your actual Sentry DSN
 
 ### Optional
+
 ```bash
 eas secret:create --scope project --name ANALYTICS_API_KEY --value "your_key"
 ```

@@ -79,10 +79,7 @@ class MonthlyDropsService {
 
   private async saveClaimedDrops(): Promise<void> {
     try {
-      await AsyncStorage.setItem(
-        this.CLAIMED_KEY,
-        JSON.stringify(Array.from(this.claimedDrops))
-      );
+      await AsyncStorage.setItem(this.CLAIMED_KEY, JSON.stringify(Array.from(this.claimedDrops)));
     } catch (error) {
       console.error('Error saving claimed drops:', error);
     }
@@ -97,7 +94,7 @@ class MonthlyDropsService {
       require('../../../assets/drops/month_2024_03.json'),
     ];
 
-    drops.forEach(drop => {
+    drops.forEach((drop) => {
       this.currentDrops.set(drop.month, drop);
     });
   }
@@ -110,7 +107,7 @@ class MonthlyDropsService {
 
   getAvailableDrops(): MonthlyDrop[] {
     const now = new Date();
-    return Array.from(this.currentDrops.values()).filter(drop => {
+    return Array.from(this.currentDrops.values()).filter((drop) => {
       const start = new Date(drop.availability.startDate);
       const end = new Date(drop.availability.endDate);
       return now >= start && now <= end;
@@ -131,7 +128,7 @@ class MonthlyDropsService {
     const now = new Date();
     const start = new Date(drop.availability.startDate);
     const end = new Date(drop.availability.endDate);
-    
+
     if (now < start || now > end) {
       return false; // Drop not available
     }
@@ -185,7 +182,7 @@ class MonthlyDropsService {
 
   getUpcomingDrops(): MonthlyDrop[] {
     const now = new Date();
-    return Array.from(this.currentDrops.values()).filter(drop => {
+    return Array.from(this.currentDrops.values()).filter((drop) => {
       const start = new Date(drop.availability.startDate);
       return now < start;
     });
@@ -193,7 +190,7 @@ class MonthlyDropsService {
 
   getPastDrops(): MonthlyDrop[] {
     const now = new Date();
-    return Array.from(this.currentDrops.values()).filter(drop => {
+    return Array.from(this.currentDrops.values()).filter((drop) => {
       const end = new Date(drop.availability.endDate);
       return now > end;
     });
@@ -210,12 +207,14 @@ class MonthlyDropsService {
       displayName: drop.displayName,
       theme: drop.theme,
       drops: {
-        cartSkin: drop.drops.cartSkin ? {
-          ...drop.drops.cartSkin,
-          imageUrl: drop.drops.cartSkin.imageUrl + '?blur=true' // Blurred preview
-        } : undefined,
+        cartSkin: drop.drops.cartSkin
+          ? {
+              ...drop.drops.cartSkin,
+              imageUrl: drop.drops.cartSkin.imageUrl + '?blur=true', // Blurred preview
+            }
+          : undefined,
         bonusCoins: drop.drops.bonusCoins,
-      }
+      },
     };
   }
 }

@@ -34,12 +34,7 @@ export default function PrivacyConsentDialog({ visible, onAccept }: PrivacyConse
   };
 
   return (
-    <Modal
-      visible={visible}
-      transparent={true}
-      animationType="fade"
-      statusBarTranslucent={true}
-    >
+    <Modal visible={visible} transparent={true} animationType="fade" statusBarTranslucent={true}>
       <View style={styles.overlay}>
         <View style={styles.dialog}>
           <ScrollView showsVerticalScrollIndicator={false}>
@@ -100,17 +95,11 @@ export default function PrivacyConsentDialog({ visible, onAccept }: PrivacyConse
             </Text>
 
             <View style={styles.buttonContainer}>
-              <TouchableOpacity
-                style={styles.buttonPrimary}
-                onPress={handleAccept}
-              >
+              <TouchableOpacity style={styles.buttonPrimary} onPress={handleAccept}>
                 <Text style={styles.buttonPrimaryText}>Continue</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity
-                style={styles.buttonSecondary}
-                onPress={handleAcceptAll}
-              >
+              <TouchableOpacity style={styles.buttonSecondary} onPress={handleAcceptAll}>
                 <Text style={styles.buttonSecondaryText}>Accept All</Text>
               </TouchableOpacity>
             </View>

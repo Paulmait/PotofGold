@@ -151,7 +151,7 @@ export class OfflineSystem {
   }
 
   private setupNetworkListener() {
-    this.networkListener = NetInfo.addEventListener(state => {
+    this.networkListener = NetInfo.addEventListener((state) => {
       const wasOnline = this.isOnline;
       this.isOnline = state.isConnected || false;
 
@@ -172,7 +172,7 @@ export class OfflineSystem {
       GameEventType.GAME_OVER,
     ];
 
-    eventsToCapture.forEach(eventType => {
+    eventsToCapture.forEach((eventType) => {
       eventBus.on(eventType, (data: any) => {
         this.captureEvent(eventType, data);
       });
@@ -202,7 +202,7 @@ export class OfflineSystem {
       // Load cache
       const cacheKeys = await AsyncStorage.getAllKeys();
       const cacheData = await AsyncStorage.multiGet(
-        cacheKeys.filter(key => key.startsWith('cache_'))
+        cacheKeys.filter((key) => key.startsWith('cache_'))
       );
 
       cacheData.forEach(([key, value]) => {
@@ -236,16 +236,16 @@ export class OfflineSystem {
 
   private handleOnlineTransition() {
     console.log('Device is now online');
-    
+
     // Calculate offline progress
     const offlineProgress = this.calculateOfflineProgress();
-    
+
     // Grant offline earnings
     this.grantOfflineEarnings(offlineProgress);
-    
+
     // Start syncing
     this.processSyncQueue();
-    
+
     eventBus.emit(GameEventType.NETWORK_CONNECTED, {
       offlineDuration: offlineProgress.duration,
       earnings: offlineProgress.earnings,
@@ -255,18 +255,16 @@ export class OfflineSystem {
   private handleOfflineTransition() {
     console.log('Device is now offline');
     this.offlineStartTime = Date.now();
-    
+
     eventBus.emit(GameEventType.NETWORK_DISCONNECTED, {});
-    
+
     // Save current state
     this.saveCurrentState();
   }
 
   private calculateOfflineProgress(): OfflineProgress {
     const endTime = Date.now();
-    const duration = this.offlineStartTime > 0 
-      ? endTime - this.offlineStartTime 
-      : 0;
+    const duration = this.offlineStartTime > 0 ? endTime - this.offlineStartTime : 0;
 
     const minutes = duration / 60000;
     const baseEarnings = minutes * this.offlineEarningsRate;
@@ -302,9 +300,7 @@ export class OfflineSystem {
   }
 
   private getOfflineMultipliers(): OfflineBonus[] {
-    const bonuses: OfflineBonus[] = [
-      { type: 'base', multiplier: 1, source: 'default' },
-    ];
+    const bonuses: OfflineBonus[] = [{ type: 'base', multiplier: 1, source: 'default' }];
 
     // Add prestige multipliers
     const prestigeMultiplier = this.getPrestigeOfflineMultiplier();
@@ -356,12 +352,7 @@ export class OfflineSystem {
     }
   }
 
-  async saveData(
-    type: DataType,
-    action: ActionType,
-    data: any,
-    priority = 5
-  ): Promise<void> {
+  async saveData(type: DataType, action: ActionType, data: any, priority = 5): Promise<void> {
     const offlineData: OfflineData = {
       id: this.generateId(),
       type,
@@ -443,7 +434,7 @@ export class OfflineSystem {
     } catch (error) {
       console.error('Sync failed:', error);
       item.retries++;
-      
+
       if (item.retries >= 3) {
         this.moveToFailed(item);
       } else {
@@ -463,7 +454,7 @@ export class OfflineSystem {
     const batchSize = 10;
     const batch = this.syncQueue.pending.slice(0, batchSize);
 
-    await Promise.all(batch.map(item => this.syncSingleItem(item)));
+    await Promise.all(batch.map((item) => this.syncSingleItem(item)));
 
     // Update last sync time
     this.lastSyncTime = Date.now();
@@ -534,12 +525,12 @@ export class OfflineSystem {
     const merged = new Map();
 
     // Add remote items
-    remote.forEach(item => {
+    remote.forEach((item) => {
       merged.set(item.id, item);
     });
 
     // Merge local items
-    local.forEach(item => {
+    local.forEach((item) => {
       if (merged.has(item.id)) {
         const remoteItem = merged.get(item.id);
         merged.set(item.id, {
@@ -667,13 +658,14 @@ export class OfflineSystem {
 
   private evictFromCache(requiredSize: number) {
     // LRU eviction
-    const entries = Array.from(this.cache.entries())
-      .sort((a, b) => a[1].timestamp - b[1].timestamp);
+    const entries = Array.from(this.cache.entries()).sort(
+      (a, b) => a[1].timestamp - b[1].timestamp
+    );
 
     let freedSize = 0;
     for (const [key, entry] of entries) {
       if (freedSize >= requiredSize) break;
-      
+
       this.cache.delete(key);
       freedSize += entry.size;
       this.currentCacheSize -= entry.size;
@@ -691,7 +683,7 @@ export class OfflineSystem {
       }
     });
 
-    toDelete.forEach(key => this.cache.delete(key));
+    toDelete.forEach((key) => this.cache.delete(key));
   }
 
   private isValidCacheEntry(entry: any): boolean {
@@ -778,7 +770,7 @@ export class OfflineSystem {
     const str = JSON.stringify(data);
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
-      hash = ((hash << 5) - hash) + str.charCodeAt(i);
+      hash = (hash << 5) - hash + str.charCodeAt(i);
       hash = hash & hash;
     }
     return hash.toString(36);
@@ -845,7 +837,7 @@ export class OfflineSystem {
     this.syncQueue.failed = [];
     this.sortQueueByPriority();
     await this.persistQueue();
-    
+
     if (this.isOnline) {
       this.processSyncQueue();
     }

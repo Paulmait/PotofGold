@@ -33,17 +33,14 @@ export const useUnlockMultiplier = (userId?: string): UnlockMultiplierState => {
 };
 
 // Helper function to apply multiplier to XP/progression values
-export const applyUnlockMultiplier = (
-  baseValue: number, 
-  multiplier: number
-): number => {
+export const applyUnlockMultiplier = (baseValue: number, multiplier: number): number => {
   return Math.floor(baseValue * multiplier);
 };
 
 // Hook for specific unlock types
 export const useStateUnlockSpeed = (userId?: string) => {
   const { multiplier, isActive } = useUnlockMultiplier(userId);
-  
+
   return {
     stateXpMultiplier: multiplier,
     isBoostActive: isActive,
@@ -53,7 +50,7 @@ export const useStateUnlockSpeed = (userId?: string) => {
 
 export const useSkinUnlockSpeed = (userId?: string) => {
   const { multiplier, isActive } = useUnlockMultiplier(userId);
-  
+
   return {
     skinProgressMultiplier: multiplier,
     isBoostActive: isActive,
@@ -66,7 +63,7 @@ export const useAllUnlockSpeeds = (userId?: string) => {
   const base = useUnlockMultiplier(userId);
   const state = useStateUnlockSpeed(userId);
   const skin = useSkinUnlockSpeed(userId);
-  
+
   return {
     baseMultiplier: base.multiplier,
     isGoldVaultActive: base.isActive,

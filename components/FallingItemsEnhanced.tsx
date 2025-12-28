@@ -24,19 +24,19 @@ const FallingItemsEnhanced: React.FC<FallingItemsEnhancedProps> = ({
   onItemReachBottom,
 }) => {
   useEffect(() => {
-    items.forEach(item => {
+    items.forEach((item) => {
       const animation = Animated.timing(item.y, {
         toValue: height,
-        duration: (height - item.y._value) / item.speed * 16,
+        duration: ((height - item.y._value) / item.speed) * 16,
         useNativeDriver: true,
       });
-      
+
       animation.start(() => {
         onItemReachBottom(item.id);
       });
     });
   }, [items]);
-  
+
   const renderItem = (item: FallingItem) => {
     switch (item.type) {
       case 'coin':
@@ -50,7 +50,7 @@ const FallingItemsEnhanced: React.FC<FallingItemsEnhancedProps> = ({
             <FontAwesome5 name="coins" size={20} color="#FFF" />
           </LinearGradient>
         );
-        
+
       case 'diamond':
         return (
           <View style={styles.diamondContainer}>
@@ -64,7 +64,7 @@ const FallingItemsEnhanced: React.FC<FallingItemsEnhancedProps> = ({
             </LinearGradient>
           </View>
         );
-        
+
       case 'star':
         return (
           <LinearGradient
@@ -76,7 +76,7 @@ const FallingItemsEnhanced: React.FC<FallingItemsEnhancedProps> = ({
             <FontAwesome5 name="star" size={22} color="#FFF" />
           </LinearGradient>
         );
-        
+
       case 'clover':
         return (
           <LinearGradient
@@ -88,7 +88,7 @@ const FallingItemsEnhanced: React.FC<FallingItemsEnhancedProps> = ({
             <MaterialCommunityIcons name="clover" size={24} color="#FFF" />
           </LinearGradient>
         );
-        
+
       case 'bomb':
         return (
           <LinearGradient
@@ -100,7 +100,7 @@ const FallingItemsEnhanced: React.FC<FallingItemsEnhancedProps> = ({
             <MaterialCommunityIcons name="bomb" size={24} color="#FF4444" />
           </LinearGradient>
         );
-        
+
       case 'heart':
         return (
           <LinearGradient
@@ -112,7 +112,7 @@ const FallingItemsEnhanced: React.FC<FallingItemsEnhancedProps> = ({
             <FontAwesome5 name="heart" size={20} color="#FFF" />
           </LinearGradient>
         );
-        
+
       case 'magnet':
         return (
           <LinearGradient
@@ -124,7 +124,7 @@ const FallingItemsEnhanced: React.FC<FallingItemsEnhancedProps> = ({
             <MaterialCommunityIcons name="magnet" size={22} color="#FFF" />
           </LinearGradient>
         );
-        
+
       case 'multiplier':
         return (
           <LinearGradient
@@ -139,24 +139,21 @@ const FallingItemsEnhanced: React.FC<FallingItemsEnhancedProps> = ({
             </View>
           </LinearGradient>
         );
-        
+
       default:
         return null;
     }
   };
-  
+
   return (
     <View style={styles.container}>
-      {items.map(item => (
+      {items.map((item) => (
         <Animated.View
           key={item.id}
           style={[
             styles.itemContainer,
             {
-              transform: [
-                { translateX: item.x },
-                { translateY: item.y },
-              ],
+              transform: [{ translateX: item.x }, { translateY: item.y }],
             },
           ]}
         >
@@ -176,13 +173,13 @@ const styles = StyleSheet.create({
     bottom: 0,
     zIndex: 100,
   },
-  
+
   itemContainer: {
     position: 'absolute',
     width: 40,
     height: 40,
   },
-  
+
   coin: {
     width: 40,
     height: 40,
@@ -195,14 +192,14 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
-  
+
   diamondContainer: {
     width: 40,
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  
+
   diamond: {
     width: 36,
     height: 36,
@@ -215,7 +212,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
-  
+
   star: {
     width: 40,
     height: 40,
@@ -227,7 +224,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
-  
+
   clover: {
     width: 40,
     height: 40,
@@ -240,7 +237,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
-  
+
   bomb: {
     width: 40,
     height: 40,
@@ -253,7 +250,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
-  
+
   heart: {
     width: 40,
     height: 40,
@@ -266,7 +263,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
-  
+
   powerUp: {
     width: 40,
     height: 40,
@@ -279,7 +276,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
-  
+
   multiplierContent: {
     flexDirection: 'row',
     alignItems: 'center',

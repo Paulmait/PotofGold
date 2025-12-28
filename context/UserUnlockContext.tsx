@@ -58,19 +58,19 @@ export function UserUnlockProvider({ children }: UserUnlockProviderProps) {
   const loadUserUnlocks = async (uid: string) => {
     try {
       setIsLoading(true);
-      
+
       // Fetch user document
       const userDoc = await getDoc(doc(db, 'users', uid));
-      
+
       if (userDoc.exists()) {
         const userData = userDoc.data();
-        
+
         // Get unlocked skins
         const unlockedSkins = userData.unlocks || [];
-        
+
         // Get selected cart skin
         const selectedCartSkin = userData.profile?.skin || null;
-        
+
         setUserUnlocks({
           unlockedSkins,
           selectedCartSkin,
@@ -123,7 +123,7 @@ export function UserUnlockProvider({ children }: UserUnlockProviderProps) {
       });
 
       // Update local state
-      setUserUnlocks(prev => ({
+      setUserUnlocks((prev) => ({
         ...prev,
         unlockedSkins: [...prev.unlockedSkins, skinId],
         lastUpdated: new Date(),
@@ -155,7 +155,7 @@ export function UserUnlockProvider({ children }: UserUnlockProviderProps) {
       });
 
       // Update local state
-      setUserUnlocks(prev => ({
+      setUserUnlocks((prev) => ({
         ...prev,
         selectedCartSkin: skinId,
         lastUpdated: new Date(),
@@ -198,19 +198,19 @@ export function UserUnlockProvider({ children }: UserUnlockProviderProps) {
     const skinDataMap: { [key: string]: any } = {
       georgia_bhm: {
         rarity: 'seasonal',
-        season: 'black_history_month'
+        season: 'black_history_month',
       },
       texas_hispanic: {
         rarity: 'seasonal',
-        season: 'hispanic_heritage'
+        season: 'hispanic_heritage',
       },
       california_hispanic: {
         rarity: 'seasonal',
-        season: 'hispanic_heritage'
+        season: 'hispanic_heritage',
       },
       // Add more seasonal skins as needed
     };
-    
+
     return skinDataMap[skinId];
   };
 
@@ -225,11 +225,7 @@ export function UserUnlockProvider({ children }: UserUnlockProviderProps) {
     isSeasonalSkinAvailable,
   };
 
-  return (
-    <UserUnlockContext.Provider value={value}>
-      {children}
-    </UserUnlockContext.Provider>
-  );
+  return <UserUnlockContext.Provider value={value}>{children}</UserUnlockContext.Provider>;
 }
 
 export function useUserUnlocks(): UserUnlockContextType {
@@ -238,4 +234,4 @@ export function useUserUnlocks(): UserUnlockContextType {
     throw new Error('useUserUnlocks must be used within a UserUnlockProvider');
   }
   return context;
-} 
+}

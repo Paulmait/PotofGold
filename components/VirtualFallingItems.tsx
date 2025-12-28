@@ -1,11 +1,5 @@
 import React, { useMemo, useCallback, memo } from 'react';
-import {
-  View,
-  StyleSheet,
-  Animated,
-  Dimensions,
-  Text,
-} from 'react-native';
+import { View, StyleSheet, Animated, Dimensions, Text } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
@@ -28,78 +22,78 @@ interface VirtualFallingItemsProps {
 }
 
 // Memoized individual item component
-const FallingItemComponent = memo(({ 
-  item, 
-  animation,
-  sparkleAnimation 
-}: { 
-  item: FallingItem;
-  animation: Animated.Value;
-  sparkleAnimation?: Animated.Value;
-}) => {
-  const itemStyle = useMemo(() => getItemStyle(item), [item.type]);
-  
-  if (item.collected) return null;
+const FallingItemComponent = memo(
+  ({
+    item,
+    animation,
+    sparkleAnimation,
+  }: {
+    item: FallingItem;
+    animation: Animated.Value;
+    sparkleAnimation?: Animated.Value;
+  }) => {
+    const itemStyle = useMemo(() => getItemStyle(item), [item.type]);
 
-  return (
-    <Animated.View
-      style={[
-        itemStyle,
-        {
-          transform: [
-            {
-              translateY: animation.interpolate({
-                inputRange: [0, height],
-                outputRange: [item.y, height],
-              }),
-            },
-            {
-              scale: animation.interpolate({
-                inputRange: [0, height * 0.8, height],
-                outputRange: [1, 1.1, 0.8],
-              }),
-            },
-          ],
-        },
-      ]}
-    >
-      <ItemVisual type={item.type} sparkleAnimation={sparkleAnimation} />
-      {item.rarity && <RarityIndicator rarity={item.rarity} />}
-    </Animated.View>
-  );
-}, (prevProps, nextProps) => {
-  // Custom comparison for memo
-  return prevProps.item.collected === nextProps.item.collected &&
-         prevProps.item.y === nextProps.item.y;
-});
+    if (item.collected) return null;
+
+    return (
+      <Animated.View
+        style={[
+          itemStyle,
+          {
+            transform: [
+              {
+                translateY: animation.interpolate({
+                  inputRange: [0, height],
+                  outputRange: [item.y, height],
+                }),
+              },
+              {
+                scale: animation.interpolate({
+                  inputRange: [0, height * 0.8, height],
+                  outputRange: [1, 1.1, 0.8],
+                }),
+              },
+            ],
+          },
+        ]}
+      >
+        <ItemVisual type={item.type} sparkleAnimation={sparkleAnimation} />
+        {item.rarity && <RarityIndicator rarity={item.rarity} />}
+      </Animated.View>
+    );
+  },
+  (prevProps, nextProps) => {
+    // Custom comparison for memo
+    return (
+      prevProps.item.collected === nextProps.item.collected && prevProps.item.y === nextProps.item.y
+    );
+  }
+);
 
 // Memoized item visual component
-const ItemVisual = memo(({ 
-  type, 
-  sparkleAnimation 
-}: { 
-  type: string;
-  sparkleAnimation?: Animated.Value;
-}) => {
-  const emoji = getItemEmoji(type);
-  
-  return (
-    <View style={styles.itemContent}>
-      <Text style={styles.itemEmoji}>{emoji}</Text>
-      {sparkleAnimation && (
-        <Animated.View 
-          style={[
-            styles.sparkle,
-            {
-              opacity: sparkleAnimation,
-              transform: [{ scale: sparkleAnimation }],
-            }
-          ]} 
-        />
-      )}
-    </View>
-  );
-});
+const ItemVisual = memo(
+  ({ type, sparkleAnimation }: { type: string; sparkleAnimation?: Animated.Value }) => {
+    const emoji = getItemEmoji(type);
+
+    return (
+      <View style={styles.itemContent}>
+        <Text style={styles.itemEmoji}>{emoji}</Text>
+        {sparkleAnimation && (
+          <Animated.View
+            style={[
+              styles.sparkle,
+              {
+                opacity: sparkleAnimation,
+                transform: [{ scale: sparkleAnimation }],
+              },
+            ]}
+          />
+        )}
+      </View>
+    );
+  }
+);
 
 // Memoized rarity indicator
 const RarityIndicator = memo(({ rarity }: { rarity: string }) => (
@@ -107,103 +101,99 @@ const RarityIndicator = memo(({ rarity }: { rarity: string }) => (
 ));
 
 // Main virtual scrolling component
-const VirtualFallingItems: React.FC<VirtualFallingItemsProps> = memo(({
-  items,
-  onItemCollect,
-  viewportHeight = height,
-  viewportOffset = 0,
-  renderBuffer = 100,
-}) => {
-  // Filter items within viewport + buffer
-  const visibleItems = useMemo(() => {
-    const minY = viewportOffset - renderBuffer;
-    const maxY = viewportOffset + viewportHeight + renderBuffer;
-    
-    return items.filter(item => {
-      // Only render items within the visible viewport + buffer
-      return item.y >= minY && item.y <= maxY && !item.collected;
-    });
-  }, [items, viewportOffset, viewportHeight, renderBuffer]);
+const VirtualFallingItems: React.FC<VirtualFallingItemsProps> = memo(
+  ({ items, onItemCollect, viewportHeight = height, viewportOffset = 0, renderBuffer = 100 }) => {
+    // Filter items within viewport + buffer
+    const visibleItems = useMemo(() => {
+      const minY = viewportOffset - renderBuffer;
+      const maxY = viewportOffset + viewportHeight + renderBuffer;
 
-  // Animation cache
-  const animationsCache = useMemo(() => {
-    const cache = new Map<string, Animated.Value>();
-    visibleItems.forEach(item => {
-      if (!cache.has(item.id)) {
-        const anim = new Animated.Value(0);
-        cache.set(item.id, anim);
-        
-        // Start animation
-        Animated.timing(anim, {
-          toValue: height,
-          duration: (height - item.y) / item.speed * 1000,
-          useNativeDriver: true,
-        }).start();
-      }
-    });
-    return cache;
-  }, [visibleItems]);
+      return items.filter((item) => {
+        // Only render items within the visible viewport + buffer
+        return item.y >= minY && item.y <= maxY && !item.collected;
+      });
+    }, [items, viewportOffset, viewportHeight, renderBuffer]);
 
-  // Sparkle animations for special items
-  const sparkleAnimationsCache = useMemo(() => {
-    const cache = new Map<string, Animated.Value>();
-    const sparkleTypes = ['coin', 'gemstone', 'luckyStar', 'diamond', 'star'];
-    
-    visibleItems
-      .filter(item => sparkleTypes.includes(item.type))
-      .forEach(item => {
+    // Animation cache
+    const animationsCache = useMemo(() => {
+      const cache = new Map<string, Animated.Value>();
+      visibleItems.forEach((item) => {
         if (!cache.has(item.id)) {
-          const sparkleAnim = new Animated.Value(0);
-          cache.set(item.id, sparkleAnim);
-          
-          Animated.loop(
-            Animated.sequence([
-              Animated.timing(sparkleAnim, {
-                toValue: 1,
-                duration: 1000,
-                useNativeDriver: true,
-              }),
-              Animated.timing(sparkleAnim, {
-                toValue: 0,
-                duration: 1000,
-                useNativeDriver: true,
-              }),
-            ])
-          ).start();
+          const anim = new Animated.Value(0);
+          cache.set(item.id, anim);
+
+          // Start animation
+          Animated.timing(anim, {
+            toValue: height,
+            duration: ((height - item.y) / item.speed) * 1000,
+            useNativeDriver: true,
+          }).start();
         }
       });
-    return cache;
-  }, [visibleItems]);
+      return cache;
+    }, [visibleItems]);
 
-  return (
-    <View style={styles.container} pointerEvents="none">
-      {visibleItems.map(item => {
-        const animation = animationsCache.get(item.id);
-        const sparkleAnimation = sparkleAnimationsCache.get(item.id);
-        
-        if (!animation) return null;
-        
-        return (
-          <FallingItemComponent
-            key={item.id}
-            item={item}
-            animation={animation}
-            sparkleAnimation={sparkleAnimation}
-          />
-        );
-      })}
-      
-      {/* Performance overlay in dev mode */}
-      {__DEV__ && (
-        <View style={styles.debugInfo}>
-          <Text style={styles.debugText}>
-            Rendered: {visibleItems.length}/{items.length} items
-          </Text>
-        </View>
-      )}
-    </View>
-  );
-});
+    // Sparkle animations for special items
+    const sparkleAnimationsCache = useMemo(() => {
+      const cache = new Map<string, Animated.Value>();
+      const sparkleTypes = ['coin', 'gemstone', 'luckyStar', 'diamond', 'star'];
+
+      visibleItems
+        .filter((item) => sparkleTypes.includes(item.type))
+        .forEach((item) => {
+          if (!cache.has(item.id)) {
+            const sparkleAnim = new Animated.Value(0);
+            cache.set(item.id, sparkleAnim);
+
+            Animated.loop(
+              Animated.sequence([
+                Animated.timing(sparkleAnim, {
+                  toValue: 1,
+                  duration: 1000,
+                  useNativeDriver: true,
+                }),
+                Animated.timing(sparkleAnim, {
+                  toValue: 0,
+                  duration: 1000,
+                  useNativeDriver: true,
+                }),
+              ])
+            ).start();
+          }
+        });
+      return cache;
+    }, [visibleItems]);
+
+    return (
+      <View style={styles.container} pointerEvents="none">
+        {visibleItems.map((item) => {
+          const animation = animationsCache.get(item.id);
+          const sparkleAnimation = sparkleAnimationsCache.get(item.id);
+
+          if (!animation) return null;
+
+          return (
+            <FallingItemComponent
+              key={item.id}
+              item={item}
+              animation={animation}
+              sparkleAnimation={sparkleAnimation}
+            />
+          );
+        })}
+
+        {/* Performance overlay in dev mode */}
+        {__DEV__ && (
+          <View style={styles.debugInfo}>
+            <Text style={styles.debugText}>
+              Rendered: {visibleItems.length}/{items.length} items
+            </Text>
+          </View>
+        )}
+      </View>
+    );
+  }
+);
 
 // Helper functions
 function getItemStyle(item: FallingItem) {
@@ -271,7 +261,7 @@ function getItemEmoji(type: string): string {
   const emojis: { [key: string]: string } = {
     // Treasures (exact as specified)
     coin: '🪙',
-    gem: '💎', 
+    gem: '💎',
     diamond: '💠',
     // Power-ups (exact as specified)
     magnet: '🧲',

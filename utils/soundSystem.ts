@@ -51,7 +51,7 @@ export class SoundSystem {
         volume: 0.7,
         loop: false,
       },
-      
+
       // Bonus collected (sparkle pop)
       {
         id: 'bonus_collected',
@@ -62,7 +62,7 @@ export class SoundSystem {
         volume: 0.8,
         loop: false,
       },
-      
+
       // Game over (low whoosh)
       {
         id: 'game_over',
@@ -73,7 +73,7 @@ export class SoundSystem {
         volume: 0.6,
         loop: false,
       },
-      
+
       // UI tap (click sound)
       {
         id: 'ui_tap',
@@ -84,7 +84,7 @@ export class SoundSystem {
         volume: 0.5,
         loop: false,
       },
-      
+
       // Power-up activation
       {
         id: 'powerup_activate',
@@ -95,7 +95,7 @@ export class SoundSystem {
         volume: 0.8,
         loop: false,
       },
-      
+
       // Skin change
       {
         id: 'skin_change',
@@ -106,7 +106,7 @@ export class SoundSystem {
         volume: 0.6,
         loop: false,
       },
-      
+
       // Upgrade success
       {
         id: 'upgrade_success',
@@ -117,7 +117,7 @@ export class SoundSystem {
         volume: 0.7,
         loop: false,
       },
-      
+
       // Combo multiplier
       {
         id: 'combo_multiplier',
@@ -142,7 +142,7 @@ export class SoundSystem {
         volume: 0.4,
         loop: true,
       },
-      
+
       // Gold rush theme
       {
         id: 'gold_rush_theme',
@@ -153,7 +153,7 @@ export class SoundSystem {
         volume: 0.5,
         loop: true,
       },
-      
+
       // Menu background
       {
         id: 'menu_background',
@@ -172,7 +172,7 @@ export class SoundSystem {
     if (this.isMuted) return;
 
     try {
-      const sound = this.soundEffects.find(s => s.id === soundId);
+      const sound = this.soundEffects.find((s) => s.id === soundId);
       if (!sound) {
         console.log(`Sound not found: ${soundId}`);
         return;
@@ -180,9 +180,9 @@ export class SoundSystem {
 
       // In real app, this would use Expo AV or React Native Sound
       // await Audio.Sound.createAsync({ uri: sound.url }, { shouldPlay: true });
-      
+
       console.log(`🎵 Playing sound: ${sound.name}`);
-      
+
       // Log sound usage for analytics
       await this.logSoundUsage(soundId, 'effect');
     } catch (error) {
@@ -195,7 +195,7 @@ export class SoundSystem {
     if (this.isMuted) return;
 
     try {
-      const music = this.backgroundMusic.find(m => m.id === musicId);
+      const music = this.backgroundMusic.find((m) => m.id === musicId);
       if (!music) {
         console.log(`Music not found: ${musicId}`);
         return;
@@ -208,10 +208,10 @@ export class SoundSystem {
 
       // In real app, this would use Expo AV
       // await Audio.Sound.createAsync({ uri: music.url }, { shouldPlay: true, isLooping: music.loop });
-      
+
       this.currentMusic = musicId;
       console.log(`🎵 Playing music: ${music.name}`);
-      
+
       // Log music usage for analytics
       await this.logMusicUsage(musicId);
     } catch (error) {
@@ -226,7 +226,7 @@ export class SoundSystem {
     try {
       // In real app, this would stop the current audio
       // await currentAudioObject.stopAsync();
-      
+
       console.log('🎵 Music stopped');
       this.currentMusic = null;
     } catch (error) {
@@ -237,22 +237,22 @@ export class SoundSystem {
   // Toggle mute
   toggleMute(): boolean {
     this.isMuted = !this.isMuted;
-    
+
     if (this.isMuted) {
       this.stopMusic();
     }
-    
+
     console.log(`🔇 Sound ${this.isMuted ? 'muted' : 'unmuted'}`);
     return this.isMuted;
   }
 
   // Set volume for specific category
   setVolume(category: string, volume: number): void {
-    const sounds = this.soundEffects.filter(s => s.category === category);
-    sounds.forEach(sound => {
+    const sounds = this.soundEffects.filter((s) => s.category === category);
+    sounds.forEach((sound) => {
       sound.volume = Math.max(0, Math.min(1, volume));
     });
-    
+
     console.log(`🔊 Volume set for ${category}: ${volume}`);
   }
 
@@ -268,7 +268,7 @@ export class SoundSystem {
 
   // Get sound by category
   getSoundsByCategory(category: string): SoundEffect[] {
-    return this.soundEffects.filter(sound => sound.category === category);
+    return this.soundEffects.filter((sound) => sound.category === category);
   }
 
   // Log sound usage for analytics
@@ -306,12 +306,12 @@ export class SoundSystem {
   async preloadSounds(): Promise<void> {
     try {
       console.log('🎵 Preloading sounds...');
-      
+
       // In real app, this would preload all sounds
       // for (const sound of this.soundEffects) {
       //   await Audio.Sound.createAsync({ uri: sound.url });
       // }
-      
+
       console.log('✅ Sounds preloaded successfully');
     } catch (error) {
       console.log('Error preloading sounds:', error);
@@ -320,13 +320,13 @@ export class SoundSystem {
 
   // Get sound info
   getSoundInfo(soundId: string): SoundEffect | null {
-    return this.soundEffects.find(s => s.id === soundId) || null;
+    return this.soundEffects.find((s) => s.id === soundId) || null;
   }
 
   // Get music info
   getMusicInfo(musicId: string): BackgroundMusic | null {
-    return this.backgroundMusic.find(m => m.id === musicId) || null;
+    return this.backgroundMusic.find((m) => m.id === musicId) || null;
   }
 }
 
-export const soundSystem = SoundSystem.getInstance(); 
+export const soundSystem = SoundSystem.getInstance();

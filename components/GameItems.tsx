@@ -1,12 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import {
-  View,
-  StyleSheet,
-  Animated,
-  Dimensions,
-  Text,
-  Image,
-} from 'react-native';
+import { View, StyleSheet, Animated, Dimensions, Text, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 
@@ -23,7 +16,7 @@ export interface GameItem {
   special?: boolean;
 }
 
-export type ItemType = 
+export type ItemType =
   // Basic collectibles
   | 'goldCoin'
   | 'silverCoin'
@@ -65,7 +58,7 @@ export default function GameItems({ items, onItemCollect, isPaused }: GameItemsP
   const sparkleAnimations = useRef<{ [key: string]: Animated.Value }>({}).current;
 
   useEffect(() => {
-    items.forEach(item => {
+    items.forEach((item) => {
       if (!itemAnimations[item.id]) {
         // Initialize animations
         itemAnimations[item.id] = new Animated.Value(item.y);
@@ -76,7 +69,7 @@ export default function GameItems({ items, onItemCollect, isPaused }: GameItemsP
         if (!isPaused && !item.collected) {
           Animated.timing(itemAnimations[item.id], {
             toValue: height + 100,
-            duration: (height - item.y) / item.speed * 1000,
+            duration: ((height - item.y) / item.speed) * 1000,
             useNativeDriver: true,
           }).start();
 
@@ -115,7 +108,7 @@ export default function GameItems({ items, onItemCollect, isPaused }: GameItemsP
 
   const getItemContent = (item: GameItem) => {
     const baseSize = 50;
-    
+
     switch (item.type) {
       // Coins
       case 'goldCoin':
@@ -127,7 +120,7 @@ export default function GameItems({ items, onItemCollect, isPaused }: GameItemsP
             <Text style={styles.coinText}>💰</Text>
           </LinearGradient>
         );
-      
+
       case 'silverCoin':
         return (
           <LinearGradient
@@ -137,7 +130,7 @@ export default function GameItems({ items, onItemCollect, isPaused }: GameItemsP
             <Text style={styles.coinText}>🪙</Text>
           </LinearGradient>
         );
-      
+
       case 'bronzeCoin':
         return (
           <LinearGradient
@@ -308,8 +301,8 @@ export default function GameItems({ items, onItemCollect, isPaused }: GameItemsP
     if (!item.collected && !isPaused) {
       // Haptic feedback for collection
       Haptics.impactAsync(
-        item.type.includes('mystery') || item.type.includes('gift') 
-          ? Haptics.ImpactFeedbackStyle.Heavy 
+        item.type.includes('mystery') || item.type.includes('gift')
+          ? Haptics.ImpactFeedbackStyle.Heavy
           : Haptics.ImpactFeedbackStyle.Light
       );
       onItemCollect(item);
@@ -318,13 +311,13 @@ export default function GameItems({ items, onItemCollect, isPaused }: GameItemsP
 
   return (
     <View style={styles.container} pointerEvents="none">
-      {items.map(item => {
+      {items.map((item) => {
         if (item.collected) return null;
-        
+
         const fallAnimation = itemAnimations[item.id];
         const rotateAnimation = rotationAnimations[item.id];
         const sparkleAnimation = sparkleAnimations[item.id];
-        
+
         if (!fallAnimation) return null;
 
         return (
@@ -337,10 +330,11 @@ export default function GameItems({ items, onItemCollect, isPaused }: GameItemsP
                 transform: [
                   { translateY: fallAnimation },
                   {
-                    rotate: rotateAnimation?.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: ['0deg', '360deg'],
-                    }) || '0deg',
+                    rotate:
+                      rotateAnimation?.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: ['0deg', '360deg'],
+                      }) || '0deg',
                   },
                   {
                     scale: item.collected ? 0 : 1,
@@ -362,10 +356,10 @@ export default function GameItems({ items, onItemCollect, isPaused }: GameItemsP
                 <Text style={styles.sparkleText}>✨</Text>
               </Animated.View>
             )}
-            
+
             {/* Main item content */}
             {getItemContent(item)}
-            
+
             {/* Value indicator for high-value items */}
             {item.value >= 100 && (
               <View style={styles.valueIndicator}>

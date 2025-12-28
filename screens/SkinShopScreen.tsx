@@ -10,7 +10,11 @@ import {
   Image,
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import { StateFlagPattern, StateShapeSilhouette, StateParticleEffect } from '../components/StateThemeComponents';
+import {
+  StateFlagPattern,
+  StateShapeSilhouette,
+  StateParticleEffect,
+} from '../components/StateThemeComponents';
 import { StateSpecialItems } from '../components/StateSpecialItems';
 import { FirebaseUnlockSystem, UserUnlocks } from '../utils/firebaseUnlockSystem';
 import { auth } from '../firebase/auth';
@@ -40,7 +44,8 @@ interface SkinShopScreenProps {
 }
 
 export default function SkinShopScreen({ navigation }: SkinShopScreenProps) {
-  const { unlockedSkins, selectedCartSkin, isSkinUnlocked, isSeasonalSkinAvailable } = useUserUnlocks();
+  const { unlockedSkins, selectedCartSkin, isSkinUnlocked, isSeasonalSkinAvailable } =
+    useUserUnlocks();
   const { activeSeasonalSkins, currentEvents, isLoading: seasonalLoading } = useSeasonalSkins();
 
   const [stateSkins, setStateSkins] = useState<{ [key: string]: StateSkin }>({});
@@ -58,66 +63,66 @@ export default function SkinShopScreen({ navigation }: SkinShopScreenProps) {
       // In a real app, load from the config file
       const skins = {
         california: {
-          name: "Golden Bear Flag",
-          type: "flag",
-          unlock: "Collect 1,000 coins",
-          rarity: "rare",
-          asset: "flags/california_flag.png",
-          description: "Golden state flag with bear emblem",
+          name: 'Golden Bear Flag',
+          type: 'flag',
+          unlock: 'Collect 1,000 coins',
+          rarity: 'rare',
+          asset: 'flags/california_flag.png',
+          description: 'Golden state flag with bear emblem',
           theme: {
-            primaryColor: "#FFD700",
-            secondaryColor: "#8B4513",
-            accentColor: "#FFA500"
-          }
+            primaryColor: '#FFD700',
+            secondaryColor: '#8B4513',
+            accentColor: '#FFA500',
+          },
         },
         texas: {
-          name: "Lone Star Cart",
-          type: "shape",
-          unlock: "Reach Level 5",
-          rarity: "common",
-          asset: "shapes/texas_shape.png",
-          description: "Texas state outline with lone star",
+          name: 'Lone Star Cart',
+          type: 'shape',
+          unlock: 'Reach Level 5',
+          rarity: 'common',
+          asset: 'shapes/texas_shape.png',
+          description: 'Texas state outline with lone star',
           theme: {
-            primaryColor: "#1E3A8A",
-            secondaryColor: "#F59E0B",
-            accentColor: "#EF4444"
-          }
+            primaryColor: '#1E3A8A',
+            secondaryColor: '#F59E0B',
+            accentColor: '#EF4444',
+          },
         },
         florida: {
-          name: "Sunshine Splash",
-          type: "trail",
-          unlock: "Invite a friend",
-          asset: "trails/florida_trail.png",
-          description: "Sunshine and palm tree particle trail",
+          name: 'Sunshine Splash',
+          type: 'trail',
+          unlock: 'Invite a friend',
+          asset: 'trails/florida_trail.png',
+          description: 'Sunshine and palm tree particle trail',
           theme: {
-            primaryColor: "#1E3A8A",
-            secondaryColor: "#F59E0B",
-            accentColor: "#EF4444"
-          }
+            primaryColor: '#1E3A8A',
+            secondaryColor: '#F59E0B',
+            accentColor: '#EF4444',
+          },
         },
         new_york: {
-          name: "Empire State",
-          type: "flag",
-          unlock: "Score 5000 coins",
-          asset: "flags/new_york_flag.png",
-          description: "Empire State flag pattern",
+          name: 'Empire State',
+          type: 'flag',
+          unlock: 'Score 5000 coins',
+          asset: 'flags/new_york_flag.png',
+          description: 'Empire State flag pattern',
           theme: {
-            primaryColor: "#1E3A8A",
-            secondaryColor: "#F59E0B",
-            accentColor: "#EF4444"
-          }
+            primaryColor: '#1E3A8A',
+            secondaryColor: '#F59E0B',
+            accentColor: '#EF4444',
+          },
         },
         hawaii: {
-          name: "Aloha Trail",
-          type: "trail",
-          unlock: "Collect 50 hibiscus items",
-          asset: "trails/hawaii_trail.png",
-          description: "Hibiscus flower particle trail",
+          name: 'Aloha Trail',
+          type: 'trail',
+          unlock: 'Collect 50 hibiscus items',
+          asset: 'trails/hawaii_trail.png',
+          description: 'Hibiscus flower particle trail',
           theme: {
-            primaryColor: "#059669",
-            secondaryColor: "#F59E0B",
-            accentColor: "#EF4444"
-          }
+            primaryColor: '#059669',
+            secondaryColor: '#F59E0B',
+            accentColor: '#EF4444',
+          },
         },
         // Add more states here...
       };
@@ -131,27 +136,24 @@ export default function SkinShopScreen({ navigation }: SkinShopScreenProps) {
     if (isSkinUnlocked(skinId)) {
       // Haptic feedback for skin selection
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-      
+
       setPreviewSkin(stateSkins[skinId]);
-      
+
       // Select the skin using context
       // const success = await selectCartSkin(skinId); // This line was removed as per new_code
-      if (true) { // Assuming selectCartSkin is now handled by context or removed
-        Alert.alert(
-          'Skin Equipped!',
-          `${stateSkins[skinId].name} is now your active skin.`,
-          [{ text: 'OK' }]
-        );
+      if (true) {
+        // Assuming selectCartSkin is now handled by context or removed
+        Alert.alert('Skin Equipped!', `${stateSkins[skinId].name} is now your active skin.`, [
+          { text: 'OK' },
+        ]);
       }
     } else {
       // Haptic feedback for locked skin
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      
-      Alert.alert(
-        'Skin Locked',
-        `Unlock this skin by: ${stateSkins[skinId]?.unlock}`,
-        [{ text: 'OK' }]
-      );
+
+      Alert.alert('Skin Locked', `Unlock this skin by: ${stateSkins[skinId]?.unlock}`, [
+        { text: 'OK' },
+      ]);
     }
   };
 
@@ -169,7 +171,7 @@ export default function SkinShopScreen({ navigation }: SkinShopScreenProps) {
 
     // Haptic feedback for long press
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-    
+
     Alert.alert(
       skin.name,
       `Type: ${skin.type.toUpperCase()}\nUnlock: ${skin.unlock}\nRarity: ${skin.rarity || 'common'}\n\n${skin.description}`,
@@ -179,11 +181,11 @@ export default function SkinShopScreen({ navigation }: SkinShopScreenProps) {
 
   const getFilteredSkins = () => {
     const allSkins = Object.entries(stateSkins);
-    
+
     if (filter === 'all') {
       return allSkins;
     }
-    
+
     return allSkins.filter(([id, skin]) => {
       if (filter === 'seasonal') {
         return skin.rarity === 'seasonal';
@@ -193,15 +195,11 @@ export default function SkinShopScreen({ navigation }: SkinShopScreenProps) {
   };
 
   const getSeasonalSkins = () => {
-    return Object.entries(stateSkins).filter(([id, skin]) => 
-      skin.rarity === 'seasonal'
-    );
+    return Object.entries(stateSkins).filter(([id, skin]) => skin.rarity === 'seasonal');
   };
 
   const getRegularSkins = () => {
-    return Object.entries(stateSkins).filter(([id, skin]) => 
-      skin.rarity !== 'seasonal'
-    );
+    return Object.entries(stateSkins).filter(([id, skin]) => skin.rarity !== 'seasonal');
   };
 
   const renderSkinCard = ([skinId, skin]: [string, StateSkin]) => {
@@ -355,12 +353,10 @@ export default function SkinShopScreen({ navigation }: SkinShopScreenProps) {
       <View style={styles.seasonalSection}>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>🎉 Limited Time - Seasonal Skins</Text>
-          <Text style={styles.sectionSubtitle}>
-            Available during {currentEvents.join(', ')}
-          </Text>
+          <Text style={styles.sectionSubtitle}>Available during {currentEvents.join(', ')}</Text>
         </View>
-        <ScrollView 
-          horizontal 
+        <ScrollView
+          horizontal
           showsHorizontalScrollIndicator={false}
           style={styles.seasonalScrollView}
         >
@@ -389,7 +385,9 @@ export default function SkinShopScreen({ navigation }: SkinShopScreenProps) {
               <View style={styles.seasonalCardContent}>
                 <Text style={styles.seasonalCardName}>{skin.name}</Text>
                 <Text style={styles.seasonalCardDescription}>{skin.description}</Text>
-                <View style={[styles.seasonalCardType, { backgroundColor: skin.theme.secondaryColor }]}>
+                <View
+                  style={[styles.seasonalCardType, { backgroundColor: skin.theme.secondaryColor }]}
+                >
                   <Text style={styles.seasonalCardTypeText}>{skin.type.toUpperCase()}</Text>
                 </View>
               </View>
@@ -422,9 +420,7 @@ export default function SkinShopScreen({ navigation }: SkinShopScreenProps) {
           style={[styles.filterButton, filter === 'all' && styles.filterActive]}
           onPress={() => setFilter('all')}
         >
-          <Text style={[styles.filterText, filter === 'all' && styles.filterTextActive]}>
-            All
-          </Text>
+          <Text style={[styles.filterText, filter === 'all' && styles.filterTextActive]}>All</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.filterButton, filter === 'flag' && styles.filterActive]}
@@ -468,16 +464,11 @@ export default function SkinShopScreen({ navigation }: SkinShopScreenProps) {
 
       {/* All Skins Section */}
       <ScrollView style={styles.skinsContainer} showsVerticalScrollIndicator={false}>
-        <View style={styles.skinsGrid}>
-          {getFilteredSkins().map(renderSkinCard)}
-        </View>
+        <View style={styles.skinsGrid}>{getFilteredSkins().map(renderSkinCard)}</View>
       </ScrollView>
 
       <View style={styles.footer}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <Text style={styles.backButtonText}>Back to Game</Text>
         </TouchableOpacity>
       </View>
@@ -818,4 +809,4 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#FFFFFF',
   },
-}); 
+});

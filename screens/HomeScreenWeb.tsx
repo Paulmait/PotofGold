@@ -44,14 +44,14 @@ const HomeScreenWeb: React.FC<HomeScreenWebProps> = ({ navigation }) => {
   const [userName, setUserName] = useState('Guest Player');
   const [guestHighScore, setGuestHighScore] = useState(0);
   const [guestCoins, setGuestCoins] = useState(0);
-  
+
   const fadeAnim = new Animated.Value(0);
   const scaleAnim = new Animated.Value(0.8);
 
   useEffect(() => {
     checkAuthStatus();
     loadGuestData();
-    
+
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -79,7 +79,7 @@ const HomeScreenWeb: React.FC<HomeScreenWebProps> = ({ navigation }) => {
     try {
       const highScore = await AsyncStorage.getItem('guest_high_score');
       const coins = await AsyncStorage.getItem('guest_coins');
-      
+
       if (highScore) setGuestHighScore(parseInt(highScore, 10));
       if (coins) setGuestCoins(parseInt(coins, 10));
     } catch (error) {
@@ -124,14 +124,10 @@ const HomeScreenWeb: React.FC<HomeScreenWebProps> = ({ navigation }) => {
         window.alert('You need an account to compete on the leaderboard!');
         navigation.navigate('Auth');
       } else {
-        Alert.alert(
-          'Sign Up Required',
-          'You need an account to compete on the leaderboard!',
-          [
-            { text: 'Sign Up', onPress: () => navigation.navigate('Auth') },
-            { text: 'Cancel', style: 'cancel' },
-          ]
-        );
+        Alert.alert('Sign Up Required', 'You need an account to compete on the leaderboard!', [
+          { text: 'Sign Up', onPress: () => navigation.navigate('Auth') },
+          { text: 'Cancel', style: 'cancel' },
+        ]);
       }
     } else {
       navigation.navigate('Leaderboard');
@@ -151,30 +147,29 @@ const HomeScreenWeb: React.FC<HomeScreenWebProps> = ({ navigation }) => {
   };
 
   return (
-    <LinearGradient
-      colors={['#1a1a2e', '#16213e', '#0f3460']}
-      style={styles.container}
-    >
+    <LinearGradient colors={['#1a1a2e', '#16213e', '#0f3460']} style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
-      
+
       <View style={styles.mainContent}>
-        <Animated.View style={[styles.content, { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }]}>
+        <Animated.View
+          style={[styles.content, { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }]}
+        >
           {/* Header */}
           <View style={styles.header}>
-            <Image 
-              source={require('../assets/images/pot_of_gold_logo.png')} 
+            <Image
+              source={require('../assets/images/pot_of_gold_logo.png')}
               style={styles.logo}
               resizeMode="contain"
             />
             <Text style={styles.title}>Pot of Gold</Text>
             <Text style={styles.subtitle}>Catch the falling treasure!</Text>
-            
+
             {/* User Status */}
             <View style={styles.userStatus}>
-              <Ionicons 
-                name={isGuest ? "person-outline" : "person"} 
-                size={scale(20)} 
-                color="#FFD700" 
+              <Ionicons
+                name={isGuest ? 'person-outline' : 'person'}
+                size={scale(20)}
+                color="#FFD700"
               />
               <Text style={styles.userName}>{userName}</Text>
               {isGuest && (
@@ -209,11 +204,7 @@ const HomeScreenWeb: React.FC<HomeScreenWebProps> = ({ navigation }) => {
           </View>
 
           {/* Main Play Button - Made larger and more prominent */}
-          <TouchableOpacity 
-            style={styles.playButton} 
-            onPress={handlePlayPress}
-            activeOpacity={0.8}
-          >
+          <TouchableOpacity style={styles.playButton} onPress={handlePlayPress} activeOpacity={0.8}>
             <LinearGradient
               colors={['#FFD700', '#FFA500', '#FF8C00']}
               style={styles.playButtonGradient}
@@ -254,12 +245,9 @@ const HomeScreenWeb: React.FC<HomeScreenWebProps> = ({ navigation }) => {
                 <Text style={styles.benefitsText}>✓ Full game access</Text>
                 <Text style={styles.benefitsText}>✗ Progress not saved</Text>
               </View>
-              
+
               <TouchableOpacity style={styles.signUpButton} onPress={handleSignUpPress}>
-                <LinearGradient
-                  colors={['#4CAF50', '#45a049']}
-                  style={styles.signUpButtonGradient}
-                >
+                <LinearGradient colors={['#4CAF50', '#45a049']} style={styles.signUpButtonGradient}>
                   <Text style={styles.signUpButtonText}>Sign Up to Save Progress</Text>
                 </LinearGradient>
               </TouchableOpacity>

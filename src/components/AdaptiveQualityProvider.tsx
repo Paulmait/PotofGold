@@ -1,4 +1,11 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  ReactNode,
+} from 'react';
 import { AppState, AppStateStatus, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import NetInfo from '@react-native-community/netinfo';
@@ -14,24 +21,24 @@ export interface QualityContext {
   // Current quality settings
   qualityMode: 'auto' | 'low' | 'medium' | 'high' | 'ultra';
   effectiveQuality: 'low' | 'medium' | 'high' | 'ultra';
-  
+
   // Device info
   deviceProfile: DeviceProfile;
   deviceScore: number;
-  
+
   // Performance metrics
   currentFPS: number;
   performanceScore: number;
   isLowPerformance: boolean;
-  
+
   // Network status
   isOffline: boolean;
   networkQuality: 'poor' | 'fair' | 'good' | 'excellent';
   shouldPreload: boolean;
-  
+
   // User preferences
   userPreferences: UserPreferences;
-  
+
   // Actions
   setQualityMode: (mode: 'auto' | 'low' | 'medium' | 'high' | 'ultra') => void;
   optimizeForBattery: () => void;
@@ -58,15 +65,21 @@ interface AdaptiveQualityProviderProps {
 
 export const AdaptiveQualityProvider: React.FC<AdaptiveQualityProviderProps> = ({ children }) => {
   // State
-  const [qualityMode, setQualityModeState] = useState<'auto' | 'low' | 'medium' | 'high' | 'ultra'>('auto');
-  const [effectiveQuality, setEffectiveQuality] = useState<'low' | 'medium' | 'high' | 'ultra'>('medium');
+  const [qualityMode, setQualityModeState] = useState<'auto' | 'low' | 'medium' | 'high' | 'ultra'>(
+    'auto'
+  );
+  const [effectiveQuality, setEffectiveQuality] = useState<'low' | 'medium' | 'high' | 'ultra'>(
+    'medium'
+  );
   const [deviceProfile, setDeviceProfile] = useState(() => deviceInfoManager.getDeviceProfile());
   const [deviceScore, setDeviceScore] = useState(0);
   const [currentFPS, setCurrentFPS] = useState(60);
   const [performanceScore, setPerformanceScore] = useState(100);
   const [isLowPerformance, setIsLowPerformance] = useState(false);
   const [isOffline, setIsOffline] = useState(false);
-  const [networkQuality, setNetworkQuality] = useState<'poor' | 'fair' | 'good' | 'excellent'>('good');
+  const [networkQuality, setNetworkQuality] = useState<'poor' | 'fair' | 'good' | 'excellent'>(
+    'good'
+  );
   const [userPreferences, setUserPreferences] = useState<UserPreferences>({
     reduceMotion: false,
     highContrast: false,
@@ -80,38 +93,46 @@ export const AdaptiveQualityProvider: React.FC<AdaptiveQualityProviderProps> = (
   // Calculate device score based on capabilities
   const calculateDeviceScore = useCallback((profile: DeviceProfile): number => {
     let score = 0;
-    
+
     // Performance tier (0-40 points)
     switch (profile.performanceTier) {
-      case 'ultra': score += 40; break;
-      case 'high': score += 30; break;
-      case 'medium': score += 20; break;
-      case 'low': score += 10; break;
+      case 'ultra':
+        score += 40;
+        break;
+      case 'high':
+        score += 30;
+        break;
+      case 'medium':
+        score += 20;
+        break;
+      case 'low':
+        score += 10;
+        break;
     }
-    
+
     // Memory (0-20 points)
     if (profile.totalMemory) {
       const memoryGB = profile.totalMemory / (1024 * 1024 * 1024);
       score += Math.min(memoryGB * 2.5, 20);
     }
-    
+
     // Screen resolution (0-20 points)
     const pixels = profile.screenWidth * profile.screenHeight * profile.screenScale;
     const megapixels = pixels / 1000000;
     score += Math.min(megapixels * 2, 20);
-    
+
     // Device year (0-10 points)
     if (profile.deviceYearClass) {
       const age = new Date().getFullYear() - profile.deviceYearClass;
       score += Math.max(10 - age * 2, 0);
     }
-    
+
     // Features (0-10 points)
     if (profile.supportsWebP) score += 2;
     if (profile.supportsHEIC) score += 2;
     if (profile.supportsP3ColorSpace) score += 3;
     if (profile.supportsHDR) score += 3;
-    
+
     return Math.min(Math.round(score), 100);
   }, []);
 
@@ -120,31 +141,35 @@ export const AdaptiveQualityProvider: React.FC<AdaptiveQualityProviderProps> = (
     if (qualityMode !== 'auto') {
       return qualityMode;
     }
-    
+
     // Auto mode - consider all factors
     const factors = {
       device: deviceScore,
       performance: performanceScore,
       battery: deviceProfile.batteryLevel ? deviceProfile.batteryLevel * 100 : 100,
-      network: networkQuality === 'excellent' ? 100 : 
-               networkQuality === 'good' ? 75 :
-               networkQuality === 'fair' ? 50 : 25,
+      network:
+        networkQuality === 'excellent'
+          ? 100
+          : networkQuality === 'good'
+            ? 75
+            : networkQuality === 'fair'
+              ? 50
+              : 25,
     };
-    
+
     // Weight the factors
-    const weightedScore = (
+    const weightedScore =
       factors.device * 0.4 +
       factors.performance * 0.3 +
       factors.battery * 0.15 +
-      factors.network * 0.15
-    );
-    
+      factors.network * 0.15;
+
     // Apply user preferences
     let adjustedScore = weightedScore;
     if (userPreferences.powerSaveMode) adjustedScore -= 20;
     if (userPreferences.saveData) adjustedScore -= 15;
     if (deviceProfile.isLowPowerMode) adjustedScore -= 25;
-    
+
     // Determine quality level
     if (adjustedScore >= 80) return 'ultra';
     if (adjustedScore >= 60) return 'high';
@@ -159,7 +184,7 @@ export const AdaptiveQualityProvider: React.FC<AdaptiveQualityProviderProps> = (
       if (stored) {
         setUserPreferences(JSON.parse(stored));
       }
-      
+
       const storedQuality = await AsyncStorage.getItem('@quality_mode');
       if (storedQuality) {
         setQualityModeState(storedQuality as any);
@@ -182,21 +207,21 @@ export const AdaptiveQualityProvider: React.FC<AdaptiveQualityProviderProps> = (
   // Initialize
   useEffect(() => {
     loadPreferences();
-    
+
     // Calculate initial device score
     const score = calculateDeviceScore(deviceProfile);
     setDeviceScore(score);
-    
+
     // Subscribe to device changes
     const unsubscribeDevice = deviceInfoManager.subscribe((profile) => {
       setDeviceProfile(profile);
       setDeviceScore(calculateDeviceScore(profile));
     });
-    
+
     // Subscribe to network changes
-    const unsubscribeNetwork = NetInfo.addEventListener(state => {
+    const unsubscribeNetwork = NetInfo.addEventListener((state) => {
       setIsOffline(!state.isConnected);
-      
+
       // Determine network quality
       if (state.type === 'wifi') {
         setNetworkQuality('excellent');
@@ -211,20 +236,20 @@ export const AdaptiveQualityProvider: React.FC<AdaptiveQualityProviderProps> = (
         setNetworkQuality('poor');
       }
     });
-    
+
     // Monitor app state changes
     const appStateSubscription = AppState.addEventListener('change', handleAppStateChange);
-    
+
     // Monitor performance
     const performanceInterval = setInterval(() => {
       const metrics = performanceMonitor.getCurrentMetrics();
       setCurrentFPS(Math.round(metrics.fps));
       setPerformanceScore(performanceMonitor.getPerformanceScore());
-      
+
       // Detect low performance
       if (metrics.fps < 30 || metrics.memoryUsage > 0.8) {
         setIsLowPerformance(true);
-        
+
         // Auto-adjust quality if in auto mode
         if (qualityMode === 'auto' && effectiveQuality !== 'low') {
           console.log('Auto-reducing quality due to poor performance');
@@ -234,7 +259,7 @@ export const AdaptiveQualityProvider: React.FC<AdaptiveQualityProviderProps> = (
         setIsLowPerformance(false);
       }
     }, 2000);
-    
+
     return () => {
       unsubscribeDevice();
       unsubscribeNetwork();
@@ -264,7 +289,7 @@ export const AdaptiveQualityProvider: React.FC<AdaptiveQualityProviderProps> = (
   const setQualityMode = useCallback(async (mode: 'auto' | 'low' | 'medium' | 'high' | 'ultra') => {
     setQualityModeState(mode);
     await AsyncStorage.setItem('@quality_mode', mode);
-    
+
     if (mode !== 'auto') {
       setEffectiveQuality(mode);
     }
@@ -277,14 +302,11 @@ export const AdaptiveQualityProvider: React.FC<AdaptiveQualityProviderProps> = (
       preloadAssets: false,
       cacheSize: 'small' as const,
     };
-    
+
     await savePreferences(newPrefs);
     setQualityMode('low');
-    
-    Alert.alert(
-      'Battery Optimization Enabled',
-      'Quality reduced to extend battery life'
-    );
+
+    Alert.alert('Battery Optimization Enabled', 'Quality reduced to extend battery life');
   }, [userPreferences, savePreferences, setQualityMode]);
 
   const optimizeForPerformance = useCallback(async () => {
@@ -294,9 +316,9 @@ export const AdaptiveQualityProvider: React.FC<AdaptiveQualityProviderProps> = (
       preloadAssets: true,
       cacheSize: 'large' as const,
     };
-    
+
     await savePreferences(newPrefs);
-    
+
     // Set quality based on device capabilities
     if (deviceScore >= 80) {
       setQualityMode('ultra');
@@ -305,16 +327,13 @@ export const AdaptiveQualityProvider: React.FC<AdaptiveQualityProviderProps> = (
     } else {
       setQualityMode('medium');
     }
-    
-    Alert.alert(
-      'Performance Mode Enabled',
-      'Quality optimized for best visuals'
-    );
+
+    Alert.alert('Performance Mode Enabled', 'Quality optimized for best visuals');
   }, [userPreferences, savePreferences, setQualityMode, deviceScore]);
 
   const resetToAuto = useCallback(async () => {
     setQualityMode('auto');
-    
+
     const defaultPrefs: UserPreferences = {
       reduceMotion: false,
       highContrast: false,
@@ -324,7 +343,7 @@ export const AdaptiveQualityProvider: React.FC<AdaptiveQualityProviderProps> = (
       preloadAssets: true,
       cacheSize: 'medium',
     };
-    
+
     await savePreferences(defaultPrefs);
   }, [setQualityMode, savePreferences]);
 
@@ -336,10 +355,11 @@ export const AdaptiveQualityProvider: React.FC<AdaptiveQualityProviderProps> = (
   }, [calculateDeviceScore]);
 
   // Determine if we should preload assets
-  const shouldPreload = !isOffline && 
-                       !isLowPerformance && 
-                       userPreferences.preloadAssets &&
-                       (networkQuality === 'good' || networkQuality === 'excellent');
+  const shouldPreload =
+    !isOffline &&
+    !isLowPerformance &&
+    userPreferences.preloadAssets &&
+    (networkQuality === 'good' || networkQuality === 'excellent');
 
   const contextValue: QualityContext = {
     qualityMode,
@@ -360,11 +380,7 @@ export const AdaptiveQualityProvider: React.FC<AdaptiveQualityProviderProps> = (
     refreshDeviceInfo,
   };
 
-  return (
-    <QualityContext.Provider value={contextValue}>
-      {children}
-    </QualityContext.Provider>
-  );
+  return <QualityContext.Provider value={contextValue}>{children}</QualityContext.Provider>;
 };
 
 // Custom hook to use quality context
@@ -394,9 +410,11 @@ export const usePerformanceStatus = () => {
 
 export const useShouldReduceQuality = () => {
   const { isLowPerformance, isOffline, networkQuality, deviceProfile } = useAdaptiveQuality();
-  return isLowPerformance || 
-         isOffline || 
-         networkQuality === 'poor' ||
-         deviceProfile.isLowPowerMode ||
-         (deviceProfile.batteryLevel !== null && deviceProfile.batteryLevel < 0.2);
+  return (
+    isLowPerformance ||
+    isOffline ||
+    networkQuality === 'poor' ||
+    deviceProfile.isLowPowerMode ||
+    (deviceProfile.batteryLevel !== null && deviceProfile.batteryLevel < 0.2)
+  );
 };

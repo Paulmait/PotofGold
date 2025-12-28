@@ -43,11 +43,16 @@ export default function MissionsScreen({ navigation }: MissionsScreenProps) {
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
-      case 'easy': return '#4CAF50';
-      case 'medium': return '#FF9800';
-      case 'hard': return '#F44336';
-      case 'expert': return '#9C27B0';
-      default: return '#4CAF50';
+      case 'easy':
+        return '#4CAF50';
+      case 'medium':
+        return '#FF9800';
+      case 'hard':
+        return '#F44336';
+      case 'expert':
+        return '#9C27B0';
+      default:
+        return '#4CAF50';
     }
   };
 
@@ -138,18 +143,20 @@ export default function MissionsScreen({ navigation }: MissionsScreenProps) {
               <View key={mission.id} style={styles.missionCard}>
                 <View style={styles.missionHeader}>
                   <Text style={styles.missionTitle}>{mission.title}</Text>
-                  <View style={[styles.difficultyBadge, { backgroundColor: getDifficultyColor(mission.difficulty) }]}>
+                  <View
+                    style={[
+                      styles.difficultyBadge,
+                      { backgroundColor: getDifficultyColor(mission.difficulty) },
+                    ]}
+                  >
                     <Text style={styles.difficultyText}>{mission.difficulty.toUpperCase()}</Text>
                   </View>
                 </View>
                 <Text style={styles.missionDescription}>{mission.description}</Text>
                 <View style={styles.progressContainer}>
                   <View style={styles.progressBar}>
-                    <View 
-                      style={[
-                        styles.progressFill, 
-                        { width: `${getMissionProgress(mission)}%` }
-                      ]} 
+                    <View
+                      style={[styles.progressFill, { width: `${getMissionProgress(mission)}%` }]}
                     />
                   </View>
                   <Text style={styles.progressText}>
@@ -172,18 +179,20 @@ export default function MissionsScreen({ navigation }: MissionsScreenProps) {
               <View key={challenge.id} style={styles.missionCard}>
                 <View style={styles.missionHeader}>
                   <Text style={styles.missionTitle}>{challenge.title}</Text>
-                  <View style={[styles.difficultyBadge, { backgroundColor: getDifficultyColor(challenge.difficulty) }]}>
+                  <View
+                    style={[
+                      styles.difficultyBadge,
+                      { backgroundColor: getDifficultyColor(challenge.difficulty) },
+                    ]}
+                  >
                     <Text style={styles.difficultyText}>{challenge.difficulty.toUpperCase()}</Text>
                   </View>
                 </View>
                 <Text style={styles.missionDescription}>{challenge.description}</Text>
                 <View style={styles.progressContainer}>
                   <View style={styles.progressBar}>
-                    <View 
-                      style={[
-                        styles.progressFill, 
-                        { width: `${getMissionProgress(challenge)}%` }
-                      ]} 
+                    <View
+                      style={[styles.progressFill, { width: `${getMissionProgress(challenge)}%` }]}
                     />
                   </View>
                   <Text style={styles.progressText}>
@@ -215,11 +224,11 @@ export default function MissionsScreen({ navigation }: MissionsScreenProps) {
                 <Text style={styles.missionDescription}>{challenge.description}</Text>
                 <View style={styles.progressContainer}>
                   <View style={styles.progressBar}>
-                    <View 
+                    <View
                       style={[
-                        styles.progressFill, 
-                        { width: `${(challenge.progress / challenge.target) * 100}%` }
-                      ]} 
+                        styles.progressFill,
+                        { width: `${(challenge.progress / challenge.target) * 100}%` },
+                      ]}
                     />
                   </View>
                   <Text style={styles.progressText}>
@@ -426,4 +435,4 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 50,
   },
-}); 
+});

@@ -31,62 +31,74 @@ export const usePowerups = (config: PowerUpConfig) => {
 
   const timersRef = useRef<{ [key: string]: NodeJS.Timeout }>({});
 
-  const activatePowerUp = useCallback((powerUpType: string, duration: number) => {
-    const powerUpKey = `${powerUpType}Active`;
-    const durationKey = `${powerUpType}Duration`;
+  const activatePowerUp = useCallback(
+    (powerUpType: string, duration: number) => {
+      const powerUpKey = `${powerUpType}Active`;
+      const durationKey = `${powerUpType}Duration`;
 
-    setPowerUpState(prev => ({
-      ...prev,
-      [powerUpKey]: true,
-      [durationKey]: duration,
-    }));
+      setPowerUpState((prev) => ({
+        ...prev,
+        [powerUpKey]: true,
+        [durationKey]: duration,
+      }));
 
-    // Clear existing timer for this power-up
-    if (timersRef.current[powerUpType]) {
-      clearTimeout(timersRef.current[powerUpType]);
-    }
+      // Clear existing timer for this power-up
+      if (timersRef.current[powerUpType]) {
+        clearTimeout(timersRef.current[powerUpType]);
+      }
 
-    // Set new timer
-    timersRef.current[powerUpType] = setTimeout(() => {
-      deactivatePowerUp(powerUpType);
-    }, duration);
+      // Set new timer
+      timersRef.current[powerUpType] = setTimeout(() => {
+        deactivatePowerUp(powerUpType);
+      }, duration);
 
-    // Trigger activation callback
-    config.onPowerUpActivated(powerUpType);
+      // Trigger activation callback
+      config.onPowerUpActivated(powerUpType);
 
-    // Haptic feedback
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-  }, [config]);
+      // Haptic feedback
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    },
+    [config]
+  );
 
-  const deactivatePowerUp = useCallback((powerUpType: string) => {
-    const powerUpKey = `${powerUpType}Active`;
-    const durationKey = `${powerUpType}Duration`;
+  const deactivatePowerUp = useCallback(
+    (powerUpType: string) => {
+      const powerUpKey = `${powerUpType}Active`;
+      const durationKey = `${powerUpType}Duration`;
 
-    setPowerUpState(prev => ({
-      ...prev,
-      [powerUpKey]: false,
-      [durationKey]: 0,
-    }));
+      setPowerUpState((prev) => ({
+        ...prev,
+        [powerUpKey]: false,
+        [durationKey]: 0,
+      }));
 
-    // Clear timer
-    if (timersRef.current[powerUpType]) {
-      clearTimeout(timersRef.current[powerUpType]);
-      delete timersRef.current[powerUpType];
-    }
+      // Clear timer
+      if (timersRef.current[powerUpType]) {
+        clearTimeout(timersRef.current[powerUpType]);
+        delete timersRef.current[powerUpType];
+      }
 
-    // Trigger deactivation callback
-    config.onPowerUpDeactivated(powerUpType);
-  }, [config]);
+      // Trigger deactivation callback
+      config.onPowerUpDeactivated(powerUpType);
+    },
+    [config]
+  );
 
-  const isPowerUpActive = useCallback((powerUpType: string): boolean => {
-    const powerUpKey = `${powerUpType}Active`;
-    return powerUpState[powerUpKey as keyof PowerUpState] as boolean;
-  }, [powerUpState]);
+  const isPowerUpActive = useCallback(
+    (powerUpType: string): boolean => {
+      const powerUpKey = `${powerUpType}Active`;
+      return powerUpState[powerUpKey as keyof PowerUpState] as boolean;
+    },
+    [powerUpState]
+  );
 
-  const getPowerUpDuration = useCallback((powerUpType: string): number => {
-    const durationKey = `${powerUpType}Duration`;
-    return powerUpState[durationKey as keyof PowerUpState] as number;
-  }, [powerUpState]);
+  const getPowerUpDuration = useCallback(
+    (powerUpType: string): number => {
+      const durationKey = `${powerUpType}Duration`;
+      return powerUpState[durationKey as keyof PowerUpState] as number;
+    },
+    [powerUpState]
+  );
 
   const getActivePowerUps = useCallback(() => {
     return {
@@ -99,7 +111,7 @@ export const usePowerups = (config: PowerUpConfig) => {
 
   const clearAllPowerUps = useCallback(() => {
     // Clear all timers
-    Object.values(timersRef.current).forEach(timer => {
+    Object.values(timersRef.current).forEach((timer) => {
       clearTimeout(timer);
     });
     timersRef.current = {};
@@ -120,7 +132,7 @@ export const usePowerups = (config: PowerUpConfig) => {
   useEffect(() => {
     return () => {
       // Cleanup timers on unmount
-      Object.values(timersRef.current).forEach(timer => {
+      Object.values(timersRef.current).forEach((timer) => {
         clearTimeout(timer);
       });
     };
@@ -135,4 +147,4 @@ export const usePowerups = (config: PowerUpConfig) => {
     getActivePowerUps,
     clearAllPowerUps,
   };
-}; 
+};

@@ -37,6 +37,7 @@ Pot of Gold may include seasonal content, monthly drops, and time-limited events
 ## 8. Restrictions
 
 You agree not to:
+
 - Use cheats, exploits, or unauthorized third-party tools.
 - Sell, trade, or transfer accounts or virtual items.
 - Engage in harassment, hate speech, or inappropriate behavior.

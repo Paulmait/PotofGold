@@ -1,11 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import {
-  View,
-  StyleSheet,
-  Animated,
-  Dimensions,
-  Text,
-} from 'react-native';
+import { View, StyleSheet, Animated, Dimensions, Text } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
@@ -25,16 +19,18 @@ interface ParticleEffectsProps {
 }
 
 export default function ParticleEffects({ particles, onParticleComplete }: ParticleEffectsProps) {
-  const particleAnimations = useRef<{ [key: string]: {
-    scale: Animated.Value;
-    opacity: Animated.Value;
-    translateX: Animated.Value;
-    translateY: Animated.Value;
-    rotate: Animated.Value;
-  }}>({}).current;
+  const particleAnimations = useRef<{
+    [key: string]: {
+      scale: Animated.Value;
+      opacity: Animated.Value;
+      translateX: Animated.Value;
+      translateY: Animated.Value;
+      rotate: Animated.Value;
+    };
+  }>({}).current;
 
   useEffect(() => {
-    particles.forEach(particle => {
+    particles.forEach((particle) => {
       if (!particleAnimations[particle.id]) {
         // Initialize animations for new particle
         particleAnimations[particle.id] = {
@@ -183,7 +179,7 @@ export default function ParticleEffects({ particles, onParticleComplete }: Parti
           ]),
           { iterations: 3 }
         ).start();
-        
+
         Animated.timing(anims.opacity, {
           toValue: 0,
           duration: duration,
@@ -303,35 +299,53 @@ export default function ParticleEffects({ particles, onParticleComplete }: Parti
 
   const getParticleEmoji = (type: string) => {
     switch (type) {
-      case 'star': return '⭐';
-      case 'coin': return '🪙';
-      case 'heart': return '❤️';
-      case 'sparkle': return '✨';
-      case 'confetti': return '🎊';
-      case 'bubble': return '🫧';
-      case 'rainbow': return '🌈';
-      default: return '✨';
+      case 'star':
+        return '⭐';
+      case 'coin':
+        return '🪙';
+      case 'heart':
+        return '❤️';
+      case 'sparkle':
+        return '✨';
+      case 'confetti':
+        return '🎊';
+      case 'bubble':
+        return '🫧';
+      case 'rainbow':
+        return '🌈';
+      default:
+        return '✨';
     }
   };
 
   const getParticleColor = (particle: Particle) => {
     if (particle.color) return particle.color;
-    
+
     switch (particle.type) {
-      case 'star': return '#FFD700';
-      case 'coin': return '#FFD700';
-      case 'heart': return '#FF69B4';
-      case 'sparkle': return '#FFFFFF';
-      case 'confetti': return ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF'][Math.floor(Math.random() * 5)];
-      case 'bubble': return '#87CEEB';
-      case 'rainbow': return '#FF69B4';
-      default: return '#FFFFFF';
+      case 'star':
+        return '#FFD700';
+      case 'coin':
+        return '#FFD700';
+      case 'heart':
+        return '#FF69B4';
+      case 'sparkle':
+        return '#FFFFFF';
+      case 'confetti':
+        return ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF'][
+          Math.floor(Math.random() * 5)
+        ];
+      case 'bubble':
+        return '#87CEEB';
+      case 'rainbow':
+        return '#FF69B4';
+      default:
+        return '#FFFFFF';
     }
   };
 
   return (
     <View style={styles.container} pointerEvents="none">
-      {particles.map(particle => {
+      {particles.map((particle) => {
         const anims = particleAnimations[particle.id];
         if (!anims) return null;
 

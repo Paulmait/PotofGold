@@ -16,13 +16,13 @@ const screenshotConfigs = {
     { name: 'iphone_65', width: 1284, height: 2778, deviceName: 'iPhone 14 Plus' },
     { name: 'iphone_55', width: 1242, height: 2208, deviceName: 'iPhone 8 Plus' },
     { name: 'ipad_129', width: 2048, height: 2732, deviceName: 'iPad Pro 12.9"' },
-    { name: 'ipad_105', width: 1668, height: 2224, deviceName: 'iPad Air' }
+    { name: 'ipad_105', width: 1668, height: 2224, deviceName: 'iPad Air' },
   ],
   android: [
     { name: 'phone', width: 1080, height: 1920, deviceName: 'Pixel 7' },
     { name: 'tablet_7', width: 1200, height: 1920, deviceName: '7" Tablet' },
-    { name: 'tablet_10', width: 1600, height: 2560, deviceName: '10" Tablet' }
-  ]
+    { name: 'tablet_10', width: 1600, height: 2560, deviceName: '10" Tablet' },
+  ],
 };
 
 // Marketing text overlays for screenshots
@@ -30,28 +30,28 @@ const marketingTexts = [
   {
     title: 'Catch the Gold!',
     subtitle: 'Swipe to collect coins',
-    features: ['Simple controls', 'Addictive gameplay', 'Endless fun']
+    features: ['Simple controls', 'Addictive gameplay', 'Endless fun'],
   },
   {
     title: 'Unlock Treasures',
     subtitle: '50+ unique skins to collect',
-    features: ['State-themed skins', 'Rare collectibles', 'Daily rewards']
+    features: ['State-themed skins', 'Rare collectibles', 'Daily rewards'],
   },
   {
     title: 'Challenge Friends',
     subtitle: 'Compete for high scores',
-    features: ['Global leaderboard', 'Weekly tournaments', 'Social sharing']
+    features: ['Global leaderboard', 'Weekly tournaments', 'Social sharing'],
   },
   {
     title: 'Power-Ups Galore',
     subtitle: 'Boost your gameplay',
-    features: ['Magnet power', 'Speed boost', 'Score multiplier']
+    features: ['Magnet power', 'Speed boost', 'Score multiplier'],
   },
   {
     title: 'Gold Vault Club',
     subtitle: 'Premium membership',
-    features: ['Exclusive skins', 'Daily bonuses', 'Ad-free experience']
-  }
+    features: ['Exclusive skins', 'Daily bonuses', 'Ad-free experience'],
+  },
 ];
 
 async function generateScreenshotBase(config, bgColor = '#FFD700') {
@@ -71,7 +71,7 @@ async function generateScreenshotBase(config, bgColor = '#FFD700') {
       <rect width="${config.width}" height="${config.height}" fill="url(#pattern)"/>
     </svg>
   `;
-  
+
   return sharp(Buffer.from(svg)).png();
 }
 
@@ -81,64 +81,68 @@ async function addGameplayMockup(base, config) {
   const gameHeight = Math.round(config.height * 0.5);
   const gameTop = Math.round(config.height * 0.35);
   const gameLeft = Math.round((config.width - gameWidth) / 2);
-  
+
   const gameSvg = `
     <svg width="${gameWidth}" height="${gameHeight}" xmlns="http://www.w3.org/2000/svg">
       <rect width="${gameWidth}" height="${gameHeight}" fill="#87CEEB" rx="20"/>
       <!-- Game elements -->
-      <text x="${gameWidth/2}" y="${gameHeight/3}" font-size="${gameHeight/10}" text-anchor="middle" fill="#FFD700">
+      <text x="${gameWidth / 2}" y="${gameHeight / 3}" font-size="${gameHeight / 10}" text-anchor="middle" fill="#FFD700">
         🏺 Score: 12,345
       </text>
       <!-- Falling coins -->
-      <text x="${gameWidth*0.2}" y="${gameHeight*0.5}" font-size="${gameHeight/15}">🪙</text>
-      <text x="${gameWidth*0.4}" y="${gameHeight*0.6}" font-size="${gameHeight/15}">🪙</text>
-      <text x="${gameWidth*0.6}" y="${gameHeight*0.4}" font-size="${gameHeight/15}">🪙</text>
-      <text x="${gameWidth*0.8}" y="${gameHeight*0.7}" font-size="${gameHeight/15}">🪙</text>
+      <text x="${gameWidth * 0.2}" y="${gameHeight * 0.5}" font-size="${gameHeight / 15}">🪙</text>
+      <text x="${gameWidth * 0.4}" y="${gameHeight * 0.6}" font-size="${gameHeight / 15}">🪙</text>
+      <text x="${gameWidth * 0.6}" y="${gameHeight * 0.4}" font-size="${gameHeight / 15}">🪙</text>
+      <text x="${gameWidth * 0.8}" y="${gameHeight * 0.7}" font-size="${gameHeight / 15}">🪙</text>
       <!-- Pot at bottom -->
-      <text x="${gameWidth/2}" y="${gameHeight*0.9}" font-size="${gameHeight/8}" text-anchor="middle">🏺</text>
+      <text x="${gameWidth / 2}" y="${gameHeight * 0.9}" font-size="${gameHeight / 8}" text-anchor="middle">🏺</text>
     </svg>
   `;
-  
-  const gameElement = await sharp(Buffer.from(gameSvg))
-    .png()
-    .toBuffer();
-  
-  return base.composite([{
-    input: gameElement,
-    top: gameTop,
-    left: gameLeft
-  }]);
+
+  const gameElement = await sharp(Buffer.from(gameSvg)).png().toBuffer();
+
+  return base.composite([
+    {
+      input: gameElement,
+      top: gameTop,
+      left: gameLeft,
+    },
+  ]);
 }
 
 async function addMarketingText(base, config, textData, index) {
   const titleSize = Math.round(config.height / 20);
   const subtitleSize = Math.round(config.height / 30);
   const featureSize = Math.round(config.height / 40);
-  
+
   const textSvg = `
     <svg width="${config.width}" height="${config.height}" xmlns="http://www.w3.org/2000/svg">
       <!-- Title -->
-      <text x="${config.width/2}" y="${config.height * 0.1}" 
+      <text x="${config.width / 2}" y="${config.height * 0.1}" 
             font-family="Arial Black" font-size="${titleSize}" 
             text-anchor="middle" fill="#FFFFFF" stroke="#000000" stroke-width="2">
         ${textData.title}
       </text>
       
       <!-- Subtitle -->
-      <text x="${config.width/2}" y="${config.height * 0.15}" 
+      <text x="${config.width / 2}" y="${config.height * 0.15}" 
             font-family="Arial" font-size="${subtitleSize}" 
             text-anchor="middle" fill="#FFFFFF">
         ${textData.subtitle}
       </text>
       
       <!-- Features -->
-      ${textData.features.map((feature, i) => `
-        <text x="${config.width/2}" y="${config.height * (0.88 + i * 0.03)}" 
+      ${textData.features
+        .map(
+          (feature, i) => `
+        <text x="${config.width / 2}" y="${config.height * (0.88 + i * 0.03)}" 
               font-family="Arial" font-size="${featureSize}" 
               text-anchor="middle" fill="#FFFFFF">
           ✨ ${feature}
         </text>
-      `).join('')}
+      `
+        )
+        .join('')}
       
       <!-- Screenshot number -->
       <text x="${config.width * 0.95}" y="${config.height * 0.98}" 
@@ -148,55 +152,55 @@ async function addMarketingText(base, config, textData, index) {
       </text>
     </svg>
   `;
-  
-  const textOverlay = await sharp(Buffer.from(textSvg))
-    .png()
-    .toBuffer();
-  
-  return base.composite([{
-    input: textOverlay,
-    top: 0,
-    left: 0
-  }]);
+
+  const textOverlay = await sharp(Buffer.from(textSvg)).png().toBuffer();
+
+  return base.composite([
+    {
+      input: textOverlay,
+      top: 0,
+      left: 0,
+    },
+  ]);
 }
 
 async function addDeviceFrame(screenshot, deviceType) {
   // Add device frame around screenshot
   const frameWidth = screenshot.width + 100;
   const frameHeight = screenshot.height + 200;
-  
+
   const frameSvg = `
     <svg width="${frameWidth}" height="${frameHeight}" xmlns="http://www.w3.org/2000/svg">
       <rect x="25" y="75" width="${screenshot.width + 50}" height="${screenshot.height + 50}" 
             fill="none" stroke="#333333" stroke-width="10" rx="30"/>
-      <circle cx="${frameWidth/2}" cy="${frameHeight - 50}" r="25" fill="#333333"/>
+      <circle cx="${frameWidth / 2}" cy="${frameHeight - 50}" r="25" fill="#333333"/>
     </svg>
   `;
-  
+
   // This would be enhanced with actual device frame images in production
   return screenshot;
 }
 
 async function generateScreenshotSet(platform, config) {
   console.log(`  📱 Generating ${config.deviceName} screenshots...`);
-  
+
   const outputDir = path.join(__dirname, `../marketing/screenshots/${platform}/${config.name}`);
   await fs.mkdir(outputDir, { recursive: true });
-  
+
   for (let i = 0; i < marketingTexts.length; i++) {
     // Generate base screenshot
     let screenshot = await generateScreenshotBase(config);
-    
+
     // Add gameplay mockup
     screenshot = await addGameplayMockup(screenshot, config);
-    
+
     // Add marketing text
     screenshot = await addMarketingText(screenshot, config, marketingTexts[i], i);
-    
+
     // Save screenshot
     const filename = `screenshot_${i + 1}.png`;
     const outputPath = path.join(outputDir, filename);
-    
+
     await screenshot.toFile(outputPath);
     console.log(`    ✅ Generated ${filename}`);
   }
@@ -204,10 +208,10 @@ async function generateScreenshotSet(platform, config) {
 
 async function generateFeatureGraphic() {
   console.log('🎨 Generating feature graphic for Play Store...');
-  
+
   const width = 1024;
   const height = 500;
-  
+
   const svg = `
     <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
       <defs>
@@ -239,32 +243,34 @@ async function generateFeatureGraphic() {
       </text>
     </svg>
   `;
-  
+
   const outputDir = path.join(__dirname, '../marketing/feature-graphic');
   await fs.mkdir(outputDir, { recursive: true });
-  
-  await sharp(Buffer.from(svg))
-    .png()
-    .toFile(path.join(outputDir, 'feature-graphic.png'));
-  
+
+  await sharp(Buffer.from(svg)).png().toFile(path.join(outputDir, 'feature-graphic.png'));
+
   console.log('  ✅ Generated feature-graphic.png (1024x500)');
 }
 
 async function generateAppPreview() {
   console.log('🎬 Generating app preview storyboard...');
-  
+
   const storyboard = [
-    { scene: 'Title Screen', duration: '2s', description: 'Logo animation with gold coins falling' },
+    {
+      scene: 'Title Screen',
+      duration: '2s',
+      description: 'Logo animation with gold coins falling',
+    },
     { scene: 'Gameplay', duration: '5s', description: 'Player catching coins with pot' },
     { scene: 'Power-up', duration: '3s', description: 'Magnet power-up attracting coins' },
     { scene: 'Shop', duration: '3s', description: 'Browsing and unlocking new skins' },
     { scene: 'Leaderboard', duration: '2s', description: 'High score celebration' },
-    { scene: 'Call to Action', duration: '2s', description: 'Download now text with app icon' }
+    { scene: 'Call to Action', duration: '2s', description: 'Download now text with app icon' },
   ];
-  
+
   const outputDir = path.join(__dirname, '../marketing/app-preview');
   await fs.mkdir(outputDir, { recursive: true });
-  
+
   const storyboardContent = `# App Preview Video Storyboard (30 seconds max)
 
 ## Video Specifications:
@@ -274,12 +280,16 @@ async function generateAppPreview() {
 - Format: MP4, H.264
 
 ## Storyboard:
-${storyboard.map((scene, i) => `
+${storyboard
+  .map(
+    (scene, i) => `
 ### Scene ${i + 1}: ${scene.scene} (${scene.duration})
 - **Description**: ${scene.description}
 - **Key Message**: Show core gameplay/feature
 - **Transition**: Smooth fade/slide to next scene
-`).join('')}
+`
+  )
+  .join('')}
 
 ## Audio:
 - Background Music: Upbeat, cheerful tune
@@ -291,18 +301,15 @@ ${storyboard.map((scene, i) => `
 2. Edit in iMovie/Final Cut Pro (iOS) or DaVinci Resolve (cross-platform)
 3. Export at highest quality, then compress for store requirements
 `;
-  
-  await fs.writeFile(
-    path.join(outputDir, 'storyboard.md'),
-    storyboardContent
-  );
-  
+
+  await fs.writeFile(path.join(outputDir, 'storyboard.md'), storyboardContent);
+
   console.log('  ✅ Generated app preview storyboard');
 }
 
 async function main() {
   console.log('📸 Screenshot Generator Started\n');
-  
+
   try {
     // Generate iOS screenshots
     console.log('🍎 Generating iOS screenshots...');
@@ -310,22 +317,22 @@ async function main() {
       await generateScreenshotSet('ios', config);
     }
     console.log();
-    
+
     // Generate Android screenshots
     console.log('🤖 Generating Android screenshots...');
     for (const config of screenshotConfigs.android) {
       await generateScreenshotSet('android', config);
     }
     console.log();
-    
+
     // Generate feature graphic for Play Store
     await generateFeatureGraphic();
     console.log();
-    
+
     // Generate app preview storyboard
     await generateAppPreview();
     console.log();
-    
+
     console.log('✨ All marketing assets generated successfully!');
     console.log('\n📁 Assets location: ./marketing/');
     console.log('\nNext steps:');
@@ -333,7 +340,6 @@ async function main() {
     console.log('  2. Replace mockups with actual gameplay screenshots');
     console.log('  3. Record app preview video following storyboard');
     console.log('  4. Upload to App Store Connect and Play Console');
-    
   } catch (error) {
     console.error('❌ Error generating screenshots:', error);
     process.exit(1);

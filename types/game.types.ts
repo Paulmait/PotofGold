@@ -34,24 +34,18 @@ export interface Velocity {
 }
 
 // Item types
-export type ItemType = 
-  | 'coin' 
-  | 'gem' 
-  | 'diamond' 
-  | 'star' 
-  | 'heart' 
-  | 'bomb' 
+export type ItemType =
+  | 'coin'
+  | 'gem'
+  | 'diamond'
+  | 'star'
+  | 'heart'
+  | 'bomb'
   | 'powerup'
   | 'mystery'
   | 'special';
 
-export type ItemRarity = 
-  | 'common' 
-  | 'uncommon' 
-  | 'rare' 
-  | 'epic' 
-  | 'legendary' 
-  | 'mythic';
+export type ItemRarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary' | 'mythic';
 
 export interface FallingItem {
   id: string | number;
@@ -68,12 +62,12 @@ export interface FallingItem {
 }
 
 // Power-up types
-export type PowerUpType = 
-  | 'magnet' 
-  | 'shield' 
-  | 'doublePoints' 
-  | 'slowTime' 
-  | 'explosion' 
+export type PowerUpType =
+  | 'magnet'
+  | 'shield'
+  | 'doublePoints'
+  | 'slowTime'
+  | 'explosion'
   | 'invincibility';
 
 export interface PowerUp {

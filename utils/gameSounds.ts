@@ -20,47 +20,47 @@ class GameSoundManager {
     goldCoin: 'coin-collect-high',
     silverCoin: 'coin-collect-medium',
     bronzeCoin: 'coin-collect-low',
-    
+
     // Lucky item sounds
     horseshoe: 'lucky-charm',
     fourLeafClover: 'magic-sparkle',
     shamrock: 'irish-luck',
-    
+
     // Mystery crate sounds
     mysteryCrateOrange: 'crate-open-1',
     mysteryCrateBrown: 'crate-open-2',
     mysteryCratePurple: 'crate-open-epic',
-    
+
     // Gift box sounds
     giftBoxRed: 'gift-unwrap',
     giftBoxOrange: 'gift-surprise',
-    
+
     // Power-up sounds
     stopwatch: 'time-slow',
     magnet: 'magnet-activate',
     multiplier: 'multiplier-activate',
-    
+
     // Mine cart sounds
     cartCollect: 'cart-pickup',
     cartRoll: 'cart-rolling',
-    
+
     // UI sounds
     buttonTap: 'button-tap',
     menuOpen: 'menu-swoosh',
     menuClose: 'menu-close',
-    
+
     // Game state sounds
     gameStart: 'game-start-fanfare',
     gameOver: 'game-over',
     levelUp: 'level-up',
     achievement: 'achievement-unlock',
     highScore: 'new-highscore',
-    
+
     // Special effects
     starBurst: 'star-burst',
     sparkle: 'sparkle-effect',
     explosion: 'explosion-small',
-    
+
     // Combo sounds
     combo2x: 'combo-2x',
     combo3x: 'combo-3x',
@@ -90,12 +90,7 @@ class GameSoundManager {
   }
 
   private async preloadEssentialSounds() {
-    const essentialSounds = [
-      'goldCoin',
-      'buttonTap',
-      'gameStart',
-      'gameOver',
-    ];
+    const essentialSounds = ['goldCoin', 'buttonTap', 'gameStart', 'gameOver'];
 
     for (const soundKey of essentialSounds) {
       await this.loadSound(soundKey);
@@ -109,7 +104,9 @@ class GameSoundManager {
       // Create placeholder for actual sound files
       // In production, these would load from actual audio files
       const { sound } = await Audio.Sound.createAsync(
-        { uri: `assets/sounds/${this.soundEffects[soundKey as keyof typeof this.soundEffects]}.mp3` },
+        {
+          uri: `assets/sounds/${this.soundEffects[soundKey as keyof typeof this.soundEffects]}.mp3`,
+        },
         { shouldPlay: false, volume: this.volume }
       );
 
@@ -192,8 +189,8 @@ class GameSoundManager {
       // Load and play new track
       const { sound } = await Audio.Sound.createAsync(
         { uri: `assets/music/${trackName}.mp3` },
-        { 
-          shouldPlay: true, 
+        {
+          shouldPlay: true,
           isLooping: true,
           volume: this.volume * 0.5, // Background music quieter
         }
@@ -240,7 +237,7 @@ class GameSoundManager {
 
   setVolume(volume: number) {
     this.volume = Math.max(0, Math.min(1, volume));
-    
+
     // Update volume for background music if playing
     if (this.musicTrack) {
       this.musicTrack.setVolumeAsync(this.volume * 0.5);
@@ -250,14 +247,14 @@ class GameSoundManager {
   async cleanup() {
     // Stop background music
     await this.stopBackgroundMusic();
-    
+
     // Unload all sounds
     for (const [_, soundEffect] of this.sounds) {
       if (soundEffect.sound) {
         await soundEffect.sound.unloadAsync();
       }
     }
-    
+
     this.sounds.clear();
   }
 
@@ -292,43 +289,43 @@ export const SoundTypes = {
   COIN_GOLD: 'goldCoin',
   COIN_SILVER: 'silverCoin',
   COIN_BRONZE: 'bronzeCoin',
-  
+
   // Lucky items
   HORSESHOE: 'horseshoe',
   CLOVER: 'fourLeafClover',
   SHAMROCK: 'shamrock',
-  
+
   // Crates
   CRATE_ORANGE: 'mysteryCrateOrange',
   CRATE_BROWN: 'mysteryCrateBrown',
   CRATE_PURPLE: 'mysteryCratePurple',
-  
+
   // Gifts
   GIFT_RED: 'giftBoxRed',
   GIFT_ORANGE: 'giftBoxOrange',
-  
+
   // Power-ups
   STOPWATCH: 'stopwatch',
   MAGNET: 'magnet',
   MULTIPLIER: 'multiplier',
-  
+
   // UI
   BUTTON: 'buttonTap',
   MENU_OPEN: 'menuOpen',
   MENU_CLOSE: 'menuClose',
-  
+
   // Game states
   GAME_START: 'gameStart',
   GAME_OVER: 'gameOver',
   LEVEL_UP: 'levelUp',
   ACHIEVEMENT: 'achievement',
   HIGH_SCORE: 'highScore',
-  
+
   // Effects
   STAR_BURST: 'starBurst',
   SPARKLE: 'sparkle',
   EXPLOSION: 'explosion',
-  
+
   // Combos
   COMBO_2X: 'combo2x',
   COMBO_3X: 'combo3x',

@@ -56,7 +56,7 @@ export class UnlockTreeSystem {
   async initializeTree(userId: string): Promise<UnlockTree> {
     try {
       const offlineData = await offlineManager.getOfflineData(userId);
-      
+
       if (offlineData.unlockTree) {
         this.tree = offlineData.unlockTree;
         return this.tree;
@@ -332,7 +332,7 @@ export class UnlockTreeSystem {
       return { canUnlock: false, missingRequirements: [] };
     }
 
-    const node = this.tree.nodes.find(n => n.id === nodeId);
+    const node = this.tree.nodes.find((n) => n.id === nodeId);
     if (!node || node.unlocked) {
       return { canUnlock: false, missingRequirements: [] };
     }
@@ -373,7 +373,7 @@ export class UnlockTreeSystem {
       return { success: false, node: null, rewards: {} };
     }
 
-    const node = this.tree.nodes.find(n => n.id === nodeId);
+    const node = this.tree.nodes.find((n) => n.id === nodeId);
     if (!node) {
       return { success: false, node: null, rewards: {} };
     }
@@ -400,7 +400,7 @@ export class UnlockTreeSystem {
       return { success: false, rewards: {} };
     }
 
-    const node = this.tree.nodes.find(n => n.id === nodeId);
+    const node = this.tree.nodes.find((n) => n.id === nodeId);
     if (!node || !node.unlocked || node.claimed) {
       return { success: false, rewards: {} };
     }
@@ -428,7 +428,7 @@ export class UnlockTreeSystem {
 
     this.tree.totalExperience += amount;
     const newLevel = Math.floor(this.tree.totalExperience / 100) + 1;
-    
+
     let levelUp = false;
     if (newLevel > this.tree.currentLevel) {
       levelUp = true;
@@ -437,7 +437,7 @@ export class UnlockTreeSystem {
 
     // Check for new node unlocks
     const unlockedNodes: UnlockNode[] = [];
-    this.tree.nodes.forEach(node => {
+    this.tree.nodes.forEach((node) => {
       if (!node.unlocked && this.canUnlockNode(node.id).canUnlock) {
         node.unlocked = true;
         this.tree!.unlockedNodes.push(node.id);
@@ -469,16 +469,14 @@ export class UnlockTreeSystem {
   // Get available nodes
   getAvailableNodes(): UnlockNode[] {
     if (!this.tree) return [];
-    return this.tree.nodes.filter(node => 
-      node.unlocked && !node.claimed
-    );
+    return this.tree.nodes.filter((node) => node.unlocked && !node.claimed);
   }
 
   // Get unlockable nodes
   getUnlockableNodes(): UnlockNode[] {
     if (!this.tree) return [];
-    return this.tree.nodes.filter(node => 
-      !node.unlocked && this.canUnlockNode(node.id).canUnlock
+    return this.tree.nodes.filter(
+      (node) => !node.unlocked && this.canUnlockNode(node.id).canUnlock
     );
   }
 
@@ -515,7 +513,7 @@ export class UnlockTreeSystem {
   // Get node by ID
   getNodeById(nodeId: string): UnlockNode | null {
     if (!this.tree) return null;
-    return this.tree.nodes.find(n => n.id === nodeId) || null;
+    return this.tree.nodes.find((n) => n.id === nodeId) || null;
   }
 
   // Get tree structure
@@ -543,4 +541,4 @@ export class UnlockTreeSystem {
   }
 }
 
-export const unlockTreeSystem = UnlockTreeSystem.getInstance(); 
+export const unlockTreeSystem = UnlockTreeSystem.getInstance();

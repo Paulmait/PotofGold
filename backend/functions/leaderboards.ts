@@ -77,23 +77,23 @@ export async function updateLeaderboards(
   type: string = 'global'
 ): Promise<void> {
   const timer = performanceMonitor.startTimer('updateLeaderboards');
-  
+
   try {
     // Get user metadata
     const userDoc = await db.collection('users').doc(userId).get();
     const userData = userDoc.data();
-    
+
     if (!userData) {
       throw new Error('User not found');
     }
-    
+
     const metadata = {
       username: userData.profile?.username || 'Anonymous',
       avatar: userData.profile?.avatar,
       country: userData.profile?.country || 'XX',
       vipLevel: userData.vipLevel || 0,
     };
-    
+
     // Update multiple leaderboards in parallel
     await Promise.all([
       updateDailyLeaderboard(userId, score, metadata),
@@ -102,10 +102,9 @@ export async function updateLeaderboards(
       updateAllTimeLeaderboard(userId, score, metadata),
       updateCountryLeaderboard(userId, score, metadata),
     ]);
-    
+
     // Check for achievements
     await checkLeaderboardAchievements(userId, score);
-    
   } catch (error) {
     console.error('Error updating leaderboards:', error);
   } finally {
@@ -116,23 +115,23 @@ export async function updateLeaderboards(
 /**
  * Update daily leaderboard
  */
-async function updateDailyLeaderboard(
-  userId: string,
-  score: number,
-  metadata: any
-): Promise<void> {
+async function updateDailyLeaderboard(userId: string, score: number, metadata: any): Promise<void> {
   const key = getLeaderboardKey(LeaderboardPeriod.DAILY);
-  
+
   // Use Redis sorted set for O(log n) operations
   await redis.zadd(key, score, userId);
-  
+
   // Store metadata separately
-  await redis.hset(`${key}:meta`, userId, JSON.stringify({
-    ...metadata,
-    score,
-    timestamp: Date.now(),
-  }));
-  
+  await redis.hset(
+    `${key}:meta`,
+    userId,
+    JSON.stringify({
+      ...metadata,
+      score,
+      timestamp: Date.now(),
+    })
+  );
+
   // Set expiry for daily leaderboard (25 hours)
   await redis.expire(key, 90000);
   await redis.expire(`${key}:meta`, 90000);
@@ -147,19 +146,23 @@ async function updateWeeklyLeaderboard(
   metadata: any
 ): Promise<void> {
   const key = getLeaderboardKey(LeaderboardPeriod.WEEKLY);
-  
+
   // Only update if score is higher
   const currentScore = await redis.zscore(key, userId);
-  
+
   if (!currentScore || score > parseFloat(currentScore)) {
     await redis.zadd(key, score, userId);
-    await redis.hset(`${key}:meta`, userId, JSON.stringify({
-      ...metadata,
-      score,
-      timestamp: Date.now(),
-    }));
+    await redis.hset(
+      `${key}:meta`,
+      userId,
+      JSON.stringify({
+        ...metadata,
+        score,
+        timestamp: Date.now(),
+      })
+    );
   }
-  
+
   // Set expiry for weekly leaderboard (8 days)
   await redis.expire(key, 691200);
   await redis.expire(`${key}:meta`, 691200);
@@ -174,18 +177,22 @@ async function updateMonthlyLeaderboard(
   metadata: any
 ): Promise<void> {
   const key = getLeaderboardKey(LeaderboardPeriod.MONTHLY);
-  
+
   const currentScore = await redis.zscore(key, userId);
-  
+
   if (!currentScore || score > parseFloat(currentScore)) {
     await redis.zadd(key, score, userId);
-    await redis.hset(`${key}:meta`, userId, JSON.stringify({
-      ...metadata,
-      score,
-      timestamp: Date.now(),
-    }));
+    await redis.hset(
+      `${key}:meta`,
+      userId,
+      JSON.stringify({
+        ...metadata,
+        score,
+        timestamp: Date.now(),
+      })
+    );
   }
-  
+
   // Set expiry for monthly leaderboard (32 days)
   await redis.expire(key, 2764800);
   await redis.expire(`${key}:meta`, 2764800);
@@ -200,25 +207,35 @@ async function updateAllTimeLeaderboard(
   metadata: any
 ): Promise<void> {
   const key = getLeaderboardKey(LeaderboardPeriod.ALL_TIME);
-  
+
   const currentScore = await redis.zscore(key, userId);
-  
+
   if (!currentScore || score > parseFloat(currentScore)) {
     await redis.zadd(key, score, userId);
-    await redis.hset(`${key}:meta`, userId, JSON.stringify({
-      ...metadata,
-      score,
-      timestamp: Date.now(),
-    }));
-    
-    // Also update Firestore for persistence
-    await db.collection('leaderboards').doc('all_time').set({
-      [userId]: {
-        score,
+    await redis.hset(
+      `${key}:meta`,
+      userId,
+      JSON.stringify({
         ...metadata,
-        timestamp: admin.firestore.FieldValue.serverTimestamp(),
-      }
-    }, { merge: true });
+        score,
+        timestamp: Date.now(),
+      })
+    );
+
+    // Also update Firestore for persistence
+    await db
+      .collection('leaderboards')
+      .doc('all_time')
+      .set(
+        {
+          [userId]: {
+            score,
+            ...metadata,
+            timestamp: admin.firestore.FieldValue.serverTimestamp(),
+          },
+        },
+        { merge: true }
+      );
   }
 }
 
@@ -232,14 +249,18 @@ async function updateCountryLeaderboard(
 ): Promise<void> {
   const country = metadata.country || 'XX';
   const key = `leaderboard:country:${country}:${getWeekNumber()}`;
-  
+
   await redis.zadd(key, score, userId);
-  await redis.hset(`${key}:meta`, userId, JSON.stringify({
-    ...metadata,
-    score,
-    timestamp: Date.now(),
-  }));
-  
+  await redis.hset(
+    `${key}:meta`,
+    userId,
+    JSON.stringify({
+      ...metadata,
+      score,
+      timestamp: Date.now(),
+    })
+  );
+
   // Expire after 2 weeks
   await redis.expire(key, 1209600);
   await redis.expire(`${key}:meta`, 1209600);
@@ -252,60 +273,60 @@ async function updateCountryLeaderboard(
  */
 export const getLeaderboard = functions.https.onCall(async (data, context) => {
   const timer = performanceMonitor.startTimer('getLeaderboard');
-  
+
   try {
     if (!context.auth) {
       throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
     }
-    
+
     const { type = 'global', period = 'daily', offset = 0, limit = 100 } = data;
-    
+
     // Validate parameters
     if (limit > 100) {
       throw new functions.https.HttpsError('invalid-argument', 'Limit cannot exceed 100');
     }
-    
+
     const key = getLeaderboardKey(period);
-    
+
     // Get top scores with Redis ZREVRANGE
     const topScores = await redis.zrevrange(key, offset, offset + limit - 1, 'WITHSCORES');
-    
+
     if (topScores.length === 0) {
       return { entries: [], userRank: null };
     }
-    
+
     // Parse scores and get metadata
     const entries: LeaderboardEntry[] = [];
     const metaKeys = [];
-    
+
     for (let i = 0; i < topScores.length; i += 2) {
       metaKeys.push(topScores[i]);
     }
-    
+
     const metadata = await redis.hmget(`${key}:meta`, ...metaKeys);
-    
+
     for (let i = 0; i < topScores.length; i += 2) {
       const userId = topScores[i];
       const score = parseFloat(topScores[i + 1]);
       const meta = metadata[i / 2] ? JSON.parse(metadata[i / 2]) : {};
-      
+
       entries.push({
         userId,
         username: meta.username || 'Anonymous',
         score,
-        rank: offset + (i / 2) + 1,
+        rank: offset + i / 2 + 1,
         avatar: meta.avatar,
         country: meta.country,
         vipLevel: meta.vipLevel,
         timestamp: meta.timestamp || Date.now(),
       });
     }
-    
+
     // Get user's rank
     const userRank = await getUserRank(context.auth.uid, key);
-    
+
     timer();
-    
+
     return {
       entries,
       userRank,
@@ -313,7 +334,6 @@ export const getLeaderboard = functions.https.onCall(async (data, context) => {
       period,
       type,
     };
-    
   } catch (error) {
     timer();
     console.error('Error getting leaderboard:', error);
@@ -326,15 +346,15 @@ export const getLeaderboard = functions.https.onCall(async (data, context) => {
  */
 async function getUserRank(userId: string, key: string): Promise<any> {
   const rank = await redis.zrevrank(key, userId);
-  
+
   if (rank === null) {
     return null;
   }
-  
+
   const score = await redis.zscore(key, userId);
   const metaData = await redis.hget(`${key}:meta`, userId);
   const meta = metaData ? JSON.parse(metaData) : {};
-  
+
   return {
     rank: rank + 1,
     score: parseFloat(score || '0'),
@@ -349,33 +369,33 @@ export const getFriendsLeaderboard = functions.https.onCall(async (data, context
   if (!context.auth) {
     throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
   }
-  
+
   const userId = context.auth.uid;
   const { period = 'weekly' } = data;
-  
+
   // Get user's friends list
   const userDoc = await db.collection('users').doc(userId).get();
   const userData = userDoc.data();
   const friends = userData?.friends || [];
-  
+
   if (friends.length === 0) {
     return { entries: [], userRank: 1 };
   }
-  
+
   // Add user to friends list for comparison
   friends.push(userId);
-  
+
   const key = getLeaderboardKey(period);
   const friendScores: LeaderboardEntry[] = [];
-  
+
   // Get scores for all friends
   for (const friendId of friends) {
     const score = await redis.zscore(key, friendId);
-    
+
     if (score) {
       const metaData = await redis.hget(`${key}:meta`, friendId);
       const meta = metaData ? JSON.parse(metaData) : {};
-      
+
       friendScores.push({
         userId: friendId,
         username: meta.username || 'Friend',
@@ -388,18 +408,18 @@ export const getFriendsLeaderboard = functions.https.onCall(async (data, context
       });
     }
   }
-  
+
   // Sort by score
   friendScores.sort((a, b) => b.score - a.score);
-  
+
   // Assign ranks
   friendScores.forEach((entry, index) => {
     entry.rank = index + 1;
   });
-  
+
   // Find user's rank among friends
-  const userRank = friendScores.findIndex(e => e.userId === userId) + 1;
-  
+  const userRank = friendScores.findIndex((e) => e.userId === userId) + 1;
+
   return {
     entries: friendScores,
     userRank,
@@ -416,20 +436,20 @@ export const getFriendsLeaderboard = functions.https.onCall(async (data, context
  */
 function getLeaderboardKey(period: LeaderboardPeriod): string {
   const now = new Date();
-  
+
   switch (period) {
     case LeaderboardPeriod.DAILY:
       return `leaderboard:daily:${now.toISOString().split('T')[0]}`;
-    
+
     case LeaderboardPeriod.WEEKLY:
       return `leaderboard:weekly:${getWeekNumber()}`;
-    
+
     case LeaderboardPeriod.MONTHLY:
       return `leaderboard:monthly:${now.getFullYear()}-${now.getMonth() + 1}`;
-    
+
     case LeaderboardPeriod.ALL_TIME:
       return 'leaderboard:all_time';
-    
+
     default:
       return `leaderboard:${period}`;
   }
@@ -452,28 +472,28 @@ function getWeekNumber(): string {
 async function checkLeaderboardAchievements(userId: string, score: number): Promise<void> {
   // Check for top ranks
   const dailyRank = await getUserRank(userId, getLeaderboardKey(LeaderboardPeriod.DAILY));
-  
+
   if (dailyRank && dailyRank.rank === 1) {
     await grantAchievement(userId, 'daily_champion');
   }
-  
+
   if (dailyRank && dailyRank.rank <= 10) {
     await grantAchievement(userId, 'top_10_daily');
   }
-  
+
   if (dailyRank && dailyRank.rank <= 100) {
     await grantAchievement(userId, 'top_100_daily');
   }
-  
+
   // Check for score milestones
   if (score >= 10000) {
     await grantAchievement(userId, 'score_10k');
   }
-  
+
   if (score >= 100000) {
     await grantAchievement(userId, 'score_100k');
   }
-  
+
   if (score >= 1000000) {
     await grantAchievement(userId, 'score_1m');
   }
@@ -483,12 +503,15 @@ async function checkLeaderboardAchievements(userId: string, score: number): Prom
  * Grant achievement to user
  */
 async function grantAchievement(userId: string, achievementId: string): Promise<void> {
-  await db.collection('users').doc(userId).update({
-    [`achievements.${achievementId}`]: {
-      unlocked: true,
-      unlockedAt: admin.firestore.FieldValue.serverTimestamp(),
-    }
-  });
+  await db
+    .collection('users')
+    .doc(userId)
+    .update({
+      [`achievements.${achievementId}`]: {
+        unlocked: true,
+        unlockedAt: admin.firestore.FieldValue.serverTimestamp(),
+      },
+    });
 }
 
 /**
@@ -499,43 +522,43 @@ export const resetDailyLeaderboards = functions.pubsub
   .timeZone('UTC')
   .onRun(async (context) => {
     console.log('Resetting daily leaderboards');
-    
+
     // Archive previous day's leaderboard
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
     const yesterdayKey = `leaderboard:daily:${yesterday.toISOString().split('T')[0]}`;
-    
+
     // Get top 100 for archiving
     const topScores = await redis.zrevrange(yesterdayKey, 0, 99, 'WITHSCORES');
-    
+
     if (topScores.length > 0) {
       // Archive to Firestore
       const archive: any = {};
-      
+
       for (let i = 0; i < topScores.length; i += 2) {
         const userId = topScores[i];
         const score = topScores[i + 1];
         const metaData = await redis.hget(`${yesterdayKey}:meta`, userId);
-        
+
         archive[userId] = {
           score: parseFloat(score),
-          rank: (i / 2) + 1,
+          rank: i / 2 + 1,
           ...(metaData ? JSON.parse(metaData) : {}),
         };
       }
-      
+
       await db.collection('leaderboard_archives').doc(yesterdayKey).set(archive);
     }
-    
+
     // Clean up old Redis keys
     const keysToDelete = await redis.keys('leaderboard:daily:*');
-    const oldKeys = keysToDelete.filter(key => {
+    const oldKeys = keysToDelete.filter((key) => {
       const date = key.split(':')[2];
       const keyDate = new Date(date);
       const daysDiff = (Date.now() - keyDate.getTime()) / (1000 * 60 * 60 * 24);
       return daysDiff > 7; // Delete keys older than 7 days
     });
-    
+
     if (oldKeys.length > 0) {
       await redis.del(...oldKeys);
     }
@@ -548,7 +571,7 @@ export const getLeaderboardStats = functions.https.onCall(async (data, context) 
   if (!context.auth) {
     throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
   }
-  
+
   const stats = {
     totalPlayers: {
       daily: await redis.zcard(getLeaderboardKey(LeaderboardPeriod.DAILY)),
@@ -563,7 +586,7 @@ export const getLeaderboardStats = functions.https.onCall(async (data, context) 
       allTime: await getTopScore(LeaderboardPeriod.ALL_TIME),
     },
   };
-  
+
   return stats;
 });
 
@@ -573,10 +596,10 @@ export const getLeaderboardStats = functions.https.onCall(async (data, context) 
 async function getTopScore(period: LeaderboardPeriod): Promise<number> {
   const key = getLeaderboardKey(period);
   const topScore = await redis.zrevrange(key, 0, 0, 'WITHSCORES');
-  
+
   if (topScore.length >= 2) {
     return parseFloat(topScore[1]);
   }
-  
+
   return 0;
 }

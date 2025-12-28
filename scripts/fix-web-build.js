@@ -13,18 +13,18 @@ console.log('🔧 Fixing web build issues...\n');
 // Fix 1: Fix index.html paths
 const indexPath = path.join(__dirname, '..', 'web-build', 'index.html');
 if (fs.existsSync(indexPath)) {
-    console.log('Fixing index.html paths...');
-    let html = fs.readFileSync(indexPath, 'utf8');
-    
-    // Replace backslashes with forward slashes
-    html = html.replace(/href="\\([^"]+)"/g, 'href="/$1"');
-    html = html.replace(/src="\\([^"]+)"/g, 'src="/$1"');
-    html = html.replace(/\\/g, '/');
-    
-    fs.writeFileSync(indexPath, html);
-    console.log('✅ Fixed paths in index.html');
+  console.log('Fixing index.html paths...');
+  let html = fs.readFileSync(indexPath, 'utf8');
+
+  // Replace backslashes with forward slashes
+  html = html.replace(/href="\\([^"]+)"/g, 'href="/$1"');
+  html = html.replace(/src="\\([^"]+)"/g, 'src="/$1"');
+  html = html.replace(/\\/g, '/');
+
+  fs.writeFileSync(indexPath, html);
+  console.log('✅ Fixed paths in index.html');
 } else {
-    console.log('❌ index.html not found');
+  console.log('❌ index.html not found');
 }
 
 // Fix 2: Create a simple test page
@@ -129,16 +129,16 @@ const vendorPath = path.join(__dirname, '..', 'web-build', 'static', 'js', 'vend
 const mainPath = path.join(__dirname, '..', 'web-build', 'static', 'js');
 
 if (fs.existsSync(vendorPath)) {
-    console.log('✅ Vendor bundle exists');
+  console.log('✅ Vendor bundle exists');
 } else {
-    console.log('❌ Vendor bundle missing');
+  console.log('❌ Vendor bundle missing');
 }
 
 if (fs.existsSync(mainPath)) {
-    const files = fs.readdirSync(mainPath);
-    console.log(`✅ Found ${files.length} JS bundles:`, files);
+  const files = fs.readdirSync(mainPath);
+  console.log(`✅ Found ${files.length} JS bundles:`, files);
 } else {
-    console.log('❌ Static JS directory missing');
+  console.log('❌ Static JS directory missing');
 }
 
 // Fix 4: Create deployment instructions

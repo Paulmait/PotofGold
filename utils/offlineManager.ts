@@ -6,7 +6,7 @@ export interface OfflineData {
   userId?: string;
   authState?: any;
   userProfile?: any;
-  
+
   // Game progress
   gameState?: any;
   progression?: any;
@@ -15,7 +15,7 @@ export interface OfflineData {
   level?: number;
   highScore?: number;
   gamesPlayed?: number;
-  
+
   // Collections and unlocks
   unlocks?: string[];
   skinCollection?: any;
@@ -24,7 +24,7 @@ export interface OfflineData {
   unlockTree?: any;
   achievements?: any[];
   purchases?: any[];
-  
+
   // Systems
   missions?: any;
   dailyStreak?: any;
@@ -33,19 +33,19 @@ export interface OfflineData {
   metaGame?: any;
   blockageState?: any;
   adRewards?: any;
-  
+
   // Settings
   settings?: any;
   privacySettings?: any;
-  
+
   // Analytics
   analytics?: any;
   soundUsage?: any;
   musicUsage?: any;
-  
+
   // Sync
   pendingActions?: OfflineAction[];
-  
+
   // Timestamps
   lastSync?: number;
   lastUpdated?: number;
@@ -54,13 +54,28 @@ export interface OfflineData {
 export interface OfflineAction {
   id: string;
   timestamp: number;
-  type: 'score_update' | 'coin_update' | 'purchase' | 'achievement' | 
-        'ad_rewards_update' | 'user_creation' | 'blockage_update' | 
-        'chapter_progress_update' | 'streak_update' | 'game_state_update' |
-        'meta_game_update' | 'mission_update' | 'powerup_update' |
-        'progression_update' | 'season_pass_update' | 'skin_collection_update' |
-        'state_collection_update' | 'unlock_tree_update' | 'sound_usage' |
-        'music_usage' | 'pause_trigger_log';
+  type:
+    | 'score_update'
+    | 'coin_update'
+    | 'purchase'
+    | 'achievement'
+    | 'ad_rewards_update'
+    | 'user_creation'
+    | 'blockage_update'
+    | 'chapter_progress_update'
+    | 'streak_update'
+    | 'game_state_update'
+    | 'meta_game_update'
+    | 'mission_update'
+    | 'powerup_update'
+    | 'progression_update'
+    | 'season_pass_update'
+    | 'skin_collection_update'
+    | 'state_collection_update'
+    | 'unlock_tree_update'
+    | 'sound_usage'
+    | 'music_usage'
+    | 'pause_trigger_log';
   data: any;
   userId: string;
 }
@@ -80,7 +95,7 @@ export class OfflineManager {
 
   async initialize(): Promise<void> {
     // Monitor network connectivity
-    NetInfo.addEventListener(state => {
+    NetInfo.addEventListener((state) => {
       this.isOnline = state.isConnected ?? false;
       if (this.isOnline && this.syncQueue.length > 0) {
         this.syncPendingActions();
@@ -101,7 +116,7 @@ export class OfflineManager {
     try {
       const key = `offline_data_${userId}`;
       const existing = await this.getOfflineData(userId);
-      
+
       const updatedData: OfflineData = {
         userId,
         coins: data.coins ?? existing.coins ?? 0,
@@ -124,7 +139,7 @@ export class OfflineManager {
     try {
       const key = `offline_data_${userId}`;
       const data = await AsyncStorage.getItem(key);
-      
+
       if (data) {
         return JSON.parse(data);
       }
@@ -156,10 +171,13 @@ export class OfflineManager {
   }
 
   // Add action to sync queue
-  async addPendingAction(userId: string, action: Omit<OfflineAction, 'id' | 'timestamp' | 'userId'>): Promise<void> {
+  async addPendingAction(
+    userId: string,
+    action: Omit<OfflineAction, 'id' | 'timestamp' | 'userId'>
+  ): Promise<void> {
     try {
       const offlineData = await this.getOfflineData(userId);
-      
+
       const newAction: OfflineAction = {
         id: `action_${Date.now()}_${Math.random()}`,
         ...action,
@@ -169,7 +187,7 @@ export class OfflineManager {
 
       offlineData.pendingActions.push(newAction);
       await this.saveOfflineData(userId, offlineData);
-      
+
       // Try to sync immediately if online
       if (this.isOnline) {
         this.syncPendingActions();
@@ -184,19 +202,19 @@ export class OfflineManager {
     if (this.syncInProgress || !this.isOnline) return;
 
     this.syncInProgress = true;
-    
+
     try {
       // Get all offline data files
       const keys = await AsyncStorage.getAllKeys();
-      const offlineKeys = keys.filter(key => key.startsWith('offline_data_'));
-      
+      const offlineKeys = keys.filter((key) => key.startsWith('offline_data_'));
+
       for (const key of offlineKeys) {
         const userId = key.replace('offline_data_', '');
         const offlineData = await this.getOfflineData(userId);
-        
+
         if (offlineData.pendingActions.length > 0) {
           await this.syncUserActions(userId, offlineData.pendingActions);
-          
+
           // Clear synced actions
           offlineData.pendingActions = [];
           await this.saveOfflineData(userId, offlineData);
@@ -260,19 +278,19 @@ export class OfflineManager {
   // Update score (works offline)
   async updateScore(userId: string, score: number): Promise<void> {
     const offlineData = await this.getOfflineData(userId);
-    
+
     // Update local data
     if (score > offlineData.highScore) {
       offlineData.highScore = score;
     }
     offlineData.gamesPlayed += 1;
-    
+
     await this.saveOfflineData(userId, offlineData);
-    
+
     // Add to sync queue
     await this.addPendingAction(userId, {
       type: 'score_update',
-      data: { score, highScore: offlineData.highScore, gamesPlayed: offlineData.gamesPlayed }
+      data: { score, highScore: offlineData.highScore, gamesPlayed: offlineData.gamesPlayed },
     });
   }
 
@@ -280,28 +298,28 @@ export class OfflineManager {
   async updateCoins(userId: string, coins: number): Promise<void> {
     const offlineData = await this.getOfflineData(userId);
     offlineData.coins += coins;
-    
+
     await this.saveOfflineData(userId, offlineData);
-    
+
     // Add to sync queue
     await this.addPendingAction(userId, {
       type: 'coin_update',
-      data: { coins: offlineData.coins, change: coins }
+      data: { coins: offlineData.coins, change: coins },
     });
   }
 
   // Add achievement (works offline)
   async addAchievement(userId: string, achievement: string): Promise<void> {
     const offlineData = await this.getOfflineData(userId);
-    
+
     if (!offlineData.achievements.includes(achievement)) {
       offlineData.achievements.push(achievement);
       await this.saveOfflineData(userId, offlineData);
-      
+
       // Add to sync queue
       await this.addPendingAction(userId, {
         type: 'achievement',
-        data: { achievement, timestamp: Date.now() }
+        data: { achievement, timestamp: Date.now() },
       });
     }
   }
@@ -310,13 +328,13 @@ export class OfflineManager {
   async recordPurchase(userId: string, purchase: any): Promise<void> {
     const offlineData = await this.getOfflineData(userId);
     offlineData.purchases.push(purchase);
-    
+
     await this.saveOfflineData(userId, offlineData);
-    
+
     // Add to sync queue
     await this.addPendingAction(userId, {
       type: 'purchase',
-      data: purchase
+      data: purchase,
     });
   }
 
@@ -333,7 +351,7 @@ export class OfflineManager {
   async clearAllOfflineData(): Promise<void> {
     try {
       const keys = await AsyncStorage.getAllKeys();
-      const offlineKeys = keys.filter(key => key.startsWith('offline_data_'));
+      const offlineKeys = keys.filter((key) => key.startsWith('offline_data_'));
       await AsyncStorage.multiRemove(offlineKeys);
     } catch (error) {
       console.log('Error clearing offline data:', error);
@@ -341,4 +359,4 @@ export class OfflineManager {
   }
 }
 
-export const offlineManager = OfflineManager.getInstance(); 
+export const offlineManager = OfflineManager.getInstance();

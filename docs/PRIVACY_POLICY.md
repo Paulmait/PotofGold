@@ -96,8 +96,7 @@ Continued use implies consent to the latest version
 
 11. Contact
 
-Privacy Contact: 
+Privacy Contact:
 Privacy@cienriosapp.com
 Support: support@cienriosapp.com
 Legal Entity: Cien Rios LLC, DBA Pot of Gold
-

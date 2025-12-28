@@ -3,11 +3,11 @@
  * Complete in-game store with IAP integration and item management
  */
 
-import Purchases, { 
+import Purchases, {
   PurchasesPackage,
   CustomerInfo,
   PurchasesOffering,
-  PRODUCT_CATEGORY
+  PRODUCT_CATEGORY,
 } from 'react-native-purchases';
 import { Platform } from 'react-native';
 import { MonetizationCore, CurrencyManager } from './MonetizationCore';
@@ -35,7 +35,7 @@ export interface ShopItem {
   timesPurchased: number;
 }
 
-export type ShopCategory = 
+export type ShopCategory =
   | 'currency'
   | 'skins'
   | 'power_ups'
@@ -68,20 +68,21 @@ export class ShopManager {
   private purchaseHistory: PurchaseRecord[] = [];
   private currencyManager: CurrencyManager;
   private activeOffers: Map<string, ShopItem> = new Map();
-  
+
   constructor() {
     this.currencyManager = new CurrencyManager();
     this.initializeRevenueCat();
   }
-  
+
   private async initializeRevenueCat() {
     try {
-      const apiKey = Platform.OS === 'ios' 
-        ? process.env.REVENUECAT_IOS_KEY || ''
-        : process.env.REVENUECAT_ANDROID_KEY || '';
-      
+      const apiKey =
+        Platform.OS === 'ios'
+          ? process.env.REVENUECAT_IOS_KEY || ''
+          : process.env.REVENUECAT_ANDROID_KEY || '';
+
       await Purchases.configure({ apiKey });
-      
+
       // Set up listener for customer info updates
       Purchases.addCustomerInfoUpdateListener((info) => {
         this.handleCustomerInfoUpdate(info);
@@ -90,21 +91,21 @@ export class ShopManager {
       console.error('RevenueCat initialization error:', error);
     }
   }
-  
+
   async loadShop(userId: string): Promise<ShopSection[]> {
     // Load shop inventory
     this.loadBaseInventory();
-    
+
     // Load personalized offers
     await this.loadPersonalizedOffers(userId);
-    
+
     // Load IAP products
     await this.loadIAPProducts();
-    
+
     // Organize into sections
     return this.organizeShopSections();
   }
-  
+
   private loadBaseInventory() {
     // Currency Packs
     this.addShopItem({
@@ -119,9 +120,9 @@ export class ShopManager {
       tags: ['popular'],
       featured: false,
       new: false,
-      timesPurchased: 0
+      timesPurchased: 0,
     });
-    
+
     this.addShopItem({
       id: 'coins_medium',
       category: 'currency',
@@ -136,9 +137,9 @@ export class ShopManager {
       tags: ['popular', 'value'],
       featured: true,
       new: false,
-      timesPurchased: 0
+      timesPurchased: 0,
     });
-    
+
     this.addShopItem({
       id: 'coins_large',
       category: 'currency',
@@ -153,9 +154,9 @@ export class ShopManager {
       tags: ['best_value'],
       featured: true,
       new: false,
-      timesPurchased: 0
+      timesPurchased: 0,
     });
-    
+
     this.addShopItem({
       id: 'gems_small',
       category: 'currency',
@@ -168,9 +169,9 @@ export class ShopManager {
       tags: ['premium'],
       featured: false,
       new: false,
-      timesPurchased: 0
+      timesPurchased: 0,
     });
-    
+
     this.addShopItem({
       id: 'gems_medium',
       category: 'currency',
@@ -185,9 +186,9 @@ export class ShopManager {
       tags: ['premium', 'popular'],
       featured: true,
       new: false,
-      timesPurchased: 0
+      timesPurchased: 0,
     });
-    
+
     this.addShopItem({
       id: 'gems_large',
       category: 'currency',
@@ -202,9 +203,9 @@ export class ShopManager {
       tags: ['premium', 'best_value'],
       featured: true,
       new: false,
-      timesPurchased: 0
+      timesPurchased: 0,
     });
-    
+
     // Bundles
     this.addShopItem({
       id: 'starter_bundle',
@@ -220,18 +221,18 @@ export class ShopManager {
         { type: 'coins', amount: 5000 },
         { type: 'gems', amount: 200 },
         { type: 'energy', amount: 50 },
-        { type: 'loot_box', amount: 3, quality: 'rare' }
+        { type: 'loot_box', amount: 3, quality: 'rare' },
       ],
       tags: ['limited', 'new_player', 'best_value'],
       featured: true,
       new: true,
       limited: {
         endTime: Date.now() + 48 * 60 * 60 * 1000,
-        personalLimit: 1
+        personalLimit: 1,
       },
-      timesPurchased: 0
+      timesPurchased: 0,
     });
-    
+
     this.addShopItem({
       id: 'pro_bundle',
       category: 'bundles',
@@ -247,17 +248,17 @@ export class ShopManager {
         { type: 'gems', amount: 2500 },
         { type: 'battle_pass', amount: 1 },
         { type: 'legendary_skin', amount: 1, quality: 'legendary' },
-        { type: 'xp_boost', amount: 7 }
+        { type: 'xp_boost', amount: 7 },
       ],
       tags: ['premium', 'exclusive'],
       featured: true,
       new: false,
       requirements: {
-        minLevel: 10
+        minLevel: 10,
       },
-      timesPurchased: 0
+      timesPurchased: 0,
     });
-    
+
     // Loot Boxes
     this.addShopItem({
       id: 'mystery_box_common',
@@ -267,15 +268,13 @@ export class ShopManager {
       price: 100,
       currency: 'coins',
       icon: '📦',
-      contents: [
-        { type: 'random_item', amount: 3, quality: 'common' }
-      ],
+      contents: [{ type: 'random_item', amount: 3, quality: 'common' }],
       tags: ['gacha'],
       featured: false,
       new: false,
-      timesPurchased: 0
+      timesPurchased: 0,
     });
-    
+
     this.addShopItem({
       id: 'rare_crate',
       category: 'loot_boxes',
@@ -284,15 +283,13 @@ export class ShopManager {
       price: 50,
       currency: 'gems',
       icon: '🎁',
-      contents: [
-        { type: 'random_item', amount: 3, quality: 'rare' }
-      ],
+      contents: [{ type: 'random_item', amount: 3, quality: 'rare' }],
       tags: ['gacha', 'popular'],
       featured: true,
       new: false,
-      timesPurchased: 0
+      timesPurchased: 0,
     });
-    
+
     this.addShopItem({
       id: 'legendary_chest',
       category: 'loot_boxes',
@@ -303,14 +300,14 @@ export class ShopManager {
       icon: '💝',
       contents: [
         { type: 'random_item', amount: 1, quality: 'legendary' },
-        { type: 'random_item', amount: 2, quality: 'epic' }
+        { type: 'random_item', amount: 2, quality: 'epic' },
       ],
       tags: ['gacha', 'premium'],
       featured: true,
       new: false,
-      timesPurchased: 0
+      timesPurchased: 0,
     });
-    
+
     // Power-ups
     this.addShopItem({
       id: 'energy_refill',
@@ -324,9 +321,9 @@ export class ShopManager {
       tags: ['utility'],
       featured: false,
       new: false,
-      timesPurchased: 0
+      timesPurchased: 0,
     });
-    
+
     this.addShopItem({
       id: 'xp_boost_1d',
       category: 'power_ups',
@@ -339,9 +336,9 @@ export class ShopManager {
       tags: ['boost'],
       featured: false,
       new: false,
-      timesPurchased: 0
+      timesPurchased: 0,
     });
-    
+
     // Skins (Coin Shop)
     this.addShopItem({
       id: 'skin_golden',
@@ -357,9 +354,9 @@ export class ShopManager {
       featured: false,
       new: false,
       purchaseLimit: 1,
-      timesPurchased: 0
+      timesPurchased: 0,
     });
-    
+
     this.addShopItem({
       id: 'skin_rainbow',
       category: 'skins',
@@ -374,19 +371,19 @@ export class ShopManager {
       featured: true,
       new: true,
       purchaseLimit: 1,
-      timesPurchased: 0
+      timesPurchased: 0,
     });
   }
-  
+
   private async loadPersonalizedOffers(userId: string) {
     // Get player segment for personalized pricing
     const wallet = await this.currencyManager.loadWallet(userId);
     const monCore = new MonetizationCore();
     const segment = await monCore.pricingStrategy.determinePlayerSegment(wallet);
     const offers = monCore.pricingStrategy.getPersonalizedOffers(segment);
-    
+
     // Convert offers to shop items
-    offers.forEach(offer => {
+    offers.forEach((offer) => {
       const shopItem: ShopItem = {
         id: offer.id,
         category: 'special_offers',
@@ -397,33 +394,35 @@ export class ShopManager {
         originalPrice: offer.originalPrice,
         discount: Math.round((1 - offer.discountedPrice / offer.originalPrice) * 100),
         icon: '🎯',
-        contents: offer.contents.map(c => ({
+        contents: offer.contents.map((c) => ({
           type: c.type,
-          amount: c.amount
+          amount: c.amount,
         })),
         tags: ['personalized', 'limited'],
         featured: true,
         new: true,
-        limited: offer.timeLimit ? {
-          endTime: Date.now() + offer.timeLimit
-        } : undefined,
-        timesPurchased: 0
+        limited: offer.timeLimit
+          ? {
+              endTime: Date.now() + offer.timeLimit,
+            }
+          : undefined,
+        timesPurchased: 0,
       };
-      
+
       this.activeOffers.set(shopItem.id, shopItem);
     });
   }
-  
+
   private async loadIAPProducts() {
     try {
       const offerings = await Purchases.getOfferings();
-      
+
       if (offerings.current) {
         this.processOffering(offerings.current);
       }
-      
+
       // Process other offerings (seasonal, etc.)
-      Object.values(offerings.all).forEach(offering => {
+      Object.values(offerings.all).forEach((offering) => {
         if (offering.identifier !== offerings.current?.identifier) {
           this.processOffering(offering);
         }
@@ -432,9 +431,9 @@ export class ShopManager {
       console.error('Error loading IAP products:', error);
     }
   }
-  
+
   private processOffering(offering: PurchasesOffering) {
-    offering.availablePackages.forEach(pkg => {
+    offering.availablePackages.forEach((pkg) => {
       // Map RevenueCat package to shop item
       const shopItem = this.mapPackageToShopItem(pkg);
       if (shopItem) {
@@ -442,39 +441,39 @@ export class ShopManager {
       }
     });
   }
-  
+
   private mapPackageToShopItem(pkg: PurchasesPackage): ShopItem | null {
     // Map RevenueCat packages to shop items
     const mapping: Record<string, Partial<ShopItem>> = {
-      'coins_small': {
+      coins_small: {
         contents: [{ type: 'coins', amount: 1000 }],
-        category: 'currency'
+        category: 'currency',
       },
-      'coins_medium': {
+      coins_medium: {
         contents: [{ type: 'coins', amount: 5500 }],
-        category: 'currency'
+        category: 'currency',
       },
-      'coins_large': {
+      coins_large: {
         contents: [{ type: 'coins', amount: 12000 }],
-        category: 'currency'
+        category: 'currency',
       },
-      'gems_small': {
+      gems_small: {
         contents: [{ type: 'gems', amount: 100 }],
-        category: 'currency'
+        category: 'currency',
       },
-      'gems_medium': {
+      gems_medium: {
         contents: [{ type: 'gems', amount: 550 }],
-        category: 'currency'
+        category: 'currency',
       },
-      'gems_large': {
+      gems_large: {
         contents: [{ type: 'gems', amount: 1200 }],
-        category: 'currency'
-      }
+        category: 'currency',
+      },
     };
-    
+
     const itemData = mapping[pkg.product.identifier];
     if (!itemData) return null;
-    
+
     return {
       id: pkg.product.identifier,
       category: itemData.category as ShopCategory,
@@ -487,17 +486,17 @@ export class ShopManager {
       tags: [],
       featured: false,
       new: false,
-      timesPurchased: 0
+      timesPurchased: 0,
     };
   }
-  
+
   async purchaseItem(itemId: string, userId: string): Promise<PurchaseResult> {
     const item = this.shopInventory.get(itemId) || this.activeOffers.get(itemId);
-    
+
     if (!item) {
       return { success: false, error: 'Item not found' };
     }
-    
+
     // Check requirements
     if (item.requirements) {
       const meetsRequirements = await this.checkRequirements(item.requirements, userId);
@@ -505,12 +504,12 @@ export class ShopManager {
         return { success: false, error: 'Requirements not met' };
       }
     }
-    
+
     // Check purchase limit
     if (item.purchaseLimit && item.timesPurchased >= item.purchaseLimit) {
       return { success: false, error: 'Purchase limit reached' };
     }
-    
+
     // Check limited time/stock
     if (item.limited) {
       if (item.limited.endTime && Date.now() > item.limited.endTime) {
@@ -520,68 +519,66 @@ export class ShopManager {
         return { success: false, error: 'Out of stock' };
       }
     }
-    
+
     // Process purchase based on currency type
     let purchaseSuccess = false;
-    
+
     if (item.currency === 'real_money') {
       purchaseSuccess = await this.processIAPPurchase(item, userId);
     } else {
       purchaseSuccess = await this.processVirtualCurrencyPurchase(item, userId);
     }
-    
+
     if (!purchaseSuccess) {
       return { success: false, error: 'Purchase failed' };
     }
-    
+
     // Grant items
     await this.grantPurchasedItems(item, userId);
-    
+
     // Update purchase count
     item.timesPurchased++;
-    
+
     // Update limited stock
     if (item.limited?.stock) {
       item.limited.stock--;
     }
-    
+
     // Record purchase
     this.recordPurchase(item, userId);
-    
+
     // Trigger purchase celebration
     this.triggerPurchaseEffects(item);
-    
+
     return {
       success: true,
       items: item.contents,
-      celebration: this.getPurchaseCelebration(item)
+      celebration: this.getPurchaseCelebration(item),
     };
   }
-  
+
   private async processIAPPurchase(item: ShopItem, userId: string): Promise<boolean> {
     try {
       // Find the RevenueCat package
       const offerings = await Purchases.getOfferings();
       let targetPackage: PurchasesPackage | null = null;
-      
+
       for (const offering of Object.values(offerings.all)) {
-        const pkg = offering.availablePackages.find(p => 
-          p.product.identifier === item.id
-        );
+        const pkg = offering.availablePackages.find((p) => p.product.identifier === item.id);
         if (pkg) {
           targetPackage = pkg;
           break;
         }
       }
-      
+
       if (!targetPackage) {
         console.error('Package not found for item:', item.id);
         return false;
       }
-      
+
       // Make the purchase through RevenueCat
       const { customerInfo } = await Purchases.purchasePackage(targetPackage);
-      
+
       // Verify the purchase
       return this.verifyPurchase(customerInfo, item.id);
     } catch (error: any) {
@@ -593,20 +590,20 @@ export class ShopManager {
       return false;
     }
   }
-  
+
   private async processVirtualCurrencyPurchase(item: ShopItem, userId: string): Promise<boolean> {
     const currency = item.currency as 'coins' | 'gems';
     return await this.currencyManager.spendCurrency(currency, item.price, userId);
   }
-  
+
   private verifyPurchase(customerInfo: CustomerInfo, productId: string): boolean {
     // Check if the product is in active entitlements
     return customerInfo.entitlements.active[productId] !== undefined;
   }
-  
+
   private async grantPurchasedItems(item: ShopItem, userId: string) {
     for (const content of item.contents) {
-      switch(content.type) {
+      switch (content.type) {
         case 'coins':
         case 'gems':
         case 'tickets':
@@ -619,7 +616,7 @@ export class ShopManager {
             userId
           );
           break;
-        
+
         case 'skin':
         case 'trail':
         case 'frame':
@@ -627,17 +624,17 @@ export class ShopManager {
           // Grant cosmetic items
           await this.grantCosmeticItem(content, userId);
           break;
-        
+
         case 'battle_pass':
           // Activate battle pass
           await this.activateBattlePass(userId);
           break;
-        
+
         case 'xp_boost':
           // Activate XP boost
           await this.activateBoost('xp', content.amount, userId);
           break;
-        
+
         case 'loot_box':
         case 'random_item':
           // Open loot box
@@ -646,32 +643,35 @@ export class ShopManager {
       }
     }
   }
-  
-  private async checkRequirements(requirements: ItemRequirements, userId: string): Promise<boolean> {
+
+  private async checkRequirements(
+    requirements: ItemRequirements,
+    userId: string
+  ): Promise<boolean> {
     // Check player level, VIP status, achievements, etc.
     // This would connect to player profile system
     return true; // Placeholder
   }
-  
+
   private recordPurchase(item: ShopItem, userId: string) {
     this.purchaseHistory.push({
       itemId: item.id,
       userId,
       price: item.price,
       currency: item.currency,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
   }
-  
+
   private triggerPurchaseEffects(item: ShopItem) {
     return {
       type: 'purchase_complete',
       item: item.name,
       rarity: this.getItemRarity(item),
-      effects: this.getPurchaseEffects(item)
+      effects: this.getPurchaseEffects(item),
     };
   }
-  
+
   private getPurchaseCelebration(item: ShopItem): string {
     if (item.price > 20 || item.currency === 'real_money') {
       return 'epic_purchase';
@@ -681,42 +681,41 @@ export class ShopManager {
       return 'standard_purchase';
     }
   }
-  
+
   private getPurchaseEffects(item: ShopItem): string[] {
     const effects = ['confetti'];
-    
+
     if (item.price > 10) effects.push('fireworks');
     if (item.tags.includes('legendary')) effects.push('legendary_aura');
     if (item.category === 'bundles') effects.push('bundle_explosion');
-    
+
     return effects;
   }
-  
+
   private getItemRarity(item: ShopItem): string {
     // Determine rarity based on contents
-    const qualities = item.contents.map(c => c.quality).filter(Boolean);
+    const qualities = item.contents.map((c) => c.quality).filter(Boolean);
     if (qualities.includes('mythic')) return 'mythic';
     if (qualities.includes('legendary')) return 'legendary';
     if (qualities.includes('epic')) return 'epic';
     if (qualities.includes('rare')) return 'rare';
     return 'common';
   }
-  
+
   private organizeShopSections(): ShopSection[] {
     const sections: ShopSection[] = [];
-    
+
     // Featured section
-    const featured = Array.from(this.shopInventory.values())
-      .filter(item => item.featured);
+    const featured = Array.from(this.shopInventory.values()).filter((item) => item.featured);
     if (featured.length > 0) {
       sections.push({
         id: 'featured',
         title: '✨ Featured',
         items: featured,
-        layout: 'carousel'
+        layout: 'carousel',
       });
     }
-    
+
     // Special offers
     const offers = Array.from(this.activeOffers.values());
     if (offers.length > 0) {
@@ -724,33 +723,39 @@ export class ShopManager {
         id: 'special_offers',
         title: '🎯 Special Offers',
         items: offers,
-        layout: 'grid'
+        layout: 'grid',
       });
     }
-    
+
     // Categories
     const categories: ShopCategory[] = [
-      'bundles', 'currency', 'loot_boxes', 'skins', 
-      'power_ups', 'energy', 'battle_pass'
+      'bundles',
+      'currency',
+      'loot_boxes',
+      'skins',
+      'power_ups',
+      'energy',
+      'battle_pass',
     ];
-    
-    categories.forEach(category => {
-      const items = Array.from(this.shopInventory.values())
-        .filter(item => item.category === category);
-      
+
+    categories.forEach((category) => {
+      const items = Array.from(this.shopInventory.values()).filter(
+        (item) => item.category === category
+      );
+
       if (items.length > 0) {
         sections.push({
           id: category,
           title: this.getCategoryTitle(category),
           items,
-          layout: category === 'currency' ? 'grid' : 'list'
+          layout: category === 'currency' ? 'grid' : 'list',
         });
       }
     });
-    
+
     return sections;
   }
-  
+
   private getCategoryTitle(category: ShopCategory): string {
     const titles: Record<ShopCategory, string> = {
       currency: '💰 Currency',
@@ -760,33 +765,33 @@ export class ShopManager {
       bundles: '📦 Bundles',
       battle_pass: '🎖️ Battle Pass',
       energy: '⚡ Energy',
-      special_offers: '🎯 Special'
+      special_offers: '🎯 Special',
     };
     return titles[category];
   }
-  
+
   private addShopItem(item: ShopItem) {
     this.shopInventory.set(item.id, item);
   }
-  
+
   private handleCustomerInfoUpdate(info: CustomerInfo) {
     // Handle subscription status changes
     console.log('Customer info updated:', info.activeSubscriptions);
   }
-  
+
   // Placeholder methods for item granting
   private async grantCosmeticItem(content: ItemContent, userId: string) {
     // Implement cosmetic item granting
   }
-  
+
   private async activateBattlePass(userId: string) {
     // Implement battle pass activation
   }
-  
+
   private async activateBoost(type: string, duration: number, userId: string) {
     // Implement boost activation
   }
-  
+
   private async openLootBox(quality: string, amount: number, userId: string) {
     // Implement loot box opening
   }

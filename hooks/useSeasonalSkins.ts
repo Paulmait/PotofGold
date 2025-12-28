@@ -36,9 +36,9 @@ export const useSeasonalSkins = () => {
 
         // Load all skins data
         const allSkins = await loadAllSkins();
-        
+
         // Filter for seasonal skins that are currently active
-        const seasonalSkins = allSkins.filter(skin => {
+        const seasonalSkins = allSkins.filter((skin) => {
           // Check if skin is seasonal and has a season field
           if (skin.rarity !== 'seasonal' || !skin.season) {
             return false;
@@ -77,10 +77,10 @@ export const useSeasonalSkins = () => {
           theme: {
             primaryColor: '#1F2937',
             secondaryColor: '#374151',
-            accentColor: '#F59E0B'
+            accentColor: '#F59E0B',
           },
           unlock: 'Play during February',
-          available: true
+          available: true,
         },
         {
           id: 'texas_hispanic',
@@ -93,10 +93,10 @@ export const useSeasonalSkins = () => {
           theme: {
             primaryColor: '#DC2626',
             secondaryColor: '#EF4444',
-            accentColor: '#F59E0B'
+            accentColor: '#F59E0B',
           },
           unlock: 'Play during Hispanic Heritage Month',
-          available: true
+          available: true,
         },
         {
           id: 'california_hispanic',
@@ -109,10 +109,10 @@ export const useSeasonalSkins = () => {
           theme: {
             primaryColor: '#1E40AF',
             secondaryColor: '#3B82F6',
-            accentColor: '#F59E0B'
+            accentColor: '#F59E0B',
           },
           unlock: 'Play during Hispanic Heritage Month',
-          available: true
+          available: true,
         },
         {
           id: 'alaska_winter',
@@ -121,14 +121,14 @@ export const useSeasonalSkins = () => {
           rarity: 'seasonal',
           season: 'winter_holidays',
           asset: 'trails/winter_alaska_trail.png',
-          description: 'Experience Alaska\'s winter magic',
+          description: "Experience Alaska's winter magic",
           theme: {
             primaryColor: '#1E293B',
             secondaryColor: '#475569',
-            accentColor: '#E2E8F0'
+            accentColor: '#E2E8F0',
           },
           unlock: 'Play during Winter Holidays',
-          available: true
+          available: true,
         },
         {
           id: 'vermont_fall',
@@ -137,14 +137,14 @@ export const useSeasonalSkins = () => {
           rarity: 'seasonal',
           season: 'thanksgiving',
           asset: 'shapes/autumn_vermont_shape.png',
-          description: 'Vermont\'s beautiful autumn colors',
+          description: "Vermont's beautiful autumn colors",
           theme: {
             primaryColor: '#92400E',
             secondaryColor: '#F59E0B',
-            accentColor: '#DC2626'
+            accentColor: '#DC2626',
           },
           unlock: 'Play during Thanksgiving',
-          available: true
+          available: true,
         },
         {
           id: 'hawaii_summer',
@@ -153,14 +153,14 @@ export const useSeasonalSkins = () => {
           rarity: 'seasonal',
           season: 'summer_solstice',
           asset: 'trails/summer_hawaii_trail.png',
-          description: 'Hawaii\'s summer paradise',
+          description: "Hawaii's summer paradise",
           theme: {
             primaryColor: '#059669',
             secondaryColor: '#10B981',
-            accentColor: '#F59E0B'
+            accentColor: '#F59E0B',
           },
           unlock: 'Play during Summer Solstice',
-          available: true
+          available: true,
         },
         {
           id: 'california_pride',
@@ -173,10 +173,10 @@ export const useSeasonalSkins = () => {
           theme: {
             primaryColor: '#7C3AED',
             secondaryColor: '#A855F7',
-            accentColor: '#EC4899'
+            accentColor: '#EC4899',
           },
           unlock: 'Play during Pride Month',
-          available: true
+          available: true,
         },
         {
           id: 'new_york_independence',
@@ -189,11 +189,11 @@ export const useSeasonalSkins = () => {
           theme: {
             primaryColor: '#DC2626',
             secondaryColor: '#1E40AF',
-            accentColor: '#FFFFFF'
+            accentColor: '#FFFFFF',
           },
           unlock: 'Play during Independence Day',
-          available: true
-        }
+          available: true,
+        },
       ];
 
       return seasonalSkins;
@@ -205,17 +205,17 @@ export const useSeasonalSkins = () => {
 
   // Get skins by specific event
   const getSkinsByEvent = (eventId: string): SeasonalSkin[] => {
-    return activeSeasonalSkins.filter(skin => skin.season === eventId);
+    return activeSeasonalSkins.filter((skin) => skin.season === eventId);
   };
 
   // Get skins by type
   const getSkinsByType = (type: 'flag' | 'shape' | 'trail'): SeasonalSkin[] => {
-    return activeSeasonalSkins.filter(skin => skin.type === type);
+    return activeSeasonalSkins.filter((skin) => skin.type === type);
   };
 
   // Check if a specific skin is currently available
   const isSkinCurrentlyAvailable = (skinId: string): boolean => {
-    return activeSeasonalSkins.some(skin => skin.id === skinId);
+    return activeSeasonalSkins.some((skin) => skin.id === skinId);
   };
 
   // Get count of available seasonal skins
@@ -229,10 +229,10 @@ export const useSeasonalSkins = () => {
       const allSkins = await loadAllSkins();
       const currentDate = new Date();
       const nextMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
-      
-      return allSkins.filter(skin => {
+
+      return allSkins.filter((skin) => {
         if (skin.rarity !== 'seasonal' || !skin.season) return false;
-        
+
         // Check if the skin will be available next month
         const nextMonthEvents = getCurrentSeasonalEvents(nextMonth);
         return nextMonthEvents.includes(skin.season as any);
@@ -259,6 +259,6 @@ export const useSeasonalSkins = () => {
       setCurrentEvents([]);
       setIsLoading(true);
       setError(null);
-    }
+    },
   };
-}; 
+};

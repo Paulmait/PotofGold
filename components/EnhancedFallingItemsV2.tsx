@@ -5,13 +5,7 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
-import {
-  View,
-  Animated,
-  StyleSheet,
-  Dimensions,
-  Text,
-} from 'react-native';
+import { View, Animated, StyleSheet, Dimensions, Text } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
@@ -45,7 +39,7 @@ const FallingItem: React.FC<FallingItemProps> = ({
   const rotation = useRef(new Animated.Value(0)).current;
   const scale = useRef(new Animated.Value(0)).current;
   const opacity = useRef(new Animated.Value(0)).current;
-  
+
   useEffect(() => {
     // Entry animation
     Animated.parallel([
@@ -60,7 +54,7 @@ const FallingItem: React.FC<FallingItemProps> = ({
         useNativeDriver: true,
       }),
     ]).start();
-    
+
     // Rotation animation
     if (item.rotationSpeed && item.rotationSpeed > 0) {
       Animated.loop(
@@ -71,15 +65,15 @@ const FallingItem: React.FC<FallingItemProps> = ({
         })
       ).start();
     }
-    
+
     // Fall animation with magnet effect
     const fallDuration = (height / item.fallSpeed) * 10;
-    
+
     if (isMagnetActive && item.magnetAttracted) {
       // Magnetic attraction effect
       const magnetRange = 150;
       const distanceToCart = Math.abs(position.x - cartPosition);
-      
+
       if (distanceToCart < magnetRange) {
         // Curve towards cart
         Animated.parallel([
@@ -101,7 +95,7 @@ const FallingItem: React.FC<FallingItemProps> = ({
         return;
       }
     }
-    
+
     // Normal fall
     Animated.timing(animatedY, {
       toValue: height,
@@ -113,7 +107,7 @@ const FallingItem: React.FC<FallingItemProps> = ({
         const finalX = position.x;
         const cartLeft = cartPosition - cartSize / 2;
         const cartRight = cartPosition + cartSize / 2;
-        
+
         if (finalX >= cartLeft && finalX <= cartRight) {
           onCollect(item);
         } else {
@@ -122,7 +116,7 @@ const FallingItem: React.FC<FallingItemProps> = ({
       }
     });
   }, [isMagnetActive]);
-  
+
   // Visual effects based on rarity
   const getRarityGlow = () => {
     switch (item.rarity) {
@@ -140,9 +134,9 @@ const FallingItem: React.FC<FallingItemProps> = ({
         return null;
     }
   };
-  
+
   const glowColors = getRarityGlow() as string[] | null;
-  
+
   return (
     <Animated.View
       style={[
@@ -151,10 +145,12 @@ const FallingItem: React.FC<FallingItemProps> = ({
           transform: [
             { translateX: animatedX },
             { translateY: animatedY },
-            { rotate: rotation.interpolate({
-              inputRange: [0, 360],
-              outputRange: ['0deg', '360deg'],
-            })},
+            {
+              rotate: rotation.interpolate({
+                inputRange: [0, 360],
+                outputRange: ['0deg', '360deg'],
+              }),
+            },
             { scale },
           ],
           opacity,
@@ -164,32 +160,45 @@ const FallingItem: React.FC<FallingItemProps> = ({
       {glowColors && (
         <LinearGradient
           colors={glowColors}
-          style={[styles.glowEffect, { 
-            width: 60 * (item.size || 1),
-            height: 60 * (item.size || 1),
-          }]}
+          style={[
+            styles.glowEffect,
+            {
+              width: 60 * (item.size || 1),
+              height: 60 * (item.size || 1),
+            },
+          ]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
         />
       )}
-      
-      <View style={[styles.itemVisual, {
-        width: 50 * (item.size || 1),
-        height: 50 * (item.size || 1),
-      }]}>
-        <Text style={[styles.itemEmoji, {
-          fontSize: 30 * (item.size || 1),
-        }]}>
+
+      <View
+        style={[
+          styles.itemVisual,
+          {
+            width: 50 * (item.size || 1),
+            height: 50 * (item.size || 1),
+          },
+        ]}
+      >
+        <Text
+          style={[
+            styles.itemEmoji,
+            {
+              fontSize: 30 * (item.size || 1),
+            },
+          ]}
+        >
           {item.visual}
         </Text>
-        
+
         {/* Special VIP badge */}
         {item.vipRequired && (
           <View style={styles.vipBadge}>
             <Text style={styles.vipBadgeText}>VIP</Text>
           </View>
         )}
-        
+
         {/* Event badge */}
         {item.eventOnly && (
           <View style={styles.eventBadge}>
@@ -228,17 +237,19 @@ export default function EnhancedFallingItemsV2({
   onItemCollect,
   onItemMiss,
 }: EnhancedFallingItemsProps) {
-  const [fallingItems, setFallingItems] = useState<Array<{
-    id: string;
-    item: EnhancedItemConfig;
-    position: { x: number; y: number };
-  }>>([]);
-  
+  const [fallingItems, setFallingItems] = useState<
+    Array<{
+      id: string;
+      item: EnhancedItemConfig;
+      position: { x: number; y: number };
+    }>
+  >([]);
+
   const spawner = useRef(new IntelligentItemSpawner()).current;
   const spawnTimer = useRef<ReturnType<typeof setInterval>>();
   const gameTime = useRef(0);
   const isMagnetActive = activePowerUps.includes('magnet');
-  
+
   // Spawn items
   useEffect(() => {
     if (!isGameActive) {
@@ -247,56 +258,63 @@ export default function EnhancedFallingItemsV2({
       }
       return;
     }
-    
+
     // Calculate spawn rate based on level
     const baseSpawnRate = 2000; // Base: 1 item per 2 seconds
-    const levelModifier = Math.max(0.5, 1 - (level * 0.02)); // Speed up with level
+    const levelModifier = Math.max(0.5, 1 - level * 0.02); // Speed up with level
     const spawnRate = baseSpawnRate * levelModifier;
-    
+
     spawnTimer.current = setInterval(() => {
       gameTime.current += spawnRate;
-      
+
       const context: SpawnContext = {
         currentLevel: level,
         currentScore: score,
         comboCount: combo,
         activePowerUps,
         timeInGame: gameTime.current,
-        difficultyMultiplier: 1 + (level * 0.1),
+        difficultyMultiplier: 1 + level * 0.1,
         isEventActive: false, // Check for active events
       };
-      
+
       const newItem = spawner.spawnNextItem(context);
-      
+
       if (newItem) {
         const itemId = `${Date.now()}-${Math.random()}`;
         const xPosition = Math.random() * (width - 50) + 25;
-        
-        setFallingItems(prev => [...prev, {
-          id: itemId,
-          item: newItem,
-          position: { x: xPosition, y: -100 },
-        }]);
-        
+
+        setFallingItems((prev) => [
+          ...prev,
+          {
+            id: itemId,
+            item: newItem,
+            position: { x: xPosition, y: -100 },
+          },
+        ]);
+
         // Special spawn effects for rare items
-        if (newItem.rarity === 'legendary' || newItem.rarity === 'mythic' || newItem.rarity === 'cosmic') {
+        if (
+          newItem.rarity === 'legendary' ||
+          newItem.rarity === 'mythic' ||
+          newItem.rarity === 'cosmic'
+        ) {
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         }
       }
     }, spawnRate);
-    
+
     return () => {
       if (spawnTimer.current) {
         clearInterval(spawnTimer.current);
       }
     };
   }, [isGameActive, level, score, combo, vipLevel, activePowerUps]);
-  
+
   const handleItemCollect = (collectedItem: EnhancedItemConfig, itemId: string) => {
-    const itemData = fallingItems.find(fi => fi.id === itemId);
+    const itemData = fallingItems.find((fi) => fi.id === itemId);
     if (itemData) {
       onItemCollect(collectedItem, itemData.position);
-      
+
       // Haptic feedback based on rarity
       switch (collectedItem.rarity) {
         case 'common':
@@ -314,15 +332,15 @@ export default function EnhancedFallingItemsV2({
           break;
       }
     }
-    
-    setFallingItems(prev => prev.filter(item => item.id !== itemId));
+
+    setFallingItems((prev) => prev.filter((item) => item.id !== itemId));
   };
-  
+
   const handleItemMiss = (missedItem: EnhancedItemConfig, itemId: string) => {
     onItemMiss(missedItem);
-    setFallingItems(prev => prev.filter(item => item.id !== itemId));
+    setFallingItems((prev) => prev.filter((item) => item.id !== itemId));
   };
-  
+
   return (
     <View style={styles.container}>
       {/* Special effect overlays */}
@@ -332,7 +350,7 @@ export default function EnhancedFallingItemsV2({
           style={styles.goldenOverlay}
         />
       )}
-      
+
       {activePowerUps.includes('rainbowMode') && (
         <Animated.View style={styles.rainbowOverlay}>
           <LinearGradient
@@ -343,7 +361,7 @@ export default function EnhancedFallingItemsV2({
           />
         </Animated.View>
       )}
-      
+
       {/* Falling items */}
       {fallingItems.map(({ id, item, position }) => (
         <FallingItem
@@ -357,14 +375,11 @@ export default function EnhancedFallingItemsV2({
           cartSize={cartSize}
         />
       ))}
-      
+
       {/* VIP indicator */}
       {vipLevel > VIPLevel.NONE && (
         <View style={styles.vipIndicator}>
-          <LinearGradient
-            colors={['#FFD700', '#FFA500']}
-            style={styles.vipGradient}
-          >
+          <LinearGradient colors={['#FFD700', '#FFA500']} style={styles.vipGradient}>
             <Text style={styles.vipText}>VIP {vipLevel}</Text>
           </LinearGradient>
         </View>

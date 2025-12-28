@@ -15,6 +15,7 @@ We collect the following types of information when you use Pot of Gold:
 ## 2. How We Use Information
 
 We use collected data to:
+
 - Provide and improve gameplay experience
 - Save and sync progress
 - Process in-app purchases and subscriptions
@@ -24,6 +25,7 @@ We use collected data to:
 ## 3. Third-Party Services
 
 Pot of Gold integrates with:
+
 - Apple App Store / Google Play (payments, subscriptions)
 - RevenueCat (subscription management)
 - Firebase (cloud storage, analytics, crash reporting)
@@ -33,6 +35,7 @@ These services may collect additional data in accordance with their privacy poli
 ## 4. Data Sharing
 
 We do not sell personal data. We may share information:
+
 - With service providers (e.g., analytics, cloud storage)
 - To comply with legal obligations
 - To protect against fraud or misuse

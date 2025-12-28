@@ -27,7 +27,7 @@ export const useGoldRush = (config: GoldRushConfig) => {
   const animationRef = useRef<Animated.CompositeAnimation>();
 
   const activateGoldRush = useCallback(() => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       isActive: true,
       duration: config.duration,
@@ -59,7 +59,7 @@ export const useGoldRush = (config: GoldRushConfig) => {
   }, [config]);
 
   const deactivateGoldRush = useCallback(() => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       isActive: false,
       duration: 0,
@@ -109,4 +109,4 @@ export const useGoldRush = (config: GoldRushConfig) => {
     activateGoldRush,
     deactivateGoldRush,
   };
-}; 
+};

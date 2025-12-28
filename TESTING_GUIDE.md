@@ -3,6 +3,7 @@
 ## 📱 TESTING INFRASTRUCTURE OVERVIEW
 
 ### **What's Been Implemented:**
+
 ✅ Complete testing API suite
 ✅ TestFlight & Google Play Console integration  
 ✅ Debug menu with cheat codes
@@ -15,6 +16,7 @@
 ## 🚀 QUICK START FOR TESTERS
 
 ### **1. iOS Testing (TestFlight)**
+
 ```bash
 1. Email your Apple ID to: testing@potofgold.app
 2. Wait for TestFlight invitation
@@ -24,6 +26,7 @@
 ```
 
 ### **2. Android Testing (Play Console)**
+
 ```bash
 1. Join beta program: https://play.google.com/apps/testing/com.cienrios.potofgold
 2. Install from Google Play
@@ -33,6 +36,7 @@
 ## 🔑 TEST ACCOUNTS
 
 ### **Pre-Made Test Accounts**
+
 ```javascript
 // QA Tester (All features unlocked)
 Email: qa@test.potofgold.app
@@ -40,7 +44,7 @@ Password: Test1234!
 Features: Unlimited currency, God mode, Debug menu
 
 // Beta Tester (Normal player)
-Email: beta@test.potofgold.app  
+Email: beta@test.potofgold.app
 Password: Beta1234!
 Features: 1000 coins, 100 gems start
 
@@ -53,10 +57,12 @@ Features: VIP Level 5, All carts unlocked
 ## 🎮 DEBUG MENU & CHEAT CODES
 
 ### **Accessing Debug Menu**
+
 1. **In-Game**: Triple-tap top-left corner + hold for 3 seconds
 2. **Alternative**: Shake device 5 times rapidly
 
 ### **Debug Commands**
+
 ```
 /addcoins 99999
 /addgems 9999
@@ -68,12 +74,14 @@ Features: VIP Level 5, All carts unlocked
 ## 📝 BUG REPORTING
 
 ### **In-Game Reporting**
+
 1. Pause game → Settings → Report Issue
 2. Auto-captures: Screenshot, Device info, Game state
 
 ## ✅ TESTING CHECKLIST
 
 ### **Core Features**
+
 - [ ] Tutorial completion
 - [ ] Cart upgrades work
 - [ ] Items collect properly
@@ -84,6 +92,7 @@ Features: VIP Level 5, All carts unlocked
 - [ ] Cloud save/restore
 
 ### **Edge Cases**
+
 - [ ] No internet connection
 - [ ] App backgrounding
 - [ ] Low battery mode

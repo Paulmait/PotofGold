@@ -1,12 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import {
-  View,
-  Text,
-  Animated,
-  StyleSheet,
-  Easing,
-  Dimensions,
-} from 'react-native';
+import { View, Text, Animated, StyleSheet, Easing, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import particleSystem, { ParticleType } from '../utils/particleSystem';
@@ -37,10 +30,7 @@ export enum PowerUpType {
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-const PowerUpEffects: React.FC<PowerUpEffectsProps> = ({
-  activePowerUps,
-  cartPosition,
-}) => {
+const PowerUpEffects: React.FC<PowerUpEffectsProps> = ({ activePowerUps, cartPosition }) => {
   const magnetFieldAnim = useRef(new Animated.Value(0)).current;
   const shieldRotateAnim = useRef(new Animated.Value(0)).current;
   const shieldPulseAnim = useRef(new Animated.Value(1)).current;
@@ -206,7 +196,7 @@ const PowerUpEffects: React.FC<PowerUpEffectsProps> = ({
   };
 
   const renderMagnetField = () => {
-    const hasMagnet = activePowerUps.some(p => p.type === PowerUpType.MAGNET);
+    const hasMagnet = activePowerUps.some((p) => p.type === PowerUpType.MAGNET);
     if (!hasMagnet) return null;
 
     return (
@@ -242,7 +232,7 @@ const PowerUpEffects: React.FC<PowerUpEffectsProps> = ({
   };
 
   const renderShield = () => {
-    const hasShield = activePowerUps.some(p => p.type === PowerUpType.SHIELD);
+    const hasShield = activePowerUps.some((p) => p.type === PowerUpType.SHIELD);
     if (!hasShield) return null;
 
     return (
@@ -278,7 +268,7 @@ const PowerUpEffects: React.FC<PowerUpEffectsProps> = ({
   };
 
   const renderMultiplierAura = () => {
-    const multiplierPowerUp = activePowerUps.find(p => p.type === PowerUpType.MULTIPLIER);
+    const multiplierPowerUp = activePowerUps.find((p) => p.type === PowerUpType.MULTIPLIER);
     if (!multiplierPowerUp) return null;
 
     return (
@@ -328,7 +318,7 @@ const PowerUpEffects: React.FC<PowerUpEffectsProps> = ({
   };
 
   const renderTimeWarp = () => {
-    const hasTimeWarp = activePowerUps.some(p => p.type === PowerUpType.SLOW_TIME);
+    const hasTimeWarp = activePowerUps.some((p) => p.type === PowerUpType.SLOW_TIME);
     if (!hasTimeWarp) return null;
 
     return (
@@ -369,7 +359,7 @@ const PowerUpEffects: React.FC<PowerUpEffectsProps> = ({
   };
 
   const renderGoldenTouch = () => {
-    const hasGoldenTouch = activePowerUps.some(p => p.type === PowerUpType.GOLDEN_TOUCH);
+    const hasGoldenTouch = activePowerUps.some((p) => p.type === PowerUpType.GOLDEN_TOUCH);
     if (!hasGoldenTouch) return null;
 
     return (
@@ -415,7 +405,7 @@ const PowerUpEffects: React.FC<PowerUpEffectsProps> = ({
   };
 
   const renderRainbowRush = () => {
-    const hasRainbow = activePowerUps.some(p => p.type === PowerUpType.RAINBOW_RUSH);
+    const hasRainbow = activePowerUps.some((p) => p.type === PowerUpType.RAINBOW_RUSH);
     if (!hasRainbow) return null;
 
     return (

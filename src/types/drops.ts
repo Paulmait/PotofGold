@@ -1,12 +1,12 @@
 export type MonthlyDrop = {
-  id: string;                 // e.g., "drop_2025_08"
-  monthLabel: string;         // "August 2025"
+  id: string; // e.g., "drop_2025_08"
+  monthLabel: string; // "August 2025"
   cartSkinId: string;
   trailId: string;
   badgeId: string;
   frameId: string;
   bonusCoins: number;
-  claimWindowDays?: number;   // default 45
+  claimWindowDays?: number; // default 45
   previewArt: {
     cartSkinPng: string;
     trailPng: string;
@@ -18,8 +18,8 @@ export type MonthlyDrop = {
 export type UserDropClaim = {
   userId: string;
   dropId: string;
-  claimedAt: number;          // ms epoch
-  granularity: "monthly";
+  claimedAt: number; // ms epoch
+  granularity: 'monthly';
 };
 
 export type DropCalendar = {

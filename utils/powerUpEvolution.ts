@@ -63,7 +63,7 @@ export class PowerUpEvolutionSystem {
   async initializeCollection(userId: string): Promise<PowerUpCollection> {
     try {
       const offlineData = await offlineManager.getOfflineData(userId);
-      
+
       if (offlineData.powerUpCollection) {
         this.collection = offlineData.powerUpCollection;
         return this.collection;
@@ -234,13 +234,13 @@ export class PowerUpEvolutionSystem {
   }> {
     if (!this.collection) return { success: false, newLevel: 0, cost: 0, effects: {} };
 
-    const powerUp = this.collection.ownedPowerUps.find(p => p.id === powerUpId);
+    const powerUp = this.collection.ownedPowerUps.find((p) => p.id === powerUpId);
     if (!powerUp || powerUp.level >= powerUp.maxLevel) {
       return { success: false, newLevel: powerUp?.level || 0, cost: 0, effects: {} };
     }
 
     const upgradeCost = powerUp.upgradeCost * Math.pow(1.5, powerUp.level - 1);
-    
+
     // Check if player has enough coins (this would come from game state)
     // For now, we'll assume they have enough
     const hasEnoughCoins = true; // This should check actual coin balance
@@ -251,10 +251,10 @@ export class PowerUpEvolutionSystem {
 
     // Perform upgrade
     powerUp.level++;
-    
+
     // Update effects based on level
     const effects = this.calculatePowerUpEffects(powerUp);
-    
+
     await this.saveCollection();
 
     return {
@@ -266,24 +266,29 @@ export class PowerUpEvolutionSystem {
   }
 
   // Fuse power-ups
-  async fusePowerUps(powerUp1Id: string, powerUp2Id: string): Promise<{
+  async fusePowerUps(
+    powerUp1Id: string,
+    powerUp2Id: string
+  ): Promise<{
     success: boolean;
     result: PowerUp | null;
     fusionRecipe: PowerUpFusion | null;
   }> {
     if (!this.collection) return { success: false, result: null, fusionRecipe: null };
 
-    const powerUp1 = this.collection.ownedPowerUps.find(p => p.id === powerUp1Id);
-    const powerUp2 = this.collection.ownedPowerUps.find(p => p.id === powerUp2Id);
+    const powerUp1 = this.collection.ownedPowerUps.find((p) => p.id === powerUp1Id);
+    const powerUp2 = this.collection.ownedPowerUps.find((p) => p.id === powerUp2Id);
 
     if (!powerUp1 || !powerUp2) {
       return { success: false, result: null, fusionRecipe: null };
     }
 
     // Find matching fusion recipe
-    const fusionRecipe = this.collection.fusionRecipes.find(recipe => 
-      (recipe.requirements.powerUp1 === powerUp1Id && recipe.requirements.powerUp2 === powerUp2Id) ||
-      (recipe.requirements.powerUp1 === powerUp2Id && recipe.requirements.powerUp2 === powerUp1Id)
+    const fusionRecipe = this.collection.fusionRecipes.find(
+      (recipe) =>
+        (recipe.requirements.powerUp1 === powerUp1Id &&
+          recipe.requirements.powerUp2 === powerUp2Id) ||
+        (recipe.requirements.powerUp1 === powerUp2Id && recipe.requirements.powerUp2 === powerUp1Id)
     );
 
     if (!fusionRecipe) {
@@ -291,8 +296,10 @@ export class PowerUpEvolutionSystem {
     }
 
     // Check level requirements
-    if (powerUp1.level < fusionRecipe.requirements.level1 || 
-        powerUp2.level < fusionRecipe.requirements.level2) {
+    if (
+      powerUp1.level < fusionRecipe.requirements.level1 ||
+      powerUp2.level < fusionRecipe.requirements.level2
+    ) {
       return { success: false, result: null, fusionRecipe };
     }
 
@@ -314,7 +321,7 @@ export class PowerUpEvolutionSystem {
 
     // Remove original power-ups and add fused one
     this.collection.ownedPowerUps = this.collection.ownedPowerUps.filter(
-      p => p.id !== powerUp1Id && p.id !== powerUp2Id
+      (p) => p.id !== powerUp1Id && p.id !== powerUp2Id
     );
     this.collection.ownedPowerUps.push(fusedPowerUp);
     this.collection.unlockedFusions.push(fusionRecipe.id);
@@ -359,7 +366,7 @@ export class PowerUpEvolutionSystem {
   async unlockPowerUp(powerUpId: string): Promise<boolean> {
     if (!this.collection) return false;
 
-    const powerUp = this.collection.ownedPowerUps.find(p => p.id === powerUpId);
+    const powerUp = this.collection.ownedPowerUps.find((p) => p.id === powerUpId);
     if (!powerUp) return false;
 
     powerUp.unlocked = true;
@@ -370,27 +377,34 @@ export class PowerUpEvolutionSystem {
   // Get available fusions
   getAvailableFusions(): PowerUpFusion[] {
     if (!this.collection) return [];
-    
-    return this.collection.fusionRecipes.filter(recipe => {
-      const powerUp1 = this.collection!.ownedPowerUps.find(p => p.id === recipe.requirements.powerUp1);
-      const powerUp2 = this.collection!.ownedPowerUps.find(p => p.id === recipe.requirements.powerUp2);
-      
-      return powerUp1 && powerUp2 && 
-             powerUp1.level >= recipe.requirements.level1 && 
-             powerUp2.level >= recipe.requirements.level2;
+
+    return this.collection.fusionRecipes.filter((recipe) => {
+      const powerUp1 = this.collection!.ownedPowerUps.find(
+        (p) => p.id === recipe.requirements.powerUp1
+      );
+      const powerUp2 = this.collection!.ownedPowerUps.find(
+        (p) => p.id === recipe.requirements.powerUp2
+      );
+
+      return (
+        powerUp1 &&
+        powerUp2 &&
+        powerUp1.level >= recipe.requirements.level1 &&
+        powerUp2.level >= recipe.requirements.level2
+      );
     });
   }
 
   // Get owned power-ups
   getOwnedPowerUps(): PowerUp[] {
     if (!this.collection) return [];
-    return this.collection.ownedPowerUps.filter(p => p.unlocked);
+    return this.collection.ownedPowerUps.filter((p) => p.unlocked);
   }
 
   // Get active power-ups
   getActivePowerUps(): PowerUp[] {
     if (!this.collection) return [];
-    return this.collection.ownedPowerUps.filter(p => 
+    return this.collection.ownedPowerUps.filter((p) =>
       this.collection!.activePowerUps.includes(p.id)
     );
   }
@@ -399,7 +413,7 @@ export class PowerUpEvolutionSystem {
   async activatePowerUp(powerUpId: string): Promise<boolean> {
     if (!this.collection) return false;
 
-    const powerUp = this.collection.ownedPowerUps.find(p => p.id === powerUpId);
+    const powerUp = this.collection.ownedPowerUps.find((p) => p.id === powerUpId);
     if (!powerUp || !powerUp.unlocked) return false;
 
     if (!this.collection.activePowerUps.includes(powerUpId)) {
@@ -428,7 +442,7 @@ export class PowerUpEvolutionSystem {
   getPowerUpEffects(powerUpId: string): any {
     if (!this.collection) return null;
 
-    const powerUp = this.collection.ownedPowerUps.find(p => p.id === powerUpId);
+    const powerUp = this.collection.ownedPowerUps.find((p) => p.id === powerUpId);
     if (!powerUp) return null;
 
     return this.calculatePowerUpEffects(powerUp);
@@ -463,8 +477,8 @@ export class PowerUpEvolutionSystem {
 
     return {
       totalPowerUps: this.collection.ownedPowerUps.length,
-      unlockedPowerUps: this.collection.ownedPowerUps.filter(p => p.unlocked).length,
-      maxLevelPowerUps: this.collection.ownedPowerUps.filter(p => p.level === p.maxLevel).length,
+      unlockedPowerUps: this.collection.ownedPowerUps.filter((p) => p.unlocked).length,
+      maxLevelPowerUps: this.collection.ownedPowerUps.filter((p) => p.level === p.maxLevel).length,
       totalFusions: this.collection.unlockedFusions.length,
       totalUsage: this.collection.totalPowerUpsUsed,
     };
@@ -489,4 +503,4 @@ export class PowerUpEvolutionSystem {
   }
 }
 
-export const powerUpEvolutionSystem = PowerUpEvolutionSystem.getInstance(); 
+export const powerUpEvolutionSystem = PowerUpEvolutionSystem.getInstance();

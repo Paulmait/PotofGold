@@ -52,7 +52,7 @@ export class DynamicPhysics {
   // Update physics based on game level
   updatePhysicsForLevel(level: number): void {
     const difficultyMultiplier = Math.min(1 + (level - 1) * 0.1, 3);
-    
+
     this.config = {
       baseSpeed: 2 * difficultyMultiplier,
       speedVariation: 0.5 * difficultyMultiplier,
@@ -68,23 +68,23 @@ export class DynamicPhysics {
     const baseSpeed = this.config.baseSpeed;
     const speedVariation = this.config.speedVariation;
     const directionVariation = this.config.directionVariation;
-    
+
     // Vary speed based on level
     const speed = baseSpeed + (Math.random() - 0.5) * speedVariation;
-    
+
     // Vary direction (mostly downward with some variation)
     const baseDirection = Math.PI / 2; // Downward
     const direction = baseDirection + (Math.random() - 0.5) * directionVariation;
-    
+
     // Add wobble effect
     const wobble = Math.random() * this.config.wobbleIntensity;
     const wobbleSpeed = 0.02 + Math.random() * 0.03;
     const wobbleOffset = Math.random() * Math.PI * 2;
-    
+
     // Determine object type based on level and probability
     const type = this.determineObjectType(level);
     const value = this.calculateObjectValue(type, level);
-    
+
     return {
       id: `obj_${Date.now()}_${Math.random()}`,
       x: Math.random() * (width - 40),
@@ -105,14 +105,14 @@ export class DynamicPhysics {
     // Apply wind effect
     this.updateWind(deltaTime);
     const windInfluence = Math.sin(this.windDirection) * this.config.windEffect;
-    
+
     // Calculate new position with wobble
     const wobbleX = Math.sin(obj.wobbleOffset + obj.wobbleSpeed * deltaTime) * obj.wobble;
-    
+
     // Update position
     obj.x += Math.cos(obj.direction) * obj.speed * deltaTime + windInfluence + wobbleX;
     obj.y += Math.sin(obj.direction) * obj.speed * deltaTime + this.config.gravity * deltaTime;
-    
+
     // Keep object within bounds
     obj.x = Math.max(0, Math.min(width - 40, obj.x));
   }
@@ -120,10 +120,10 @@ export class DynamicPhysics {
   // Determine object type based on level
   private determineObjectType(level: number): 'coin' | 'bonus' | 'powerup' {
     const rand = Math.random();
-    
+
     // Power-up probability increases with level
     const powerUpChance = Math.min(0.05 + (level - 1) * 0.01, 0.15);
-    
+
     if (rand < powerUpChance) {
       return 'powerup';
     } else if (rand < 0.3) {
@@ -136,7 +136,7 @@ export class DynamicPhysics {
   // Calculate object value based on type and level
   private calculateObjectValue(type: string, level: number): number {
     const levelMultiplier = 1 + (level - 1) * 0.2;
-    
+
     switch (type) {
       case 'coin':
         return Math.floor((1 + Math.random() * 2) * levelMultiplier);
@@ -158,7 +158,8 @@ export class DynamicPhysics {
   // Update wind direction over time
   private updateWind(deltaTime: number): void {
     this.windChangeTimer += deltaTime;
-    if (this.windChangeTimer > 5000) { // Change wind every 5 seconds
+    if (this.windChangeTimer > 5000) {
+      // Change wind every 5 seconds
       this.windDirection += (Math.random() - 0.5) * Math.PI;
       this.windChangeTimer = 0;
     }
@@ -176,4 +177,4 @@ export class DynamicPhysics {
   }
 }
 
-export const dynamicPhysics = DynamicPhysics.getInstance(); 
+export const dynamicPhysics = DynamicPhysics.getInstance();

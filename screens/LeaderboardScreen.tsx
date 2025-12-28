@@ -40,7 +40,7 @@ const LeaderboardScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const loadLeaderboardData = async () => {
     try {
       setLoading(true);
-      
+
       // Check if we're online
       const isOnline = offlineManager.isConnected();
       setOfflineMode(!isOnline);
@@ -121,18 +121,20 @@ const LeaderboardScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
     const isCurrentUser = item.isCurrentUser;
 
     return (
-      <View style={[
-        styles.leaderboardItem,
-        isCurrentUser && styles.currentUserItem,
-        isTopThree && styles.topThreeItem,
-      ]}>
+      <View
+        style={[
+          styles.leaderboardItem,
+          isCurrentUser && styles.currentUserItem,
+          isTopThree && styles.topThreeItem,
+        ]}
+      >
         {/* Rank */}
         <View style={[styles.rankContainer, isTopThree && styles.topThreeRank]}>
           {isTopThree ? (
-            <Ionicons 
-              name={item.rank === 1 ? 'trophy' : item.rank === 2 ? 'medal' : 'ribbon'} 
-              size={24} 
-              color={item.rank === 1 ? '#FFD700' : item.rank === 2 ? '#C0C0C0' : '#CD7F32'} 
+            <Ionicons
+              name={item.rank === 1 ? 'trophy' : item.rank === 2 ? 'medal' : 'ribbon'}
+              size={24}
+              color={item.rank === 1 ? '#FFD700' : item.rank === 2 ? '#C0C0C0' : '#CD7F32'}
             />
           ) : (
             <Text style={[styles.rankText, isCurrentUser && styles.currentUserText]}>
@@ -156,9 +158,7 @@ const LeaderboardScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
           <Text style={[styles.scoreText, isCurrentUser && styles.currentUserText]}>
             {item.score.toLocaleString()}
           </Text>
-          <Text style={[styles.scoreLabel, isCurrentUser && styles.currentUserText]}>
-            points
-          </Text>
+          <Text style={[styles.scoreLabel, isCurrentUser && styles.currentUserText]}>points</Text>
         </View>
 
         {/* Current User Indicator */}
@@ -178,10 +178,9 @@ const LeaderboardScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
         {activeTab === 'global' ? 'No Global Scores' : 'No Friends Yet'}
       </Text>
       <Text style={styles.emptyStateSubtitle}>
-        {activeTab === 'global' 
-          ? 'Be the first to set a high score!' 
-          : 'Add friends to see their scores here.'
-        }
+        {activeTab === 'global'
+          ? 'Be the first to set a high score!'
+          : 'Add friends to see their scores here.'}
       </Text>
     </View>
   );
@@ -189,37 +188,28 @@ const LeaderboardScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const renderOfflineBanner = () => (
     <View style={styles.offlineBanner}>
       <Ionicons name="cloud-offline" size={20} color="white" />
-      <Text style={styles.offlineText}>
-        Offline Mode - Showing local scores only
-      </Text>
+      <Text style={styles.offlineText}>Offline Mode - Showing local scores only</Text>
     </View>
   );
 
   return (
     <LinearGradient colors={['#FFD700', '#FFA500', '#FF8C00']} style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
-      
+
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color="white" />
         </TouchableOpacity>
-        
+
         <Text style={styles.title}>Leaderboard</Text>
-        
+
         <TouchableOpacity
           style={styles.refreshButton}
           onPress={handleRefresh}
           disabled={refreshing}
         >
-          <Ionicons 
-            name={refreshing ? "sync" : "refresh"} 
-            size={24} 
-            color="white" 
-          />
+          <Ionicons name={refreshing ? 'sync' : 'refresh'} size={24} color="white" />
         </TouchableOpacity>
       </View>
 
@@ -232,11 +222,7 @@ const LeaderboardScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
           style={[styles.tabButton, activeTab === 'global' && styles.activeTab]}
           onPress={() => handleTabChange('global')}
         >
-          <Ionicons 
-            name="globe" 
-            size={20} 
-            color={activeTab === 'global' ? '#FFD700' : 'white'} 
-          />
+          <Ionicons name="globe" size={20} color={activeTab === 'global' ? '#FFD700' : 'white'} />
           <Text style={[styles.tabText, activeTab === 'global' && styles.activeTabText]}>
             Global
           </Text>
@@ -246,11 +232,7 @@ const LeaderboardScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
           style={[styles.tabButton, activeTab === 'friends' && styles.activeTab]}
           onPress={() => handleTabChange('friends')}
         >
-          <Ionicons 
-            name="people" 
-            size={20} 
-            color={activeTab === 'friends' ? '#FFD700' : 'white'} 
-          />
+          <Ionicons name="people" size={20} color={activeTab === 'friends' ? '#FFD700' : 'white'} />
           <Text style={[styles.tabText, activeTab === 'friends' && styles.activeTabText]}>
             Friends
           </Text>
@@ -491,4 +473,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LeaderboardScreen; 
+export default LeaderboardScreen;

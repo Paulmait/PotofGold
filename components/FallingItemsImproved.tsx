@@ -1,11 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Animated,
-  Dimensions,
-} from 'react-native';
+import { View, Text, StyleSheet, Animated, Dimensions } from 'react-native';
 
 const { height } = Dimensions.get('window');
 
@@ -24,22 +18,19 @@ interface FallingItemsImprovedProps {
   isPaused?: boolean;
 }
 
-const FallingItemsImproved: React.FC<FallingItemsImprovedProps> = ({ 
-  items, 
-  isPaused = false 
-}) => {
+const FallingItemsImproved: React.FC<FallingItemsImprovedProps> = ({ items, isPaused = false }) => {
   return (
     <View style={styles.container}>
-      {items.map(item => (
+      {items.map((item) => (
         <FallingItemComponent key={item.id} item={item} isPaused={isPaused} />
       ))}
     </View>
   );
 };
 
-const FallingItemComponent: React.FC<{ item: FallingItem; isPaused: boolean }> = ({ 
-  item, 
-  isPaused 
+const FallingItemComponent: React.FC<{ item: FallingItem; isPaused: boolean }> = ({
+  item,
+  isPaused,
 }) => {
   const translateY = useRef(new Animated.Value(item.y)).current;
   const rotation = useRef(new Animated.Value(0)).current;
@@ -117,11 +108,11 @@ const FallingItemComponent: React.FC<{ item: FallingItem; isPaused: boolean }> =
           left: item.x - itemStyle.size / 2,
           transform: [
             { translateY },
-            { 
+            {
               rotate: rotation.interpolate({
                 inputRange: [0, 360],
                 outputRange: ['0deg', '360deg'],
-              })
+              }),
             },
             { scale },
           ],
@@ -136,9 +127,7 @@ const FallingItemComponent: React.FC<{ item: FallingItem; isPaused: boolean }> =
         },
       ]}
     >
-      <Text style={[styles.itemEmoji, { fontSize: itemStyle.size }]}>
-        {itemStyle.emoji}
-      </Text>
+      <Text style={[styles.itemEmoji, { fontSize: itemStyle.size }]}>{itemStyle.emoji}</Text>
       {item.type === 'bomb' && (
         <Animated.View
           style={[

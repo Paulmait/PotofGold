@@ -111,7 +111,7 @@ const FunGameOverModal: React.FC<FunGameOverModalProps> = ({
 
   const getRandomCompliment = () => {
     const compliments = [
-      'You\'re Amazing! 🌟',
+      "You're Amazing! 🌟",
       'Fantastic Player! 🎮',
       'Pure Talent! ✨',
       'Gold Star Performance! ⭐',
@@ -135,21 +135,13 @@ const FunGameOverModal: React.FC<FunGameOverModalProps> = ({
   };
 
   return (
-    <Modal
-      visible={visible}
-      transparent={true}
-      animationType="none"
-      onRequestClose={onPlayAgain}
-    >
+    <Modal visible={visible} transparent={true} animationType="none" onRequestClose={onPlayAgain}>
       <View style={styles.modalContainer}>
         <Animated.View
           style={[
             styles.contentContainer,
             {
-              transform: [
-                { scale: scaleAnim },
-                { translateY: bounceAnim },
-              ],
+              transform: [{ scale: scaleAnim }, { translateY: bounceAnim }],
             },
           ]}
         >
@@ -273,10 +265,7 @@ const FunGameOverModal: React.FC<FunGameOverModalProps> = ({
                 accessibilityHint="Starts a new game"
                 accessibilityRole="button"
               >
-                <LinearGradient
-                  colors={['#00FF00', '#00CC00']}
-                  style={styles.buttonGradient}
-                >
+                <LinearGradient colors={['#00FF00', '#00CC00']} style={styles.buttonGradient}>
                   <Text style={styles.playAgainText}>Play Again! 🎮</Text>
                 </LinearGradient>
               </TouchableOpacity>
@@ -298,9 +287,7 @@ const FunGameOverModal: React.FC<FunGameOverModalProps> = ({
             {/* Celebration Badge */}
             {celebration.level >= 3 && (
               <View style={styles.celebrationBadge}>
-                <Text style={styles.celebrationText}>
-                  {celebration.message}
-                </Text>
+                <Text style={styles.celebrationText}>{celebration.message}</Text>
               </View>
             )}
           </LinearGradient>

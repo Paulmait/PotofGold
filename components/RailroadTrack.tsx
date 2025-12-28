@@ -7,7 +7,7 @@ const RailroadTrack: React.FC = () => {
   // Create array of railroad ties
   const tieCount = Math.floor(width / 50) + 2;
   const ties = Array.from({ length: tieCount }, (_, i) => i);
-  
+
   return (
     <View style={styles.container}>
       {/* Railroad ties (wooden beams) */}
@@ -20,7 +20,7 @@ const RailroadTrack: React.FC = () => {
           </View>
         ))}
       </View>
-      
+
       {/* Rails */}
       <View style={styles.railsContainer}>
         {/* Left rail */}
@@ -28,14 +28,14 @@ const RailroadTrack: React.FC = () => {
           <View style={styles.railTop} />
           <View style={styles.railSide} />
         </View>
-        
+
         {/* Right rail */}
         <View style={styles.railRight}>
           <View style={styles.railTop} />
           <View style={styles.railSide} />
         </View>
       </View>
-      
+
       {/* Gravel/ballast between ties */}
       <View style={styles.ballastContainer}>
         {ties.map((index) => (
@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
     right: 0,
     height: 80,
   },
-  
+
   tiesContainer: {
     position: 'absolute',
     flexDirection: 'row',
@@ -64,13 +64,13 @@ const styles = StyleSheet.create({
     height: 60,
     justifyContent: 'space-between',
   },
-  
+
   tie: {
     width: 12,
     height: 60,
     marginHorizontal: 38,
   },
-  
+
   tieTop: {
     width: '100%',
     height: 15,
@@ -78,13 +78,13 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 2,
     borderTopRightRadius: 2,
   },
-  
+
   tieMiddle: {
     width: '100%',
     height: 30,
     backgroundColor: '#5C3A1E',
   },
-  
+
   tieBottom: {
     width: '100%',
     height: 15,
@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 2,
     borderBottomRightRadius: 2,
   },
-  
+
   railsContainer: {
     position: 'absolute',
     top: 0,
@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
     right: 0,
     height: 40,
   },
-  
+
   railLeft: {
     position: 'absolute',
     left: width * 0.25,
@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
     right: width * 0.75,
     height: 8,
   },
-  
+
   railRight: {
     position: 'absolute',
     left: width * 0.75,
@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
     right: width * 0.25,
     height: 8,
   },
-  
+
   railTop: {
     position: 'absolute',
     top: 0,
@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#A8A8A8',
   },
-  
+
   railSide: {
     position: 'absolute',
     top: 6,
@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
     height: 2,
     backgroundColor: '#808080',
   },
-  
+
   ballastContainer: {
     position: 'absolute',
     bottom: -5,
@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
   },
-  
+
   ballast: {
     width: 30,
     height: 10,

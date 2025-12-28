@@ -50,13 +50,15 @@ export const AdminDashboard: React.FC = () => {
 
   useEffect(() => {
     if (!user || user.role !== 'admin') {
-  // Fallback: use navigate for type compatibility
-  navigation.navigate('Home' as never);
+      // Fallback: use navigate for type compatibility
+      navigation.navigate('Home' as never);
     }
   }, [user, navigation]);
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedTab, setSelectedTab] = useState<'overview' | 'users' | 'revenue' | 'config'>('overview');
+  const [selectedTab, setSelectedTab] = useState<'overview' | 'users' | 'revenue' | 'config'>(
+    'overview'
+  );
   const [searchQuery, setSearchQuery] = useState('');
   const [remoteConfig, setRemoteConfig] = useState({
     doubleCoinsEnabled: false,
@@ -97,7 +99,7 @@ export const AdminDashboard: React.FC = () => {
           { userId: '3', username: 'TreasureHunter', score: 87123, revenue: 19.99 },
         ],
       };
-      
+
       setMetrics(mockMetrics);
       setLoading(false);
     } catch (error) {
@@ -118,19 +120,19 @@ export const AdminDashboard: React.FC = () => {
             <Text style={styles.kpiLabel}>Active Users</Text>
             <Text style={styles.kpiChange}>↑ 12.5%</Text>
           </View>
-          
+
           <View style={[styles.kpiCard, styles.kpiCardPrimary]}>
             <Text style={styles.kpiValue}>${metrics.revenue.today.toFixed(2)}</Text>
             <Text style={styles.kpiLabel}>Today's Revenue</Text>
             <Text style={styles.kpiChange}>↑ 8.3%</Text>
           </View>
-          
+
           <View style={[styles.kpiCard, styles.kpiCardWarning]}>
             <Text style={styles.kpiValue}>{metrics.retention.day1}%</Text>
             <Text style={styles.kpiLabel}>D1 Retention</Text>
             <Text style={styles.kpiChange}>↓ 2.1%</Text>
           </View>
-          
+
           <View style={[styles.kpiCard, styles.kpiCardDanger]}>
             <Text style={styles.kpiValue}>{metrics.engagement.crashRate}%</Text>
             <Text style={styles.kpiLabel}>Crash Rate</Text>
@@ -144,9 +146,11 @@ export const AdminDashboard: React.FC = () => {
           <LineChart
             data={{
               labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-              datasets: [{
-                data: [412, 487, 523, 498, 512, 487, 487]
-              }]
+              datasets: [
+                {
+                  data: [412, 487, 523, 498, 512, 487, 487],
+                },
+              ],
             }}
             width={screenWidth - 40}
             height={200}
@@ -157,8 +161,8 @@ export const AdminDashboard: React.FC = () => {
               decimalPlaces: 0,
               color: (opacity = 1) => `rgba(76, 175, 80, ${opacity})`,
               style: {
-                borderRadius: 16
-              }
+                borderRadius: 16,
+              },
             }}
             bezier
             style={styles.chart}
@@ -171,9 +175,11 @@ export const AdminDashboard: React.FC = () => {
           <BarChart
             data={{
               labels: ['12am', '6am', '12pm', '6pm', '11pm'],
-              datasets: [{
-                data: [20, 45, 128, 187, 93]
-              }]
+              datasets: [
+                {
+                  data: [20, 45, 128, 187, 93],
+                },
+              ],
             }}
             width={screenWidth - 40}
             height={200}
@@ -224,23 +230,38 @@ export const AdminDashboard: React.FC = () => {
 
         {/* User Management Actions */}
         <View style={styles.actionButtons}>
-          <TouchableOpacity style={styles.actionButton} onPress={() => handleUserAction('reset_account')}>
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => handleUserAction('reset_account')}
+          >
             <Ionicons name="refresh" size={20} color="white" />
             <Text style={styles.actionButtonText}>Reset Account</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton} onPress={() => handleUserAction('view_data')}>
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => handleUserAction('view_data')}
+          >
             <Ionicons name="eye" size={20} color="white" />
             <Text style={styles.actionButtonText}>View Data</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton} onPress={() => handleUserAction('edit_data')}>
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => handleUserAction('edit_data')}
+          >
             <Ionicons name="create" size={20} color="white" />
             <Text style={styles.actionButtonText}>Edit Data</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton} onPress={() => handleUserAction('download_data')}>
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => handleUserAction('download_data')}
+          >
             <Ionicons name="download" size={20} color="white" />
             <Text style={styles.actionButtonText}>Download Data</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton} onPress={() => handleUserAction('distribute_data')}>
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => handleUserAction('distribute_data')}
+          >
             <Ionicons name="share-social" size={20} color="white" />
             <Text style={styles.actionButtonText}>Distribute Data</Text>
           </TouchableOpacity>
@@ -249,8 +270,18 @@ export const AdminDashboard: React.FC = () => {
         {/* User List */}
         <View style={styles.userList}>
           <UserRow username="TestUser123" userId="usr_123" status="active" lastSeen="2 min ago" />
-          <UserRow username="CoinCollector" userId="usr_456" status="active" lastSeen="15 min ago" />
-          <UserRow username="ProGamer2024" userId="usr_789" status="inactive" lastSeen="2 hours ago" />
+          <UserRow
+            username="CoinCollector"
+            userId="usr_456"
+            status="active"
+            lastSeen="15 min ago"
+          />
+          <UserRow
+            username="ProGamer2024"
+            userId="usr_789"
+            status="inactive"
+            lastSeen="2 hours ago"
+          />
           <UserRow username="Banned_User" userId="usr_000" status="banned" lastSeen="3 days ago" />
         </View>
       </ScrollView>
@@ -331,7 +362,7 @@ export const AdminDashboard: React.FC = () => {
     return (
       <ScrollView style={styles.tabContent}>
         <Text style={styles.sectionTitle}>Remote Configuration</Text>
-        
+
         <View style={styles.configItem}>
           <View style={styles.configInfo}>
             <Text style={styles.configLabel}>Double Coins Event</Text>
@@ -369,13 +400,19 @@ export const AdminDashboard: React.FC = () => {
           <Text style={styles.sectionTitle}>A/B Testing</Text>
           <View style={styles.abTestContainer}>
             <TouchableOpacity
-              style={[styles.abTestButton, remoteConfig.abTestVariant === 'A' && styles.abTestActive]}
+              style={[
+                styles.abTestButton,
+                remoteConfig.abTestVariant === 'A' && styles.abTestActive,
+              ]}
               onPress={() => updateRemoteConfig('abTestVariant', 'A')}
             >
               <Text style={styles.abTestText}>Variant A (50%)</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.abTestButton, remoteConfig.abTestVariant === 'B' && styles.abTestActive]}
+              style={[
+                styles.abTestButton,
+                remoteConfig.abTestVariant === 'B' && styles.abTestActive,
+              ]}
               onPress={() => updateRemoteConfig('abTestVariant', 'B')}
             >
               <Text style={styles.abTestText}>Variant B (50%)</Text>
@@ -397,36 +434,28 @@ export const AdminDashboard: React.FC = () => {
       fetch('https://your-backend.com/api/audit-log', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user.token}` },
-        body: JSON.stringify({ userId: user.id, action, timestamp: Date.now() })
+        body: JSON.stringify({ userId: user.id, action, timestamp: Date.now() }),
       });
     }
-    Alert.alert(
-      'User Action',
-      `Perform ${action} for user?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Confirm', onPress: () => console.log(`${action} executed`) }
-      ]
-    );
+    Alert.alert('User Action', `Perform ${action} for user?`, [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Confirm', onPress: () => console.log(`${action} executed`) },
+    ]);
   };
 
   const updateRemoteConfig = (key: string, value: any) => {
-    setRemoteConfig(prev => ({ ...prev, [key]: value }));
+    setRemoteConfig((prev) => ({ ...prev, [key]: value }));
     // In production, update backend
     Alert.alert('Config Updated', `${key} set to ${value}`);
   };
 
   const sendPushNotification = () => {
-    Alert.prompt(
-      'Send Push Notification',
-      'Enter notification message:',
-      (message) => {
-        if (message) {
-          console.log('Sending push:', message);
-          Alert.alert('Success', 'Push notification sent to all users');
-        }
+    Alert.prompt('Send Push Notification', 'Enter notification message:', (message) => {
+      if (message) {
+        console.log('Sending push:', message);
+        Alert.alert('Success', 'Push notification sent to all users');
       }
-    );
+    });
   };
 
   if (loading) {
@@ -458,7 +487,7 @@ export const AdminDashboard: React.FC = () => {
             Overview
           </Text>
         </TouchableOpacity>
-        
+
         <TouchableOpacity
           style={[styles.tab, selectedTab === 'users' && styles.tabActive]}
           onPress={() => setSelectedTab('users')}
@@ -467,7 +496,7 @@ export const AdminDashboard: React.FC = () => {
             Users
           </Text>
         </TouchableOpacity>
-        
+
         <TouchableOpacity
           style={[styles.tab, selectedTab === 'revenue' && styles.tabActive]}
           onPress={() => setSelectedTab('revenue')}
@@ -476,7 +505,7 @@ export const AdminDashboard: React.FC = () => {
             Revenue
           </Text>
         </TouchableOpacity>
-        
+
         <TouchableOpacity
           style={[styles.tab, selectedTab === 'config' && styles.tabActive]}
           onPress={() => setSelectedTab('config')}
@@ -509,7 +538,16 @@ const UserRow: React.FC<{
       <Text style={styles.userId}>{userId}</Text>
     </View>
     <View style={styles.userStatus}>
-      <View style={[styles.statusDot, status === 'active' ? styles.statusActive : status === 'banned' ? styles.statusBanned : styles.statusInactive]} />
+      <View
+        style={[
+          styles.statusDot,
+          status === 'active'
+            ? styles.statusActive
+            : status === 'banned'
+              ? styles.statusBanned
+              : styles.statusInactive,
+        ]}
+      />
       <Text style={styles.lastSeen}>{lastSeen}</Text>
     </View>
   </View>

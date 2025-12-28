@@ -157,7 +157,8 @@ export class PluginSystem {
   private static instance: PluginSystem;
   private plugins: Map<string, Plugin> = new Map();
   private loadedPlugins: Map<string, PluginInstance> = new Map();
-  private hooks: Map<string, Array<{ plugin: string; handler: Function; priority: number }>> = new Map();
+  private hooks: Map<string, Array<{ plugin: string; handler: Function; priority: number }>> =
+    new Map();
   private commands: Map<string, { plugin: string; handler: Function }> = new Map();
   private sandboxes: Map<string, PluginSandbox> = new Map();
   private pluginStates: Map<string, any> = new Map();
@@ -325,7 +326,7 @@ export class PluginSystem {
         // Simple hash function
         let hash = 0;
         for (let i = 0; i < data.length; i++) {
-          hash = ((hash << 5) - hash) + data.charCodeAt(i);
+          hash = (hash << 5) - hash + data.charCodeAt(i);
           hash = hash & hash;
         }
         return hash.toString(36);
@@ -345,7 +346,7 @@ export class PluginSystem {
           if (!inThrottle) {
             func(...args);
             inThrottle = true;
-            setTimeout(() => inThrottle = false, limit);
+            setTimeout(() => (inThrottle = false), limit);
           }
         };
       },
@@ -381,10 +382,10 @@ export class PluginSystem {
       // Load plugin manifest
       const response = await fetch(url);
       const pluginCode = await response.text();
-      
+
       // Parse plugin metadata
       const metadata = this.parsePluginMetadata(pluginCode);
-      
+
       if (this.plugins.has(metadata.id)) {
         console.log('Plugin already installed');
         return false;
@@ -574,7 +575,7 @@ export class PluginSystem {
   }
 
   private registerHooks(plugin: Plugin) {
-    plugin.manifest.hooks?.forEach(hook => {
+    plugin.manifest.hooks?.forEach((hook) => {
       if (!this.hooks.has(hook.event)) {
         this.hooks.set(hook.event, []);
       }
@@ -594,7 +595,7 @@ export class PluginSystem {
   private createHookHandler(plugin: Plugin, hook: PluginHook): Function {
     return (data: any) => {
       if (hook.filter && !hook.filter(data)) return;
-      
+
       if (plugin.instance?.onEvent) {
         plugin.instance.onEvent(hook.event, data);
       }
@@ -602,7 +603,7 @@ export class PluginSystem {
   }
 
   private registerCommands(plugin: Plugin) {
-    plugin.manifest.commands?.forEach(command => {
+    plugin.manifest.commands?.forEach((command) => {
       const handler = this.createCommandHandler(plugin, command);
       this.commands.set(command.name, {
         plugin: plugin.id,
@@ -633,7 +634,7 @@ export class PluginSystem {
     this.hooks.forEach((handlers, event) => {
       this.hooks.set(
         event,
-        handlers.filter(h => h.plugin !== plugin.id)
+        handlers.filter((h) => h.plugin !== plugin.id)
       );
     });
   }
@@ -645,7 +646,7 @@ export class PluginSystem {
         toRemove.push(name);
       }
     });
-    toRemove.forEach(name => this.commands.delete(name));
+    toRemove.forEach((name) => this.commands.delete(name));
   }
 
   private updatePlugins() {
@@ -738,7 +739,7 @@ export class PluginSystem {
   }
 
   getEnabledPlugins(): Plugin[] {
-    return Array.from(this.plugins.values()).filter(p => p.enabled);
+    return Array.from(this.plugins.values()).filter((p) => p.enabled);
   }
 
   getPluginConfig(id: string): PluginConfig | null {
@@ -750,7 +751,7 @@ export class PluginSystem {
     const plugin = this.plugins.get(id);
     if (plugin) {
       plugin.config = config;
-      
+
       if (plugin.instance?.setState) {
         plugin.instance.setState({ config });
       }
@@ -764,7 +765,7 @@ export class PluginSystem {
     }
 
     // Unload all plugins
-    this.plugins.forEach(plugin => {
+    this.plugins.forEach((plugin) => {
       this.uninstallPlugin(plugin.id);
     });
   }
@@ -797,13 +798,13 @@ class PluginSandbox {
 
   private wrapAPI(api: any): any {
     const wrapped: any = {};
-    
+
     for (const key in api) {
       if (typeof api[key] === 'function') {
         wrapped[key] = (...args: any[]) => {
           // Log API calls for monitoring
           console.log(`Plugin ${this.id} called ${key}`, args);
-          
+
           // Apply rate limiting, validation, etc.
           return api[key](...args);
         };

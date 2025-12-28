@@ -17,10 +17,7 @@ interface GameLoadingSplashProps {
   duration?: number;
 }
 
-export default function GameLoadingSplash({ 
-  onComplete, 
-  duration = 2500 
-}: GameLoadingSplashProps) {
+export default function GameLoadingSplash({ onComplete, duration = 2500 }: GameLoadingSplashProps) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
   const rotateAnim = useRef(new Animated.Value(0)).current;
@@ -125,10 +122,7 @@ export default function GameLoadingSplash({
                 opacity: shimmerAnim,
                 transform: [
                   {
-                    translateY: Animated.multiply(
-                      shimmerAnim,
-                      Math.random() * 100 - 50
-                    ),
+                    translateY: Animated.multiply(shimmerAnim, Math.random() * 100 - 50),
                   },
                 ],
               },
@@ -153,15 +147,12 @@ export default function GameLoadingSplash({
             style={[
               styles.logo,
               {
-                transform: [
-                  { rotate: rotateInterpolate },
-                  { scale: scaleAnim },
-                ],
+                transform: [{ rotate: rotateInterpolate }, { scale: scaleAnim }],
               },
             ]}
             resizeMode="contain"
           />
-          
+
           {/* Shimmer overlay */}
           <Animated.View
             style={[
@@ -208,15 +199,12 @@ export default function GameLoadingSplash({
               />
             </Animated.View>
           </View>
-          
+
           <Animated.Text
             style={[
               styles.loadingText,
               {
-                opacity: Animated.multiply(
-                  fadeAnim,
-                  shimmerAnim
-                ),
+                opacity: Animated.multiply(fadeAnim, shimmerAnim),
               },
             ]}
           >
@@ -233,9 +221,7 @@ export default function GameLoadingSplash({
             },
           ]}
         >
-          <Text style={styles.tipText}>
-            💡 Tip: Swipe left and right to move your cart!
-          </Text>
+          <Text style={styles.tipText}>💡 Tip: Swipe left and right to move your cart!</Text>
         </Animated.View>
       </Animated.View>
 

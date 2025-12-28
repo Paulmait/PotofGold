@@ -11,12 +11,14 @@ const firebaseConfig = {
   storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET || '',
   messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || '',
   appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID || '',
-  measurementId: process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID || ''
+  measurementId: process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID || '',
 };
 
 // Validate required config
 if (!firebaseConfig.apiKey || !firebaseConfig.authDomain || !firebaseConfig.projectId) {
-  console.error('Missing required Firebase configuration. Set EXPO_PUBLIC_FIREBASE_* environment variables.');
+  console.error(
+    'Missing required Firebase configuration. Set EXPO_PUBLIC_FIREBASE_* environment variables.'
+  );
 }
 
 // Initialize Firebase (prevent duplicate app error in tests)
@@ -28,4 +30,4 @@ export const db = getFirestore(app);
 // Initialize Auth
 export const auth = getAuth(app);
 
-export default app; 
+export default app;

@@ -20,11 +20,16 @@ export const getAdminCredentials = (): AdminCredentials | null => {
   return {
     username: process.env.ADMIN_USERNAME,
     password: process.env.ADMIN_PASSWORD,
-    pin: process.env.ADMIN_PIN || (() => { console.warn('ADMIN_PIN not configured - admin panel disabled'); return ''; })(),
+    pin:
+      process.env.ADMIN_PIN ||
+      (() => {
+        console.warn('ADMIN_PIN not configured - admin panel disabled');
+        return '';
+      })(),
     recoveryEmail: process.env.ADMIN_RECOVERY_EMAIL || process.env.ADMIN_USERNAME,
     isFirstLogin: true, // Will be set to false after first successful login
     lastPasswordChange: new Date(),
-    requirePasswordChange: true // Forces password change on first login
+    requirePasswordChange: true, // Forces password change on first login
   };
 };
 
@@ -32,14 +37,14 @@ export const getAdminCredentials = (): AdminCredentials | null => {
 export const ADMIN_API_CONFIG = {
   endpoint: process.env.ADMIN_API_ENDPOINT || '',
   apiKey: process.env.ADMIN_API_KEY || '',
-  secretKey: process.env.ADMIN_SECRET_KEY || ''
+  secretKey: process.env.ADMIN_SECRET_KEY || '',
 };
 
 // Feature flags
 export const ADMIN_FEATURES = {
   enableDebugMode: process.env.NODE_ENV === 'development',
   enableAnalytics: process.env.ENABLE_ANALYTICS === 'true',
-  enableCrashReporting: process.env.ENABLE_CRASH_REPORTING === 'true'
+  enableCrashReporting: process.env.ENABLE_CRASH_REPORTING === 'true',
 };
 
 // Security configuration
@@ -50,7 +55,7 @@ export const SECURITY_CONFIG = {
   passwordMinLength: 8,
   passwordRequireSpecial: true,
   passwordRequireNumbers: true,
-  passwordRequireUppercase: true
+  passwordRequireUppercase: true,
 };
 
 // Admin session management
@@ -70,12 +75,15 @@ export class AdminSessionManager {
     const attempts = this.loginAttempts.get(username) || 0;
     const newAttempts = attempts + 1;
     this.loginAttempts.set(username, newAttempts);
-    
+
     if (newAttempts >= SECURITY_CONFIG.maxLoginAttempts) {
       // Lock account for 15 minutes
-      setTimeout(() => {
-        this.loginAttempts.delete(username);
-      }, 15 * 60 * 1000);
+      setTimeout(
+        () => {
+          this.loginAttempts.delete(username);
+        },
+        15 * 60 * 1000
+      );
       return false;
     }
     return true;
@@ -84,24 +92,24 @@ export class AdminSessionManager {
   createSession(username: string, userId: string): string {
     const sessionId = this.generateSessionId();
     const expiresAt = new Date(Date.now() + SECURITY_CONFIG.sessionTimeout);
-    
+
     this.sessions.set(sessionId, { userId, expiresAt });
-    
+
     // Clean up expired sessions
     this.cleanupExpiredSessions();
-    
+
     return sessionId;
   }
 
   validateSession(sessionId: string): boolean {
     const session = this.sessions.get(sessionId);
     if (!session) return false;
-    
+
     if (new Date() > session.expiresAt) {
       this.sessions.delete(sessionId);
       return false;
     }
-    
+
     return true;
   }
 
@@ -120,7 +128,10 @@ export class AdminSessionManager {
         array[i] = Math.floor(Math.random() * 256);
       }
     }
-    return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('') + Date.now().toString(36);
+    return (
+      Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join('') +
+      Date.now().toString(36)
+    );
   }
 
   private cleanupExpiredSessions(): void {
@@ -136,26 +147,26 @@ export class AdminSessionManager {
 // Password validation
 export const validatePassword = (password: string): { isValid: boolean; errors: string[] } => {
   const errors: string[] = [];
-  
+
   if (password.length < SECURITY_CONFIG.passwordMinLength) {
     errors.push(`Password must be at least ${SECURITY_CONFIG.passwordMinLength} characters long`);
   }
-  
+
   if (SECURITY_CONFIG.passwordRequireSpecial && !/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
     errors.push('Password must contain at least one special character');
   }
-  
+
   if (SECURITY_CONFIG.passwordRequireNumbers && !/\d/.test(password)) {
     errors.push('Password must contain at least one number');
   }
-  
+
   if (SECURITY_CONFIG.passwordRequireUppercase && !/[A-Z]/.test(password)) {
     errors.push('Password must contain at least one uppercase letter');
   }
-  
+
   return {
     isValid: errors.length === 0,
-    errors
+    errors,
   };
 };
 

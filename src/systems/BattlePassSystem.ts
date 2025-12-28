@@ -59,14 +59,14 @@ class BattlePassSystem {
   private tiers: BattlePassTier[] = [];
   private readonly MAX_TIER = 100;
   private readonly XP_PER_TIER = 1000;
-  
+
   // Season themes for variety
   private readonly SEASON_THEMES = [
     { name: 'Golden Dynasty', color: '#FFD700', exclusive: 'Dragon Pot' },
     { name: 'Crystal Frost', color: '#00CED1', exclusive: 'Ice Queen Cart' },
     { name: 'Neon Nights', color: '#FF1493', exclusive: 'Cyberpunk Trail' },
     { name: 'Ancient Ruins', color: '#8B4513', exclusive: 'Mayan Calendar' },
-    { name: 'Space Odyssey', color: '#4B0082', exclusive: 'Galaxy Pot' }
+    { name: 'Space Odyssey', color: '#4B0082', exclusive: 'Galaxy Pot' },
   ];
 
   async initialize(userId: string) {
@@ -78,10 +78,7 @@ class BattlePassSystem {
 
   private async loadCurrentSeason(userId: string) {
     try {
-      const doc = await firestore
-        .collection('battlepass')
-        .doc(userId)
-        .get();
+      const doc = await firestore.collection('battlepass').doc(userId).get();
 
       if (doc.exists) {
         this.currentSeason = doc.data() as BattlePassProgress;
@@ -98,7 +95,7 @@ class BattlePassSystem {
     const now = new Date();
     const endDate = new Date(now);
     endDate.setMonth(endDate.getMonth() + 1);
-    
+
     const seasonIndex = now.getMonth() % this.SEASON_THEMES.length;
     const theme = this.SEASON_THEMES[seasonIndex];
 
@@ -115,7 +112,7 @@ class BattlePassSystem {
       weeklyQuests: this.generateWeeklyQuests(),
       dailyQuests: this.generateDailyQuests(),
       seasonQuests: this.generateSeasonQuests(theme.name),
-      claimedRewards: []
+      claimedRewards: [],
     };
 
     await this.saveSeason(userId);
@@ -123,7 +120,7 @@ class BattlePassSystem {
 
   private async generateTiers() {
     this.tiers = [];
-    
+
     for (let i = 1; i <= this.MAX_TIER; i++) {
       const tier: BattlePassTier = {
         tier: i,
@@ -132,22 +129,22 @@ class BattlePassSystem {
         isClaimed: false,
         isPremiumClaimed: false,
         premiumReward: this.generateReward(i, true),
-        freeReward: i % 5 === 0 ? this.generateReward(i, false) : undefined
+        freeReward: i % 5 === 0 ? this.generateReward(i, false) : undefined,
       };
-      
+
       // Check if tier is unlocked
       if (this.currentSeason && this.currentSeason.totalXP >= tier.requiredXP) {
         tier.isUnlocked = true;
       }
-      
+
       this.tiers.push(tier);
     }
   }
 
   private generateReward(tierLevel: number, isPremium: boolean): Reward {
     // Better rewards at higher tiers and for premium
-    const rarityChance = Math.random() + (tierLevel / 100) + (isPremium ? 0.3 : 0);
-    
+    const rarityChance = Math.random() + tierLevel / 100 + (isPremium ? 0.3 : 0);
+
     let rarity: Reward['rarity'] = 'common';
     if (rarityChance > 1.8) rarity = 'mythic';
     else if (rarityChance > 1.5) rarity = 'legendary';
@@ -162,7 +159,7 @@ class BattlePassSystem {
         name: 'Ultimate Season Skin',
         amount: 1,
         rarity: 'mythic',
-        icon: '👑'
+        icon: '👑',
       };
     }
 
@@ -173,21 +170,19 @@ class BattlePassSystem {
         name: 'Legendary Crate',
         amount: 1,
         rarity: 'legendary',
-        icon: '🎁'
+        icon: '🎁',
       };
     }
 
     // Regular tier rewards
-    const rewardTypes: Array<Reward['type']> = [
-      'coins', 'powerup', 'energy', 'vip_points'
-    ];
-    
+    const rewardTypes: Array<Reward['type']> = ['coins', 'powerup', 'energy', 'vip_points'];
+
     if (isPremium) {
       rewardTypes.push('skin', 'crate', 'title');
     }
 
     const type = rewardTypes[Math.floor(Math.random() * rewardTypes.length)];
-    
+
     const amounts: Record<string, number> = {
       coins: 100 * tierLevel * (isPremium ? 2 : 1),
       powerup: Math.min(5 + Math.floor(tierLevel / 10), 20),
@@ -195,7 +190,7 @@ class BattlePassSystem {
       vip_points: 50 * tierLevel,
       skin: 1,
       crate: 1,
-      title: 1
+      title: 1,
     };
 
     return {
@@ -204,19 +199,19 @@ class BattlePassSystem {
       name: this.getRewardName(type, rarity),
       amount: amounts[type] || 1,
       rarity,
-      icon: this.getRewardIcon(type)
+      icon: this.getRewardIcon(type),
     };
   }
 
   private getRewardName(type: Reward['type'], rarity: Reward['rarity']): string {
     const names: Record<string, string[]> = {
       coins: ['Gold Coins', 'Premium Coins', 'Royal Treasury', 'Dragon Hoard'],
-      skin: ['Exclusive Skin', 'Season Skin', 'Limited Edition', 'Collector\'s Item'],
+      skin: ['Exclusive Skin', 'Season Skin', 'Limited Edition', "Collector's Item"],
       powerup: ['Power Bundle', 'Boost Pack', 'Enhancement Kit', 'Ultimate Powers'],
       crate: ['Mystery Crate', 'Treasure Chest', 'Legendary Box', 'Mythic Container'],
       vip_points: ['VIP Points', 'Prestige Points', 'Elite Credits', 'Royal Tokens'],
       energy: ['Energy Refill', 'Stamina Boost', 'Power Cells', 'Infinite Energy'],
-      title: ['Exclusive Title', 'Season Badge', 'Achievement Banner', 'Legend Status']
+      title: ['Exclusive Title', 'Season Badge', 'Achievement Banner', 'Legend Status'],
     };
 
     const rarityPrefix = rarity.charAt(0).toUpperCase() + rarity.slice(1);
@@ -232,7 +227,7 @@ class BattlePassSystem {
       crate: '📦',
       vip_points: '💎',
       energy: '🔋',
-      title: '🏆'
+      title: '🏆',
     };
     return icons[type] || '🎁';
   }
@@ -244,7 +239,7 @@ class BattlePassSystem {
       { name: 'Coin Collector', description: 'Collect 500 coins', target: 500, xp: 150 },
       { name: 'Power User', description: 'Use 5 power-ups', target: 5, xp: 125 },
       { name: 'Social Butterfly', description: 'Challenge 2 friends', target: 2, xp: 175 },
-      { name: 'High Scorer', description: 'Score over 1000 points', target: 1000, xp: 200 }
+      { name: 'High Scorer', description: 'Score over 1000 points', target: 1000, xp: 200 },
     ];
 
     const selected = this.shuffleArray(templates).slice(0, 3);
@@ -261,7 +256,7 @@ class BattlePassSystem {
       target: template.target,
       isCompleted: false,
       type: 'daily' as const,
-      expiresAt: tomorrow.toISOString()
+      expiresAt: tomorrow.toISOString(),
     }));
   }
 
@@ -271,7 +266,7 @@ class BattlePassSystem {
       { name: 'Treasure Hunter', description: 'Collect 5000 coins', target: 5000, xp: 750 },
       { name: 'Streak Master', description: 'Maintain 7-day streak', target: 7, xp: 1000 },
       { name: 'Social Champion', description: 'Win 10 challenges', target: 10, xp: 800 },
-      { name: 'Collection Expert', description: 'Open 5 crates', target: 5, xp: 600 }
+      { name: 'Collection Expert', description: 'Open 5 crates', target: 5, xp: 600 },
     ];
 
     const selected = this.shuffleArray(templates).slice(0, 3);
@@ -287,7 +282,7 @@ class BattlePassSystem {
       target: template.target,
       isCompleted: false,
       type: 'weekly' as const,
-      expiresAt: nextWeek.toISOString()
+      expiresAt: nextWeek.toISOString(),
     }));
   }
 
@@ -301,7 +296,7 @@ class BattlePassSystem {
         progress: 0,
         target: 50,
         isCompleted: false,
-        type: 'seasonal'
+        type: 'seasonal',
       },
       {
         id: `season_tier_100`,
@@ -311,7 +306,7 @@ class BattlePassSystem {
         progress: 0,
         target: 100,
         isCompleted: false,
-        type: 'seasonal'
+        type: 'seasonal',
       },
       {
         id: `season_collection`,
@@ -321,8 +316,8 @@ class BattlePassSystem {
         progress: 0,
         target: 10,
         isCompleted: false,
-        type: 'seasonal'
-      }
+        type: 'seasonal',
+      },
     ];
   }
 
@@ -341,7 +336,7 @@ class BattlePassSystem {
       currentTier: newTier,
       previousTier,
       leveledUp: newTier > previousTier,
-      unlockedRewards: [] as Reward[]
+      unlockedRewards: [] as Reward[],
     };
 
     // Check for newly unlocked rewards
@@ -368,11 +363,11 @@ class BattlePassSystem {
     try {
       // Check RevenueCat for active subscription
       const hasSubscription = await RevenueCatService.hasActiveEntitlement('battle_pass_premium');
-      
+
       if (hasSubscription && this.currentSeason) {
         this.currentSeason.isPremium = true;
         await this.saveSeason();
-        
+
         // Retroactively grant all premium rewards up to current tier
         const retroactiveRewards: Reward[] = [];
         for (let i = 1; i <= this.currentSeason.currentTier; i++) {
@@ -382,10 +377,10 @@ class BattlePassSystem {
             tier.isPremiumClaimed = true;
           }
         }
-        
+
         return true;
       }
-      
+
       return false;
     } catch (error) {
       console.error('Failed to upgrade battle pass:', error);
@@ -415,7 +410,7 @@ class BattlePassSystem {
 
     this.currentSeason?.claimedRewards.push(reward.id);
     await this.saveSeason();
-    
+
     return reward;
   }
 
@@ -424,8 +419,11 @@ class BattlePassSystem {
     if (!this.currentSeason) return;
 
     const updateQuests = (quests: Quest[]) => {
-      quests.forEach(quest => {
-        if (!quest.isCompleted && quest.description.toLowerCase().includes(questType.toLowerCase())) {
+      quests.forEach((quest) => {
+        if (
+          !quest.isCompleted &&
+          quest.description.toLowerCase().includes(questType.toLowerCase())
+        ) {
           quest.progress = Math.min(quest.progress + amount, quest.target);
           if (quest.progress >= quest.target) {
             quest.isCompleted = true;
@@ -469,7 +467,7 @@ class BattlePassSystem {
       .doc(this.currentSeason.seasonId)
       .set({
         ...this.currentSeason,
-        archivedAt: new Date().toISOString()
+        archivedAt: new Date().toISOString(),
       });
   }
 
@@ -488,10 +486,7 @@ class BattlePassSystem {
     if (!this.currentSeason) return;
 
     const id = userId || 'current_user'; // Get actual user ID
-    await firestore
-      .collection('battlepass')
-      .doc(id)
-      .set(this.currentSeason);
+    await firestore.collection('battlepass').doc(id).set(this.currentSeason);
   }
 
   private shuffleArray<T>(array: T[]): T[] {
@@ -514,11 +509,11 @@ class BattlePassSystem {
 
   getTimeRemaining(): string {
     if (!this.currentSeason) return 'Season Ended';
-    
+
     const days = this.currentSeason.daysRemaining;
     if (days > 1) return `${days} days remaining`;
     if (days === 1) return '1 day remaining';
-    
+
     const endDate = new Date(this.currentSeason.endDate);
     const now = new Date();
     const hours = Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60));

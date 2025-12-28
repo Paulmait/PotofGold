@@ -183,7 +183,7 @@ export default function GameOverScreen({
       if (result.success) {
         // Play bonus sound
         await soundSystem.playSound('bonus_collected');
-        
+
         Alert.alert('Bonus Earned!', `You earned ${result.reward} coins!`);
         setShowRewards(true);
       } else {
@@ -200,7 +200,7 @@ export default function GameOverScreen({
       if (result.success) {
         // Play upgrade sound
         await soundSystem.playSound('upgrade_success');
-        
+
         Alert.alert('Upgrade Successful!', suggestion.title);
         onUpgrade();
       } else {
@@ -263,10 +263,7 @@ export default function GameOverScreen({
         styles.container,
         {
           opacity: fadeAnim,
-          transform: [
-            { translateY: slideAnim },
-            { scale: scaleAnim },
-          ],
+          transform: [{ translateY: slideAnim }, { scale: scaleAnim }],
         },
       ]}
     >
@@ -308,11 +305,11 @@ export default function GameOverScreen({
             <Text style={styles.adButtonText}>🎬 Watch Ad for Bonus</Text>
           </TouchableOpacity>
         )}
-        
+
         <TouchableOpacity style={styles.retryButton} onPress={handleRetry}>
           <Text style={styles.retryButtonText}>🔄 Retry</Text>
         </TouchableOpacity>
-        
+
         <TouchableOpacity style={styles.exitButton} onPress={onExit}>
           <Text style={styles.exitButtonText}>❌ Exit</Text>
         </TouchableOpacity>
@@ -324,10 +321,7 @@ export default function GameOverScreen({
           <View style={styles.rewardsModal}>
             <Text style={styles.rewardsTitle}>🎉 Bonus Earned!</Text>
             <Text style={styles.rewardsText}>You earned extra coins!</Text>
-            <TouchableOpacity
-              style={styles.rewardsButton}
-              onPress={() => setShowRewards(false)}
-            >
+            <TouchableOpacity style={styles.rewardsButton} onPress={() => setShowRewards(false)}>
               <Text style={styles.rewardsButtonText}>Continue</Text>
             </TouchableOpacity>
           </View>
@@ -526,4 +520,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-}); 
+});

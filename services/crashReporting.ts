@@ -51,12 +51,12 @@ class CrashReportingService {
           if (event.user) {
             delete event.user.ip_address;
           }
-          
+
           // Don't send events in development unless explicitly enabled
           if (__DEV__ && !Constants.manifest?.extra?.enableCrashReporting) {
             return null;
           }
-          
+
           return event;
         },
         integrations: [
@@ -159,7 +159,6 @@ if (!__DEV__ || Constants.manifest?.extra?.enableCrashReporting) {
 }
 
 export default crashReporting;
-export const logException = (error: Error, context?: Record<string, any>) => 
+export const logException = (error: Error, context?: Record<string, any>) =>
   crashReporting.logException(error, context);
-export const setCurrentScreen = (screenName: string) => 
-  crashReporting.setCurrentScreen(screenName);
+export const setCurrentScreen = (screenName: string) => crashReporting.setCurrentScreen(screenName);

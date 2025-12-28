@@ -21,7 +21,7 @@ export interface AnalyticsEvent {
   category: EventCategory;
 }
 
-export type EventCategory = 
+export type EventCategory =
   | 'gameplay'
   | 'monetization'
   | 'engagement'
@@ -38,25 +38,25 @@ export interface UserMetrics {
     totalPlayTime: number;
     averageSessionLength: number;
     lastSessionDate: string;
-    
+
     // Monetization
     totalSpent: number;
     purchaseCount: number;
     averagePurchaseValue: number;
     lastPurchaseDate?: string;
     isPayingUser: boolean;
-    
+
     // Progression
     currentLevel: number;
     totalXP: number;
     achievementsUnlocked: number;
     itemsCollected: number;
-    
+
     // Retention
     daysSinceInstall: number;
     consecutiveDays: number;
     churnRisk: 'low' | 'medium' | 'high';
-    
+
     // Social
     friendsCount: number;
     challengesSent: number;
@@ -147,7 +147,7 @@ class AnalyticsSystem {
       deviceId: await this.getDeviceId(),
       properties: properties || {},
       revenue,
-      category
+      category,
     };
 
     this.eventQueue.push(event);
@@ -163,7 +163,7 @@ class AnalyticsSystem {
     await this.trackEvent('game_start', 'gameplay', {
       game_mode: gameMode,
       powerups_equipped: powerups,
-      energy_used: 10
+      energy_used: 10,
     });
   }
 
@@ -173,7 +173,7 @@ class AnalyticsSystem {
       coins_earned: coins,
       duration_seconds: duration,
       deaths: 0,
-      powerups_used: []
+      powerups_used: [],
     });
   }
 
@@ -181,24 +181,24 @@ class AnalyticsSystem {
     await this.trackEvent('level_up', 'progression', {
       new_level: newLevel,
       xp_gained: xpGained,
-      total_xp: 0
+      total_xp: 0,
     });
   }
 
   // Monetization Events
-  async trackPurchase(
-    itemId: string,
-    itemType: string,
-    price: number,
-    currency: string
-  ) {
-    await this.trackEvent('purchase', 'monetization', {
-      item_id: itemId,
-      item_type: itemType,
-      price,
-      currency,
-      payment_method: 'iap'
-    }, price);
+  async trackPurchase(itemId: string, itemType: string, price: number, currency: string) {
+    await this.trackEvent(
+      'purchase',
+      'monetization',
+      {
+        item_id: itemId,
+        item_type: itemType,
+        price,
+        currency,
+        payment_method: 'iap',
+      },
+      price
+    );
   }
 
   async trackAdView(adType: string, placement: string, reward?: any) {
@@ -206,39 +206,36 @@ class AnalyticsSystem {
       ad_type: adType,
       placement,
       reward,
-      completed: true
+      completed: true,
     });
   }
 
-  async trackSubscription(
-    action: 'start' | 'renew' | 'cancel',
-    tier: string,
-    price?: number
-  ) {
-    await this.trackEvent(`subscription_${action}`, 'monetization', {
-      tier,
-      price,
-      billing_period: 'monthly'
-    }, price);
+  async trackSubscription(action: 'start' | 'renew' | 'cancel', tier: string, price?: number) {
+    await this.trackEvent(
+      `subscription_${action}`,
+      'monetization',
+      {
+        tier,
+        price,
+        billing_period: 'monthly',
+      },
+      price
+    );
   }
 
   // Social Events
-  async trackSocialAction(
-    action: string,
-    target?: string,
-    result?: string
-  ) {
+  async trackSocialAction(action: string, target?: string, result?: string) {
     await this.trackEvent(`social_${action}`, 'social', {
       target,
       result,
-      platform: 'ingame'
+      platform: 'ingame',
     });
   }
 
   async trackGuildAction(action: string, guildId: string, value?: number) {
     await this.trackEvent(`guild_${action}`, 'social', {
       guild_id: guildId,
-      contribution: value
+      contribution: value,
     });
   }
 
@@ -247,7 +244,7 @@ class AnalyticsSystem {
     await this.trackEvent('feature_usage', 'engagement', {
       feature,
       action,
-      first_time: false
+      first_time: false,
     });
   }
 
@@ -255,7 +252,7 @@ class AnalyticsSystem {
     await this.trackEvent('tutorial_progress', 'engagement', {
       step,
       completed,
-      skip: false
+      skip: false,
     });
   }
 
@@ -265,7 +262,7 @@ class AnalyticsSystem {
       error_message: error,
       severity,
       stack_trace: '',
-      device_info: Device.modelName
+      device_info: Device.modelName,
     });
   }
 
@@ -274,17 +271,14 @@ class AnalyticsSystem {
       fps,
       load_time_ms: loadTime,
       memory_mb: memoryUsage,
-      battery_level: 0
+      battery_level: 0,
     });
   }
 
   // User Metrics
   async getUserMetrics(userId: string): Promise<UserMetrics> {
     try {
-      const doc = await firestore
-        .collection('user_metrics')
-        .doc(userId)
-        .get();
+      const doc = await firestore.collection('user_metrics').doc(userId).get();
 
       if (doc.exists) {
         return doc.data() as UserMetrics;
@@ -320,8 +314,8 @@ class AnalyticsSystem {
         friendsCount: 0,
         challengesSent: 0,
         challengesWon: 0,
-        guildContribution: 0
-      }
+        guildContribution: 0,
+      },
     };
   }
 
@@ -329,10 +323,7 @@ class AnalyticsSystem {
   async getDashboardData(): Promise<DashboardData> {
     try {
       // Fetch aggregated data from Firestore
-      const snapshot = await firestore
-        .collection('analytics_dashboard')
-        .doc('current')
-        .get();
+      const snapshot = await firestore.collection('analytics_dashboard').doc('current').get();
 
       if (snapshot.exists) {
         return snapshot.data() as DashboardData;
@@ -354,43 +345,40 @@ class AnalyticsSystem {
         revenue: {
           daily: Math.floor(Math.random() * 5000) + 1000,
           weekly: Math.floor(Math.random() * 35000) + 7000,
-          monthly: Math.floor(Math.random() * 150000) + 30000
+          monthly: Math.floor(Math.random() * 150000) + 30000,
         },
         arpu: Math.random() * 2 + 0.5,
         arppu: Math.random() * 50 + 10,
-        conversionRate: Math.random() * 0.1 + 0.02
+        conversionRate: Math.random() * 0.1 + 0.02,
       },
       retention: {
         day1: Math.random() * 0.3 + 0.4,
         day7: Math.random() * 0.2 + 0.2,
-        day30: Math.random() * 0.1 + 0.1
+        day30: Math.random() * 0.1 + 0.1,
       },
       segments: {
         whales: Math.floor(Math.random() * 100) + 50,
         dolphins: Math.floor(Math.random() * 500) + 200,
         minnows: Math.floor(Math.random() * 2000) + 1000,
-        nonPayers: Math.floor(Math.random() * 10000) + 5000
+        nonPayers: Math.floor(Math.random() * 10000) + 5000,
       },
       performance: {
         crashFreeRate: Math.random() * 0.05 + 0.95,
         averageLoadTime: Math.random() * 2000 + 1000,
-        averageFPS: Math.random() * 10 + 50
+        averageFPS: Math.random() * 10 + 50,
       },
       liveOps: {
         activeEvents: Math.floor(Math.random() * 5) + 1,
         eventParticipation: Math.random() * 0.5 + 0.3,
-        battlePassProgress: Math.random() * 0.7 + 0.2
-      }
+        battlePassProgress: Math.random() * 0.7 + 0.2,
+      },
     };
   }
 
   // Realtime Metrics
   async getRealtimeMetrics(): Promise<RealtimeMetrics> {
     try {
-      const doc = await firestore
-        .collection('realtime_metrics')
-        .doc('current')
-        .get();
+      const doc = await firestore.collection('realtime_metrics').doc('current').get();
 
       if (doc.exists) {
         return doc.data() as RealtimeMetrics;
@@ -416,8 +404,8 @@ class AnalyticsSystem {
         { item: 'VIP Monthly', count: 32 },
         { item: 'Battle Pass', count: 28 },
         { item: 'Energy Refill', count: 67 },
-        { item: 'Mystery Crate', count: 23 }
-      ]
+        { item: 'Mystery Crate', count: 23 },
+      ],
     };
   }
 
@@ -433,14 +421,14 @@ class AnalyticsSystem {
         day3: Math.random() * 0.2 + 0.25,
         day7: Math.random() * 0.15 + 0.15,
         day14: Math.random() * 0.1 + 0.1,
-        day30: Math.random() * 0.08 + 0.07
+        day30: Math.random() * 0.08 + 0.07,
       },
       ltv: {
         day7: Math.random() * 2 + 0.5,
         day30: Math.random() * 5 + 2,
         day90: Math.random() * 15 + 5,
-        day180: Math.random() * 30 + 10
-      }
+        day180: Math.random() * 30 + 10,
+      },
     };
 
     return cohortData;
@@ -458,17 +446,17 @@ class AnalyticsSystem {
           name: 'Control',
           users: 5000,
           conversionRate: 0.045,
-          revenue: 12500
+          revenue: 12500,
         },
         {
           name: 'Variant A',
           users: 5000,
           conversionRate: 0.052,
-          revenue: 14200
-        }
+          revenue: 14200,
+        },
       ],
       significance: 0.94,
-      winner: 'Variant A'
+      winner: 'Variant A',
     };
   }
 
@@ -496,7 +484,7 @@ class AnalyticsSystem {
       user_id: userId,
       session_id: this.sessionId,
       device_model: Device.modelName,
-      os_version: Device.osVersion
+      os_version: Device.osVersion,
     });
   }
 
@@ -510,11 +498,9 @@ class AnalyticsSystem {
     try {
       // Batch write to Firestore
       const batch = firestore.batch();
-      
+
       for (const event of events) {
-        const ref = firestore
-          .collection('analytics_events')
-          .doc(event.eventId);
+        const ref = firestore.collection('analytics_events').doc(event.eventId);
         batch.set(ref, event);
       }
 
@@ -539,10 +525,10 @@ class AnalyticsSystem {
   // Session End
   async endSession() {
     const sessionDuration = Date.now() - this.sessionStartTime;
-    
+
     await this.trackEvent('session_end', 'engagement', {
       duration_ms: sessionDuration,
-      events_count: this.eventQueue.length
+      events_count: this.eventQueue.length,
     });
 
     await this.flush();

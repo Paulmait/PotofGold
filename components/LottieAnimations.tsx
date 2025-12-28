@@ -163,12 +163,7 @@ export const CoinCollectEffect: React.FC<CoinCollectEffectProps> = ({
 };
 
 // Power-Up Effect
-export const PowerUpEffect: React.FC<PowerUpEffectProps> = ({
-  x,
-  y,
-  type,
-  onComplete,
-}) => {
+export const PowerUpEffect: React.FC<PowerUpEffectProps> = ({ x, y, type, onComplete }) => {
   const scaleAnim = useRef(new Animated.Value(0)).current;
   const opacityAnim = useRef(new Animated.Value(1)).current;
 
@@ -285,9 +280,9 @@ export const ConfettiAnimation: React.FC<{ onComplete?: () => void }> = ({ onCom
 };
 
 // Achievement Unlock Animation
-export const AchievementAnimation: React.FC<{ 
-  achievement: string; 
-  onComplete?: () => void 
+export const AchievementAnimation: React.FC<{
+  achievement: string;
+  onComplete?: () => void;
 }> = ({ achievement, onComplete }) => {
   return (
     <View style={styles.achievementContainer}>
@@ -303,9 +298,9 @@ export const AchievementAnimation: React.FC<{
 };
 
 // Level Up Animation
-export const LevelUpAnimation: React.FC<{ 
-  level: number; 
-  onComplete?: () => void 
+export const LevelUpAnimation: React.FC<{
+  level: number;
+  onComplete?: () => void;
 }> = ({ level, onComplete }) => {
   return (
     <View style={styles.levelUpContainer}>
@@ -388,4 +383,4 @@ export default {
   ConfettiAnimation,
   AchievementAnimation,
   LevelUpAnimation,
-}; 
+};

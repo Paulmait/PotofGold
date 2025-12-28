@@ -12,7 +12,9 @@ const initializeFirestoreData = async () => {
   const { collection, addDoc, setDoc, doc, serverTimestamp } = window.firebase.firestore || {};
 
   if (!db) {
-    console.error('Firebase not initialized. Make sure you are running this from your deployed app.');
+    console.error(
+      'Firebase not initialized. Make sure you are running this from your deployed app.'
+    );
     return;
   }
 
@@ -61,8 +63,10 @@ const initializeFirestoreData = async () => {
     console.log('✅ Created purchase_audit document:', purchaseDoc.id);
 
     console.log('\n🎉 Firestore initialization complete!');
-    console.log('📍 View your data at: https://console.firebase.google.com/project/potofgold-production/firestore/data');
-    
+    console.log(
+      '📍 View your data at: https://console.firebase.google.com/project/potofgold-production/firestore/data'
+    );
+
     return { success: true };
   } catch (error) {
     console.error('❌ Error:', error);

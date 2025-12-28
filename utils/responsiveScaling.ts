@@ -25,7 +25,7 @@ export class ResponsiveScaling {
     this.scaleFactor = this.calculateScaleFactor();
     this.fontScaleFactor = this.calculateFontScaleFactor();
     this.spacingScaleFactor = this.calculateSpacingScaleFactor();
-    
+
     // Listen for dimension changes
     Dimensions.addEventListener('change', this.handleDimensionChange);
   }
@@ -40,78 +40,78 @@ export class ResponsiveScaling {
   private calculateScaleFactor(): number {
     const widthScale = screenWidth / BASE_WIDTH;
     const heightScale = screenHeight / BASE_HEIGHT;
-    
+
     // Use minimum scale to ensure content fits
     let scale = Math.min(widthScale, heightScale);
-    
+
     // Apply device-specific adjustments
     if (isTablet) {
       scale = Math.min(scale, 1.5); // Cap tablet scaling
     } else if (isSmallDevice) {
       scale = Math.max(scale, 0.85); // Minimum scale for small devices
     }
-    
+
     // Platform-specific adjustments
     if (Platform.OS === 'web') {
       scale = Math.min(scale, 1.2); // More conservative scaling on web
     }
-    
+
     return scale;
   }
 
   private calculateFontScaleFactor(): number {
     let fontScale = this.scaleFactor;
-    
+
     // Adjust for pixel density
     if (pixelDensity > 3) {
       fontScale *= 0.95; // Slightly smaller on high DPI
     } else if (pixelDensity < 2) {
       fontScale *= 1.05; // Slightly larger on low DPI
     }
-    
+
     // Device-specific adjustments
     if (isTablet) {
       fontScale *= 1.1; // Larger fonts on tablets
     } else if (isSmallDevice) {
       fontScale *= 0.95; // Smaller fonts on small devices
     }
-    
+
     // Accessibility: Respect system font scale
     const systemFontScale = PixelRatio.getFontScale();
     if (systemFontScale > 1.2) {
       fontScale *= systemFontScale / 1.2; // Apply user preference
     }
-    
+
     return Math.max(0.8, Math.min(1.5, fontScale));
   }
 
   private calculateSpacingScaleFactor(): number {
     let spacingScale = this.scaleFactor;
-    
+
     // More aggressive scaling for spacing
     if (isTablet) {
       spacingScale *= 1.3;
     } else if (isSmallDevice) {
       spacingScale *= 0.8;
     }
-    
+
     if (isLandscape) {
       spacingScale *= 0.9; // Reduce spacing in landscape
     }
-    
+
     return spacingScale;
   }
 
   private handleDimensionChange = ({ window }: any) => {
     const { width, height } = window;
-    
+
     // Recalculate scale factors
     this.scaleFactor = this.calculateScaleFactor();
     this.fontScaleFactor = this.calculateFontScaleFactor();
     this.spacingScaleFactor = this.calculateSpacingScaleFactor();
-    
+
     // Notify listeners
-    this.listeners.forEach(listener => {
+    this.listeners.forEach((listener) => {
       listener({ width, height, scale: this.scaleFactor });
     });
   };
@@ -158,12 +158,7 @@ export class ResponsiveScaling {
   /**
    * Get responsive value based on device type
    */
-  select<T>(options: {
-    phone?: T;
-    tablet?: T;
-    small?: T;
-    default: T;
-  }): T {
+  select<T>(options: { phone?: T; tablet?: T; small?: T; default: T }): T {
     if (isTablet && options.tablet !== undefined) {
       return options.tablet;
     }
@@ -181,7 +176,7 @@ export class ResponsiveScaling {
    */
   getGameDimensions() {
     const safeAreaInsets = this.getSafeAreaInsets();
-    
+
     return {
       width: screenWidth,
       height: screenHeight,
@@ -278,7 +273,7 @@ export const scaleWidth = (value: number) => responsive.scaleWidth(value);
 export const scaleHeight = (value: number) => responsive.scaleHeight(value);
 export const scaleFont = (value: number) => responsive.scaleFont(value);
 export const scaleSpacing = (value: number) => responsive.scaleSpacing(value);
-export const select = <T>(options: Parameters<typeof responsive.select>[0]) => 
+export const select = <T>(options: Parameters<typeof responsive.select>[0]) =>
   responsive.select(options);
 export const getGameDimensions = () => responsive.getGameDimensions();
 export const getMetrics = () => responsive.getMetrics();
@@ -286,15 +281,15 @@ export const getMetrics = () => responsive.getMetrics();
 // Hook for React components
 export function useResponsive() {
   const [dimensions, setDimensions] = React.useState(getGameDimensions());
-  
+
   React.useEffect(() => {
     const unsubscribe = responsive.addListener((newDimensions) => {
       setDimensions(getGameDimensions());
     });
-    
+
     return unsubscribe;
   }, []);
-  
+
   return {
     dimensions,
     scale,

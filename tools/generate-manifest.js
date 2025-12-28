@@ -19,35 +19,36 @@ class ManifestGenerator {
       totalSize: 0,
       skins: {},
       drops: {},
-      checksums: {}
+      checksums: {},
     };
   }
 
   async generate() {
     // Process all skins
     await this.processSkins();
-    
+
     // Process drops
     await this.processDrops();
-    
+
     // Generate checksums
     await this.generateChecksums();
-    
+
     // Output manifest
     console.log(JSON.stringify(this.manifest, null, 2));
   }
 
   async processSkins() {
     const skinsDir = path.join(__dirname, '..', 'assets', 'skins');
-    
+
     if (!fs.existsSync(skinsDir)) {
       throw new Error('Skins directory not found');
     }
-    
-    const skinDirs = fs.readdirSync(skinsDir)
-      .filter(f => fs.statSync(path.join(skinsDir, f)).isDirectory())
-      .filter(f => f !== 'masters' && f !== 'undefined');
-    
+
+    const skinDirs = fs
+      .readdirSync(skinsDir)
+      .filter((f) => fs.statSync(path.join(skinsDir, f)).isDirectory())
+      .filter((f) => f !== 'masters' && f !== 'undefined');
+
     for (const skinId of skinDirs) {
       const skinData = await this.processSkin(skinId);
       if (skinData) {
@@ -59,66 +60,66 @@ class ManifestGenerator {
 
   async processSkin(skinId) {
     const skinDir = path.join(__dirname, '..', 'assets', 'skins', skinId);
-    
+
     const skinData = {
       id: skinId,
       type: this.detectSkinType(skinId),
       assets: {
         raster: {},
         previews: {},
-        thumbnails: {}
+        thumbnails: {},
       },
       size: 0,
-      fileCount: 0
+      fileCount: 0,
     };
-    
+
     // Process raster assets
     const rasterDir = path.join(skinDir, 'raster');
     if (fs.existsSync(rasterDir)) {
       skinData.assets.raster = this.processDirectory(rasterDir, skinId);
     }
-    
+
     // Process previews
     const previewsDir = path.join(skinDir, 'previews');
     if (fs.existsSync(previewsDir)) {
       skinData.assets.previews = this.processDirectory(previewsDir, skinId);
     }
-    
+
     // Process thumbnails
     const thumbsDir = path.join(skinDir, 'thumbnails');
     if (fs.existsSync(thumbsDir)) {
       skinData.assets.thumbnails = this.processDirectory(thumbsDir, skinId);
     }
-    
+
     // Calculate totals
-    Object.values(skinData.assets).forEach(category => {
-      Object.values(category).forEach(file => {
+    Object.values(skinData.assets).forEach((category) => {
+      Object.values(category).forEach((file) => {
         skinData.size += file.size;
         skinData.fileCount++;
         this.manifest.totalFiles++;
         this.manifest.totalSize += file.size;
       });
     });
-    
+
     return skinData;
   }
 
   processDirectory(dirPath, skinId) {
     const files = {};
     const dirFiles = fs.readdirSync(dirPath);
-    
-    dirFiles.forEach(fileName => {
+
+    dirFiles.forEach((fileName) => {
       const filePath = path.join(dirPath, fileName);
       const stats = fs.statSync(filePath);
-      
+
       if (stats.isFile() && fileName.endsWith('.png')) {
         const fileData = {
           path: path.relative(path.join(__dirname, '..'), filePath).replace(/\\/g, '/'),
           size: stats.size,
           modified: stats.mtime.toISOString(),
-          checksum: this.generateFileChecksum(filePath)
+          checksum: this.generateFileChecksum(filePath),
         };
-        
+
         // Detect resolution variant
         if (fileName.includes('@2x')) {
           fileData.resolution = '2x';
@@ -127,7 +128,7 @@ class ManifestGenerator {
         } else {
           fileData.resolution = '1x';
         }
-        
+
         // Detect asset variant
         if (fileName.includes('hero_phone')) {
           fileData.variant = 'hero_phone';
@@ -142,24 +143,24 @@ class ManifestGenerator {
         } else {
           fileData.variant = 'standard';
         }
-        
+
         files[fileName] = fileData;
       }
     });
-    
+
     return files;
   }
 
   async processDrops() {
     const dropsDir = path.join(__dirname, '..', 'assets', 'drops');
-    
+
     for (let month = 1; month <= 12; month++) {
       const fileName = `month_${String(month).padStart(2, '0')}.json`;
       const filePath = path.join(dropsDir, fileName);
-      
+
       if (fs.existsSync(filePath)) {
         const dropData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-        
+
         this.manifest.drops[dropData.id] = {
           id: dropData.id,
           month: dropData.month,
@@ -168,11 +169,11 @@ class ManifestGenerator {
             cart: dropData.cartSkinId,
             trail: dropData.trailId,
             badge: dropData.badgeId,
-            frame: dropData.frameId
+            frame: dropData.frameId,
           },
           bonusCoins: dropData.bonusCoins,
           releaseDate: dropData.releaseDate,
-          endDate: dropData.endDate
+          endDate: dropData.endDate,
         };
       }
     }
@@ -189,15 +190,15 @@ class ManifestGenerator {
     // Generate overall manifest checksum
     const manifestString = JSON.stringify({
       skins: this.manifest.skins,
-      drops: this.manifest.drops
+      drops: this.manifest.drops,
     });
-    
+
     const hash = crypto.createHash('sha256');
     hash.update(manifestString);
     this.manifest.checksums.manifest = hash.digest('hex');
-    
+
     // Generate checksums for each drop
-    Object.keys(this.manifest.drops).forEach(dropId => {
+    Object.keys(this.manifest.drops).forEach((dropId) => {
       const dropHash = crypto.createHash('md5');
       dropHash.update(JSON.stringify(this.manifest.drops[dropId]));
       this.manifest.checksums[dropId] = dropHash.digest('hex').substring(0, 8);
@@ -215,7 +216,7 @@ class ManifestGenerator {
 
 // Run generator
 const generator = new ManifestGenerator();
-generator.generate().catch(error => {
+generator.generate().catch((error) => {
   console.error('Failed to generate manifest:', error);
   process.exit(1);
 });

@@ -104,11 +104,11 @@ export const MultiplayerProvider: React.FC<MultiplayerProviderProps> = ({ childr
       }
 
       const sessionData = sessionDoc.data() as GameSession;
-      
+
       // Determine if player is player1 or player2
       const isPlayer1 = sessionData.player1Id === playerId;
       const playerKey = isPlayer1 ? 'player1' : 'player2';
-      
+
       // Update session with player info if not already set
       if (!sessionData[`${playerKey}Id`] || sessionData[`${playerKey}Id`] === 'anonymous') {
         await updateDoc(sessionRef, {
@@ -126,7 +126,7 @@ export const MultiplayerProvider: React.FC<MultiplayerProviderProps> = ({ childr
       sessionUnsubscribe.current = onSnapshot(sessionRef, (doc) => {
         if (doc.exists()) {
           const updatedSession = { id: doc.id, ...doc.data() } as GameSession;
-          setState(prev => ({
+          setState((prev) => ({
             ...prev,
             currentSession: updatedSession,
             opponentScore: isPlayer1 ? updatedSession.player2Score : updatedSession.player1Score,
@@ -134,13 +134,18 @@ export const MultiplayerProvider: React.FC<MultiplayerProviderProps> = ({ childr
             isReady: updatedSession.status === 'ready',
             isActive: updatedSession.status === 'active',
             isCompleted: updatedSession.status === 'completed',
-            winner: updatedSession.winner === playerId ? 'player' : 
-                   updatedSession.winner === (isPlayer1 ? updatedSession.player2Id : updatedSession.player1Id) ? 'opponent' : 
-                   updatedSession.winner === 'tie' ? 'tie' : null,
+            winner:
+              updatedSession.winner === playerId
+                ? 'player'
+                : updatedSession.winner ===
+                    (isPlayer1 ? updatedSession.player2Id : updatedSession.player1Id)
+                  ? 'opponent'
+                  : updatedSession.winner === 'tie'
+                    ? 'tie'
+                    : null,
           }));
         }
       });
-
     } catch (error) {
       console.error('Error joining session:', error);
       throw error;
@@ -152,7 +157,7 @@ export const MultiplayerProvider: React.FC<MultiplayerProviderProps> = ({ childr
       sessionUnsubscribe.current();
       sessionUnsubscribe.current = null;
     }
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       currentSession: null,
       opponentScore: 0,
@@ -171,7 +176,7 @@ export const MultiplayerProvider: React.FC<MultiplayerProviderProps> = ({ childr
       const sessionRef = doc(db, 'games', state.currentSession.id);
       const isPlayer1 = state.currentSession.player1Id === state.currentSession.player1Id;
       const playerKey = isPlayer1 ? 'player1' : 'player2';
-      
+
       await updateDoc(sessionRef, {
         [`${playerKey}Score`]: score,
       });
@@ -200,7 +205,11 @@ export const MultiplayerProvider: React.FC<MultiplayerProviderProps> = ({ childr
     }
   };
 
-  const acceptChallenge = async (challengeId: string, playerId: string, playerName: string): Promise<string> => {
+  const acceptChallenge = async (
+    challengeId: string,
+    playerId: string,
+    playerName: string
+  ): Promise<string> => {
     try {
       const challengeRef = doc(db, 'challenges', challengeId);
       const challengeDoc = await getDoc(challengeRef);
@@ -210,7 +219,7 @@ export const MultiplayerProvider: React.FC<MultiplayerProviderProps> = ({ childr
       }
 
       const challenge = challengeDoc.data() as Challenge;
-      
+
       // Create game session
       const sessionId = `session_${Date.now()}`;
       const gameSession: Omit<GameSession, 'id'> = {
@@ -281,15 +290,22 @@ export const MultiplayerProvider: React.FC<MultiplayerProviderProps> = ({ childr
     }
   };
 
-  const endGame = async (sessionId: string, winner: 'player' | 'opponent' | 'tie'): Promise<void> => {
+  const endGame = async (
+    sessionId: string,
+    winner: 'player' | 'opponent' | 'tie'
+  ): Promise<void> => {
     try {
       const sessionRef = doc(db, 'games', sessionId);
       const sessionDoc = await getDoc(sessionRef);
 
       if (sessionDoc.exists()) {
         const sessionData = sessionDoc.data() as GameSession;
-        const winnerId = winner === 'player' ? sessionData.player1Id : 
-                        winner === 'opponent' ? sessionData.player2Id : 'tie';
+        const winnerId =
+          winner === 'player'
+            ? sessionData.player1Id
+            : winner === 'opponent'
+              ? sessionData.player2Id
+              : 'tie';
 
         await updateDoc(sessionRef, {
           status: 'completed',
@@ -317,11 +333,7 @@ export const MultiplayerProvider: React.FC<MultiplayerProviderProps> = ({ childr
     endGame,
   };
 
-  return (
-    <MultiplayerContext.Provider value={value}>
-      {children}
-    </MultiplayerContext.Provider>
-  );
+  return <MultiplayerContext.Provider value={value}>{children}</MultiplayerContext.Provider>;
 };
 
-export default MultiplayerContext; 
+export default MultiplayerContext;

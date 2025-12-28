@@ -59,14 +59,14 @@ declare module 'firebase/app' {
 declare module 'react-native-web-linear-gradient' {
   import { Component } from 'react';
   import { ViewProps } from 'react-native';
-  
+
   interface LinearGradientProps extends ViewProps {
     colors: string[];
     start?: { x: number; y: number };
     end?: { x: number; y: number };
     locations?: number[];
   }
-  
+
   export default class LinearGradient extends Component<LinearGradientProps> {}
 }
 
@@ -74,7 +74,7 @@ declare module 'react-native-web-linear-gradient' {
 declare global {
   interface Window {
     Audio: {
-      new(src?: string): HTMLAudioElement;
+      new (src?: string): HTMLAudioElement;
     };
   }
 }
@@ -86,7 +86,7 @@ declare global {
     maxTouchPoints: number;
     hardwareConcurrency: number;
   }
-  
+
   interface BeforeInstallPromptEvent extends Event {
     prompt: () => Promise<void>;
     userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;

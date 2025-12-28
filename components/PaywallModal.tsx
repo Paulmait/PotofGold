@@ -25,12 +25,7 @@ interface PaywallModalProps {
   userId?: string;
 }
 
-const PaywallModal: React.FC<PaywallModalProps> = ({
-  visible,
-  onClose,
-  onSuccess,
-  userId,
-}) => {
+const PaywallModal: React.FC<PaywallModalProps> = ({ visible, onClose, onSuccess, userId }) => {
   const [loading, setLoading] = useState(true);
   const [purchasing, setPurchasing] = useState(false);
   const [restoring, setRestoring] = useState(false);
@@ -48,13 +43,13 @@ const PaywallModal: React.FC<PaywallModalProps> = ({
     try {
       await revenueCatService.initialize(userId);
       const offerings = await revenueCatService.getOfferings();
-      
+
       if (offerings?.current?.availablePackages) {
         // Find monthly package
         const monthly = offerings.current.availablePackages.find(
-          pkg => pkg.packageType === 'MONTHLY' || pkg.identifier === 'monthly'
+          (pkg) => pkg.packageType === 'MONTHLY' || pkg.identifier === 'monthly'
         );
-        
+
         if (monthly) {
           setMonthlyPackage(monthly);
           // Use localized price from RevenueCat
@@ -80,7 +75,7 @@ const PaywallModal: React.FC<PaywallModalProps> = ({
 
     try {
       const customerInfo = await revenueCatService.purchasePackage(monthlyPackage);
-      
+
       if (customerInfo?.entitlements.active['gold_vault']) {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         Alert.alert(
@@ -106,14 +101,12 @@ const PaywallModal: React.FC<PaywallModalProps> = ({
 
     try {
       const customerInfo = await revenueCatService.restorePurchases();
-      
+
       if (customerInfo?.entitlements.active['gold_vault']) {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        Alert.alert(
-          'Restored!',
-          'Your Gold Vault subscription has been restored.',
-          [{ text: 'Great!', onPress: onSuccess }]
-        );
+        Alert.alert('Restored!', 'Your Gold Vault subscription has been restored.', [
+          { text: 'Great!', onPress: onSuccess },
+        ]);
       } else {
         Alert.alert('No Subscription Found', 'No active subscription to restore.');
       }
@@ -142,17 +135,9 @@ const PaywallModal: React.FC<PaywallModalProps> = ({
   ];
 
   return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      transparent={true}
-      onRequestClose={onClose}
-    >
+    <Modal visible={visible} animationType="slide" transparent={true} onRequestClose={onClose}>
       <View style={styles.overlay}>
-        <LinearGradient
-          colors={['#1a1a2e', '#16213e', '#0f3460']}
-          style={styles.container}
-        >
+        <LinearGradient colors={['#1a1a2e', '#16213e', '#0f3460']} style={styles.container}>
           {/* Close Button */}
           <TouchableOpacity
             style={styles.closeButton}
@@ -162,7 +147,7 @@ const PaywallModal: React.FC<PaywallModalProps> = ({
             <Ionicons name="close" size={28} color="white" />
           </TouchableOpacity>
 
-          <ScrollView 
+          <ScrollView
             style={styles.scrollView}
             contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}
@@ -179,22 +164,18 @@ const PaywallModal: React.FC<PaywallModalProps> = ({
             {/* Features */}
             <View style={styles.featuresContainer}>
               {features.map((feature, index) => (
-                <View 
-                  key={index} 
-                  style={[
-                    styles.featureRow,
-                    feature.highlight && styles.featureHighlight
-                  ]}
+                <View
+                  key={index}
+                  style={[styles.featureRow, feature.highlight && styles.featureHighlight]}
                 >
-                  <Ionicons 
-                    name={feature.icon as any} 
-                    size={24} 
-                    color={feature.highlight ? '#FFD700' : '#4CAF50'} 
+                  <Ionicons
+                    name={feature.icon as any}
+                    size={24}
+                    color={feature.highlight ? '#FFD700' : '#4CAF50'}
                   />
-                  <Text style={[
-                    styles.featureText,
-                    feature.highlight && styles.featureTextHighlight
-                  ]}>
+                  <Text
+                    style={[styles.featureText, feature.highlight && styles.featureTextHighlight]}
+                  >
                     {feature.text}
                   </Text>
                 </View>
@@ -229,12 +210,8 @@ const PaywallModal: React.FC<PaywallModalProps> = ({
                       <ActivityIndicator color="white" />
                     ) : (
                       <>
-                        <Text style={styles.purchaseButtonText}>
-                          Start Free Trial
-                        </Text>
-                        <Text style={styles.trialText}>
-                          Then {price}/month
-                        </Text>
+                        <Text style={styles.purchaseButtonText}>Start Free Trial</Text>
+                        <Text style={styles.trialText}>Then {price}/month</Text>
                       </>
                     )}
                   </LinearGradient>
@@ -258,12 +235,11 @@ const PaywallModal: React.FC<PaywallModalProps> = ({
             {/* Legal */}
             <View style={styles.legalContainer}>
               <Text style={styles.legalText}>
-                Payment will be charged to your account at confirmation of purchase.
-                Subscription automatically renews unless auto-renew is turned off at 
-                least 24-hours before the end of the current period. Cancel anytime 
-                in your device settings.
+                Payment will be charged to your account at confirmation of purchase. Subscription
+                automatically renews unless auto-renew is turned off at least 24-hours before the
+                end of the current period. Cancel anytime in your device settings.
               </Text>
-              
+
               <View style={styles.legalLinks}>
                 <TouchableOpacity onPress={openTerms}>
                   <Text style={styles.legalLink}>Terms</Text>
@@ -278,9 +254,7 @@ const PaywallModal: React.FC<PaywallModalProps> = ({
             {/* Trust Badge */}
             <View style={styles.trustBadge}>
               <Ionicons name="lock-closed" size={16} color="#4CAF50" />
-              <Text style={styles.trustText}>
-                Secure payment via App Store
-              </Text>
+              <Text style={styles.trustText}>Secure payment via App Store</Text>
             </View>
           </ScrollView>
         </LinearGradient>

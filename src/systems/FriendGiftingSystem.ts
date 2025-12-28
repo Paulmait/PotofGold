@@ -304,7 +304,7 @@ export class FriendGiftingSystem {
 
     // Check if request already sent
     const existingRequest = Array.from(this.friendRequests.values()).find(
-      r => r.to === toPlayerId && r.status === 'pending'
+      (r) => r.to === toPlayerId && r.status === 'pending'
     );
 
     if (existingRequest) {
@@ -469,18 +469,18 @@ export class FriendGiftingSystem {
   async sendMassGift(giftType: GiftType): Promise<number> {
     let sentCount = 0;
     const eligibleFriends = Array.from(this.friends.values()).filter(
-      f => f.canReceiveGift && (!f.lastGiftSent || Date.now() - f.lastGiftSent > 3600000)
+      (f) => f.canReceiveGift && (!f.lastGiftSent || Date.now() - f.lastGiftSent > 3600000)
     );
 
     for (const friend of eligibleFriends) {
       if (this.giftsSentToday >= this.dailyGiftLimit) break;
-      
+
       if (await this.sendGift(friend.id, giftType, 'Mass gift!')) {
         sentCount++;
       }
 
       // Small delay to prevent spam
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
     }
 
     eventBus.emit('notification:show', {
@@ -492,14 +492,14 @@ export class FriendGiftingSystem {
   }
 
   openGift(giftId: string): boolean {
-    const recordIndex = this.giftBox.received.findIndex(r => r.gift.id === giftId);
+    const recordIndex = this.giftBox.received.findIndex((r) => r.gift.id === giftId);
     if (recordIndex === -1) {
       console.log('Gift not found');
       return false;
     }
 
     const record = this.giftBox.received[recordIndex];
-    
+
     if (record.status !== 'pending') {
       console.log('Gift already opened');
       return false;
@@ -516,7 +516,7 @@ export class FriendGiftingSystem {
 
     // Apply gift rewards
     this.applyGiftRewards(record.gift);
-    
+
     record.status = 'opened';
     this.giftBox.history.push(record);
     this.giftBox.received.splice(recordIndex, 1);
@@ -555,7 +555,7 @@ export class FriendGiftingSystem {
           source: 'friend_gift',
         });
         break;
-      
+
       case GiftType.GEMS:
         gameEvents.emit(GameEventType.CURRENCY_EARNED, {
           type: 'gems',
@@ -563,19 +563,19 @@ export class FriendGiftingSystem {
           source: 'friend_gift',
         });
         break;
-      
+
       case GiftType.ENERGY:
         eventBus.emit('energy:add', { amount: gift.value });
         break;
-      
+
       case GiftType.MYSTERY:
         this.openMysteryGift(gift);
         break;
-      
+
       case GiftType.LOOT_BOX:
         eventBus.emit('lootbox:add', { tier: gift.value.tier });
         break;
-      
+
       case GiftType.POWERUP:
         eventBus.emit('powerup:add', { type: gift.value });
         break;
@@ -594,9 +594,9 @@ export class FriendGiftingSystem {
     const reward = rewards[Math.floor(Math.random() * rewards.length)];
     gift.value = reward.value;
     gift.type = reward.type;
-    
+
     this.applyGiftRewards(gift);
-    
+
     eventBus.emit('notification:show', {
       message: `Mystery gift revealed: ${reward.type} x${reward.value}!`,
       type: 'success',
@@ -682,9 +682,7 @@ export class FriendGiftingSystem {
     }
 
     // Award friendship XP
-    const friendId = winnerId === 'current_player' 
-      ? challenge.challenged 
-      : challenge.challenger;
+    const friendId = winnerId === 'current_player' ? challenge.challenged : challenge.challenger;
     this.addFriendshipXP(friendId, 20);
 
     eventBus.emit('challenge:completed', {
@@ -716,7 +714,7 @@ export class FriendGiftingSystem {
   }
 
   private checkFriendshipRewards(friend: Friend) {
-    const reward = this.friendshipRewards.find(r => r.level === friend.friendshipLevel);
+    const reward = this.friendshipRewards.find((r) => r.level === friend.friendshipLevel);
     if (reward) {
       // Award rewards
       gameEvents.emit(GameEventType.CURRENCY_EARNED, {
@@ -757,7 +755,7 @@ export class FriendGiftingSystem {
       this.lastResetTime = now;
 
       // Reset friend gift status
-      this.friends.forEach(friend => {
+      this.friends.forEach((friend) => {
         friend.canSendGift = true;
         friend.canReceiveGift = true;
       });
@@ -768,7 +766,7 @@ export class FriendGiftingSystem {
 
   private updateFriendStatuses() {
     // This would normally fetch from server
-    this.friends.forEach(friend => {
+    this.friends.forEach((friend) => {
       // Simulate status updates
       const random = Math.random();
       if (random < 0.3) {
@@ -783,8 +781,8 @@ export class FriendGiftingSystem {
 
   private processExpiredGifts() {
     const now = Date.now();
-    
-    this.giftBox.received = this.giftBox.received.filter(record => {
+
+    this.giftBox.received = this.giftBox.received.filter((record) => {
       if (record.gift.expiresAt && now > record.gift.expiresAt) {
         record.status = 'expired';
         this.giftBox.history.push(record);
@@ -907,15 +905,15 @@ export class FriendGiftingSystem {
   }
 
   getPendingGifts(): GiftRecord[] {
-    return this.giftBox.received.filter(r => r.status === 'pending');
+    return this.giftBox.received.filter((r) => r.status === 'pending');
   }
 
   getFriendRequests(): FriendRequest[] {
-    return Array.from(this.friendRequests.values()).filter(r => r.status === 'pending');
+    return Array.from(this.friendRequests.values()).filter((r) => r.status === 'pending');
   }
 
   getActiveChallenges(): SocialChallenge[] {
-    return Array.from(this.socialChallenges.values()).filter(c => c.status === 'active');
+    return Array.from(this.socialChallenges.values()).filter((c) => c.status === 'active');
   }
 
   getViralProgress(): Map<string, ViralMechanic> {

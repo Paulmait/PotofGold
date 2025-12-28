@@ -345,8 +345,8 @@ export class StateUnlockSystem {
    */
   checkForNewUnlocks(gameStats: any): StateUnlock[] {
     const newUnlocks: StateUnlock[] = [];
-    
-    STATE_UNLOCKS.forEach(unlock => {
+
+    STATE_UNLOCKS.forEach((unlock) => {
       if (!this.unlockedStates.has(unlock.id) && this.checkUnlockRequirement(unlock, gameStats)) {
         this.unlockState(unlock.id);
         newUnlocks.push(unlock);
@@ -360,14 +360,14 @@ export class StateUnlockSystem {
    * Get all unlocked states
    */
   getUnlockedStates(): StateUnlock[] {
-    return STATE_UNLOCKS.filter(unlock => this.unlockedStates.has(unlock.id));
+    return STATE_UNLOCKS.filter((unlock) => this.unlockedStates.has(unlock.id));
   }
 
   /**
    * Get available states for unlocking
    */
   getAvailableUnlocks(): StateUnlock[] {
-    return STATE_UNLOCKS.filter(unlock => !this.unlockedStates.has(unlock.id));
+    return STATE_UNLOCKS.filter((unlock) => !this.unlockedStates.has(unlock.id));
   }
 
   /**
@@ -382,7 +382,7 @@ export class StateUnlockSystem {
    */
   getCurrentStateTheme(): StateUnlock | null {
     if (!this.currentState) return null;
-    return STATE_UNLOCKS.find(unlock => unlock.id === this.currentState) || null;
+    return STATE_UNLOCKS.find((unlock) => unlock.id === this.currentState) || null;
   }
 
   /**
@@ -390,8 +390,8 @@ export class StateUnlockSystem {
    */
   getSpecialItems(): string[] {
     return this.getUnlockedStates()
-      .filter(unlock => unlock.unlockType === 'specialItem')
-      .map(unlock => unlock.visualElements.specialItem!)
+      .filter((unlock) => unlock.unlockType === 'specialItem')
+      .map((unlock) => unlock.visualElements.specialItem!)
       .filter(Boolean);
   }
 
@@ -410,4 +410,4 @@ export class StateUnlockSystem {
     // In a real app, save to AsyncStorage or similar
     console.log('Unlocked states:', Array.from(this.unlockedStates));
   }
-} 
+}

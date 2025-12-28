@@ -66,7 +66,7 @@ export class OfflineQueueManager {
   }
 
   private setupNetworkListener(): void {
-    this.networkListener = NetInfo.addEventListener(state => {
+    this.networkListener = NetInfo.addEventListener((state) => {
       const wasOffline = !this.isOnline;
       this.isOnline = state.isConnected ?? false;
       this.status.isOnline = this.isOnline;
@@ -153,9 +153,9 @@ export class OfflineQueueManager {
         processedItems.push(item.id);
       } catch (error) {
         console.error(`Failed to process queue item ${item.id}:`, error);
-        
+
         item.retryCount++;
-        
+
         if (item.retryCount >= this.maxRetries) {
           failedItems.push(item);
           eventBus.emit('queue:failed', { item, error });
@@ -168,7 +168,7 @@ export class OfflineQueueManager {
 
     // Remove processed and permanently failed items
     this.queue = this.queue.filter(
-      item => !processedItems.includes(item.id) && !failedItems.find(f => f.id === item.id)
+      (item) => !processedItems.includes(item.id) && !failedItems.find((f) => f.id === item.id)
     );
 
     this.status.pendingItems = this.queue.length;
@@ -215,7 +215,7 @@ export class OfflineQueueManager {
 
   private async processFirestoreOperation(item: QueueItem): Promise<void> {
     const { operation, payload } = item;
-    
+
     // Import Firebase dynamically to avoid circular dependencies
     const { doc, setDoc, updateDoc, deleteDoc } = await import('firebase/firestore');
     const { db } = await import('../../firebase/firebase');
@@ -237,7 +237,7 @@ export class OfflineQueueManager {
 
   private async processAuthOperation(item: QueueItem): Promise<void> {
     const { operation, payload } = item;
-    
+
     // Auth operations typically don't need offline queue
     // but keeping for completeness
     console.log('Processing auth operation:', operation, payload);
@@ -245,7 +245,7 @@ export class OfflineQueueManager {
 
   private async processStorageOperation(item: QueueItem): Promise<void> {
     const { operation, payload } = item;
-    
+
     // Handle file uploads when back online
     if (operation === 'upload' && payload.file) {
       // Implementation for file upload
@@ -255,7 +255,7 @@ export class OfflineQueueManager {
 
   private async processFunctionCall(item: QueueItem): Promise<void> {
     const { operation, payload } = item;
-    
+
     // Call cloud functions when back online
     console.log('Processing function call:', operation, payload);
   }
@@ -266,7 +266,7 @@ export class OfflineQueueManager {
       const existingFailed = await AsyncStorage.getItem('failed_queue_items');
       const failed = existingFailed ? JSON.parse(existingFailed) : [];
       failed.push(...items);
-      
+
       await AsyncStorage.setItem('failed_queue_items', JSON.stringify(failed));
     } catch (error) {
       console.error('Failed to save failed items:', error);
@@ -301,13 +301,13 @@ export class OfflineQueueManager {
       const failedItems = await AsyncStorage.getItem('failed_queue_items');
       if (failedItems) {
         const items = JSON.parse(failedItems);
-        
+
         // Reset retry count and add back to queue
         for (const item of items) {
           item.retryCount = 0;
           await this.addToQueue(item.type, item.operation, item.payload, item.priority);
         }
-        
+
         // Clear failed items
         await AsyncStorage.removeItem('failed_queue_items');
       }
@@ -320,7 +320,7 @@ export class OfflineQueueManager {
     if (this.syncInterval) {
       clearInterval(this.syncInterval);
     }
-    
+
     if (this.networkListener) {
       this.networkListener();
     }

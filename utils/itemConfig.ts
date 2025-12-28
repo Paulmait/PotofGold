@@ -32,7 +32,7 @@ export const ITEM_CONFIGS: { [key: string]: ItemConfig } = {
     size: 1.0,
     rotationSpeed: 2,
   },
-  
+
   moneyBag: {
     type: 'moneyBag',
     visual: '💰',
@@ -48,7 +48,7 @@ export const ITEM_CONFIGS: { [key: string]: ItemConfig } = {
     size: 1.2,
     rotationSpeed: 1,
   },
-  
+
   diamond: {
     type: 'diamond',
     visual: '💎',
@@ -65,7 +65,7 @@ export const ITEM_CONFIGS: { [key: string]: ItemConfig } = {
     size: 1.1,
     rotationSpeed: 3,
   },
-  
+
   goldStar: {
     type: 'goldStar',
     visual: '⭐',
@@ -82,7 +82,7 @@ export const ITEM_CONFIGS: { [key: string]: ItemConfig } = {
     size: 1.3,
     rotationSpeed: 4,
   },
-  
+
   megaStar: {
     type: 'megaStar',
     visual: '🌟',
@@ -99,7 +99,7 @@ export const ITEM_CONFIGS: { [key: string]: ItemConfig } = {
     size: 1.5,
     rotationSpeed: 5,
   },
-  
+
   treasureSack: {
     type: 'treasureSack',
     visual: '🎒',
@@ -116,7 +116,7 @@ export const ITEM_CONFIGS: { [key: string]: ItemConfig } = {
     size: 1.4,
     rotationSpeed: 0.5,
   },
-  
+
   // ========== POWER-UPS ==========
   lightning: {
     type: 'lightning',
@@ -134,7 +134,7 @@ export const ITEM_CONFIGS: { [key: string]: ItemConfig } = {
     size: 1.2,
     rotationSpeed: 0,
   },
-  
+
   magnet: {
     type: 'magnet',
     visual: '🧲',
@@ -151,7 +151,7 @@ export const ITEM_CONFIGS: { [key: string]: ItemConfig } = {
     size: 1.2,
     rotationSpeed: 6,
   },
-  
+
   // ========== OBSTACLES (Bad Items) ==========
   rock: {
     type: 'rock',
@@ -169,7 +169,7 @@ export const ITEM_CONFIGS: { [key: string]: ItemConfig } = {
     size: 1.3,
     rotationSpeed: 1.5,
   },
-  
+
   dynamite: {
     type: 'dynamite',
     visual: '🧨',
@@ -197,10 +197,10 @@ export const RARITY_MULTIPLIERS = {
 };
 
 export const COMBO_BONUSES = {
-  3: 1.5,  // 3 items in a row = 1.5x multiplier
-  5: 2,    // 5 items in a row = 2x multiplier
-  10: 3,   // 10 items in a row = 3x multiplier
-  15: 5,   // 15 items in a row = 5x multiplier
+  3: 1.5, // 3 items in a row = 1.5x multiplier
+  5: 2, // 5 items in a row = 2x multiplier
+  10: 3, // 10 items in a row = 3x multiplier
+  15: 5, // 15 items in a row = 5x multiplier
 };
 
 export const LEVEL_SPAWN_MODIFIERS = {
@@ -209,4 +209,4 @@ export const LEVEL_SPAWN_MODIFIERS = {
   10: { common: 1, uncommon: 1, rare: 0.6, epic: 0.3, ultraRare: 0.15 },
   15: { common: 1, uncommon: 1, rare: 0.8, epic: 0.5, ultraRare: 0.2 },
   20: { common: 1, uncommon: 1, rare: 1, epic: 0.7, ultraRare: 0.25 },
-}; 
+};

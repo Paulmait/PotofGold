@@ -20,15 +20,15 @@ interface ParticleEffectProps {
 
 const ParticleEffect: React.FC<ParticleEffectProps> = ({ x, y, type, onComplete }) => {
   const particles = useRef<Particle[]>([]);
-  
+
   useEffect(() => {
     const particleConfig = getParticleConfig(type);
-    
+
     // Create particles
     for (let i = 0; i < particleConfig.count; i++) {
       const angle = (Math.PI * 2 * i) / particleConfig.count;
       const velocity = particleConfig.velocity + Math.random() * 50;
-      
+
       particles.current.push({
         id: i,
         x: new Animated.Value(0),
@@ -38,10 +38,10 @@ const ParticleEffect: React.FC<ParticleEffectProps> = ({ x, y, type, onComplete 
         rotation: new Animated.Value(0),
         color: particleConfig.colors[Math.floor(Math.random() * particleConfig.colors.length)],
       });
-      
+
       // Animate particle
       const particle = particles.current[i];
-      
+
       Animated.parallel([
         Animated.timing(particle.x, {
           toValue: Math.cos(angle) * velocity,
@@ -70,11 +70,11 @@ const ParticleEffect: React.FC<ParticleEffectProps> = ({ x, y, type, onComplete 
         }),
       ]).start();
     }
-    
+
     // Cleanup after animation
     setTimeout(onComplete, particleConfig.duration);
   }, [type, onComplete]);
-  
+
   const getParticleConfig = (type: string) => {
     switch (type) {
       case 'collect':
@@ -119,7 +119,7 @@ const ParticleEffect: React.FC<ParticleEffectProps> = ({ x, y, type, onComplete 
         };
     }
   };
-  
+
   return (
     <View style={[styles.container, { left: x - 50, top: y - 50 }]}>
       {particles.current.map((particle) => (
@@ -133,10 +133,11 @@ const ParticleEffect: React.FC<ParticleEffectProps> = ({ x, y, type, onComplete 
                 { translateX: particle.x },
                 { translateY: particle.y },
                 { scale: particle.scale },
-                { rotate: particle.rotation.interpolate({
+                {
+                  rotate: particle.rotation.interpolate({
                     inputRange: [0, 360],
                     outputRange: ['0deg', '360deg'],
-                  })
+                  }),
                 },
               ],
               opacity: particle.opacity,

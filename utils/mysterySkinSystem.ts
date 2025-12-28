@@ -16,59 +16,59 @@ export interface MysteryCrate {
 export class MysterySkinSystem {
   private static cratePool: MysteryCrate[] = [
     {
-      id: "crate_001",
-      reward: "hawaii",
-      rarity: "legendary",
-      unlock_condition: "Drop from Mystery Crate",
-      asset: "trails/hawaii_trail.png",
-      name: "Hawaii Mystery Trail",
-      description: "Rare Hawaii trail from mystery crate"
+      id: 'crate_001',
+      reward: 'hawaii',
+      rarity: 'legendary',
+      unlock_condition: 'Drop from Mystery Crate',
+      asset: 'trails/hawaii_trail.png',
+      name: 'Hawaii Mystery Trail',
+      description: 'Rare Hawaii trail from mystery crate',
     },
     {
-      id: "crate_002",
-      reward: "alaska",
-      rarity: "epic",
-      unlock_condition: "Drop from Mystery Crate",
-      asset: "flags/alaska_flag.png",
-      name: "Alaska Mystery Flag",
-      description: "Epic Alaska flag from mystery crate"
+      id: 'crate_002',
+      reward: 'alaska',
+      rarity: 'epic',
+      unlock_condition: 'Drop from Mystery Crate',
+      asset: 'flags/alaska_flag.png',
+      name: 'Alaska Mystery Flag',
+      description: 'Epic Alaska flag from mystery crate',
     },
     {
-      id: "crate_003",
-      reward: "vermont",
-      rarity: "rare",
-      unlock_condition: "Drop from Mystery Crate",
-      asset: "trails/vermont_trail.png",
-      name: "Vermont Mystery Trail",
-      description: "Rare Vermont trail from mystery crate"
+      id: 'crate_003',
+      reward: 'vermont',
+      rarity: 'rare',
+      unlock_condition: 'Drop from Mystery Crate',
+      asset: 'trails/vermont_trail.png',
+      name: 'Vermont Mystery Trail',
+      description: 'Rare Vermont trail from mystery crate',
     },
     {
-      id: "crate_004",
-      reward: "colorado",
-      rarity: "rare",
-      unlock_condition: "Drop from Mystery Crate",
-      asset: "shapes/colorado_shape.png",
-      name: "Colorado Mystery Crystal",
-      description: "Rare Colorado crystal from mystery crate"
+      id: 'crate_004',
+      reward: 'colorado',
+      rarity: 'rare',
+      unlock_condition: 'Drop from Mystery Crate',
+      asset: 'shapes/colorado_shape.png',
+      name: 'Colorado Mystery Crystal',
+      description: 'Rare Colorado crystal from mystery crate',
     },
     {
-      id: "crate_005",
-      reward: "montana",
-      rarity: "epic",
-      unlock_condition: "Drop from Mystery Crate",
-      asset: "trails/montana_trail.png",
-      name: "Montana Mystery Trail",
-      description: "Epic Montana trail from mystery crate"
+      id: 'crate_005',
+      reward: 'montana',
+      rarity: 'epic',
+      unlock_condition: 'Drop from Mystery Crate',
+      asset: 'trails/montana_trail.png',
+      name: 'Montana Mystery Trail',
+      description: 'Epic Montana trail from mystery crate',
     },
     {
-      id: "crate_006",
-      reward: "oregon",
-      rarity: "uncommon",
-      unlock_condition: "Drop from Mystery Crate",
-      asset: "shapes/oregon_shape.png",
-      name: "Oregon Mystery Cart",
-      description: "Uncommon Oregon cart from mystery crate"
-    }
+      id: 'crate_006',
+      reward: 'oregon',
+      rarity: 'uncommon',
+      unlock_condition: 'Drop from Mystery Crate',
+      asset: 'shapes/oregon_shape.png',
+      name: 'Oregon Mystery Cart',
+      description: 'Uncommon Oregon cart from mystery crate',
+    },
   ];
 
   /**
@@ -92,7 +92,7 @@ export class MysterySkinSystem {
 
       // Pick random crate from pool
       const randomCrate = this.cratePool[Math.floor(Math.random() * this.cratePool.length)];
-      
+
       if (!randomCrate) {
         console.error('No mystery crates available');
         return null;
@@ -126,14 +126,14 @@ export class MysterySkinSystem {
    * Get mystery crate by ID
    */
   static getMysteryCrate(crateId: string): MysteryCrate | null {
-    return this.cratePool.find(crate => crate.id === crateId) || null;
+    return this.cratePool.find((crate) => crate.id === crateId) || null;
   }
 
   /**
    * Get mystery crates by rarity
    */
   static getMysteryCratesByRarity(rarity: string): MysteryCrate[] {
-    return this.cratePool.filter(crate => crate.rarity === rarity);
+    return this.cratePool.filter((crate) => crate.rarity === rarity);
   }
 
   /**
@@ -147,7 +147,7 @@ export class MysterySkinSystem {
    * Remove mystery crate from pool
    */
   static removeMysteryCrate(crateId: string): void {
-    this.cratePool = this.cratePool.filter(crate => crate.id !== crateId);
+    this.cratePool = this.cratePool.filter((crate) => crate.id !== crateId);
   }
 
   /**
@@ -177,4 +177,4 @@ export class MysterySkinSystem {
     };
     return emojis[rarity as keyof typeof emojis] || '📦';
   }
-} 
+}

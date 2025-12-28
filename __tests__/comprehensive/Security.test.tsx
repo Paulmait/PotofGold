@@ -23,21 +23,21 @@ describe('Security Tests', () => {
     test('should encrypt sensitive data in AsyncStorage', async () => {
       const sensitiveData = { userId: 'test', authToken: 'secret' };
       await AsyncStorage.setItem('user_data', JSON.stringify(sensitiveData));
-      
+
       const stored = await AsyncStorage.getItem('user_data');
       const parsed = JSON.parse(stored || '{}');
-      
+
       // In a real app, this would be encrypted
       expect(parsed.userId).toBe('test');
     });
 
     test('should not store plain text passwords', async () => {
       const userData = { email: 'test@example.com', password: 'plaintext' };
-      
+
       // Simulate password hashing
       const hashedPassword = `$2b$10$${Buffer.from(userData.password).toString('base64')}`;
       const storedData = { ...userData, password: hashedPassword };
-      
+
       // Verify password is hashed, not plaintext
       expect(storedData.password).not.toBe('plaintext');
       expect(storedData.password).toMatch(/^\$2b\$10\$/);
@@ -48,7 +48,7 @@ describe('Security Tests', () => {
     test('should enforce user data isolation', async () => {
       const userId = 'user123';
       const otherUserId = 'user456';
-      
+
       // Mock Firebase security rules
       const mockGetDoc = getDoc as jest.MockedFunction<typeof getDoc>;
       mockGetDoc.mockResolvedValue({
@@ -58,20 +58,20 @@ describe('Security Tests', () => {
 
       const userDoc = doc(db, 'users', userId);
       const result = await getDoc(userDoc);
-      
+
       expect(result.exists()).toBe(true);
       expect(result.data()?.userId).toBe(userId);
     });
 
     test('should prevent unauthorized data access', async () => {
       const unauthorizedUserId = 'hacker';
-      
+
       // Mock Firebase to deny access
       const mockGetDoc = getDoc as jest.MockedFunction<typeof getDoc>;
       mockGetDoc.mockRejectedValue(new Error('Permission denied'));
 
       const userDoc = doc(db, 'users', unauthorizedUserId);
-      
+
       await expect(getDoc(userDoc)).rejects.toThrow('Permission denied');
     });
   });
@@ -79,19 +79,20 @@ describe('Security Tests', () => {
   describe('Input Validation', () => {
     test('should sanitize user inputs', () => {
       const maliciousInput = '<script>alert("xss")</script>';
-      const sanitizedInput = maliciousInput.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
-      
+      const sanitizedInput = maliciousInput.replace(
+        /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
+        ''
+      );
+
       expect(sanitizedInput).not.toContain('<script>');
     });
 
     test('should prevent SQL injection in queries', () => {
       const maliciousInput = "'; DROP TABLE users; --";
-      
+
       // Proper sanitization removes dangerous characters and keywords
-      const sanitizedInput = maliciousInput
-        .replace(/[;'"]/g, '')
-        .replace(/DROP\s+TABLE/gi, '');
-      
+      const sanitizedInput = maliciousInput.replace(/[;'"]/g, '').replace(/DROP\s+TABLE/gi, '');
+
       expect(sanitizedInput).not.toContain('DROP TABLE');
       expect(sanitizedInput).not.toContain(';');
       expect(sanitizedInput).not.toContain("'");
@@ -150,11 +151,11 @@ describe('Security Tests', () => {
     test('should allow data deletion', async () => {
       const userId = 'user123';
       await AsyncStorage.setItem(`user_${userId}`, JSON.stringify({ data: 'test' }));
-      
+
       await AsyncStorage.removeItem(`user_${userId}`);
       const deleted = await AsyncStorage.getItem(`user_${userId}`);
-      
+
       expect(deleted).toBeNull();
     });
   });
-}); 
+});

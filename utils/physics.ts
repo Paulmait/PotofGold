@@ -25,7 +25,7 @@ export interface Pot {
 
 export class GamePhysics {
   private static instance: GamePhysics;
-  
+
   static getInstance(): GamePhysics {
     if (!GamePhysics.instance) {
       GamePhysics.instance = new GamePhysics();
@@ -46,12 +46,11 @@ export class GamePhysics {
   // Check collision between game object and pot
   checkPotCollision(obj: GameObject, pot: Pot): boolean {
     // Basic collision detection
-    const basicCollision = (
+    const basicCollision =
       obj.x < pot.x + pot.width &&
       obj.x + obj.width > pot.x &&
       obj.y < pot.y + pot.height &&
-      obj.y + obj.height > pot.y
-    );
+      obj.y + obj.height > pot.y;
 
     if (basicCollision) return true;
 
@@ -63,8 +62,7 @@ export class GamePhysics {
       const potCenterY = pot.y + pot.height / 2;
 
       const distance = Math.sqrt(
-        Math.pow(objCenterX - potCenterX, 2) + 
-        Math.pow(objCenterY - potCenterY, 2)
+        Math.pow(objCenterX - potCenterX, 2) + Math.pow(objCenterY - potCenterY, 2)
       );
 
       return distance <= pot.magnetRadius;
@@ -83,8 +81,7 @@ export class GamePhysics {
     const potCenterY = pot.y + pot.height / 2;
 
     const distance = Math.sqrt(
-      Math.pow(objCenterX - potCenterX, 2) + 
-      Math.pow(objCenterY - potCenterY, 2)
+      Math.pow(objCenterX - potCenterX, 2) + Math.pow(objCenterY - potCenterY, 2)
     );
 
     if (distance > pot.magnetRadius) return { x: 0, y: 0 };
@@ -94,7 +91,7 @@ export class GamePhysics {
 
     return {
       x: Math.cos(angle) * force * 2,
-      y: Math.sin(angle) * force * 2
+      y: Math.sin(angle) * force * 2,
     };
   }
 
@@ -116,7 +113,7 @@ export class GamePhysics {
     return {
       ...obj,
       x: newX,
-      y: newY
+      y: newY,
     };
   }
 
@@ -124,18 +121,18 @@ export class GamePhysics {
   generateSpawnPosition(): { x: number; y: number } {
     return {
       x: Math.random() * (width - 40),
-      y: -50
+      y: -50,
     };
   }
 
   // Calculate score based on object type and value
   calculateScore(obj: GameObject, multiplier: number = 1): number {
     let baseScore = obj.value;
-    
+
     if (obj.type === 'bonus') {
       baseScore *= 2;
     }
-    
+
     return Math.floor(baseScore * multiplier);
   }
 
@@ -144,7 +141,7 @@ export class GamePhysics {
     const baseSpeed = 1;
     const levelMultiplier = 1 + (level - 1) * 0.1;
     const timeMultiplier = 1 + (gameTime / 60000) * 0.5; // Increase speed every minute
-    
+
     return Math.min(baseSpeed * levelMultiplier * timeMultiplier, 3);
   }
 
@@ -155,18 +152,18 @@ export class GamePhysics {
 
   // Calculate pot movement based on touch input
   calculatePotMovement(
-    currentX: number, 
-    targetX: number, 
-    speed: number, 
+    currentX: number,
+    targetX: number,
+    speed: number,
     deltaTime: number
   ): number {
     const distance = targetX - currentX;
     const maxDistance = speed * deltaTime;
-    
+
     if (Math.abs(distance) <= maxDistance) {
       return targetX;
     }
-    
+
     return currentX + Math.sign(distance) * maxDistance;
   }
 
@@ -176,12 +173,12 @@ export class GamePhysics {
       { type: 'magnet', weight: 0.3 },
       { type: 'slowMotion', weight: 0.25 },
       { type: 'doublePoints', weight: 0.25 },
-      { type: 'goldRush', weight: 0.2 }
+      { type: 'goldRush', weight: 0.2 },
     ];
 
     const totalWeight = powerUps.reduce((sum, powerUp) => sum + powerUp.weight, 0);
     const random = Math.random() * totalWeight;
-    
+
     let currentWeight = 0;
     for (const powerUp of powerUps) {
       currentWeight += powerUp.weight;
@@ -189,20 +186,20 @@ export class GamePhysics {
         return powerUp.type;
       }
     }
-    
+
     return null;
   }
 
   // Calculate coin value based on rarity
   calculateCoinValue(): number {
     const random = Math.random();
-    
-    if (random < 0.6) return 1;      // 60% chance - regular coin
-    if (random < 0.85) return 5;     // 25% chance - silver coin
-    if (random < 0.95) return 10;    // 10% chance - gold coin
-    if (random < 0.98) return 25;    // 3% chance - diamond coin
-    return 50;                        // 2% chance - rainbow coin
+
+    if (random < 0.6) return 1; // 60% chance - regular coin
+    if (random < 0.85) return 5; // 25% chance - silver coin
+    if (random < 0.95) return 10; // 10% chance - gold coin
+    if (random < 0.98) return 25; // 3% chance - diamond coin
+    return 50; // 2% chance - rainbow coin
   }
 }
 
-export default GamePhysics.getInstance(); 
+export default GamePhysics.getInstance();

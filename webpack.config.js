@@ -22,7 +22,7 @@ module.exports = async function (env, argv) {
   );
 
   // Disable problematic plugins
-  config.plugins = config.plugins.filter(plugin => {
+  config.plugins = config.plugins.filter((plugin) => {
     const name = plugin.constructor.name;
     // Remove service worker plugin that might cause issues
     return name !== 'GenerateSW' && name !== 'InjectManifest';
@@ -50,13 +50,7 @@ module.exports = async function (env, argv) {
       'expo-in-app-purchases': false,
       'react-native-purchases': false,
     },
-    extensions: [
-      '.web.ts',
-      '.web.tsx',
-      '.web.js',
-      '.web.jsx',
-      ...config.resolve.extensions,
-    ],
+    extensions: ['.web.ts', '.web.tsx', '.web.js', '.web.jsx', ...config.resolve.extensions],
   };
 
   // Add fallbacks for Node.js modules
@@ -74,14 +68,14 @@ module.exports = async function (env, argv) {
     options: {
       multiple: [
         {
-          search: "import.*@sentry/react-native.*",
+          search: 'import.*@sentry/react-native.*',
           replace: '// Sentry disabled for web',
-          flags: 'g'
+          flags: 'g',
         },
         {
           search: "from '@sentry/react-native'",
           replace: '// from Sentry',
-          flags: 'g'
+          flags: 'g',
         },
       ],
     },

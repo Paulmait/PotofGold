@@ -50,7 +50,7 @@ jest.mock('../../components/StateUnlockNotification', () => ({
         <Text>StateUnlockNotification Mock</Text>
       </View>
     );
-  }
+  },
 }));
 
 jest.mock('../../components/MysteryCrate', () => {
@@ -403,7 +403,7 @@ describe('GameScreen minimal render', () => {
 
   it('should render GameScreen with all components', async () => {
     const Stack = createStackNavigator();
-    
+
     const { queryByTestId } = render(
       <NavigationContainer>
         <Stack.Navigator>
@@ -422,7 +422,7 @@ describe('GameScreen minimal render', () => {
     // The main test is that the component renders without crashing
     const mineCart = queryByTestId('mine-cart');
     const railTrack = queryByTestId('rail-track');
-    
+
     // Component rendered successfully
     expect(true).toBeTruthy();
   });
@@ -436,7 +436,7 @@ describe('GameScreen minimal render', () => {
     };
 
     const UnlocksProvider = require('../../context/UnlocksContext').UnlocksProvider;
-    
+
     const { queryByTestId } = render(
       <UnlocksProvider>
         <GameScreen navigation={mockNavigation} />
@@ -461,7 +461,7 @@ describe('GameScreen minimal render', () => {
     };
 
     const UnlocksProvider = require('../../context/UnlocksContext').UnlocksProvider;
-    
+
     const { queryByTestId } = render(
       <UnlocksProvider>
         <GameScreen navigation={mockNavigation} />

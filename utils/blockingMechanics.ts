@@ -68,7 +68,7 @@ export class BlockingMechanicsSystem {
       },
     ];
 
-    defaultPowerUps.forEach(powerUp => {
+    defaultPowerUps.forEach((powerUp) => {
       this.powerUps.set(powerUp.id, powerUp);
     });
   }
@@ -82,9 +82,9 @@ export class BlockingMechanicsSystem {
 
     const blockType = this.selectBlockType(currentLevel);
     const position = this.calculateSpawnPosition();
-    
+
     const blockConfig = this.getBlockConfig(blockType);
-    
+
     const newBlock: BlockedItem = {
       id: `block_${Date.now()}_${Math.random()}`,
       type: blockType,
@@ -118,9 +118,9 @@ export class BlockingMechanicsSystem {
       { type: 'crystal', minLevel: 12, weight: 10 },
     ];
 
-    const availableTypes = types.filter(t => level >= t.minLevel);
+    const availableTypes = types.filter((t) => level >= t.minLevel);
     const totalWeight = availableTypes.reduce((sum, t) => sum + t.weight, 0);
-    
+
     let random = Math.random() * totalWeight;
     for (const typeConfig of availableTypes) {
       random -= typeConfig.weight;
@@ -137,7 +137,7 @@ export class BlockingMechanicsSystem {
     const lanes = 5;
     const laneWidth = this.pathWidth / lanes;
     const lane = Math.floor(Math.random() * lanes);
-    
+
     return {
       x: lane * laneWidth + laneWidth / 2 - 25, // Center in lane
       y: -100,
@@ -183,25 +183,24 @@ export class BlockingMechanicsSystem {
 
   // Update blocking items positions
   updateBlockingItems(deltaTime: number, fallSpeed: number): void {
-    this.blockedItems = this.blockedItems.map(block => ({
-      ...block,
-      y: block.y + fallSpeed * deltaTime,
-    })).filter(block => block.y < height + 100); // Remove off-screen blocks
+    this.blockedItems = this.blockedItems
+      .map((block) => ({
+        ...block,
+        y: block.y + fallSpeed * deltaTime,
+      }))
+      .filter((block) => block.y < height + 100); // Remove off-screen blocks
   }
 
   // Check if path is blocked
   isPathBlocked(cartX: number, cartWidth: number): boolean {
-    const blockingItemsInPath = this.blockedItems.filter(block => {
+    const blockingItemsInPath = this.blockedItems.filter((block) => {
       const isInVerticalRange = block.y > height - 200 && block.y < height - 50;
-      const isInHorizontalRange = 
-        (block.x < cartX + cartWidth && block.x + block.width > cartX);
-      
+      const isInHorizontalRange = block.x < cartX + cartWidth && block.x + block.width > cartX;
+
       return isInVerticalRange && isInHorizontalRange;
     });
 
-    const blockedWidth = blockingItemsInPath.reduce((total, block) => 
-      total + block.width, 0
-    );
+    const blockedWidth = blockingItemsInPath.reduce((total, block) => total + block.width, 0);
 
     const blockPercentage = blockedWidth / this.pathWidth;
     return blockPercentage >= this.blockThreshold;
@@ -209,17 +208,20 @@ export class BlockingMechanicsSystem {
 
   // Get blocking items in cart's path
   getBlockingItemsInPath(cartX: number, cartWidth: number): BlockedItem[] {
-    return this.blockedItems.filter(block => {
+    return this.blockedItems.filter((block) => {
       const isInVerticalRange = block.y > height - 250 && block.y < height;
-      const isInHorizontalRange = 
-        (block.x < cartX + cartWidth && block.x + block.width > cartX);
-      
+      const isInHorizontalRange = block.x < cartX + cartWidth && block.x + block.width > cartX;
+
       return isInVerticalRange && isInHorizontalRange;
     });
   }
 
   // Use power-up to clear blocks
-  usePowerUp(powerUpId: string, targetX: number, targetY: number): {
+  usePowerUp(
+    powerUpId: string,
+    targetX: number,
+    targetY: number
+  ): {
     cleared: BlockedItem[];
     rewards: any[];
     energyUsed: number;
@@ -236,11 +238,8 @@ export class BlockingMechanicsSystem {
     }
 
     // Find blocks in range
-    const blocksInRange = this.blockedItems.filter(block => {
-      const distance = Math.sqrt(
-        Math.pow(block.x - targetX, 2) + 
-        Math.pow(block.y - targetY, 2)
-      );
+    const blocksInRange = this.blockedItems.filter((block) => {
+      const distance = Math.sqrt(Math.pow(block.x - targetX, 2) + Math.pow(block.y - targetY, 2));
       return distance <= powerUp.range;
     });
 
@@ -248,7 +247,7 @@ export class BlockingMechanicsSystem {
     const rewards: any[] = [];
 
     // Apply damage to blocks
-    blocksInRange.forEach(block => {
+    blocksInRange.forEach((block) => {
       // Check if power-up can damage this block type
       if (block.requiresPowerUp && block.requiresPowerUp !== powerUp.type) {
         return; // Can't damage this block with this power-up
@@ -258,14 +257,14 @@ export class BlockingMechanicsSystem {
 
       if (block.health <= 0) {
         clearedBlocks.push(block);
-        
+
         // Generate rewards
         if (block.dropsReward) {
           rewards.push(this.generateBlockReward(block));
         }
 
         // Remove from active blocks
-        this.blockedItems = this.blockedItems.filter(b => b.id !== block.id);
+        this.blockedItems = this.blockedItems.filter((b) => b.id !== block.id);
       }
     });
 
@@ -314,7 +313,7 @@ export class BlockingMechanicsSystem {
 
   // Get available power-ups for UI
   getAvailablePowerUps(): ClearingPowerUp[] {
-    return Array.from(this.powerUps.values()).filter(powerUp => {
+    return Array.from(this.powerUps.values()).filter((powerUp) => {
       const now = Date.now();
       return now - powerUp.lastUsed >= powerUp.cooldown;
     });
@@ -323,10 +322,11 @@ export class BlockingMechanicsSystem {
   // Calculate block density for difficulty scaling
   getBlockDensity(): number {
     const screenArea = width * height;
-    const blockArea = this.blockedItems.reduce((total, block) => 
-      total + (block.width * block.height), 0
+    const blockArea = this.blockedItems.reduce(
+      (total, block) => total + block.width * block.height,
+      0
     );
-    
+
     return blockArea / screenArea;
   }
 
@@ -340,8 +340,8 @@ export class BlockingMechanicsSystem {
   // Check if specific power-up is needed
   isPowerUpRequired(): string | null {
     const requiredPowerUps = new Set<string>();
-    
-    this.blockedItems.forEach(block => {
+
+    this.blockedItems.forEach((block) => {
       if (block.requiresPowerUp) {
         requiredPowerUps.add(block.requiresPowerUp);
       }

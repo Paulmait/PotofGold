@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  Animated,
-  Modal,
-} from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Animated, Modal } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from 'expo-linear-gradient';
 import audioManager from '../utils/audioManager';
@@ -18,11 +11,7 @@ interface SoundToggleProps {
   size?: 'small' | 'medium' | 'large';
 }
 
-const SoundToggle: React.FC<SoundToggleProps> = ({
-  style,
-  showLabels = true,
-  size = 'medium'
-}) => {
+const SoundToggle: React.FC<SoundToggleProps> = ({ style, showLabels = true, size = 'medium' }) => {
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [musicEnabled, setMusicEnabled] = useState(true);
   const [vibrationEnabled, setVibrationEnabled] = useState(true);
@@ -112,17 +101,23 @@ const SoundToggle: React.FC<SoundToggleProps> = ({
 
   const getIconSize = () => {
     switch (size) {
-      case 'small': return 20;
-      case 'large': return 36;
-      default: return 28;
+      case 'small':
+        return 20;
+      case 'large':
+        return 36;
+      default:
+        return 28;
     }
   };
 
   const getContainerSize = () => {
     switch (size) {
-      case 'small': return { width: 40, height: 40 };
-      case 'large': return { width: 60, height: 60 };
-      default: return { width: 50, height: 50 };
+      case 'small':
+        return { width: 40, height: 40 };
+      case 'large':
+        return { width: 60, height: 60 };
+      default:
+        return { width: 50, height: 50 };
     }
   };
 
@@ -160,31 +155,20 @@ const SoundToggle: React.FC<SoundToggleProps> = ({
         onRequestClose={() => setShowSettings(false)}
       >
         <View style={styles.modalContainer}>
-          <TouchableOpacity
-            style={styles.modalOverlay}
-            onPress={() => setShowSettings(false)}
-          />
+          <TouchableOpacity style={styles.modalOverlay} onPress={() => setShowSettings(false)} />
 
           <View style={styles.settingsPanel}>
-            <LinearGradient
-              colors={['#FFD700', '#FFA500']}
-              style={styles.settingsGradient}
-            >
+            <LinearGradient colors={['#FFD700', '#FFA500']} style={styles.settingsGradient}>
               <Text style={styles.settingsTitle}>🎵 Sound Settings 🎵</Text>
 
               {/* Sound Effects Toggle */}
               <View style={styles.settingRow}>
                 <Text style={styles.settingLabel}>Sound Effects</Text>
                 <TouchableOpacity
-                  style={[
-                    styles.toggle,
-                    soundEnabled && styles.toggleActive,
-                  ]}
+                  style={[styles.toggle, soundEnabled && styles.toggleActive]}
                   onPress={toggleSound}
                 >
-                  <Text style={styles.toggleIcon}>
-                    {soundEnabled ? '✅' : '❌'}
-                  </Text>
+                  <Text style={styles.toggleIcon}>{soundEnabled ? '✅' : '❌'}</Text>
                 </TouchableOpacity>
               </View>
 
@@ -192,15 +176,10 @@ const SoundToggle: React.FC<SoundToggleProps> = ({
               <View style={styles.settingRow}>
                 <Text style={styles.settingLabel}>Background Music</Text>
                 <TouchableOpacity
-                  style={[
-                    styles.toggle,
-                    musicEnabled && styles.toggleActive,
-                  ]}
+                  style={[styles.toggle, musicEnabled && styles.toggleActive]}
                   onPress={toggleMusic}
                 >
-                  <Text style={styles.toggleIcon}>
-                    {musicEnabled ? '✅' : '❌'}
-                  </Text>
+                  <Text style={styles.toggleIcon}>{musicEnabled ? '✅' : '❌'}</Text>
                 </TouchableOpacity>
               </View>
 
@@ -208,15 +187,10 @@ const SoundToggle: React.FC<SoundToggleProps> = ({
               <View style={styles.settingRow}>
                 <Text style={styles.settingLabel}>Vibration</Text>
                 <TouchableOpacity
-                  style={[
-                    styles.toggle,
-                    vibrationEnabled && styles.toggleActive,
-                  ]}
+                  style={[styles.toggle, vibrationEnabled && styles.toggleActive]}
                   onPress={toggleVibration}
                 >
-                  <Text style={styles.toggleIcon}>
-                    {vibrationEnabled ? '✅' : '❌'}
-                  </Text>
+                  <Text style={styles.toggleIcon}>{vibrationEnabled ? '✅' : '❌'}</Text>
                 </TouchableOpacity>
               </View>
 
@@ -224,22 +198,14 @@ const SoundToggle: React.FC<SoundToggleProps> = ({
               <View style={styles.volumeContainer}>
                 <Text style={styles.settingLabel}>Master Volume</Text>
                 <View style={styles.volumeBar}>
-                  <View
-                    style={[
-                      styles.volumeFill,
-                      { width: `${masterVolume}%` },
-                    ]}
-                  />
+                  <View style={[styles.volumeFill, { width: `${masterVolume}%` }]} />
                 </View>
                 <Text style={styles.volumeText}>{Math.round(masterVolume)}%</Text>
               </View>
 
               {/* Volume Preset Buttons */}
               <View style={styles.presetContainer}>
-                <TouchableOpacity
-                  style={styles.presetButton}
-                  onPress={() => handleVolumeChange(0)}
-                >
+                <TouchableOpacity style={styles.presetButton} onPress={() => handleVolumeChange(0)}>
                   <Text style={styles.presetIcon}>🔇</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -267,17 +233,14 @@ const SoundToggle: React.FC<SoundToggleProps> = ({
                 {soundEnabled && musicEnabled
                   ? '🎉 Let the fun begin! 🎉'
                   : soundEnabled
-                  ? '🎮 Game sounds active! 🎮'
-                  : musicEnabled
-                  ? '🎵 Enjoying the music! 🎵'
-                  : '🤫 Stealth mode activated! 🤫'}
+                    ? '🎮 Game sounds active! 🎮'
+                    : musicEnabled
+                      ? '🎵 Enjoying the music! 🎵'
+                      : '🤫 Stealth mode activated! 🤫'}
               </Text>
 
               {/* Close Button */}
-              <TouchableOpacity
-                style={styles.closeButton}
-                onPress={() => setShowSettings(false)}
-              >
+              <TouchableOpacity style={styles.closeButton} onPress={() => setShowSettings(false)}>
                 <Text style={styles.closeButtonText}>Done Playing With Settings!</Text>
               </TouchableOpacity>
             </LinearGradient>

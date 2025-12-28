@@ -309,9 +309,7 @@ export class GuildSystem {
   async leaveGuild(playerId: string): Promise<boolean> {
     if (!this.currentGuild) return false;
 
-    const memberIndex = this.currentGuild.members.findIndex(
-      m => m.playerId === playerId
-    );
+    const memberIndex = this.currentGuild.members.findIndex((m) => m.playerId === playerId);
 
     if (memberIndex === -1) return false;
 
@@ -352,9 +350,7 @@ export class GuildSystem {
   }) {
     if (!this.currentGuild) return;
 
-    const member = this.currentGuild.members.find(
-      m => m.playerId === data.playerId
-    );
+    const member = this.currentGuild.members.find((m) => m.playerId === data.playerId);
 
     if (!member) return;
 
@@ -453,11 +449,11 @@ export class GuildSystem {
     if (!this.currentWar) return;
 
     this.currentWar.status = 'active';
-    
+
     gameStateMachine.transition(GameTransition.JOIN_GUILD_WAR);
 
     // Start war objectives
-    this.currentWar.objectives.forEach(objective => {
+    this.currentWar.objectives.forEach((objective) => {
       this.activateObjective(objective);
     });
 
@@ -477,7 +473,7 @@ export class GuildSystem {
 
     let participant = this.currentWar.participants.get(data.playerId);
     if (!participant) {
-      const member = this.currentGuild?.members.find(m => m.playerId === data.playerId);
+      const member = this.currentGuild?.members.find((m) => m.playerId === data.playerId);
       if (!member) return;
 
       participant = {
@@ -497,7 +493,7 @@ export class GuildSystem {
     switch (data.action) {
       case 'capture':
         if (data.objectiveId) {
-          const objective = this.currentWar.objectives.find(o => o.id === data.objectiveId);
+          const objective = this.currentWar.objectives.find((o) => o.id === data.objectiveId);
           if (objective) {
             this.captureObjective(objective, participant);
           }
@@ -559,13 +555,15 @@ export class GuildSystem {
     this.currentWar.status = 'ended';
 
     // Determine winner
-    const winner = this.currentWar.score.attacking > this.currentWar.score.defending
-      ? this.currentWar.attackingGuild
-      : this.currentWar.defendingGuild;
+    const winner =
+      this.currentWar.score.attacking > this.currentWar.score.defending
+        ? this.currentWar.attackingGuild
+        : this.currentWar.defendingGuild;
 
-    const loser = winner === this.currentWar.attackingGuild
-      ? this.currentWar.defendingGuild
-      : this.currentWar.attackingGuild;
+    const loser =
+      winner === this.currentWar.attackingGuild
+        ? this.currentWar.defendingGuild
+        : this.currentWar.attackingGuild;
 
     // Award rewards
     this.awardWarRewards(winner, loser);
@@ -577,12 +575,14 @@ export class GuildSystem {
         opponent: winner === this.currentGuild ? loser.name : winner.name,
         result: winner === this.currentGuild ? 'win' : 'loss',
         score: {
-          us: winner === this.currentGuild 
-            ? this.currentWar.score.attacking 
-            : this.currentWar.score.defending,
-          them: winner === this.currentGuild 
-            ? this.currentWar.score.defending 
-            : this.currentWar.score.attacking,
+          us:
+            winner === this.currentGuild
+              ? this.currentWar.score.attacking
+              : this.currentWar.score.defending,
+          them:
+            winner === this.currentGuild
+              ? this.currentWar.score.defending
+              : this.currentWar.score.attacking,
         },
         date: Date.now(),
         mvp: this.findWarMVP(),
@@ -634,7 +634,7 @@ export class GuildSystem {
     let mvp: WarParticipant | null = null;
     let highestScore = 0;
 
-    this.currentWar.participants.forEach(participant => {
+    this.currentWar.participants.forEach((participant) => {
       if (participant.score > highestScore) {
         highestScore = participant.score;
         mvp = participant;
@@ -647,7 +647,7 @@ export class GuildSystem {
   upgradePerk(perkId: string): boolean {
     if (!this.currentGuild) return false;
 
-    const perk = this.currentGuild.perks.find(p => p.id === perkId);
+    const perk = this.currentGuild.perks.find((p) => p.id === perkId);
     if (!perk) return false;
 
     if (perk.level >= perk.maxLevel) return false;
@@ -656,8 +656,10 @@ export class GuildSystem {
     if (this.currentGuild.level < perk.requirements.guildLevel) return false;
 
     // Check cost
-    if (this.currentGuild.treasury.gold < perk.cost.gold ||
-        this.currentGuild.treasury.gems < perk.cost.gems) {
+    if (
+      this.currentGuild.treasury.gold < perk.cost.gold ||
+      this.currentGuild.treasury.gems < perk.cost.gems
+    ) {
       return false;
     }
 
@@ -669,12 +671,12 @@ export class GuildSystem {
     perk.level++;
 
     // Update perk effects
-    perk.effects.forEach(effect => {
+    perk.effects.forEach((effect) => {
       effect.value = this.calculatePerkValue(effect, perk.level);
     });
 
     // Apply to all members
-    this.currentGuild.members.forEach(member => {
+    this.currentGuild.members.forEach((member) => {
       this.applyGuildPerks(member.playerId, [perk]);
     });
 
@@ -684,21 +686,21 @@ export class GuildSystem {
   private calculatePerkValue(effect: PerkEffect, level: number): number {
     const baseValue = effect.value;
     const increment = effect.isPercentage ? 2 : 10;
-    return baseValue + (increment * (level - 1));
+    return baseValue + increment * (level - 1);
   }
 
   private updateGuildQuests() {
     // Remove expired quests
-    this.guildQuests = this.guildQuests.filter(q => q.expiresAt > Date.now());
+    this.guildQuests = this.guildQuests.filter((q) => q.expiresAt > Date.now());
 
     // Add new daily quests if needed
-    const dailyQuests = this.guildQuests.filter(q => q.type === 'daily');
+    const dailyQuests = this.guildQuests.filter((q) => q.type === 'daily');
     if (dailyQuests.length < 3) {
       this.guildQuests.push(this.generateDailyQuest());
     }
 
     // Check quest completion
-    this.guildQuests.forEach(quest => {
+    this.guildQuests.forEach((quest) => {
       if (quest.progress >= quest.target) {
         this.completeQuest(quest);
       }
@@ -726,13 +728,11 @@ export class GuildSystem {
   private updateWarStatus() {
     if (!this.currentWar) return;
 
-    if (this.currentWar.status === 'preparation' && 
-        Date.now() >= this.currentWar.startTime) {
+    if (this.currentWar.status === 'preparation' && Date.now() >= this.currentWar.startTime) {
       this.activateWar();
     }
 
-    if (this.currentWar.status === 'active' && 
-        Date.now() >= this.currentWar.endTime) {
+    if (this.currentWar.status === 'active' && Date.now() >= this.currentWar.endTime) {
       this.endWar();
     }
   }
@@ -746,14 +746,13 @@ export class GuildSystem {
     const now = Date.now();
     const toKick: string[] = [];
 
-    this.currentGuild.members.forEach(member => {
-      if (member.role !== 'leader' && 
-          now - member.lastActive > inactivePeriod) {
+    this.currentGuild.members.forEach((member) => {
+      if (member.role !== 'leader' && now - member.lastActive > inactivePeriod) {
         toKick.push(member.playerId);
       }
     });
 
-    toKick.forEach(playerId => {
+    toKick.forEach((playerId) => {
       this.leaveGuild(playerId);
       this.notifyPlayer(playerId, 'Kicked from guild due to inactivity');
     });
@@ -790,20 +789,22 @@ export class GuildSystem {
 
   private findGuild(guildId: string): Guild | null {
     if (this.currentGuild?.id === guildId) return this.currentGuild;
-    return this.availableGuilds.find(g => g.id === guildId) || null;
+    return this.availableGuilds.find((g) => g.id === guildId) || null;
   }
 
   private findNewLeader(): GuildMember | null {
     if (!this.currentGuild) return null;
 
     // First try officers
-    const officer = this.currentGuild.members.find(m => m.role === 'officer');
+    const officer = this.currentGuild.members.find((m) => m.role === 'officer');
     if (officer) return officer;
 
     // Then highest contributor
-    return this.currentGuild.members
-      .filter(m => m.role !== 'leader')
-      .sort((a, b) => b.totalContribution - a.totalContribution)[0] || null;
+    return (
+      this.currentGuild.members
+        .filter((m) => m.role !== 'leader')
+        .sort((a, b) => b.totalContribution - a.totalContribution)[0] || null
+    );
   }
 
   private disbandGuild() {
@@ -821,11 +822,13 @@ export class GuildSystem {
         description: 'Increases gold earned by all members',
         level: 1,
         maxLevel: 10,
-        effects: [{
-          type: 'gold_bonus',
-          value: 5,
-          isPercentage: true,
-        }],
+        effects: [
+          {
+            type: 'gold_bonus',
+            value: 5,
+            isPercentage: true,
+          },
+        ],
         cost: { gold: 1000, gems: 0 },
         requirements: { guildLevel: 1 },
       },
@@ -835,11 +838,13 @@ export class GuildSystem {
         description: 'Increases XP earned by all members',
         level: 1,
         maxLevel: 10,
-        effects: [{
-          type: 'xp_bonus',
-          value: 5,
-          isPercentage: true,
-        }],
+        effects: [
+          {
+            type: 'xp_bonus',
+            value: 5,
+            isPercentage: true,
+          },
+        ],
         cost: { gold: 1500, gems: 0 },
         requirements: { guildLevel: 2 },
       },
@@ -886,8 +891,8 @@ export class GuildSystem {
 
   private applyGuildPerks(playerId: string, perks: GuildPerk[]) {
     // Apply perk effects to player
-    perks.forEach(perk => {
-      perk.effects.forEach(effect => {
+    perks.forEach((perk) => {
+      perk.effects.forEach((effect) => {
         eventBus.emit('perk:apply', {
           playerId,
           type: effect.type,
@@ -957,7 +962,7 @@ export class GuildSystem {
 
   private generateDailyQuest(): GuildQuest {
     const questTypes = [
-      { 
+      {
         name: 'Gold Rush',
         type: 'collect_gold',
         target: 100000,
@@ -978,11 +983,13 @@ export class GuildSystem {
       name: quest.name,
       description: `Complete ${quest.target} ${quest.type}`,
       type: 'daily',
-      requirements: [{
-        type: quest.type as any,
-        amount: quest.target,
-        current: 0,
-      }],
+      requirements: [
+        {
+          type: quest.type as any,
+          amount: quest.target,
+          current: 0,
+        },
+      ],
       progress: 0,
       target: quest.target,
       rewards: quest.rewards,
@@ -1020,9 +1027,10 @@ export class GuildSystem {
   }
 
   searchGuilds(query: string): Guild[] {
-    return this.availableGuilds.filter(g => 
-      g.name.toLowerCase().includes(query.toLowerCase()) ||
-      g.tag.toLowerCase().includes(query.toLowerCase())
+    return this.availableGuilds.filter(
+      (g) =>
+        g.name.toLowerCase().includes(query.toLowerCase()) ||
+        g.tag.toLowerCase().includes(query.toLowerCase())
     );
   }
 

@@ -59,10 +59,12 @@ const ParticleRenderer: React.FC<ParticleRendererProps> = ({ active }) => {
                 { translateX: particle.x },
                 { translateY: particle.y },
                 { scale: particle.scale },
-                { rotate: particle.rotation.interpolate({
-                  inputRange: [0, 360],
-                  outputRange: ['0deg', '360deg'],
-                }) },
+                {
+                  rotate: particle.rotation.interpolate({
+                    inputRange: [0, 360],
+                    outputRange: ['0deg', '360deg'],
+                  }),
+                },
               ],
               opacity: particle.opacity,
             },

@@ -84,21 +84,23 @@ describe('Low-End Device Performance Tests', () => {
   describe('Asset Loading Optimization', () => {
     test('should limit concurrent downloads on low-end devices', async () => {
       simulateLowEndDevice();
-      
+
       const manifest = {
         version: '1.0.0',
-        assets: Array(50).fill(null).map((_, i) => ({
-          id: `asset_${i}`,
-          url: `https://example.com/asset_${i}`,
-          type: 'IMAGE' as any,
-          size: 500000, // 500KB each
-          priority: i < 5 ? 0 : 4,
-        })),
+        assets: Array(50)
+          .fill(null)
+          .map((_, i) => ({
+            id: `asset_${i}`,
+            url: `https://example.com/asset_${i}`,
+            type: 'IMAGE' as any,
+            size: 500000, // 500KB each
+            priority: i < 5 ? 0 : 4,
+          })),
         bundles: [],
       };
 
       await assetPreloader.loadManifest('https://example.com/manifest.json');
-      
+
       // Should load only critical assets first
       const loadedAssets = assetPreloader.getLoadedAssets();
       expect(loadedAssets.size).toBeLessThanOrEqual(10);
@@ -126,15 +128,15 @@ describe('Low-End Device Performance Tests', () => {
 
     test('should handle memory warnings gracefully', () => {
       simulateLowEndDevice();
-      
+
       const profile = deviceCompatibility.getPerformanceProfile();
       const initialParticleLimit = profile.particleLimit;
-      
+
       // Simulate memory warning
       act(() => {
         eventBus.emit('memory:warning', { level: 'critical' });
       });
-      
+
       const updatedProfile = deviceCompatibility.getPerformanceProfile();
       expect(updatedProfile.particleLimit).toBeLessThan(initialParticleLimit);
     });
@@ -152,10 +154,12 @@ describe('Low-End Device Performance Tests', () => {
     test('should handle large lists efficiently', () => {
       simulateLowEndDevice();
 
-      const items = Array(1000).fill(null).map((_, i) => ({
-        id: `item_${i}`,
-        title: `Item ${i}`,
-      }));
+      const items = Array(1000)
+        .fill(null)
+        .map((_, i) => ({
+          id: `item_${i}`,
+          title: `Item ${i}`,
+        }));
 
       const result = render(
         <VirtualList
@@ -193,15 +197,15 @@ describe('Low-End Device Performance Tests', () => {
   describe('Frame Rate Management', () => {
     test('should adjust quality when frame drops detected', () => {
       simulateLowEndDevice();
-      
+
       const profile = deviceCompatibility.getPerformanceProfile();
       const initialRenderScale = profile.renderScale;
-      
+
       // Simulate frame drops
       for (let i = 0; i < 5; i++) {
         (deviceCompatibility as any).adjustPerformanceProfile();
       }
-      
+
       const updatedProfile = deviceCompatibility.getPerformanceProfile();
       expect(updatedProfile.renderScale).toBeLessThan(initialRenderScale);
       expect(updatedProfile.particleLimit).toBeLessThan(50);

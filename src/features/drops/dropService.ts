@@ -1,12 +1,12 @@
-import { 
-  doc, 
-  getDoc, 
-  setDoc, 
-  onSnapshot, 
+import {
+  doc,
+  getDoc,
+  setDoc,
+  onSnapshot,
   collection,
   runTransaction,
   serverTimestamp,
-  Unsubscribe 
+  Unsubscribe,
 } from 'firebase/firestore';
 import { db } from '../../../firebase/firebase';
 import { auth } from '../../../firebase/auth';
@@ -39,7 +39,7 @@ class DropService {
   async initialize(): Promise<void> {
     // Load from offline cache first
     await this.loadOfflineCache();
-    
+
     // Start listening to Firestore
     this.startListeningToCurrentDrop();
   }
@@ -59,14 +59,14 @@ class DropService {
    */
   private startListeningToCurrentDrop(): void {
     const configRef = doc(db, 'config', 'current');
-    
+
     this.currentDropListener = onSnapshot(
       configRef,
       async (snapshot) => {
         if (snapshot.exists()) {
           const data = snapshot.data();
           this.currentDropId = data.currentDropId || null;
-          
+
           // Cache offline
           if (this.currentDropId) {
             await AsyncStorage.setItem(OFFLINE_CACHE_KEY, this.currentDropId);
@@ -105,16 +105,16 @@ class DropService {
     try {
       const configRef = doc(db, 'config', 'current');
       const configSnap = await getDoc(configRef);
-      
+
       if (configSnap.exists()) {
         const data = configSnap.data();
         this.currentDropId = data.currentDropId || null;
-        
+
         // Cache offline
         if (this.currentDropId) {
           await AsyncStorage.setItem(OFFLINE_CACHE_KEY, this.currentDropId);
         }
-        
+
         return this.currentDropId;
       }
     } catch (error) {
@@ -177,7 +177,7 @@ class DropService {
     // Check subscription status
     const customerInfo = await revenueCatService.getCustomerInfo();
     const isSubscribed = customerInfo?.entitlements.active['gold_vault']?.isActive || false;
-    
+
     if (!isSubscribed) {
       return { success: false, error: 'Subscription required' };
     }
@@ -213,21 +213,21 @@ class DropService {
           userId: user.uid,
           dropId: currentDropId,
           claimedAt: Date.now(),
-          granularity: 'monthly'
+          granularity: 'monthly',
         };
         transaction.set(claimRef, claim);
 
         // Update user inventory
         const inventoryRef = doc(db, 'users', user.uid, 'inventory', 'items');
         const inventorySnap = await transaction.get(inventoryRef);
-        
+
         let inventory: UserInventory = {
           skins: [],
           trails: [],
           badges: [],
           frames: [],
           coins: 0,
-          lastUpdated: Date.now()
+          lastUpdated: Date.now(),
         };
 
         if (inventorySnap.exists()) {
@@ -256,7 +256,7 @@ class DropService {
         const userRef = doc(db, 'users', user.uid);
         transaction.update(userRef, {
           coins: inventory.coins,
-          lastUpdated: serverTimestamp()
+          lastUpdated: serverTimestamp(),
         });
 
         return {
@@ -264,7 +264,7 @@ class DropService {
           trail: drop.trailId,
           badge: drop.badgeId,
           frame: drop.frameId,
-          bonusCoins: drop.bonusCoins
+          bonusCoins: drop.bonusCoins,
         };
       });
 
@@ -273,13 +273,13 @@ class DropService {
 
       return {
         success: true,
-        grantedItems: result
+        grantedItems: result,
       };
     } catch (error) {
       console.error('Error claiming drop:', error);
-      return { 
-        success: false, 
-        error: 'Failed to claim drop. Please try again.' 
+      return {
+        success: false,
+        error: 'Failed to claim drop. Please try again.',
       };
     }
   }
@@ -298,16 +298,13 @@ class DropService {
       // Fetch from Firestore
       const inventoryRef = doc(db, 'users', userId, 'inventory', 'items');
       const inventorySnap = await getDoc(inventoryRef);
-      
+
       if (inventorySnap.exists()) {
         const inventory = inventorySnap.data() as UserInventory;
-        
+
         // Cache locally
-        await AsyncStorage.setItem(
-          `${INVENTORY_CACHE_KEY}_${userId}`,
-          JSON.stringify(inventory)
-        );
-        
+        await AsyncStorage.setItem(`${INVENTORY_CACHE_KEY}_${userId}`, JSON.stringify(inventory));
+
         return inventory;
       }
     } catch (error) {
@@ -324,10 +321,7 @@ class DropService {
     try {
       const inventory = await this.getUserInventory(userId);
       if (inventory) {
-        await AsyncStorage.setItem(
-          `${INVENTORY_CACHE_KEY}_${userId}`,
-          JSON.stringify(inventory)
-        );
+        await AsyncStorage.setItem(`${INVENTORY_CACHE_KEY}_${userId}`, JSON.stringify(inventory));
       }
     } catch (error) {
       console.error('Error caching inventory:', error);
@@ -337,7 +331,11 @@ class DropService {
   /**
    * Check if user owns a specific item
    */
-  async userOwnsItem(userId: string, itemId: string, itemType: 'skin' | 'trail' | 'badge' | 'frame'): Promise<boolean> {
+  async userOwnsItem(
+    userId: string,
+    itemId: string,
+    itemType: 'skin' | 'trail' | 'badge' | 'frame'
+  ): Promise<boolean> {
     const inventory = await this.getUserInventory(userId);
     if (!inventory) return false;
 
@@ -363,10 +361,10 @@ class DropService {
     if (!inventory) return new Set();
 
     const owned = new Set<string>();
-    inventory.skins.forEach(id => owned.add(id));
-    inventory.trails.forEach(id => owned.add(id));
-    inventory.badges.forEach(id => owned.add(id));
-    inventory.frames.forEach(id => owned.add(id));
+    inventory.skins.forEach((id) => owned.add(id));
+    inventory.trails.forEach((id) => owned.add(id));
+    inventory.badges.forEach((id) => owned.add(id));
+    inventory.frames.forEach((id) => owned.add(id));
 
     return owned;
   }
