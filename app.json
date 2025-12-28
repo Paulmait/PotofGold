@@ -18,7 +18,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.pofgold.potofgold",
-      "buildNumber": "1.0.8",
+      "buildNumber": "1.0.10",
       "requireFullScreen": false,
       "infoPlist": {
         "UIBackgroundModes": [
@@ -44,7 +44,7 @@
         "backgroundColor": "#FFD700"
       },
       "package": "com.pofgold.potofgold",
-      "versionCode": 1,
+      "versionCode": 2,
       "permissions": [
         "VIBRATE"
       ]
@@ -60,7 +60,9 @@
         }
       }
     },
-    "plugins": [],
+    "plugins": [
+      "@sentry/react-native"
+    ],
     "extra": {
       "company": {
         "name": "Cien Rios LLC",

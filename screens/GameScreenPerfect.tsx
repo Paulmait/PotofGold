@@ -251,7 +251,13 @@ const GameScreenPerfect: React.FC<GameScreenPerfectProps> = ({ navigation }) => 
         onGestureEvent={handleGesture}
         onHandlerStateChange={onHandlerStateChange}
       >
-        <View style={StyleSheet.absoluteFillObject}>
+        <View
+          style={StyleSheet.absoluteFillObject}
+          accessible={true}
+          accessibilityLabel="Game area. Drag left or right to move the cart"
+          accessibilityHint="Move your finger to control the cart and catch falling items"
+          accessibilityRole="adjustable"
+        >
           <MineCartEnhanced
             position={cartPosition}
             collectedCoins={collectedCoins}

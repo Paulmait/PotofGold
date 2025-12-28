@@ -187,7 +187,12 @@ const HomeScreenGuest: React.FC<HomeScreenGuestProps> = ({ navigation }) => {
               />
               <Text style={styles.userName}>{userName}</Text>
               {isGuest && (
-                <TouchableOpacity onPress={handleSignUpPress} style={styles.signUpBadge}>
+                <TouchableOpacity
+                  onPress={handleSignUpPress}
+                  style={styles.signUpBadge}
+                  accessibilityLabel="Sign up for an account"
+                  accessibilityRole="button"
+                >
                   <Text style={styles.signUpBadgeText}>Sign Up</Text>
                 </TouchableOpacity>
               )}
@@ -195,15 +200,15 @@ const HomeScreenGuest: React.FC<HomeScreenGuestProps> = ({ navigation }) => {
           </View>
 
           {/* Stats Cards */}
-          <View style={styles.statsContainer}>
-            <View style={styles.statCard}>
+          <View style={styles.statsContainer} accessible={true} accessibilityRole="summary">
+            <View style={styles.statCard} accessible={true} accessibilityLabel={`High Score: ${isGuest ? guestHighScore.toLocaleString() : gameState.highScore.toLocaleString()}`}>
               <Ionicons name="star" size={Platform.OS === 'web' ? 20 : scale(24)} color="#FFD700" />
               <Text style={styles.statValue}>
                 {isGuest ? guestHighScore.toLocaleString() : gameState.highScore.toLocaleString()}
               </Text>
               <Text style={styles.statLabel}>High Score</Text>
             </View>
-            <View style={styles.statCard}>
+            <View style={styles.statCard} accessible={true} accessibilityLabel={`Coins: ${isGuest ? guestCoins.toLocaleString() : gameState.coins.toLocaleString()}${isGuest ? ', not saved' : ''}`}>
               <Ionicons name="cash" size={Platform.OS === 'web' ? 20 : scale(24)} color="#FFD700" />
               <Text style={styles.statValue}>
                 {isGuest ? guestCoins.toLocaleString() : gameState.coins.toLocaleString()}
@@ -211,7 +216,7 @@ const HomeScreenGuest: React.FC<HomeScreenGuestProps> = ({ navigation }) => {
               <Text style={styles.statLabel}>Coins</Text>
               {isGuest && <Text style={styles.guestWarning}>Not Saved</Text>}
             </View>
-            <View style={styles.statCard}>
+            <View style={styles.statCard} accessible={true} accessibilityLabel={`Games played: ${gameState.gamesPlayed}`}>
               <Ionicons name="trophy" size={Platform.OS === 'web' ? 20 : scale(24)} color="#FFD700" />
               <Text style={styles.statValue}>{gameState.gamesPlayed}</Text>
               <Text style={styles.statLabel}>Games</Text>
@@ -219,7 +224,13 @@ const HomeScreenGuest: React.FC<HomeScreenGuestProps> = ({ navigation }) => {
           </View>
 
           {/* Main Play Button */}
-          <TouchableOpacity style={styles.playButton} onPress={handlePlayPress}>
+          <TouchableOpacity
+            style={styles.playButton}
+            onPress={handlePlayPress}
+            accessibilityLabel="Play game"
+            accessibilityHint="Starts a new game"
+            accessibilityRole="button"
+          >
             <LinearGradient
               colors={['#FFD700', '#FFA500', '#FF8C00']}
               style={styles.playButtonGradient}
@@ -231,22 +242,46 @@ const HomeScreenGuest: React.FC<HomeScreenGuestProps> = ({ navigation }) => {
 
           {/* Menu Buttons */}
           <View style={styles.menuGrid}>
-            <TouchableOpacity style={styles.menuButton} onPress={handleShopPress}>
+            <TouchableOpacity
+              style={styles.menuButton}
+              onPress={handleShopPress}
+              accessibilityLabel="Shop"
+              accessibilityHint="Opens the in-game shop"
+              accessibilityRole="button"
+            >
               <Ionicons name="cart" size={Platform.OS === 'web' ? 24 : scale(24)} color="#FFD700" />
               <Text style={styles.menuButtonText}>Shop</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.menuButton} onPress={handleLeaderboardPress}>
+            <TouchableOpacity
+              style={styles.menuButton}
+              onPress={handleLeaderboardPress}
+              accessibilityLabel="Leaderboard"
+              accessibilityHint="View global leaderboard rankings"
+              accessibilityRole="button"
+            >
               <Ionicons name="podium" size={Platform.OS === 'web' ? 24 : scale(24)} color="#FFD700" />
               <Text style={styles.menuButtonText}>Leaderboard</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.menuButton} onPress={handleStatsPress}>
+            <TouchableOpacity
+              style={styles.menuButton}
+              onPress={handleStatsPress}
+              accessibilityLabel="Statistics"
+              accessibilityHint="View your game statistics"
+              accessibilityRole="button"
+            >
               <Ionicons name="stats-chart" size={Platform.OS === 'web' ? 24 : scale(24)} color="#FFD700" />
               <Text style={styles.menuButtonText}>Stats</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.menuButton} onPress={handleHowToPlayPress}>
+            <TouchableOpacity
+              style={styles.menuButton}
+              onPress={handleHowToPlayPress}
+              accessibilityLabel="How to Play"
+              accessibilityHint="Learn how to play the game"
+              accessibilityRole="button"
+            >
               <Ionicons name="help-circle" size={Platform.OS === 'web' ? 24 : scale(24)} color="#FFD700" />
               <Text style={styles.menuButtonText}>How to Play</Text>
             </TouchableOpacity>
@@ -261,7 +296,13 @@ const HomeScreenGuest: React.FC<HomeScreenGuestProps> = ({ navigation }) => {
               <Text style={styles.benefitsText}>✗ Progress not saved</Text>
               <Text style={styles.benefitsText}>✗ No leaderboard access</Text>
               
-              <TouchableOpacity style={styles.signUpButton} onPress={handleSignUpPress}>
+              <TouchableOpacity
+                style={styles.signUpButton}
+                onPress={handleSignUpPress}
+                accessibilityLabel="Sign up to save progress"
+                accessibilityHint="Creates an account to save your game progress"
+                accessibilityRole="button"
+              >
                 <LinearGradient
                   colors={['#4CAF50', '#45a049']}
                   style={styles.signUpButtonGradient}

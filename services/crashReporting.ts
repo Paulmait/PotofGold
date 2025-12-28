@@ -15,7 +15,10 @@ if (Platform.OS === 'web') {
   }
 }
 
-const SENTRY_DSN = 'YOUR_SENTRY_DSN_HERE'; // Replace with your actual Sentry DSN
+// Sentry DSN should be set via environment variable
+// To configure: Set EXPO_PUBLIC_SENTRY_DSN in your .env file or EAS secrets
+// Get your DSN from: https://sentry.io -> Project Settings -> Client Keys (DSN)
+const SENTRY_DSN = process.env.EXPO_PUBLIC_SENTRY_DSN || '';
 
 class CrashReportingService {
   private initialized = false;
@@ -24,6 +27,13 @@ class CrashReportingService {
     // Skip initialization for web platform
     if (this.initialized || Platform.OS === 'web' || !Sentry) {
       console.log('Crash reporting disabled for web platform');
+      return;
+    }
+
+    // Check if DSN is configured
+    if (!SENTRY_DSN) {
+      console.warn('Sentry DSN not configured. Crash reporting disabled.');
+      console.warn('To enable: Set EXPO_PUBLIC_SENTRY_DSN environment variable');
       return;
     }
 

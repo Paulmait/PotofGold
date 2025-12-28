@@ -76,7 +76,7 @@ const ScoreDisplay: React.FC<{ score: number; multiplier: number }> = ({ score, 
   }, [score]);
   
   return (
-    <View style={styles.scoreContainer}>
+    <View style={styles.scoreContainer} accessible={true} accessibilityLabel={`Score: ${score.toLocaleString()}${multiplier > 1 ? `, ${multiplier}x multiplier active` : ''}`}>
       <Text style={styles.scoreLabel}>SCORE</Text>
       <Animated.View style={{ transform: [{ scale: animatedScale }] }}>
         <Text style={styles.scoreValue}>{score.toLocaleString()}</Text>
@@ -136,7 +136,7 @@ const CurrencyDisplay: React.FC<{ coins: number; gems: number }> = ({ coins, gem
   }, [gems]);
   
   return (
-    <View style={styles.currencyContainer}>
+    <View style={styles.currencyContainer} accessible={true} accessibilityLabel={`${coins.toLocaleString()} coins, ${gems.toLocaleString()} gems`}>
       <Animated.View style={[
         styles.currencyItem,
         {
@@ -151,7 +151,7 @@ const CurrencyDisplay: React.FC<{ coins: number; gems: number }> = ({ coins, gem
         <Text style={styles.currencyIcon}>🪙</Text>
         <Text style={styles.currencyValue}>{coins.toLocaleString()}</Text>
       </Animated.View>
-      
+
       <Animated.View style={[
         styles.currencyItem,
         {
@@ -372,7 +372,13 @@ export default function GameHUD(props: GameHUDProps) {
         
         <View style={styles.topRight}>
           <CurrencyDisplay coins={coins} gems={gems} />
-          <TouchableOpacity onPress={onPause} style={styles.pauseButton}>
+          <TouchableOpacity
+            onPress={onPause}
+            style={styles.pauseButton}
+            accessibilityLabel="Pause game"
+            accessibilityHint="Pauses the current game"
+            accessibilityRole="button"
+          >
             <Text style={styles.pauseIcon}>⏸️</Text>
           </TouchableOpacity>
         </View>
@@ -403,7 +409,13 @@ export default function GameHUD(props: GameHUDProps) {
       
       {/* Quick Actions */}
       <View style={styles.quickActions}>
-        <TouchableOpacity onPress={onShop} style={styles.actionButton}>
+        <TouchableOpacity
+          onPress={onShop}
+          style={styles.actionButton}
+          accessibilityLabel="Open shop"
+          accessibilityHint="Opens the in-game shop"
+          accessibilityRole="button"
+        >
           <LinearGradient
             colors={['#3498DB', '#2980B9']}
             style={styles.actionGradient}
@@ -412,8 +424,14 @@ export default function GameHUD(props: GameHUDProps) {
             <Text style={styles.actionLabel}>Shop</Text>
           </LinearGradient>
         </TouchableOpacity>
-        
-        <TouchableOpacity onPress={onUpgrade} style={styles.actionButton}>
+
+        <TouchableOpacity
+          onPress={onUpgrade}
+          style={styles.actionButton}
+          accessibilityLabel="Upgrade cart"
+          accessibilityHint="Opens cart upgrade options"
+          accessibilityRole="button"
+        >
           <LinearGradient
             colors={['#E74C3C', '#C0392B']}
             style={styles.actionGradient}

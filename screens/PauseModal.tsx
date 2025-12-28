@@ -294,14 +294,18 @@ export default function PauseModal({
           <View style={styles.potLevelSection}>
             <Text style={styles.potLevelText}>Pot Level: {potLevel}</Text>
             <Animated.View style={{ transform: [{ scale: upgradeAnim }] }}>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={[
                   styles.upgradeButton,
                   currentCoins < upgradeCost && styles.upgradeButtonDisabled,
                   isUpgrading && styles.upgradeButtonLoading,
-                ]} 
+                ]}
                 onPress={upgradePot}
                 disabled={currentCoins < upgradeCost || isUpgrading}
+                accessibilityLabel={`Upgrade pot. Cost: ${upgradeCost} coins`}
+                accessibilityHint={currentCoins < upgradeCost ? "Not enough coins" : "Upgrades your pot to catch more items"}
+                accessibilityRole="button"
+                accessibilityState={{ disabled: currentCoins < upgradeCost || isUpgrading }}
               >
                 <Text style={styles.upgradeIcon}>🔼</Text>
                 <Text style={styles.upgradeText}>
@@ -349,16 +353,34 @@ export default function PauseModal({
           {/* Action Buttons */}
           <View style={styles.actionButtons}>
             {pauseActions?.showRetry && (
-              <TouchableOpacity style={styles.actionButton} onPress={onRetry}>
+              <TouchableOpacity
+                style={styles.actionButton}
+                onPress={onRetry}
+                accessibilityLabel="Retry game"
+                accessibilityHint="Restarts the current game"
+                accessibilityRole="button"
+              >
                 <Text style={styles.actionButtonText}>🔄 Retry</Text>
               </TouchableOpacity>
             )}
-            
-            <TouchableOpacity style={styles.resumeButton} onPress={onResume}>
+
+            <TouchableOpacity
+              style={styles.resumeButton}
+              onPress={onResume}
+              accessibilityLabel="Resume game"
+              accessibilityHint="Continues the paused game"
+              accessibilityRole="button"
+            >
               <Text style={styles.resumeButtonText}>▶️ Resume</Text>
             </TouchableOpacity>
-            
-            <TouchableOpacity style={styles.exitButton} onPress={onExit}>
+
+            <TouchableOpacity
+              style={styles.exitButton}
+              onPress={onExit}
+              accessibilityLabel="Exit game"
+              accessibilityHint="Returns to the home screen"
+              accessibilityRole="button"
+            >
               <Text style={styles.exitButtonText}>❌ Exit</Text>
             </TouchableOpacity>
           </View>

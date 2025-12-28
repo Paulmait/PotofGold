@@ -20,7 +20,7 @@ export const getAdminCredentials = (): AdminCredentials | null => {
   return {
     username: process.env.ADMIN_USERNAME,
     password: process.env.ADMIN_PASSWORD,
-    pin: process.env.ADMIN_PIN || '1234',
+    pin: process.env.ADMIN_PIN || (() => { console.warn('ADMIN_PIN not configured - admin panel disabled'); return ''; })(),
     recoveryEmail: process.env.ADMIN_RECOVERY_EMAIL || process.env.ADMIN_USERNAME,
     isFirstLogin: true, // Will be set to false after first successful login
     lastPasswordChange: new Date(),
@@ -110,7 +110,17 @@ export class AdminSessionManager {
   }
 
   private generateSessionId(): string {
-    return Math.random().toString(36).substring(2) + Date.now().toString(36);
+    // Use cryptographically secure random values
+    const array = new Uint8Array(32);
+    if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+      crypto.getRandomValues(array);
+    } else {
+      // Fallback for environments without crypto (should not happen in modern RN)
+      for (let i = 0; i < array.length; i++) {
+        array[i] = Math.floor(Math.random() * 256);
+      }
+    }
+    return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('') + Date.now().toString(36);
   }
 
   private cleanupExpiredSessions(): void {

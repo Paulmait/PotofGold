@@ -2,27 +2,26 @@
 
 ## 🔐 Admin Credentials
 
-### Development Environment
-```
-Username: admin@potofgold
-Password: PotG0ld@dm1n2024!
-PIN: 7531
-Recovery Email: recovery@potofgold.app
+### Configuration Instructions
+Admin credentials should be configured via environment variables or EAS secrets.
+
+**Required Environment Variables:**
+```bash
+# Set these via EAS secrets (eas secret:create) or .env file
+ADMIN_USERNAME=your-admin-email
+ADMIN_PASSWORD=your-secure-password
+ADMIN_PIN=your-4-digit-pin
+ADMIN_RECOVERY_EMAIL=your-recovery-email
 ```
 
-### Moderator Access
-```
-Username: moderator@potofgold
-Password: Mod3rat0r2024!
-```
-
-### Support Access
-```
-Username: support@potofgold
-Password: Supp0rt2024!
+**To set up via EAS:**
+```bash
+eas secret:create --name ADMIN_USERNAME --value "admin@yourdomain.com"
+eas secret:create --name ADMIN_PASSWORD --value "YourSecurePassword123!"
+eas secret:create --name ADMIN_PIN --value "1234"
 ```
 
-**⚠️ IMPORTANT: Change these credentials before production deployment!**
+**SECURITY NOTE:** Never commit credentials to version control.
 
 ---
 

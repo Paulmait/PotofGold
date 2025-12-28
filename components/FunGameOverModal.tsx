@@ -269,6 +269,9 @@ const FunGameOverModal: React.FC<FunGameOverModalProps> = ({
                 style={styles.playAgainButton}
                 onPress={onPlayAgain}
                 activeOpacity={0.8}
+                accessibilityLabel="Play again"
+                accessibilityHint="Starts a new game"
+                accessibilityRole="button"
               >
                 <LinearGradient
                   colors={['#00FF00', '#00CC00']}
@@ -282,6 +285,9 @@ const FunGameOverModal: React.FC<FunGameOverModalProps> = ({
                 style={styles.homeButton}
                 onPress={onGoHome}
                 activeOpacity={0.8}
+                accessibilityLabel="Go home"
+                accessibilityHint="Returns to the home screen"
+                accessibilityRole="button"
               >
                 <View style={styles.homeButtonInner}>
                   <Text style={styles.homeButtonText}>Home 🏠</Text>

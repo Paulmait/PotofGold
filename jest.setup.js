@@ -408,8 +408,7 @@ jest.mock('react-native-reanimated', () => {
   return Reanimated;
 });
 
-// Mock Animated from react-native
-jest.mock('react-native/Libraries/Animated/NativeAnimatedHelper');
+// Mock Animated from react-native (handled by jest-expo for RN 0.76+)
 
 // Mock useGameUnlocks hook
 jest.mock('./hooks/useGameUnlocks', () => ({
